@@ -1,0 +1,26 @@
+model:
+  d_patch: 1152        # Qwen2-VL vision encoder 输出维度
+  n_views: 6           # 多视角摄像头数量
+  n_patches: 256       # 每个视角的 patch 数量
+  n_query: 16          # 可学习 query 数量
+  d_stat: 64           # 统计特征维度
+  d_hidden: 512
+  d_out: 256           # uncertainty embedding 维度
+
+training:
+  batch_size: 64
+  lr: 3.0e-4
+  weight_decay: 1.0e-4
+  epochs: 50
+  warmup_epochs: 5
+  seed: 42
+
+data:
+  feature_dir: ./data/features
+  label_file: ./data/labels/uq_labels.pt
+  val_ratio: 0.1
+
+logging:
+  save_dir: ./checkpoints/uq
+  log_interval: 10
+  save_interval: 5
