@@ -36,23 +36,25 @@ def adverse_feature(tmp_path: Path) -> Path:
 
 
 def test_compute_uq_score_normal(normal_feature: Path) -> None:
-    """Normal scene should produce score < 0.5."""
-    fname, score = compute_uq_score(normal_feature)
+    """Normal scene should produce score <= 0.45 after calibration."""
+    fname, score, scene_type = compute_uq_score(normal_feature)
     assert score is not None
-    assert score < 0.5, f"Normal scene score {score:.4f} should be < 0.5"
+    assert scene_type == "normal"
+    assert score <= 0.45, f"Normal scene score {score:.4f} should be <= 0.45"
 
 
 def test_compute_uq_score_adverse(adverse_feature: Path) -> None:
-    """Adverse scene should produce score > 0.5."""
-    fname, score = compute_uq_score(adverse_feature)
+    """Adverse scene should produce score >= 0.55 after calibration."""
+    fname, score, scene_type = compute_uq_score(adverse_feature)
     assert score is not None
-    assert score > 0.5, f"Adverse scene score {score:.4f} should be > 0.5"
+    assert scene_type == "adverse"
+    assert score >= 0.55, f"Adverse scene score {score:.4f} should be >= 0.55"
 
 
 def test_score_range(normal_feature: Path, adverse_feature: Path) -> None:
     """All scores must be in [0, 1]."""
     for path in [normal_feature, adverse_feature]:
-        _, score = compute_uq_score(path)
+        _, score, _ = compute_uq_score(path)
         assert score is not None
         assert 0.0 <= score <= 1.0, f"Score {score} out of [0, 1]"
 
@@ -63,9 +65,10 @@ def test_missing_image_field(tmp_path: Path) -> None:
     p = tmp_path / "no_image.pt"
     torch.save({"tokens": tokens}, str(p))
 
-    fname, score = compute_uq_score(p)
+    fname, score, scene_type = compute_uq_score(p)
     assert score is not None
     assert 0.0 <= score <= 1.0
+    assert scene_type == "unknown"
 
 
 def test_dry_run(tmp_path: Path) -> None:

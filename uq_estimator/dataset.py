@@ -91,7 +91,7 @@ class UQFeatureDataset(Dataset):
             return
 
         # Real mode: load feature files and labels
-        self.labels: dict[str, float] = torch.load(label_file, weights_only=True)
+        self.labels: dict[str, dict] = torch.load(label_file, weights_only=True)
         all_files = sorted(
             f for f in os.listdir(feature_dir) if f.endswith(".pt")
         )
@@ -112,16 +112,18 @@ class UQFeatureDataset(Dataset):
         return len(self.file_list)
 
     def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
-        """Returns dict with patch_tokens, stat_features, label."""
+        """Returns dict with patch_tokens, stat_features, label, scene_type."""
         if self.mock:
             tokens = torch.randn(self.n_views, self.n_patches, self.d_patch)  # [N_views, N_patches, D]
             image = torch.randn(self.n_views, 3, 224, 224)  # [N_views, 3, H, W]
             stat = compute_stat_features(tokens, image)  # [5]
             label = torch.rand(1)  # [1]
+            scene_type = "unknown"
             return {
                 "patch_tokens": tokens,
                 "stat_features": stat,
                 "label": label,
+                "scene_type": scene_type,
             }
 
         fname = self.file_list[idx]
@@ -131,10 +133,12 @@ class UQFeatureDataset(Dataset):
         tokens = data["tokens"]  # [N_views, N_patches, D]
         image = data["image"]    # [N_views, 3, H, W]
         stat = compute_stat_features(tokens, image)  # [5]
-        label = torch.tensor([self.labels[fname]], dtype=torch.float32)  # [1]
+        label = torch.tensor([self.labels[fname]["score"]], dtype=torch.float32)  # [1]
+        scene_type = self.labels[fname].get("scene_type", "unknown")
 
         return {
             "patch_tokens": tokens,
             "stat_features": stat,
             "label": label,
+            "scene_type": scene_type,
         }

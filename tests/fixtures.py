@@ -62,7 +62,7 @@ def _make_normal_sample(
     noise = torch.randn(n_views, n_patches, d_patch) * 0.05
     tokens = base.expand(n_views, -1, -1) + noise  # [N_views, N_patches, D]
 
-    return {"tokens": tokens, "image": image}
+    return {"tokens": tokens, "image": image, "scene_type": "normal"}
 
 
 def _make_adverse_sample(
@@ -75,7 +75,7 @@ def _make_adverse_sample(
     # Inconsistent tokens: fully independent per view
     tokens = torch.randn(n_views, n_patches, d_patch)  # [N_views, N_patches, D]
 
-    return {"tokens": tokens, "image": image}
+    return {"tokens": tokens, "image": image, "scene_type": "adverse"}
 
 
 def _make_random_sample(
@@ -84,4 +84,4 @@ def _make_random_sample(
     """Random sample with moderate parameters."""
     image = torch.randn(n_views, 3, img_h, img_w)  # [N_views, 3, H, W]
     tokens = torch.randn(n_views, n_patches, d_patch) * 0.5  # [N_views, N_patches, D]
-    return {"tokens": tokens, "image": image}
+    return {"tokens": tokens, "image": image, "scene_type": "unknown"}

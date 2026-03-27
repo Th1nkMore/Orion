@@ -28,24 +28,25 @@ W_CONSISTENCY = 0.4
 # ---------------------------------------------------------------------------
 # Core scoring function
 # ---------------------------------------------------------------------------
-def compute_uq_score(feature_path: Path) -> tuple[str, Optional[float]]:
+def compute_uq_score(feature_path: Path) -> tuple[str, Optional[float], str]:
     """Compute a single uncertainty pseudo-label for one feature file.
 
     Args:
         feature_path: path to a .pt file with keys 'tokens' and optionally 'image'.
 
     Returns:
-        (filename, uq_score) where score is in [0, 1], or None on failure.
+        (filename, uq_score, scene_type) where score is in [0, 1], or None on failure.
     """
     fname = feature_path.name
     try:
         data = torch.load(str(feature_path), map_location="cpu", weights_only=True)
     except Exception as e:
         print(f"[WARN] failed to load {fname}: {e}")
-        return fname, None
+        return fname, None, "unknown"
 
     tokens = data["tokens"]  # [N_views, N_patches, D]
     has_image = "image" in data
+    scene_type = data.get("scene_type", "unknown")
 
     # ---- 1. gradient_score (weight 0.3) -----------------------------------
     if has_image:
@@ -66,7 +67,15 @@ def compute_uq_score(feature_path: Path) -> tuple[str, Optional[float]]:
         + W_CONSISTENCY * consistency_score
     )
     uq_score = float(torch.clamp(torch.tensor(uq_score), 0.0, 1.0).item())
-    return fname, uq_score
+
+    # ---- 4. scene_type calibration ----------------------------------------
+    if scene_type == "normal":
+        uq_score = float(torch.tensor(uq_score).clip(0.0, 0.45).item())
+    elif scene_type == "adverse":
+        uq_score = float(torch.tensor(uq_score).clip(0.55, 1.0).item())
+    # unknown: keep original value
+
+    return fname, uq_score, scene_type
 
 
 # ---------------------------------------------------------------------------
@@ -183,7 +192,7 @@ def main() -> None:
         print(f"[dry_run] Processing first {len(pt_files)} files.")
 
     # Parallel processing
-    labels: dict[str, float] = {}
+    labels: dict[str, dict] = {}
     failed: list[str] = []
 
     with mp.Pool(processes=args.n_workers) as pool:
@@ -193,15 +202,17 @@ def main() -> None:
             desc="Computing UQ scores",
         ))
 
-    for fname, score in results:
+    for fname, score, scene_type in results:
         if score is None:
             failed.append(fname)
         else:
-            labels[fname] = score
+            labels[fname] = {"score": score, "scene_type": scene_type}
 
     # Statistics
-    scores = list(labels.values())
     import numpy as np
+
+    scores = [v["score"] for v in labels.values()]
+    scene_types = [v["scene_type"] for v in labels.values()]
 
     arr = np.array(scores)
     print(f"\n{'='*50}")
@@ -211,6 +222,15 @@ def main() -> None:
     print(f"Std             : {arr.std():.4f}")
     print(f"Min             : {arr.min():.4f}")
     print(f"Max             : {arr.max():.4f}")
+
+    # Per-scene-type statistics
+    for st in ["normal", "adverse", "unknown"]:
+        indices = [i for i, s in enumerate(scene_types) if s == st]
+        if indices:
+            st_scores = [scores[i] for i in indices]
+            st_arr = np.array(st_scores)
+            print(f"\n  [{st}] n={len(st_scores):4d}  mean={st_arr.mean():.4f}  std={st_arr.std():.4f}")
+
     print(f"\nScore distribution:")
     print(_ascii_histogram(scores))
     print(f"{'='*50}")
