@@ -158,7 +158,7 @@ num_gpus = 32
 batch_size = 4
 num_iters_per_epoch = 234769 // (num_gpus * batch_size)
 num_epochs = 6
-llm_path = 'ckpts/pretrain_qformer/'
+llm_path = '/workspace/uq-orion/ckpts/pretrain_qformer/'
 use_gen_token = True
 use_col_loss = True
 collect_keys = ['lidar2img', 'cam_intrinsic', 'timestamp', 'ego_pose', 'ego_pose_inv', 'command']
@@ -301,13 +301,13 @@ model = dict(
 )
 
 dataset_type = "B2DOrionDataset"
-data_root = "data/bench2drive"
-info_root = "data/infos"
-map_root = "data/bench2drive/maps"
-map_file = "data/infos/b2d_map_infos.pkl"
+data_root = "/workspace/uq-orion/data/bench2drive"
+info_root = "/workspace/uq-orion/data/infos"
+map_root = "/workspace/uq-orion/data/bench2drive/maps"
+map_file = "/workspace/uq-orion/data/infos/b2d_map_infos.pkl"
 
 file_client_args = dict(backend="disk")
-ann_file_test=info_root + f"/b2d_infos_val.pkl"
+ann_file_test="/workspace/uq-orion/data/infos/b2d_infos_val_small.pkl"
 
 test_pipeline = [
     dict(type='LoadMultiViewImageFromFilesInCeph', to_float32=True),
