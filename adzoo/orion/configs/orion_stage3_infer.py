@@ -292,7 +292,7 @@ model = dict(
                  dropout=0.1,
                  with_cp=True,
                  flash_attn=True,
-                 use_uncertainty=True,  # [UQ] FiLM modulation
+                 use_uncertainty=False,  # [UQ] FiLM modulation disabled (untrained weights)
             ),
         bbox_coder=dict(
             type='CustomNMSFreeCoder',

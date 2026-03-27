@@ -183,6 +183,21 @@ def main():
         # wrap_fp16_model(model)
         custom_wrap_fp16_model(model)
     checkpoint = load_checkpoint(model, args.checkpoint, map_location='cpu')
+
+    # [UQ] Orion checkpoint (36GB) overwrites UQEstimator weights with mismatched
+    # architecture. Reload UQ checkpoint after Orion loads so FiLM layers are correct.
+    pts_cfg = cfg.model.get('pts_bbox_head', {})
+    if pts_cfg.get('use_uncertainty') and pts_cfg.get('uq_checkpoint'):
+        uq_ckpt_path = pts_cfg['uq_checkpoint']
+        if os.path.exists(uq_ckpt_path):
+            uq_ckpt = torch.load(uq_ckpt_path, map_location='cpu', weights_only=False)
+            # best.pt has flat keys (no prefix). Orion's uq_estimator submodule
+            # stores its state_dict with "uq_estimator." prefix. Use strict=False
+            # to load what matches (the core UQ weights), ignoring structural prefix diff.
+            model.pts_bbox_head.uq_estimator.load_state_dict(
+                uq_ckpt['model_state_dict'], strict=False)
+            print(f'[UQ] Reloaded UQEstimator from {uq_ckpt_path} after Orion checkpoint')
+
     if args.fuse_conv_bn:
         model = fuse_conv_bn(model)
     # old versions did not save class info in checkpoints, this walkaround is

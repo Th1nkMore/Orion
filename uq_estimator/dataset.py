@@ -27,7 +27,8 @@ def compute_stat_features(
     """
     # Normalize to [B, N_views, N_patches, D] or [1, N_views, N_patches, D]
     tokens = tokens.float()
-    if tokens.dim() == 3:
+    single_sample = (tokens.dim() == 3)
+    if single_sample:
         tokens = tokens.unsqueeze(0)  # [1, N_views, N_patches, D]
     B, N_v, N_p, D = tokens.shape
 
@@ -55,8 +56,9 @@ def compute_stat_features(
 
     stats = torch.stack([a, b, c, d, e], dim=1)  # [B, 5]
 
-    # If input was single-sample, squeeze batch dim
-    if stats.shape[0] == 1:
+    # Only squeeze batch dim if original input was truly [N_v, N_p, D] (3D),
+    # NOT when it was [1, N_v, N_p, D] (single-sample batched).
+    if single_sample:
         stats = stats.squeeze(0)  # [5]
     return stats
 
