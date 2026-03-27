@@ -254,15 +254,24 @@ class PETRTemporalTransformer(nn.Module):
                  dropout=0.0,
                  with_cp=False,
                  flash_attn=True,
-                 fp16=False,):
-        
+                 fp16=False,
+                 use_uncertainty=False,
+                 uncertainty_dim=256,):
+
         super().__init__()
         assert output_dimension % embed_dims == 0, "output dimension (language model) must be divisible by the embed dimension"
 
         # self.query_embedding = nn.Embedding(query_number, embed_dims) # learnable queries
-        
+
         self.input_dimension = embed_dims
         self.output_dimension = output_dimension
+        self.use_uncertainty = use_uncertainty
+        self.embed_dims = embed_dims
+
+        # [UQ] FiLM modulation layers
+        if self.use_uncertainty:
+            self.film_gamma = nn.Linear(uncertainty_dim, embed_dims)
+            self.film_beta = nn.Linear(uncertainty_dim, embed_dims)
 
         self.query_decoder = PETRTransformerDecoder(
                                             num_layers=num_layers,
@@ -286,13 +295,20 @@ class PETRTemporalTransformer(nn.Module):
                 nn.init.xavier_uniform_(m.weight)
 
 
-    def forward(self, query, key, query_pos=None, key_pos=None, attn_mask=None, temp_memory=None, temp_pos=None):
+    def forward(self, query, key, query_pos=None, key_pos=None, attn_mask=None, temp_memory=None, temp_pos=None, uncertainty_emb=None):
         """ Forward function for transformer decoder
         Args:
             vision_tokens: shape [bs, sequence_length, embed_dims]
+            uncertainty_emb: [B, uncertainty_dim], optional UQ embedding for FiLM modulation
         Output:
             re-sampled token sequences: [bs, num_queries, embed_dims]
         """
+        # [UQ] FiLM modulation: query is [num_query, B, D], uncertainty_emb is [B, uncertainty_dim]
+        if uncertainty_emb is not None and self.use_uncertainty:
+            # query shape: [num_query, B, D]
+            gamma = self.film_gamma(uncertainty_emb).unsqueeze(1)  # [B, 1, D]
+            beta = self.film_beta(uncertainty_emb).unsqueeze(1)    # [B, 1, D]
+            query = gamma * query + beta  # broadcast over num_query dim
 
         out = self.query_decoder(query, key, query_pos, key_pos, attn_mask, temp_memory, temp_pos) # feature from the last layer
 

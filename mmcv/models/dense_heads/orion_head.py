@@ -186,6 +186,7 @@ class OrionHead(AnchorFreeHead):
                      loss_weight=0.8),
                  pred_traffic_light_state=False,
                  state_velo_threshold=0.5,
+                 use_uncertainty=False,
                  **kwargs):
         # NOTE here use `AnchorFreeHead` instead of `TransformerHead`,
         # since it brings inconvenience when the initialization of
@@ -292,6 +293,15 @@ class OrionHead(AnchorFreeHead):
             self.cls_out_channels = num_classes + 1
 
         self.transformer = build_transformer(transformer)
+
+        # [UQ] Initialize UQ Estimator if enabled
+        self.use_uncertainty = use_uncertainty
+        if self.use_uncertainty:
+            from uq_estimator.model import UQEstimator
+            import yaml
+            with open('configs/uq_train.yaml') as f:
+                uq_cfg = yaml.safe_load(f)
+            self.uq_estimator = UQEstimator(uq_cfg['model'])
 
         self.code_weights = nn.Parameter(torch.tensor(
             self.code_weights), requires_grad=False)
@@ -737,7 +747,18 @@ class OrionHead(AnchorFreeHead):
 
         # prepare for the tgt and query_pos using mln.
         tgt, query_pos, reference_points, temp_memory, temp_pos, rec_ego_pose = self.temporal_alignment(query_pos, tgt, reference_points)
-        
+
+        # [UQ] Compute uncertainty embedding from image features
+        uncertainty_emb = None
+        if self.use_uncertainty and hasattr(self, 'uq_estimator'):
+            # x is img_feats: [B, N_views, C, H, W]
+            # Reshape to [B, N_views, H*W, C] for patch token format
+            B_v, N_v, C_v, H_v, W_v = x.shape
+            patch_tokens = x.permute(0, 1, 3, 4, 2).reshape(B_v, N_v, H_v * W_v, C_v)  # [B, N_views, N_patches, C]
+            stat_feat = torch.zeros(B_v, 5, device=x.device)  # placeholder
+            uq_out = self.uq_estimator(patch_tokens, stat_feat)
+            uncertainty_emb = uq_out.embedding  # [B, 256]
+
         if self.use_memory :    
             current_query = self.memory_query.weight.unsqueeze(0).repeat(B,1,1) # (4, 16, 256)
             temp_scene_query = self.memory_scene_query # (4, 256, 256)
@@ -764,7 +785,7 @@ class OrionHead(AnchorFreeHead):
                   
 
         # transformer here is a little different from PETR
-        outs_dec = self.transformer(tgt, memory, query_pos, pos_embed, attn_mask, temp_memory, temp_pos)
+        outs_dec = self.transformer(tgt, memory, query_pos, pos_embed, attn_mask, temp_memory, temp_pos, uncertainty_emb=uncertainty_emb)
         if mask_dict and mask_dict['pad_size'] > 0:
             reference_points = torch.cat([reference_points[:, :mask_dict['pad_size'], :], reference_points[:, mask_dict['pad_size']+self.num_extra:, :]], dim=-2)
         else:

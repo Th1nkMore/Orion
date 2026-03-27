@@ -1,7 +1,7 @@
 model:
-  d_patch: 1152        # Qwen2-VL vision encoder 输出维度
+  d_patch: 1024        # EVAViT vision encoder (ORION backbone)
   n_views: 6           # 多视角摄像头数量
-  n_patches: 256       # 每个视角的 patch 数量
+  n_patches: 1600      # 每个视角的 patch 数量 (40x40)
   n_query: 16          # 可学习 query 数量
   d_stat: 64           # 统计特征维度
   d_hidden: 512
