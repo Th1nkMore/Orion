@@ -2,6 +2,8 @@
 data/features/
 data/labels/
 checkpoints/uq/
+data/stat_cache.pt
+reports/
 *.pt
 !tests/**/*.pt
 .env
@@ -9,3 +11,26 @@ wandb/
 __pycache__/
 .pytest_cache/
 .venv/
+
+# ORION large artifacts
+ckpts/Orion.pth
+ckpts/pretrain_qformer/
+data/bench2drive/
+data/infos/
+
+# Compiled extensions and build artifacts
+build/
+main.py
+mmcv/_ext.cpython-*.so
+mmcv/ops/**/*.so
+
+# Jupyter and local scripts
+.ipynb_checkpoints/
+.python-version
+mmcv/datasets/prepare_B2D.py
+mmcv/datasets/vis_utils.py
+test/
+
+# Local planning doc
+PLAN.md
+HANDOVER.md
