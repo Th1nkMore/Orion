@@ -21,24 +21,29 @@ from mmcv.datasets import build_dataset, build_dataloader
 from mmcv.models.backbones.eva_vit import EVAViT
 
 
-# Weather patterns for scene classification
-NORMAL_WEATHERS = {'ClearNoon', 'ClearSunset'}
-ADVERSE_WEATHERS = {
-    'HardRain', 'WetNoon', 'WetSunset',
-    'SoftRainNoon', 'SoftRainSunset', 'SoftRainNight',
-    'MidRainNoon', 'MidRainSunset', 'MidRainNight',
-    'HardRainNoon', 'HardRainSunset', 'HardRainNight',
-}
+# B2D uses CARLA weather preset IDs (WeatherN in route folder names).
+# Mapping based on CARLA 0.9.x standard presets:
+#   0=ClearNoon, 7=ClearSunset → normal (clear visibility)
+#   all others (cloudy/wet/rain/night/storm) → adverse
+NORMAL_WEATHER_IDS = {0, 7}   # ClearNoon, ClearSunset
+ADVERSE_WEATHER_IDS = {1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15,
+                       16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26}
 
 
-def classify_scene(filename: str) -> str:
-    """Classify scene as normal/adverse based on weather pattern in filename."""
-    for w in ADVERSE_WEATHERS:
-        if w in filename:
-            return 'adverse'
-    for w in NORMAL_WEATHERS:
-        if w in filename:
+def classify_scene(route_folder: str) -> str:
+    """
+    Classify scene as normal/adverse from B2D route folder name.
+    Folder format: '{Scenario}_Town{N}_Route{M}_Weather{K}'
+    WeatherK is mapped to CARLA preset IDs.
+    """
+    import re
+    m = re.search(r'Weather(\d+)', route_folder)
+    if m:
+        wid = int(m.group(1))
+        if wid in NORMAL_WEATHER_IDS:
             return 'normal'
+        if wid in ADVERSE_WEATHER_IDS:
+            return 'adverse'
     return 'unknown'
 
 
@@ -48,21 +53,71 @@ def parse_args():
     parser.add_argument('--checkpoint', required=True, help='checkpoint file')
     parser.add_argument('--output_dir', default='data/features', help='output dir')
     parser.add_argument('--ann_file', default=None, help='annotation file (overrides config)')
-    parser.add_argument('--batch_size', type=int, default=8)
-    parser.add_argument('--num_workers', type=int, default=1)
+    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--num_workers', type=int, default=4)
     return parser.parse_args()
 
 
+def get_scene_id_and_type(meta: dict, global_idx: int) -> tuple:
+    """
+    Extract a globally unique scene_id and scene_type from img_metas.
+
+    Path structure (absolute): .../v1/{route_folder}/camera/rgb_{cam}/{frame}.jpg
+    → parts[-4] = route_folder, parts[-1] = frame.jpg
+
+    scene_id  = '{route_folder}__{frame_basename}'
+    scene_type derived from route_folder (contains weather tag)
+    Falls back to f'{global_idx:06d}' if path is unavailable.
+    """
+    filename_list = meta.get('filename', [])
+    if not filename_list:
+        return f'{global_idx:06d}', 'unknown'
+
+    full_path = filename_list[0].replace('\\', '/')
+    parts = full_path.split('/')
+
+    # Structure: .../v1/{route_folder}/camera/rgb_front/{frame}.jpg
+    # parts[-1]=frame.jpg  parts[-2]=rgb_front  parts[-3]=camera  parts[-4]=route_folder
+    if len(parts) >= 4:
+        route_folder = parts[-4]
+        frame_base = os.path.splitext(parts[-1])[0]
+    else:
+        route_folder = 'unknown_route'
+        frame_base = f'{global_idx:06d}'
+
+    scene_id = f'{route_folder}__{frame_base}'
+    scene_type = classify_scene(route_folder)   # weather tag is in route folder name
+    return scene_id, scene_type
+
+
 def extract_features(backbone, data_loader, output_dir):
-    """Extract features and save to disk."""
+    """Extract features and save to disk. Skips already-extracted samples."""
     os.makedirs(output_dir, exist_ok=True)
     backbone.eval()
 
     saved_count = 0
+    skipped_count = 0
+    global_idx = 0
     with torch.no_grad():
         for data in tqdm(data_loader, desc='Extracting features'):
             # img: [B, N_views, C, H, W] in a list [DC]
             img_dc = data['img'][0]
+            img_metas_list = data['img_metas'][0]  # list of B dicts
+            B_actual = img_dc.data.shape[0]
+
+            # Pre-compute unique scene_ids and output paths for this batch
+            scene_infos = [
+                get_scene_id_and_type(img_metas_list[i], global_idx + i)
+                for i in range(B_actual)
+            ]
+            out_paths = [os.path.join(output_dir, f'{sid}.pt') for sid, _ in scene_infos]
+
+            # Skip entire batch if all files already exist
+            if all(os.path.exists(p) for p in out_paths):
+                skipped_count += B_actual
+                global_idx += B_actual
+                continue
+
             img = img_dc.data.cuda()  # [B, N_views, C, H, W]
 
             # Reshape for backbone: [B*N_views, C, H, W]
@@ -70,10 +125,8 @@ def extract_features(backbone, data_loader, output_dir):
             img_flat = img.flatten(0, 1)  # [B*N_views, C, H, W]
 
             # Extract features through EVAViT backbone
-            img_feats = backbone(img_flat)  # returns list
-
-            # img_feats is a list: [tensor of shape [B*N, D, H_feat, W_feat]]
-            img_feats = img_feats[0]
+            img_feats = backbone(img_flat)  # returns list of tensors
+            img_feats = img_feats[0]        # [B*N_views, D, H_feat, W_feat]
 
             BN, D, H_feat, W_feat = img_feats.shape
             img_feats = img_feats.reshape(B, N_views, D, H_feat, W_feat)
@@ -82,31 +135,23 @@ def extract_features(backbone, data_loader, output_dir):
             N_patches = H_feat * W_feat
             patch_tokens = img_feats.permute(0, 1, 3, 4, 2).reshape(B, N_views, N_patches, D)
 
-            # Get scene info from img_metas
-            img_metas_list = data['img_metas'][0]  # list of B dicts
-
-            # Process each sample in batch
+            # Save each sample
             for i in range(B):
-                meta = img_metas_list[i]
-                filename_list = meta.get('filename', [])
-                if filename_list and len(filename_list) > 0:
-                    filename = filename_list[0]
-                    scene_id = os.path.splitext(os.path.basename(filename))[0]
-                else:
-                    scene_id = f'sample_{saved_count:06d}'
-
-                scene_type = classify_scene(scene_id)
-
-                # Save: tokens in fp16, no image
+                out_path = out_paths[i]
+                if os.path.exists(out_path):
+                    skipped_count += 1
+                    continue
+                _, scene_type = scene_infos[i]
                 feat_data = {
                     'tokens': patch_tokens[i].cpu().half(),  # [N_views, N_patches, D] fp16
                     'scene_type': scene_type,
                 }
-                out_path = os.path.join(output_dir, f'{scene_id}.pt')
                 torch.save(feat_data, out_path)
                 saved_count += 1
 
-    return saved_count
+            global_idx += B_actual
+
+    return saved_count, skipped_count
 
 
 def main():
@@ -163,9 +208,13 @@ def main():
     if unexpected:
         print(f"  Unexpected keys (first 5): {unexpected[:5]}")
 
+    # Report already-done files
+    existing = len([f for f in os.listdir(args.output_dir) if f.endswith('.pt')]) if os.path.exists(args.output_dir) else 0
+    print(f"Already extracted: {existing} / {len(dataset)} files — will skip")
+
     # Extract features
-    saved = extract_features(backbone, data_loader, args.output_dir)
-    print(f"Extracted {saved} samples to {args.output_dir}")
+    saved, skipped = extract_features(backbone, data_loader, args.output_dir)
+    print(f"Done: {saved} new + {skipped} skipped = {saved + skipped} total → {args.output_dir}")
 
 
 if __name__ == '__main__':

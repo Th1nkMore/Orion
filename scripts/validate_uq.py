@@ -191,6 +191,7 @@ def main() -> None:
         n_views=model_cfg["n_views"],
         n_patches=model_cfg["n_patches"],
         d_patch=model_cfg["d_patch"],
+        stat_cache_file=cfg["data"].get("stat_cache_file", ""),
     )
     loader = DataLoader(ds, batch_size=8, shuffle=False, num_workers=0)
     print(f"Validation samples: {len(ds)}")

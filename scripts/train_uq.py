@@ -186,6 +186,10 @@ def main() -> None:
     label_file = args.label_file or data_cfg["label_file"]
     val_ratio = data_cfg["val_ratio"]
 
+    stat_cache_file = data_cfg.get("stat_cache_file", "")
+    preload = data_cfg.get("preload", False) and not args.mock
+    preload_workers = data_cfg.get("preload_workers", 16)
+
     ds_kwargs = dict(
         feature_dir=feature_dir,
         label_file=label_file,
@@ -195,16 +199,23 @@ def main() -> None:
         n_views=model_cfg["n_views"],
         n_patches=model_cfg["n_patches"],
         d_patch=model_cfg["d_patch"],
+        stat_cache_file=stat_cache_file,
+        preload=preload,
+        preload_workers=preload_workers,
     )
     train_ds = UQFeatureDataset(split="train", **ds_kwargs)
     val_ds = UQFeatureDataset(split="val", **ds_kwargs)
 
     use_cuda = device.type == "cuda"
+    batch_size = train_cfg["batch_size"] if not args.smoke else 4
+    # With stat_cache, __getitem__ is ~50ms/sample (OS cache hit on tokens +
+    # O(1) stat cache lookup). Use 4 workers for parallel I/O.
+    effective_workers = 0 if args.mock else 4
     loader_kwargs = dict(
-        batch_size=train_cfg["batch_size"] if not args.smoke else 4,
-        num_workers=0 if args.mock else 4,
+        batch_size=batch_size,
+        num_workers=effective_workers,
         pin_memory=use_cuda,
-        prefetch_factor=2 if not args.mock and 4 > 0 else None,
+        prefetch_factor=2 if effective_workers > 0 else None,
     )
     train_loader = DataLoader(train_ds, shuffle=True, **loader_kwargs)
     val_loader = DataLoader(val_ds, shuffle=False, **loader_kwargs)
@@ -235,24 +246,31 @@ def main() -> None:
     criterion = CombinedUQLoss()
 
     # ── Resume ────────────────────────────────────────────────────────────
+    best_val_loss = float("inf")
+    best_epoch = 0
+
     if args.resume:
         ckpt = torch.load(args.resume, map_location=device, weights_only=False)
         model.load_state_dict(ckpt["model_state_dict"])
         optimizer.load_state_dict(ckpt["optimizer_state_dict"])
         start_epoch = ckpt["epoch"] + 1
-        print(f"Resumed from epoch {ckpt['epoch']} (starting at {start_epoch})")
+        best_val_loss = ckpt.get("best_val_loss", float("inf"))
+        best_epoch = ckpt.get("best_epoch", 0)
+        # Restore scheduler states so LR curve continues correctly
+        if "warmup_sched_state" in ckpt:
+            warmup_sched.load_state_dict(ckpt["warmup_sched_state"])
+        if "cosine_sched_state" in ckpt:
+            cosine_sched.load_state_dict(ckpt["cosine_sched_state"])
+        print(f"Resumed from epoch {ckpt['epoch']} (starting at {start_epoch}), best_val_loss={best_val_loss:.4f}")
 
     # ── 5. Training loop ──────────────────────────────────────────────────
     save_dir = Path(log_cfg["save_dir"])
     save_dir.mkdir(parents=True, exist_ok=True)
 
-    best_val_loss = float("inf")
-    best_epoch = 0
     last_spearman = None
-
     spearman_warned = False
 
-    for epoch in range(start_epoch, start_epoch + epochs):
+    for epoch in range(start_epoch, epochs + 1):  # always train up to epoch `epochs`
         # — train —
         train_losses = train_one_epoch(
             model, train_loader, criterion, optimizer, device, max_batches
@@ -297,7 +315,11 @@ def main() -> None:
             "epoch": epoch,
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
+            "warmup_sched_state": warmup_sched.state_dict(),
+            "cosine_sched_state": cosine_sched.state_dict(),
             "val_loss": val_losses["total"],
+            "best_val_loss": best_val_loss,
+            "best_epoch": best_epoch,
             "config": cfg,
         }
 

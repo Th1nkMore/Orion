@@ -19,6 +19,9 @@ data:
   feature_dir: ./data/features
   label_file: ./data/labels/uq_labels.pt
   val_ratio: 0.1
+  stat_cache_file: ./data/stat_cache.pt   # pre-computed stat_features; eliminates 1.5s/sample CPU cost
+  preload: false                           # torch.load is fast on OS cache; full preloading adds complexity
+  preload_workers: 16
 
 logging:
   save_dir: ./checkpoints/uq
