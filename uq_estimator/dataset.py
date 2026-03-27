@@ -11,41 +11,49 @@ from torch.utils.data import Dataset
 
 def compute_stat_features(
     tokens: torch.Tensor,
-    image: torch.Tensor,
 ) -> torch.Tensor:
-    """Compute 5-dim raw statistical features from a single sample.
+    """Compute 5-dim raw statistical features from tokens only (no image needed).
 
     Args:
-        tokens: [N_views, N_patches, D] patch tokens.
-        image:  [N_views, 3, H, W] multi-view images.
+        tokens: [N_views, N_patches, D] patch tokens (fp16, will convert to fp32).
 
     Returns:
-        [5] raw statistical features.
+        [5] raw statistical features:
+        a. token各视角激活值方差均值（1维）
+        b. token跨patch softmax熵均值（1维）
+        c. 跨视角余弦相似度均值（1维）
+        d. token激活值绝对均值（1维）
+        e. token激活值最大值均值（1维）
     """
-    # a. Image gradient magnitude — mean & variance (2 dims)
-    # Use Sobel-like finite differences on the grayscale image
-    gray = image.mean(dim=1, keepdim=True)  # [N_views, 1, H, W]
-    dx = gray[:, :, :, 1:] - gray[:, :, :, :-1]  # [N_views, 1, H, W-1]
-    dy = gray[:, :, 1:, :] - gray[:, :, :-1, :]  # [N_views, 1, H-1, W]
-    grad_mag = (dx[:, :, :-1, :].pow(2) + dy[:, :, :, :-1].pow(2)).sqrt()  # [N_views, 1, H-1, W-1]
-    grad_mean = grad_mag.mean()   # scalar
-    grad_var = grad_mag.var()     # scalar
+    # Convert fp16 to fp32 for computation
+    tokens = tokens.float()  # [N_views, N_patches, D]
 
-    # b. Patch token activation — mean & variance (2 dims)
-    token_mean = tokens.mean()    # scalar
-    token_var = tokens.var()      # scalar
+    # a. 各视角激活值方差均值
+    view_var = tokens.var(dim=2).mean(dim=1)  # [N_views] → scalar
+    a = view_var.mean()
 
-    # c. Cross-view token similarity — mean cosine similarity (1 dim)
-    # Average token per view, then compute mean pairwise cosine similarity
+    # b. 跨patch softmax熵均值
+    D = tokens.shape[-1]
+    p = torch.softmax(tokens, dim=-1)  # [N_views, N_patches, D]
+    entropy = -(p * torch.log(p + 1e-8)).sum(dim=-1)  # [N_views, N_patches]
+    max_entropy = torch.log(torch.tensor(float(D)))
+    b = (entropy.mean() / max_entropy).clamp(0.0, 1.0)
+
+    # c. 跨视角余弦相似度均值
     view_feats = tokens.mean(dim=1)  # [N_views, D]
-    view_feats_norm = torch.nn.functional.normalize(view_feats, dim=-1)  # [N_views, D]
+    view_feats_norm = torch.nn.functional.normalize(view_feats, dim=-1)
     sim_matrix = view_feats_norm @ view_feats_norm.T  # [N_views, N_views]
-    # Mean of upper triangle (excluding diagonal)
     n_views = sim_matrix.size(0)
-    mask = torch.triu(torch.ones(n_views, n_views, dtype=torch.bool), diagonal=1)  # [N_views, N_views]
-    cross_sim_mean = sim_matrix[mask].mean() if mask.sum() > 0 else torch.tensor(0.0)  # scalar
+    mask = torch.triu(torch.ones(n_views, n_views, dtype=torch.bool), diagonal=1)
+    c = sim_matrix[mask].mean() if mask.sum() > 0 else torch.tensor(0.0)
 
-    return torch.stack([grad_mean, grad_var, token_mean, token_var, cross_sim_mean])  # [5]
+    # d. token激活值绝对均值
+    d = tokens.abs().mean()
+
+    # e. token激活值最大值均值
+    e = tokens.abs().amax(dim=-1).mean()  # max over D dimension
+
+    return torch.stack([a, b, c, d, e])  # [5]
 
 
 class UQFeatureDataset(Dataset):
@@ -115,8 +123,7 @@ class UQFeatureDataset(Dataset):
         """Returns dict with patch_tokens, stat_features, label, scene_type."""
         if self.mock:
             tokens = torch.randn(self.n_views, self.n_patches, self.d_patch)  # [N_views, N_patches, D]
-            image = torch.randn(self.n_views, 3, 224, 224)  # [N_views, 3, H, W]
-            stat = compute_stat_features(tokens, image)  # [5]
+            stat = compute_stat_features(tokens)  # [5]
             label = torch.rand(1)  # [1]
             scene_type = "unknown"
             return {
@@ -130,9 +137,8 @@ class UQFeatureDataset(Dataset):
         data = torch.load(
             os.path.join(self.feature_dir, fname), weights_only=True
         )
-        tokens = data["tokens"]  # [N_views, N_patches, D]
-        image = data["image"]    # [N_views, 3, H, W]
-        stat = compute_stat_features(tokens, image)  # [5]
+        tokens = data["tokens"]  # [N_views, N_patches, D] fp16
+        stat = compute_stat_features(tokens)  # [5] fp32
         label = torch.tensor([self.labels[fname]["score"]], dtype=torch.float32)  # [1]
         scene_type = self.labels[fname].get("scene_type", "unknown")
 
