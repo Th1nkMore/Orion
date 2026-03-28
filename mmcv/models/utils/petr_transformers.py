@@ -272,6 +272,11 @@ class PETRTemporalTransformer(nn.Module):
         if self.use_uncertainty:
             self.film_gamma = nn.Linear(uncertainty_dim, embed_dims)
             self.film_beta = nn.Linear(uncertainty_dim, embed_dims)
+            # Identity init: gamma→1, beta→0 so FiLM starts as identity transform
+            nn.init.zeros_(self.film_gamma.weight)
+            nn.init.ones_(self.film_gamma.bias)
+            nn.init.zeros_(self.film_beta.weight)
+            nn.init.zeros_(self.film_beta.bias)
 
         self.query_decoder = PETRTransformerDecoder(
                                             num_layers=num_layers,

@@ -112,6 +112,8 @@ def parse_args():
                         help='output file for per-sample results')
     parser.add_argument('--ann-file', default=None,
                         help='override annotation file (default: from config)')
+    parser.add_argument('--film-checkpoint', default=None,
+                        help='trained FiLM weights (enables FiLM in transformer)')
     parser.add_argument('--seed', type=int, default=0)
     return parser.parse_args()
 
@@ -312,6 +314,10 @@ def main():
     args = parse_args()
     cfg = Config.fromfile(args.config)
 
+    # Enable FiLM in transformer if film checkpoint provided
+    if args.film_checkpoint:
+        cfg.model.pts_bbox_head.transformer.use_uncertainty = True
+
     # Override annotation file if specified
     if args.ann_file:
         cfg.data.test.ann_file = args.ann_file
@@ -352,6 +358,17 @@ def main():
             model.pts_bbox_head.uq_estimator.load_state_dict(
                 uq_ckpt['model_state_dict'], strict=False)
             print(f'[UQ] Reloaded UQEstimator from {uq_ckpt_path}')
+
+    # Load trained FiLM weights if provided
+    if args.film_checkpoint and os.path.exists(args.film_checkpoint):
+        film_ckpt = torch.load(args.film_checkpoint, map_location='cpu', weights_only=False)
+        transformer = model.pts_bbox_head.transformer
+        if hasattr(transformer, 'film_gamma'):
+            transformer.film_gamma.weight.data = film_ckpt['film_gamma_weight']
+            transformer.film_gamma.bias.data = film_ckpt['film_gamma_bias']
+            transformer.film_beta.weight.data = film_ckpt['film_beta_weight']
+            transformer.film_beta.bias.data = film_ckpt['film_beta_bias']
+            print(f'[UQ] Loaded trained FiLM weights from {args.film_checkpoint}')
 
     if 'CLASSES' in checkpoint.get('meta', {}):
         model.CLASSES = checkpoint['meta']['CLASSES']

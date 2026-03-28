@@ -198,6 +198,18 @@ def main():
                 uq_ckpt['model_state_dict'], strict=False)
             print(f'[UQ] Reloaded UQEstimator from {uq_ckpt_path} after Orion checkpoint')
 
+    # [UQ] Load trained FiLM weights if available
+    film_ckpt_path = os.environ.get('UQ_FILM_CHECKPOINT', '')
+    if film_ckpt_path and os.path.exists(film_ckpt_path):
+        film_ckpt = torch.load(film_ckpt_path, map_location='cpu', weights_only=False)
+        transformer = model.pts_bbox_head.transformer
+        if hasattr(transformer, 'film_gamma'):
+            transformer.film_gamma.weight.data = film_ckpt['film_gamma_weight']
+            transformer.film_gamma.bias.data = film_ckpt['film_gamma_bias']
+            transformer.film_beta.weight.data = film_ckpt['film_beta_weight']
+            transformer.film_beta.bias.data = film_ckpt['film_beta_bias']
+            print(f'[UQ] Loaded trained FiLM weights from {film_ckpt_path}')
+
     if args.fuse_conv_bn:
         model = fuse_conv_bn(model)
     # old versions did not save class info in checkpoints, this walkaround is
