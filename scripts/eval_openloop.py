@@ -114,6 +114,8 @@ def parse_args():
                         help='override annotation file (default: from config)')
     parser.add_argument('--film-checkpoint', default=None,
                         help='trained FiLM weights (enables FiLM in transformer)')
+    parser.add_argument('--max-samples', type=int, default=None,
+                        help='limit number of samples for quick eval')
     parser.add_argument('--seed', type=int, default=0)
     return parser.parse_args()
 
@@ -333,6 +335,11 @@ def main():
 
     # Build dataset and dataloader
     dataset = build_dataset(cfg.data.test)
+    if args.max_samples and args.max_samples < len(dataset):
+        import numpy as np
+        dataset.data_infos = dataset.data_infos[:args.max_samples]
+        dataset.flag = np.zeros(len(dataset), dtype=np.uint8)
+        print(f'Truncated dataset to {len(dataset)} samples')
     data_loader = build_dataloader(
         dataset,
         samples_per_gpu=1,
