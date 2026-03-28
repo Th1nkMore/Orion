@@ -25,8 +25,10 @@ python scripts/eval_openloop.py \
 | 0: Feature Extraction | ✅ | `data/features/` (235GB, 12806 samples) |
 | 1a: Pseudo-labels | ✅ | `data/labels/uq_labels.pt` (scene_type calibrated) |
 | 1b: UQEstimator Training | ✅ | `checkpoints/uq/best.pt` (Spearman ρ=0.96, epoch 15) |
-| 2a: Open-Loop Eval | 🔄 | Running (~6h) |
+| 2a: Open-Loop Eval | 🔄 | Running (~6h, ~35% done at 4472/12806) |
 | 2b: FiLM L1 Fine-tune | ⏳ | Script ready: `scripts/train_film.py` |
+| 3: FiLM L2 (VAE level) | ✅ code | `orion.py` — 2.11M params, disabled until trained |
+| Visualization | ✅ | `scripts/visualize_eval.py` — paper-quality figures |
 
 ## After Eval Completes
 
@@ -84,10 +86,11 @@ All changes searchable via `[UQ]` tag. See README.md for full details.
 
 | File | Lines Added | Purpose |
 |------|-------------|---------|
-| `adzoo/orion/configs/orion_stage3_infer.py` | +3 | UQ config flags |
-| `adzoo/orion/test.py` | +26 | UQ + FiLM checkpoint reload |
-| `mmcv/models/dense_heads/orion_head.py` | +23 | UQEstimator in forward pass |
-| `mmcv/models/utils/petr_transformers.py` | +16 | FiLM modulation + identity init |
+| `adzoo/orion/configs/orion_stage3_infer.py` | +4 | UQ config flags (L1+L2) |
+| `adzoo/orion/test.py` | +32 | UQ + FiLM L1/L2 checkpoint reload |
+| `mmcv/models/dense_heads/orion_head.py` | +25 | UQEstimator in forward, return uncertainty_emb |
+| `mmcv/models/utils/petr_transformers.py` | +16 | FiLM L1 modulation + identity init |
+| `mmcv/models/detectors/orion.py` | +35 | FiLM L2 layers + VAE-level modulation |
 
 ## Data & Checkpoints
 

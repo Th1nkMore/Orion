@@ -18,12 +18,14 @@ QT-Former (frozen) ←── FiLM L1 ──────────────�
     ↓ vlm_memory                               │
 LLM / Qwen (frozen)                            │
     ↓ ego_feature                              │
-VAE (frozen) ←── FiLM L2 (TODO) ──────────────┘
+VAE (frozen) ←── FiLM L2 ─────────────────────┘
     ↓
 trajectory
 ```
 
 **FiLM L1** modulates QT-Former detection queries: `query = γ(u) · query + β(u)` where `u` is the uncertainty embedding. Identity-initialized (γ=1, β=0) and fine-tuned with trajectory loss.
+
+**FiLM L2** modulates ego_feature (current_states) before VAE: `current_states = γ₂(u) · current_states + β₂(u)`. Same identity init. Biases the trajectory distribution toward conservative mode under high uncertainty. ~2.11M params (Linear 256→4096 × 2).
 
 ## Project Structure
 
@@ -53,34 +55,43 @@ uq-orion/
 
 ## ORION File Modifications
 
-All modifications to ORION code are marked with `[UQ]` comments and can be found by searching for that tag. Total: **68 lines** across 4 files.
+All modifications to ORION code are marked with `[UQ]` comments and can be found by searching for that tag. Total: **~128 lines** across 5 files.
 
-### `adzoo/orion/configs/orion_stage3_infer.py` (+3 lines)
+### `adzoo/orion/configs/orion_stage3_infer.py` (+4 lines)
 
-Added UQ config entries in `pts_bbox_head`:
+Added UQ config entries:
 ```python
-use_uncertainty=True,                          # line 252: enable UQEstimator
-uq_checkpoint='checkpoints/uq/best.pt',       # line 253: trained weights path
-# In transformer dict:
-use_uncertainty=False,                         # line 295: FiLM disabled until trained
+use_uncertainty=True,                          # pts_bbox_head: enable UQEstimator
+uq_checkpoint='checkpoints/uq/best.pt',       # pts_bbox_head: trained weights path
+use_uncertainty=False,                         # transformer: FiLM L1 disabled until trained
+use_uncertainty_l2=False,                      # model: FiLM L2 disabled until trained
 ```
 
-### `adzoo/orion/test.py` (+26 lines)
+### `adzoo/orion/test.py` (+32 lines)
 
-Two checkpoint reloading blocks after the main ORION checkpoint loads:
+Three checkpoint reloading blocks after the main ORION checkpoint loads:
 1. **UQEstimator reload** (lines 187–199): The 36GB ORION checkpoint doesn't contain UQ weights; after `load_checkpoint()`, we reload the UQEstimator state dict from `checkpoints/uq/best.pt`.
-2. **FiLM weight reload** (lines 201–211): If `UQ_FILM_CHECKPOINT` env var is set, load trained FiLM gamma/beta weights into the transformer.
+2. **FiLM L1 weight reload** (lines 201–211): If `UQ_FILM_CHECKPOINT` env var is set, load trained FiLM L1 gamma/beta weights into the transformer.
+3. **FiLM L2 weight reload** (lines 213–218): Same checkpoint, loads FiLM L2 gamma/beta weights into the detector model.
 
-### `mmcv/models/dense_heads/orion_head.py` (+23 lines)
+### `mmcv/models/dense_heads/orion_head.py` (+25 lines)
 
 - **Constructor** (lines 298–312): When `use_uncertainty=True`, instantiates `UQEstimator` from `uq_estimator/model.py`, loads config from `configs/uq_train.yaml`, optionally loads checkpoint.
 - **Forward** (lines 759–770): Reshapes image features `[B, N_views, C, H, W]` → patch tokens `[B, N_views, H*W, C]`, computes 5-dim stat features, runs UQEstimator → `uncertainty_emb [B, 256]`.
 - **Transformer call** (line 798): Passes `uncertainty_emb` to the PETRTemporalTransformer.
+- **Return** (line 978): Returns 3-element tuple `(outs, vlm_memory, uncertainty_emb)` for FiLM L2 use.
 
 ### `mmcv/models/utils/petr_transformers.py` (+16 lines)
 
 - **Constructor** (lines 271–279): Creates `film_gamma` and `film_beta` Linear(256→256) layers when `use_uncertainty=True`. Identity-initialized: `gamma.bias=1, beta.bias=0, weights=0`.
-- **Forward** (lines 307–311): Applies FiLM: `query = gamma(emb) * query + beta(emb)` to detection queries before the decoder, gated by `use_uncertainty` flag.
+- **Forward** (lines 307–311): Applies FiLM L1: `query = gamma(emb) * query + beta(emb)` to detection queries before the decoder, gated by `use_uncertainty` flag.
+
+### `mmcv/models/detectors/orion.py` (+35 lines)
+
+- **Constructor**: When `use_uncertainty_l2=True`, creates `film_gamma_l2` and `film_beta_l2` Linear(256→4096) with identity init (~2.11M params).
+- **Training path** (`forward_pts_train`): Applies FiLM L2 to `current_states` before VAE: `current_states = γ₂(u) · current_states + β₂(u)`.
+- **Inference path** (`simple_test_pts`): Same FiLM L2 modulation.
+- Both paths unpack 3-element tuple from head: `(outs, det_query, uncertainty_emb)`.
 
 ## Pipeline Stages
 
