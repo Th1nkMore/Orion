@@ -397,15 +397,15 @@ def main():
             # Save best
             if mean_loss < best_loss:
                 best_loss = mean_loss
-                save_dict = {
-                    'epoch': epoch + 1,
-                    'film_gamma_weight': model.pts_bbox_head.transformer.film_gamma.weight.data.cpu(),
-                    'film_gamma_bias': model.pts_bbox_head.transformer.film_gamma.bias.data.cpu(),
-                    'film_beta_weight': model.pts_bbox_head.transformer.film_beta.weight.data.cpu(),
-                    'film_beta_bias': model.pts_bbox_head.transformer.film_beta.bias.data.cpu(),
-                    'loss': mean_loss,
-                }
-                # [UQ] Also save FiLM L2 weights if present
+                save_dict = {'epoch': epoch + 1, 'loss': mean_loss}
+                # Save FiLM L1 weights if present
+                transformer = model.pts_bbox_head.transformer
+                if hasattr(transformer, 'film_gamma'):
+                    save_dict['film_gamma_weight'] = transformer.film_gamma.weight.data.cpu()
+                    save_dict['film_gamma_bias'] = transformer.film_gamma.bias.data.cpu()
+                    save_dict['film_beta_weight'] = transformer.film_beta.weight.data.cpu()
+                    save_dict['film_beta_bias'] = transformer.film_beta.bias.data.cpu()
+                # Save FiLM L2 weights if present
                 if hasattr(model, 'film_gamma_l2'):
                     save_dict['film_gamma_l2_weight'] = model.film_gamma_l2.weight.data.cpu()
                     save_dict['film_gamma_l2_bias'] = model.film_gamma_l2.bias.data.cpu()
@@ -417,15 +417,20 @@ def main():
             print(f'\nEpoch {epoch+1}/{args.epochs}: no valid losses computed')
 
     # Print final FiLM statistics
-    gamma_w = model.pts_bbox_head.transformer.film_gamma.weight.data
-    gamma_b = model.pts_bbox_head.transformer.film_gamma.bias.data
-    beta_w = model.pts_bbox_head.transformer.film_beta.weight.data
-    beta_b = model.pts_bbox_head.transformer.film_beta.bias.data
     print(f'\nFinal FiLM statistics:')
-    print(f'  gamma weight: mean={gamma_w.mean():.6f}, std={gamma_w.std():.6f}')
-    print(f'  gamma bias:   mean={gamma_b.mean():.6f}, std={gamma_b.std():.6f} (init=1.0)')
-    print(f'  beta weight:  mean={beta_w.mean():.6f}, std={beta_w.std():.6f}')
-    print(f'  beta bias:    mean={beta_b.mean():.6f}, std={beta_b.std():.6f} (init=0.0)')
+    transformer = model.pts_bbox_head.transformer
+    if hasattr(transformer, 'film_gamma'):
+        for name, param in [('gamma_w', transformer.film_gamma.weight.data),
+                            ('gamma_b', transformer.film_gamma.bias.data),
+                            ('beta_w', transformer.film_beta.weight.data),
+                            ('beta_b', transformer.film_beta.bias.data)]:
+            print(f'  L1 {name}: mean={param.mean():.6f}, std={param.std():.6f}')
+    if hasattr(model, 'film_gamma_l2'):
+        for name, param in [('gamma_l2_w', model.film_gamma_l2.weight.data),
+                            ('gamma_l2_b', model.film_gamma_l2.bias.data),
+                            ('beta_l2_w', model.film_beta_l2.weight.data),
+                            ('beta_l2_b', model.film_beta_l2.bias.data)]:
+            print(f'  L2 {name}: mean={param.mean():.6f}, std={param.std():.6f}')
     print(f'\nTraining complete. Best loss: {best_loss:.4f}')
     print(f'Checkpoint saved to: {args.out}')
 
