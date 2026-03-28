@@ -34,6 +34,7 @@ sys.path.insert(0, os.path.join(PROJECT_ROOT, 'scripts'))
 from mmcv.utils import set_random_seed, Config, load_checkpoint, ProgressBar
 from mmcv.models import build_model
 from mmcv.datasets import build_dataset, build_dataloader
+from mmcv.parallel.collate import collate as mm_collate
 
 from eval_openloop import (
     UQScoreCapture, custom_wrap_fp16_model,
@@ -98,38 +99,23 @@ def get_speed(info):
 
 # ── Per-frame inference ────────────────────────────────────────────────
 
-def infer_single(model, dataset, idx):
-    """Run inference on a single dataset sample, return ego_fut_preds."""
-    data = dataset[idx]
-    # Collate: wrap in lists for batch dimension (dataset returns single sample)
-    # The dataloader normally handles this, but for sequential access we do it manually
-    if isinstance(data, dict):
-        # The dataset pipeline returns dict with DataContainer objects
-        # We need to use the dataloader's collate to properly batch
-        pass
-    with torch.no_grad():
-        result = model(data, return_loss=False)
-
-    # Extract ego_fut_preds from result
-    if isinstance(result, list) and len(result) > 0:
-        r = result[0]
-    elif isinstance(result, dict):
-        r = result
-    else:
-        return None
-
-    pts = r.get('pts_bbox', r)
-    if isinstance(pts, dict) and 'ego_fut_preds' in pts:
-        preds = pts['ego_fut_preds']
-        if isinstance(preds, torch.Tensor):
-            return preds.cpu().numpy()
-        return np.array(preds)
-    return None
+def collate_single(dataset, idx):
+    """Collate a single dataset sample into model-ready batch on GPU."""
+    raw_data = dataset[idx]
+    batch = mm_collate([raw_data], samples_per_gpu=1)
+    for key, val in batch.items():
+        if key != 'img_metas' and torch.is_tensor(val[0]):
+            val[0] = val[0].cuda()
+        if key == 'input_ids':
+            for i in range(len(val[0])):
+                for k in range(len(val[0][i])):
+                    val[0][i][k] = val[0][i][k].cuda()
+    return batch
 
 
 # ── Replay one scenario ────────────────────────────────────────────────
 
-def replay_scenario(model, dataset, data_loader, frame_indices, data_infos,
+def replay_scenario(model, dataset, frame_indices, data_infos,
                     frame_step, uq_capture):
     """
     Replay a single scenario sequentially.
@@ -137,7 +123,6 @@ def replay_scenario(model, dataset, data_loader, frame_indices, data_infos,
     Args:
         model: ORION model (DataParallel wrapped)
         dataset: B2DOrionDataset
-        data_loader: pre-built dataloader (used for proper collation)
         frame_indices: list of (frame_idx, dataset_idx) sorted by frame_idx
         data_infos: full data_infos list
         frame_step: process every N-th frame
@@ -161,11 +146,11 @@ def replay_scenario(model, dataset, data_loader, frame_indices, data_infos,
         except (KeyError, TypeError):
             continue
 
-        # Run inference through dataloader for proper collation
-        data = dataset[ds_idx]
+        # Run inference: collate single sample → batch → GPU → model
         try:
+            batch = collate_single(dataset, ds_idx)
             with torch.no_grad():
-                result = model(data, return_loss=False)
+                result = model(batch, return_loss=False)
         except Exception as e:
             continue
 
@@ -203,6 +188,8 @@ def replay_scenario(model, dataset, data_loader, frame_indices, data_infos,
 
         # Per-frame planning metrics (from model result)
         metric = r.get('metric_results', {})
+        # L2 metrics are computed even when fut_valid_flag=False (partial traj)
+        has_plan_metrics = metric.get('plan_L2_3s', 0) > 0
 
         record = {
             'frame_idx': frame_idx,
@@ -219,7 +206,7 @@ def replay_scenario(model, dataset, data_loader, frame_indices, data_infos,
             'plan_L2_2s': float(metric.get('plan_L2_2s', 0)),
             'plan_L2_3s': float(metric.get('plan_L2_3s', 0)),
             'plan_obj_col_3s': float(metric.get('plan_obj_col_3s', 0)),
-            'fut_valid': bool(metric.get('fut_valid_flag', False)),
+            'has_plan_metrics': has_plan_metrics,
             'speed': speed,
         }
         frame_records.append(record)
@@ -235,14 +222,14 @@ def replay_scenario(model, dataset, data_loader, frame_indices, data_infos,
         'control_mae_steer': np.mean([abs(r['steer_pred'] - r['steer_gt']) for r in frame_records]),
         'control_mae_throttle': np.mean([abs(r['throttle_pred'] - r['throttle_gt']) for r in frame_records]),
         'control_mae_brake': np.mean([abs(r['brake_pred'] - r['brake_gt']) for r in frame_records]),
-        # Planning metrics (mean over frames)
-        'traj_ade_1s': np.mean([r['plan_L2_1s'] for r in frame_records if r['fut_valid']]) if any(r['fut_valid'] for r in frame_records) else 0,
-        'traj_ade_2s': np.mean([r['plan_L2_2s'] for r in frame_records if r['fut_valid']]) if any(r['fut_valid'] for r in frame_records) else 0,
-        'traj_ade_3s': np.mean([r['plan_L2_3s'] for r in frame_records if r['fut_valid']]) if any(r['fut_valid'] for r in frame_records) else 0,
+        # Planning metrics (mean over frames with valid plan metrics)
+        'traj_ade_1s': np.mean([r['plan_L2_1s'] for r in frame_records if r['has_plan_metrics']]) if any(r['has_plan_metrics'] for r in frame_records) else 0,
+        'traj_ade_2s': np.mean([r['plan_L2_2s'] for r in frame_records if r['has_plan_metrics']]) if any(r['has_plan_metrics'] for r in frame_records) else 0,
+        'traj_ade_3s': np.mean([r['plan_L2_3s'] for r in frame_records if r['has_plan_metrics']]) if any(r['has_plan_metrics'] for r in frame_records) else 0,
         # Collision rate
-        'collision_rate_3s': np.mean([r['plan_obj_col_3s'] for r in frame_records if r['fut_valid']]) if any(r['fut_valid'] for r in frame_records) else 0,
-        # Fraction of valid frames
-        'valid_ratio': sum(r['fut_valid'] for r in frame_records) / n,
+        'collision_rate_3s': np.mean([r['plan_obj_col_3s'] for r in frame_records if r['has_plan_metrics']]) if any(r['has_plan_metrics'] for r in frame_records) else 0,
+        # Fraction of frames with valid plan metrics
+        'valid_ratio': sum(r['has_plan_metrics'] for r in frame_records) / n,
         'avg_speed': np.mean([r['speed'] for r in frame_records]),
     }
     return result
@@ -428,7 +415,7 @@ def main():
         uq_before = len(uq_capture.scores)
 
         result = replay_scenario(
-            model, dataset, None, frame_indices, data_infos,
+            model, dataset, frame_indices, data_infos,
             args.frame_step, uq_capture)
 
         if result is not None:
