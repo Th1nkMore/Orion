@@ -226,9 +226,27 @@ def main():
 
     # ─── Config: enable FiLM in transformer ───
     cfg = Config.fromfile(args.config)
-    # Enable FiLM modulation in the transformer
-    cfg.model.pts_bbox_head.transformer.use_uncertainty = True
     cfg.model.pts_bbox_head.use_uncertainty = True
+
+    # Training mode selection via env vars (used by run_ablation.sh)
+    l2_only = os.environ.get('USE_FILM_L2_ONLY', '0') == '1'
+    l1l2 = os.environ.get('USE_FILM_L1L2', '0') == '1'
+
+    if l2_only:
+        # Group C: L2 only — disable FiLM L1, enable L2
+        cfg.model.pts_bbox_head.transformer.use_uncertainty = False
+        cfg.model.use_uncertainty_l2 = True
+        print('[FiLM] Mode: L2 only (QT-Former FiLM disabled, VAE FiLM enabled)')
+    elif l1l2:
+        # Group D: L1 + L2
+        cfg.model.pts_bbox_head.transformer.use_uncertainty = True
+        cfg.model.use_uncertainty_l2 = True
+        print('[FiLM] Mode: L1 + L2 (both QT-Former and VAE FiLM enabled)')
+    else:
+        # Group B: L1 only (default)
+        cfg.model.pts_bbox_head.transformer.use_uncertainty = True
+        cfg.model.use_uncertainty_l2 = False
+        print('[FiLM] Mode: L1 only (QT-Former FiLM enabled)')
 
     if args.ann_file:
         cfg.data.test.ann_file = args.ann_file

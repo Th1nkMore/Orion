@@ -315,8 +315,14 @@ def main():
     cfg = Config.fromfile(args.config)
 
     # Enable FiLM in transformer if film checkpoint provided
+    l2_only = os.environ.get('UQ_FILM_L2_ONLY', '0') == '1'
     if args.film_checkpoint:
-        cfg.model.pts_bbox_head.transformer.use_uncertainty = True
+        if l2_only:
+            cfg.model.pts_bbox_head.transformer.use_uncertainty = False
+            cfg.model.use_uncertainty_l2 = True
+            print('[UQ] Eval mode: FiLM L2 only')
+        else:
+            cfg.model.pts_bbox_head.transformer.use_uncertainty = True
 
     # Override annotation file if specified
     if args.ann_file:
@@ -362,13 +368,21 @@ def main():
     # Load trained FiLM weights if provided
     if args.film_checkpoint and os.path.exists(args.film_checkpoint):
         film_ckpt = torch.load(args.film_checkpoint, map_location='cpu', weights_only=False)
+        # FiLM L1 (QT-Former)
         transformer = model.pts_bbox_head.transformer
-        if hasattr(transformer, 'film_gamma'):
+        if hasattr(transformer, 'film_gamma') and 'film_gamma_weight' in film_ckpt:
             transformer.film_gamma.weight.data = film_ckpt['film_gamma_weight']
             transformer.film_gamma.bias.data = film_ckpt['film_gamma_bias']
             transformer.film_beta.weight.data = film_ckpt['film_beta_weight']
             transformer.film_beta.bias.data = film_ckpt['film_beta_bias']
-            print(f'[UQ] Loaded trained FiLM weights from {args.film_checkpoint}')
+            print(f'[UQ] Loaded FiLM L1 weights from {args.film_checkpoint}')
+        # FiLM L2 (VAE)
+        if hasattr(model, 'film_gamma_l2') and 'film_gamma_l2_weight' in film_ckpt:
+            model.film_gamma_l2.weight.data = film_ckpt['film_gamma_l2_weight']
+            model.film_gamma_l2.bias.data = film_ckpt['film_gamma_l2_bias']
+            model.film_beta_l2.weight.data = film_ckpt['film_beta_l2_weight']
+            model.film_beta_l2.bias.data = film_ckpt['film_beta_l2_bias']
+            print(f'[UQ] Loaded FiLM L2 weights from {args.film_checkpoint}')
 
     if 'CLASSES' in checkpoint.get('meta', {}):
         model.CLASSES = checkpoint['meta']['CLASSES']
