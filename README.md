@@ -1,155 +1,188 @@
 # UQ-ORION
 
-Uncertainty-aware extension for the [ORION](https://github.com/xiaomi-mlab/Orion) end-to-end autonomous driving framework, improving safety in adverse weather and low-visibility scenarios through uncertainty quantification.
+Uncertainty-aware extension for [ORION](https://github.com/xiaomi-mlab/Orion) end-to-end autonomous driving. Improves safety in adverse weather (rain, fog, night) through lightweight uncertainty quantification — zero backbone fine-tuning, <5M new parameters.
+
+## Architecture
+
+```
+Vision Encoder (EVAViT, frozen)
+    ↓ patch_tokens [B, 6, 1600, 1024]
+    ├──────────────────────────────────────────┐
+    │                                          ↓
+    │                                  UQEstimator (2.24M, trained)
+    │                                          ↓
+    │                             uncertainty_embedding [B, 256]
+    │                             uncertainty_score     [B, 1]
+    │                                          │
+QT-Former (frozen) ←── FiLM L1 ──────────────┤   gamma * query + beta
+    ↓ vlm_memory                               │
+LLM / Qwen (frozen)                            │
+    ↓ ego_feature                              │
+VAE (frozen) ←── FiLM L2 (TODO) ──────────────┘
+    ↓
+trajectory
+```
+
+**FiLM L1** modulates QT-Former detection queries: `query = γ(u) · query + β(u)` where `u` is the uncertainty embedding. Identity-initialized (γ=1, β=0) and fine-tuned with trajectory loss.
 
 ## Project Structure
 
 ```
 uq-orion/
-├── uq_estimator/              # UQ extension module (all new code lives here)
-│   ├── __init__.py            # Public API: UQEstimator, UQOutput, CombinedUQLoss, UQFeatureDataset
-│   ├── model.py               # UQEstimator model (2.24M params)
-│   ├── losses.py              # Regression + ranking + calibration losses
-│   └── dataset.py             # Feature dataset with stat-feature computation
+├── uq_estimator/                  # UQ extension module (all new code)
+│   ├── model.py                   # UQEstimator: 2.24M params
+│   ├── losses.py                  # Regression + ranking + calibration losses
+│   └── dataset.py                 # UQFeatureDataset + compute_stat_features
 ├── scripts/
-│   ├── generate_labels.py     # Compute uncertainty pseudo-labels from features
-│   ├── train_uq.py            # Full training script with warmup, cosine LR, checkpointing
-│   ├── validate_uq.py         # Generate validation report with plots
-│   └── e2e_mock_test.py       # End-to-end pipeline verification (no real data needed)
+│   ├── extract_orion_features.py  # Stage 0: extract patch tokens from ORION
+│   ├── generate_labels.py         # Stage 1a: compute uncertainty pseudo-labels
+│   ├── train_uq.py               # Stage 1b: train UQEstimator
+│   ├── validate_uq.py            # Stage 1c: validation report + plots
+│   ├── eval_openloop.py           # Stage 2: open-loop eval with UQ analysis
+│   ├── train_film.py             # Stage 2: FiLM L1 fine-tuning
+│   └── e2e_mock_test.py          # Pipeline smoke test (no data needed)
 ├── configs/
-│   └── uq_train.yaml          # Model, training, data, and logging configuration
-├── tests/
-│   ├── test_uq_model.py       # Model shape, range, and parameter count tests
-│   ├── test_generate_labels.py # Label generation tests with scene separation
-│   ├── test_training.py       # Training loop smoke, resume, and loss tests
-│   └── fixtures.py            # Mock feature generators (normal / adverse / random)
-├── adzoo/                     # ORION original code (do not modify)
-├── team_code/                 # ORION original code
-├── mmcv/                      # ORION dependency
-├── requirements.txt           # ORION original dependencies
-├── requirements_uq.txt        # UQ project dependencies (managed by uv)
-├── CLAUDE.md                  # Development context and coding conventions
-└── .gitignore
+│   └── uq_train.yaml             # UQEstimator model/training config
+├── tests/                         # Pytest tests with mock data
+├── adzoo/                         # ORION original code (4 files modified, see below)
+├── mmcv/                          # ORION dependency (2 files modified, see below)
+├── checkpoints/uq/best.pt        # Trained UQEstimator weights
+├── PLAN.md                        # Detailed project plan with ablation design
+└── CLAUDE.md                      # Development conventions
 ```
 
-## Requirements
+## ORION File Modifications
 
-- Python >= 3.10
-- CUDA >= 11.8 (recommended for training; CPU is fully supported)
-- [uv](https://docs.astral.sh/uv/) (package management)
+All modifications to ORION code are marked with `[UQ]` comments and can be found by searching for that tag. Total: **68 lines** across 4 files.
 
-## Quick Start
+### `adzoo/orion/configs/orion_stage3_infer.py` (+3 lines)
 
-### Installation
-
-```bash
-git clone https://github.com/<your-username>/uq-orion.git
-cd uq-orion
-uv venv .venv --python 3.11
-source .venv/bin/activate
-uv pip install -r requirements_uq.txt
-```
-
-### Verify Installation (no data required)
-
-```bash
-PYTHONPATH=. python scripts/e2e_mock_test.py
-```
-
-This runs the full pipeline with synthetic data and should print `Phase 1 end-to-end verification PASSED`.
-
-### Run Tests
-
-```bash
-PYTHONPATH=. pytest tests/ -v
-```
-
-### Training Pipeline (with real data)
-
-**Step 1: Extract features** (run on a machine with large GPU memory)
-
-Feature extraction uses the ORION Vision Encoder. See `adzoo/` for ORION inference scripts. Each scene produces a `.pt` file with format described below.
-
-**Step 2: Generate pseudo-labels**
-
-```bash
-PYTHONPATH=. python scripts/generate_labels.py \
-    --feature_dir /path/to/features \
-    --output_file ./data/labels/uq_labels.pt \
-    --n_workers 8
-```
-
-**Step 3: Train UQ Estimator**
-
-```bash
-PYTHONPATH=. python scripts/train_uq.py \
-    --config configs/uq_train.yaml \
-    --data_dir /path/to/features \
-    --label_file ./data/labels/uq_labels.pt
-```
-
-**Step 4: Validate**
-
-```bash
-PYTHONPATH=. python scripts/validate_uq.py \
-    --checkpoint ./checkpoints/uq/best.pt \
-    --feature_dir /path/to/features \
-    --label_file ./data/labels/uq_labels.pt
-```
-
-## Data Format
-
-**Feature file** (`.pt`, one per scene):
+Added UQ config entries in `pts_bbox_head`:
 ```python
-{
-    "tokens": torch.Tensor,  # [N_views, N_patches, D]  — D=1152 (Qwen2-VL output)
-    "image":  torch.Tensor,  # [N_views, 3, H, W]       — multi-view camera images
-}
+use_uncertainty=True,                          # line 252: enable UQEstimator
+uq_checkpoint='checkpoints/uq/best.pt',       # line 253: trained weights path
+# In transformer dict:
+use_uncertainty=False,                         # line 295: FiLM disabled until trained
 ```
 
-**Label file** (`.pt`, single file):
-```python
-{
-    "sample_0000.pt": 0.32,  # filename → uncertainty score in [0, 1]
-    "sample_0001.pt": 0.78,
-    ...
-}
+### `adzoo/orion/test.py` (+26 lines)
+
+Two checkpoint reloading blocks after the main ORION checkpoint loads:
+1. **UQEstimator reload** (lines 187–199): The 36GB ORION checkpoint doesn't contain UQ weights; after `load_checkpoint()`, we reload the UQEstimator state dict from `checkpoints/uq/best.pt`.
+2. **FiLM weight reload** (lines 201–211): If `UQ_FILM_CHECKPOINT` env var is set, load trained FiLM gamma/beta weights into the transformer.
+
+### `mmcv/models/dense_heads/orion_head.py` (+23 lines)
+
+- **Constructor** (lines 298–312): When `use_uncertainty=True`, instantiates `UQEstimator` from `uq_estimator/model.py`, loads config from `configs/uq_train.yaml`, optionally loads checkpoint.
+- **Forward** (lines 759–770): Reshapes image features `[B, N_views, C, H, W]` → patch tokens `[B, N_views, H*W, C]`, computes 5-dim stat features, runs UQEstimator → `uncertainty_emb [B, 256]`.
+- **Transformer call** (line 798): Passes `uncertainty_emb` to the PETRTemporalTransformer.
+
+### `mmcv/models/utils/petr_transformers.py` (+16 lines)
+
+- **Constructor** (lines 271–279): Creates `film_gamma` and `film_beta` Linear(256→256) layers when `use_uncertainty=True`. Identity-initialized: `gamma.bias=1, beta.bias=0, weights=0`.
+- **Forward** (lines 307–311): Applies FiLM: `query = gamma(emb) * query + beta(emb)` to detection queries before the decoder, gated by `use_uncertainty` flag.
+
+## Pipeline Stages
+
+### Stage 0: Feature Extraction ✅
+```bash
+python scripts/extract_orion_features.py \
+    --checkpoint ckpts/Orion.pth \
+    --output_dir data/features \
+    --ann_file data/infos/b2d_infos_val.pkl
+```
+Extracts EVAViT patch tokens per sample → `data/features/*.pt` (~235GB for 12806 samples).
+
+### Stage 1: UQEstimator Training ✅
+```bash
+# 1a. Generate pseudo-labels (3-component: gradient + entropy + cross-view consistency)
+python scripts/generate_labels.py \
+    --feature_dir data/features --output_file data/labels/uq_labels.pt
+
+# 1b. Train (50 epochs, stops early, ~2h on A100)
+python scripts/train_uq.py --config configs/uq_train.yaml
+
+# 1c. Validate
+python scripts/validate_uq.py --checkpoint checkpoints/uq/best.pt \
+    --feature_dir data/features --label_file data/labels/uq_labels.pt
+```
+Result: `checkpoints/uq/best.pt` — Spearman ρ=0.96 at epoch 15.
+
+### Stage 2a: Open-Loop Eval + UQ Score Analysis 🔄
+```bash
+python scripts/eval_openloop.py \
+    adzoo/orion/configs/orion_stage3_infer.py ckpts/Orion.pth \
+    --ann-file data/infos/b2d_infos_val.pkl \
+    --out results/eval_openloop_full.pt
+```
+Runs ORION inference on full val set (12806 samples, ~6h), captures per-sample:
+- Planning metrics: L2 error @1s/2s/3s, collision rate
+- UQ scores via forward hook on UQEstimator
+- Splits by weather: normal (Weather 0–3) vs adverse (rain/fog/night/wet)
+
+Output: `results/eval_openloop_full.pt` (per-sample records) + `_summary.json`.
+
+### Stage 2b: FiLM L1 Fine-tuning (next)
+```bash
+python scripts/train_film.py \
+    --config adzoo/orion/configs/orion_stage3_infer.py \
+    --checkpoint ckpts/Orion.pth \
+    --epochs 3 --lr 1e-3 \
+    --out checkpoints/film/best.pt
+```
+Freezes all ORION params (~1B), trains only FiLM gamma/beta (~131K params) using teacher-forcing through LLM for gradient flow. Uses trajectory planning loss.
+
+### Stage 2b: L1 Eval (after FiLM training)
+```bash
+python scripts/eval_openloop.py \
+    adzoo/orion/configs/orion_stage3_infer.py ckpts/Orion.pth \
+    --ann-file data/infos/b2d_infos_val.pkl \
+    --film-checkpoint checkpoints/film/best.pt \
+    --out results/eval_openloop_film_l1.pt
 ```
 
-## Relationship to ORION
+## Weather Classification
 
-This project is a research extension built on top of [ORION](https://github.com/xiaomi-mlab/Orion) (ICCV 2025). The original ORION pipeline is:
+CARLA Weather IDs used for normal/adverse split:
 
+| Weather ID | Name | Category |
+|-----------|------|----------|
+| 0 | ClearNoon | normal |
+| 1 | ClearSunset | normal |
+| 2 | CloudyNoon | normal |
+| 3 | CloudySunset | normal |
+| 5–14 | Wet/Rain variants | adverse |
+| 15, 18–23 | Night variants | adverse |
+| 25–26 | Foggy variants | adverse |
+
+Val set: 2709 normal / 10097 adverse samples.
+
+## Environment
+
+```bash
+# Python 3.11+, CUDA, 1x A100 80GB
+# Dependencies managed separately from ORION:
+pip install -r requirements_uq.txt   # UQ-specific deps
+pip install -r requirements.txt       # ORION deps (do not modify)
 ```
-Vision Encoder → QT-Former → VLM → planning token → VAE → trajectory
-```
 
-UQ-ORION adds a parallel UQ Estimator branch that:
-1. Consumes the same Vision Encoder patch tokens
-2. Outputs an uncertainty embedding and scalar score
-3. Injects the embedding into QT-Former via an uncertainty token
-4. Modulates VAE output based on uncertainty level
+Key: ORION model (Orion.pth, 36GB) + Qwen LLM (14GB) → ~40GB VRAM at inference.
 
-**Current status (Phase 1):** The UQ Estimator module, training pipeline, and evaluation tools are implemented. No modifications to ORION original code have been made yet. Integration with QT-Former and VAE (Phase 2) is pending.
+## Reproduction Checklist
 
-## Development Conventions
-
-- All new code goes in `uq_estimator/`; ORION files in `adzoo/` are read-only unless explicitly requested
-- Every function must include shape annotations: `# [B, N, D]`
-- No hard-coded dimensions in model code — read from config
-- Commits modifying ORION original files must start with `[UQ]`
-- All tests use mock data and do not depend on real datasets
-- Environment: use the project `.venv/` managed by uv; never install into base conda
+1. Ensure `ckpts/Orion.pth` and `ckpts/pretrain_qformer/` exist
+2. Ensure `data/bench2drive/v1/` has 1001 scenario folders
+3. Ensure `data/infos/b2d_infos_val.pkl` and `b2d_infos_train.pkl` exist
+4. Run `pytest tests/ -v` to verify UQ module integrity
+5. Follow pipeline stages above in order
 
 ## Citation
-
-If you use this work, please also cite the original ORION paper:
 
 ```bibtex
 @inproceedings{fu2025orion,
   title={ORION: A Holistic End-to-End Autonomous Driving Framework by Vision-Language Instructed Action Generation},
-  author={Haoyu Fu and Diankun Zhang and Zongchuang Zhao and Jianfeng Cui and Dingkang Liang and Chong Zhang and Dingyuan Zhang and Hongwei Xie and Bing Wang and Xiang Bai},
-  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  author={Haoyu Fu and others},
+  booktitle={ICCV},
   year={2025}
 }
 ```

@@ -43,36 +43,52 @@ stat_features [B, 5]                        │
 - 模型内部 Linear(5→64) 投影到 d_stat
 
 ## Tensor 维度约定（严格遵守）
-- patch_tokens: [B, N_views, N_patches, D]，D=1152
+- patch_tokens: [B, N_views, N_patches, D]，D=1024（EVAViT output，注意：非 1152）
+- N_patches=1600（640/16 × 640/16 = 40×40），N_views=6
 - uncertainty_embedding: [B, 256]
 - uncertainty_score: [B, 1]，值域 [0, 1]
 - stat_features（原始）: [B, 5]
 - stat_features（投影后）: [B, 64]
+- FiLM gamma/beta: [B, 1, 256]（broadcast over num_query dim）
+- QT-Former query（FiLM 输入）: [num_query, B, 256]
 
 ## 项目结构
 ```
 uq-orion/
-├── adzoo/                  # ORION 原始代码（禁止修改，除非明确要求）
+├── adzoo/                  # ORION 原始代码（4 个文件有 [UQ] 标记的修改）
 ├── team_code/              # ORION 原始代码
-├── mmcv/                   # ORION 依赖
+├── mmcv/                   # ORION 依赖（2 个文件有 [UQ] 标记的修改）
 ├── uq_estimator/           # UQ 扩展模块（所有新增代码在此）
 │   ├── __init__.py         # 导出：UQEstimator, UQOutput, CombinedUQLoss, UQFeatureDataset
 │   ├── model.py            # UQEstimator 模型 + smoke test
 │   ├── losses.py           # 损失函数
 │   └── dataset.py          # UQFeatureDataset + compute_stat_features
-├── scripts/                # 训练/验证/标签生成脚本（待实现）
-│   ├── generate_labels.py
-│   ├── train_uq.py
-│   └── validate_uq.py
+├── scripts/
+│   ├── extract_orion_features.py  # Stage 0: 从 ORION 提取 patch tokens
+│   ├── generate_labels.py         # Stage 1a: 生成不确定性伪标签
+│   ├── train_uq.py                # Stage 1b: 训练 UQEstimator
+│   ├── validate_uq.py            # Stage 1c: 验证报告 + 可视化
+│   ├── eval_openloop.py           # Stage 2a: 开环评估 + UQ score 分析
+│   ├── train_film.py             # Stage 2b: FiLM L1 微调（只训 gamma/beta）
+│   └── e2e_mock_test.py          # 端到端 mock 测试
 ├── configs/
 │   └── uq_train.yaml       # 模型/训练/数据配置
 ├── tests/
 │   ├── __init__.py
-│   └── test_uq_model.py    # 6 个 pytest 测试
+│   └── test_uq_model.py    # pytest 测试
+├── checkpoints/uq/best.pt  # 已训练的 UQEstimator 权重
+├── results/                 # 评估结果输出目录
 ├── requirements.txt         # ORION 原始依赖（勿动）
 ├── requirements_uq.txt      # UQ 项目依赖（uv 管理）
 └── .gitignore
 ```
+
+## ORION 文件修改清单
+所有修改均以 `[UQ]` 注释标记，可通过 `grep -r "\[UQ\]" adzoo/ mmcv/` 查找。
+- `adzoo/orion/configs/orion_stage3_infer.py` (+3行): use_uncertainty, uq_checkpoint 配置
+- `adzoo/orion/test.py` (+26行): UQ checkpoint 和 FiLM 权重重新加载
+- `mmcv/models/dense_heads/orion_head.py` (+23行): UQEstimator 初始化 + forward 中计算 uncertainty_emb
+- `mmcv/models/utils/petr_transformers.py` (+16行): FiLM 调制层 + identity 初始化
 
 ## 环境管理
 - **禁止在 base conda 环境中安装任何依赖**
