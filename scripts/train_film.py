@@ -85,148 +85,169 @@ def freeze_all_except_film(model):
 
 
 def forward_film_training(model, data):
-    """Custom forward path for FiLM training.
+    """Custom forward for FiLM training with test-format data.
 
-    Uses the inference data format but calls LLM with teacher forcing
-    (forward instead of generate) to maintain gradient flow.
+    Replicates ORION's inference path through QT-Former + FiLM, then
+    teacher-forces through LLM and computes planning loss.
 
-    Returns planning loss dict.
+    Returns dict with 'loss' tensor and 'log_vars' dict.
     """
-    orion = model  # unwrap if needed
-    if hasattr(model, 'module'):
-        orion = model.module
+    orion = model.module if hasattr(model, 'module') else model
+    B = 1
 
-    B = 1  # always batch_size=1 for single GPU
-
-    # ─── Step 1: unpack data (same format as simple_test) ───
+    # ─── Step 1: unpack test-format data ───
     img_metas = data['img_metas']
-    for key in data:
-        if key not in ['img', 'input_ids', 'gt_bboxes_3d', 'vlm_labels']:
-            data[key] = data[key][0][0].unsqueeze(0)
-        else:
-            data[key] = data[key][0]
+    SPECIAL_KEYS = {'img', 'input_ids', 'gt_bboxes_3d', 'vlm_labels', 'img_metas'}
+    for key in list(data.keys()):
+        if key in SPECIAL_KEYS:
+            continue
+        data[key] = data[key][0][0].unsqueeze(0).cuda()
 
-    # ─── Step 2: extract image features ───
+    data['img'] = data['img'][0].cuda()
+
+    # input_ids: unwrap nested lists to tensor
+    raw_ids = data['input_ids']
+    while isinstance(raw_ids, list) and len(raw_ids) > 0:
+        raw_ids = raw_ids[0]
+    # vlm_labels: use input_ids as labels (test format has string labels)
+    input_ids_1d = raw_ids  # [N]
+    vlm_labels_1d = raw_ids.clone()
+
+    data['gt_bboxes_3d'] = data['gt_bboxes_3d'][0]
+
+    # Skip samples without valid future trajectory
+    ego_fut_masks = data['ego_fut_masks']  # [1, 1, 1, 6] after unpacking
+    if ego_fut_masks.sum() == 0:
+        return None
+
+    # ─── Step 2: extract features ───
     data['img_feats'] = orion.extract_feat(data['img'])
     if data['img'].dim() == 4:
         data['img'] = data['img'].unsqueeze(0)
 
-    img_metas = img_metas[0]
+    img_metas_list = img_metas[0]
+    data.pop('img_metas', None)
 
-    # ─── Step 3: prepare location and position embedding ───
-    location = orion.prepare_location(img_metas, **data)
-    pos_embed = orion.position_embeding(data, location, img_metas)
+    # ─── Step 3: position embedding ───
+    location = orion.prepare_location(img_metas_list, **data)
+    pos_embed = orion.position_embeding(data, location, img_metas_list)
 
-    # ─── Step 4: detection head (includes UQ + FiLM L1) ───
-    outs_bbox, det_query, uncertainty_emb = orion.pts_bbox_head(img_metas, pos_embed, **data)
+    # ─── Step 4: detection + UQ + FiLM L1 ───
+    outs_bbox, det_query, uncertainty_emb = orion.pts_bbox_head(img_metas_list, pos_embed, **data)
     vision_embeded_obj = det_query.clone()
 
-    # ─── Step 5: map head (no loss needed, just features) ───
+    # ─── Step 5: map head ───
     if orion.with_map_head:
-        outs_lane, map_query = orion.map_head(img_metas, pos_embed, **data)
+        outs_lane, map_query = orion.map_head(img_metas_list, pos_embed, **data)
         vision_embeded_map = map_query.clone()
 
     # ─── Step 6: LLM teacher forcing ───
-    if orion.with_lm_head and orion.use_gen_token:
-        vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1)
+    if not (orion.with_lm_head and orion.use_gen_token):
+        return None
+    vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1)
 
-        input_ids = data['input_ids']
-        vlm_labels = data['vlm_labels']
-        if isinstance(vlm_labels, list):
-            vlm_labels = vlm_labels[0]
-        if isinstance(input_ids, list):
-            input_ids = input_ids[0]
+    if orion.tokenizer is None:
+        return None
+    pad_id = orion.tokenizer.pad_token_id or 0
+    input_ids = input_ids_1d.unsqueeze(0).cuda()
+    vlm_labels = vlm_labels_1d.unsqueeze(0).cuda()
+    input_ids = input_ids[:, :orion.tokenizer.model_max_length]
+    vlm_labels = vlm_labels[:, :orion.tokenizer.model_max_length]
+    vlm_attn_mask = input_ids.ne(pad_id)
 
-        # Construct attention mask: 1 for non-padding tokens
-        if hasattr(orion, 'tokenizer') and orion.tokenizer is not None:
-            pad_id = getattr(orion.tokenizer, 'pad_token_id', 0) or 0
-        else:
-            pad_id = 0
-        vlm_attn_mask = (input_ids != pad_id).long()
+    vlm_output, ego_feature = orion.lm_head(
+        input_ids=input_ids, attention_mask=vlm_attn_mask,
+        labels=vlm_labels, images=vision_embeded,
+        use_cache=False, return_ego_feature=True)
+    # vlm_output may be a CausalLMOutputWithPast or a tuple
+    if hasattr(vlm_output, 'loss'):
+        vlm_loss = vlm_output.loss  # HuggingFace output object
+    elif isinstance(vlm_output, (tuple, list)):
+        vlm_loss = vlm_output[0]
+    else:
+        vlm_loss = vlm_output
 
-        vlm_loss, ego_feature = orion.lm_head(
-            input_ids=input_ids,
-            attention_mask=vlm_attn_mask,
-            labels=vlm_labels,
-            images=vision_embeded,
-            use_cache=False,
-            return_ego_feature=True
-        )
+    # Handle mixed QA training
+    if orion.mix_qa_training:
+        dummy_ego_feature = orion.lm_head.get_model().embed_tokens(
+            torch.tensor([[orion.lm_head.config.waypoint_token_idx] for _ in range(B)]).cuda())
+        dummy_ego_feature = dummy_ego_feature.squeeze(1)
+        valid_input_mask = (input_ids == orion.lm_head.config.waypoint_token_idx).sum(dim=-1).to(torch.bool)
+        dummy_ego_feature[valid_input_mask] = ego_feature
+        ego_feature = dummy_ego_feature
+        data['ego_fut_masks'][:, 0, 0] *= valid_input_mask.unsqueeze(-1)
 
-        # Handle mixed QA training
-        if orion.mix_qa_training:
-            dummy_ego_feature = orion.lm_head.get_model().embed_tokens(
-                torch.tensor([[orion.lm_head.config.waypoint_token_idx] for _ in range(B)]).cuda())
-            dummy_ego_feature = dummy_ego_feature.squeeze(1)
-            valid_input_mask = (input_ids == orion.lm_head.config.waypoint_token_idx).sum(dim=-1).to(torch.bool)
-            dummy_ego_feature[valid_input_mask] = ego_feature
-            ego_feature = dummy_ego_feature
-            data['ego_fut_masks'][:, 0, 0] *= valid_input_mask.unsqueeze(-1)
+    current_states = ego_feature.unsqueeze(1)
 
-        current_states = ego_feature.unsqueeze(1)
+    # [UQ] FiLM L2: modulate before VAE
+    if hasattr(orion, 'use_uncertainty_l2') and orion.use_uncertainty_l2 and uncertainty_emb is not None:
+        gamma_l2 = orion.film_gamma_l2(uncertainty_emb)
+        beta_l2 = orion.film_beta_l2(uncertainty_emb)
+        current_states = gamma_l2.unsqueeze(1) * current_states + beta_l2.unsqueeze(1)
 
-        # [UQ] FiLM L2: modulate current_states before VAE path
-        if hasattr(orion, 'use_uncertainty_l2') and orion.use_uncertainty_l2 and uncertainty_emb is not None:
-            gamma_l2 = orion.film_gamma_l2(uncertainty_emb)  # [B, 4096]
-            beta_l2 = orion.film_beta_l2(uncertainty_emb)    # [B, 4096]
-            current_states = gamma_l2.unsqueeze(1) * current_states + beta_l2.unsqueeze(1)  # [B, 1, 4096]
+    # ─── Step 7: VAE → trajectory ───
+    if not orion.use_diff_decoder and not orion.use_mlp_decoder:
+        ego_fut_trajs = data['ego_fut_trajs']
+        distribution_comp = {}
+        noise = None
+        orion.fut_ts = 6
 
-        # ─── Step 7: VAE → trajectory prediction ───
-        if not orion.use_diff_decoder and not orion.use_mlp_decoder:
-            ego_fut_trajs = data['ego_fut_trajs']
-            distribution_comp = {}
-            noise = None
-            orion.fut_ts = 6
+        future_distribution_inputs = ego_fut_trajs.reshape(B, ego_fut_trajs.shape[1], -1)
+        if orion.PROBABILISTIC:
+            sample, output_distribution = orion.distribution_forward(
+                current_states, future_distribution_inputs, noise)
+            distribution_comp = {**distribution_comp, **output_distribution}
 
-            # In training mode, use GT future for distribution
-            future_distribution_inputs = ego_fut_trajs.reshape(B, ego_fut_trajs.shape[1], -1)
-            if orion.PROBABILISTIC:
-                sample, output_distribution = orion.distribution_forward(
-                    current_states, future_distribution_inputs, noise)
-                distribution_comp = {**distribution_comp, **output_distribution}
+        hidden_states = ego_feature.unsqueeze(1)
+        states_hs, future_states_hs = orion.future_states_predict(
+            B, sample, hidden_states, current_states)
 
-            hidden_states = ego_feature.unsqueeze(1)
-            states_hs, future_states_hs = orion.future_states_predict(
-                B, sample, hidden_states, current_states)
+        ego_query_hs = states_hs[:, :, 0, :].unsqueeze(1).permute(0, 2, 1, 3)
+        ego_fut_trajs_list = []
+        for i in range(orion.fut_ts):
+            outputs_ego_trajs = orion.ego_fut_decoder(
+                ego_query_hs[i]).reshape(B, orion.ego_fut_mode, 2)
+            ego_fut_trajs_list.append(outputs_ego_trajs)
 
-            ego_query_hs = states_hs[:, :, 0, :].unsqueeze(1).permute(0, 2, 1, 3)
-            ego_fut_trajs_list = []
-            for i in range(orion.fut_ts):
-                outputs_ego_trajs = orion.ego_fut_decoder(
-                    ego_query_hs[i]).reshape(B, orion.ego_fut_mode, 2)
-                ego_fut_trajs_list.append(outputs_ego_trajs)
+        ego_fut_preds = torch.stack(ego_fut_trajs_list, dim=2)
 
-            ego_fut_preds = torch.stack(ego_fut_trajs_list, dim=2)
+        # ─── Step 8: planning loss (reg only) ───
+        saved_col = orion.use_col_loss
+        orion.use_col_loss = False
+        loss_planning = orion.loss_planning(
+            ego_fut_preds, ego_fut_trajs[:, 0],
+            data['ego_fut_masks'][:, 0, 0], data['ego_fut_cmd'][:, 0, 0])
+        orion.use_col_loss = saved_col
 
-            # ─── Step 8: planning loss ───
-            loss_plan_input = [
-                ego_fut_preds,
-                ego_fut_trajs[:, 0],
-                data['ego_fut_masks'][:, 0, 0],
-                data['ego_fut_cmd'][:, 0, 0]
-            ]
-            loss_planning_dict = orion.loss_planning(*loss_plan_input)
+        loss_vae = orion.loss_vae_gen(distribution_comp, data['ego_fut_masks'][:, 0, 0])
+        loss_vae = torch.nan_to_num(loss_vae)
 
-            # VAE generative loss
-            loss_vae_gen = orion.loss_vae_gen(distribution_comp, data['ego_fut_masks'][:, 0, 0])
-            loss_vae_gen = torch.nan_to_num(loss_vae_gen)
+        # Combine losses
+        plan_loss = loss_planning.get('loss_plan_reg', torch.tensor(0.0, device='cuda'))
+        vlm_loss_val = vlm_loss if torch.is_tensor(vlm_loss) else torch.tensor(0.0, device='cuda')
+        total = plan_loss + 0.1 * loss_vae + 0.01 * vlm_loss_val
 
-            losses = {}
-            losses.update(loss_planning_dict)
-            losses['loss_vae_gen'] = loss_vae_gen
-            losses['vlm_loss'] = vlm_loss[0] if isinstance(vlm_loss, (tuple, list)) else vlm_loss
-            return losses
+        log_vars = {
+            'plan_reg': plan_loss.item(),
+            'vae': loss_vae.item(),
+            'vlm': vlm_loss_val.item() if torch.is_tensor(vlm_loss_val) else 0,
+            'total': total.item(),
+        }
+        return {'loss': total, 'log_vars': log_vars}
 
-    return {}
+    return None
 
 
 def main():
     args = parse_args()
     set_random_seed(args.seed, deterministic=True)
 
-    # ─── Config: enable FiLM in transformer ───
+    # ─── Config: use inference config with test pipeline ───
+    # Test pipeline provides ego_fut_trajs when using the full val set
+    # (individual frames in the small val set may lack sequential neighbors)
     cfg = Config.fromfile(args.config)
     cfg.model.pts_bbox_head.use_uncertainty = True
+    cfg.model.pts_bbox_head.uq_checkpoint = 'checkpoints/uq/best.pt'
 
     # Training mode selection via env vars (used by run_ablation.sh)
     l2_only = os.environ.get('USE_FILM_L2_ONLY', '0') == '1'
@@ -248,14 +269,19 @@ def main():
         cfg.model.use_uncertainty_l2 = False
         print('[FiLM] Mode: L1 only (QT-Former FiLM enabled)')
 
-    if args.ann_file:
-        cfg.data.test.ann_file = args.ann_file
+    # Use full val set (has sequential frames for ego_fut_trajs)
+    ann_file = args.ann_file or 'data/infos/b2d_infos_val.pkl'
+    cfg.data.test.ann_file = ann_file
 
     # ─── Build dataset and dataloader ───
     dataset = build_dataset(cfg.data.test)
     if args.max_samples and args.max_samples < len(dataset):
-        # Subsample dataset by modifying data_infos
-        dataset.data_infos = dataset.data_infos[:args.max_samples]
+        # Subsample dataset — keep extra margin for sequential access (sample_interval=5)
+        keep = min(args.max_samples + 50, len(dataset))
+        dataset.data_infos = dataset.data_infos[:keep]
+
+    # Ensure flag matches current dataset length (required by GroupSampler)
+    dataset.flag = np.zeros(len(dataset), dtype=np.uint8)
 
     data_loader = build_dataloader(
         dataset,
@@ -265,7 +291,7 @@ def main():
         shuffle=True,  # shuffle for training
         nonshuffler_sampler=cfg.data.nonshuffler_sampler,
     )
-    print(f'Training dataset: {len(dataset)} samples')
+    print(f'Training dataset: {len(dataset)} samples, dataloader: {len(data_loader)} batches')
 
     # ─── Build model ───
     cfg.model.train_cfg = None
@@ -296,9 +322,18 @@ def main():
     film_params = freeze_all_except_film(model)
 
     model.cuda()
-    model.train()  # set to train mode for teacher forcing
+    model.train()  # train mode needed for RNN backward (GRU in VAE)
 
-    # But keep batch norm and dropout in eval mode (frozen layers)
+    # Disable denoising training in detection head (requires training-only data fields)
+    model.pts_bbox_head.with_dn = False
+
+    # Disable gradient checkpointing in LLM — it blocks gradient flow from
+    # vision_embeded through the LLM to the planning loss
+    if hasattr(model, 'lm_head') and hasattr(model.lm_head, 'gradient_checkpointing_disable'):
+        model.lm_head.gradient_checkpointing_disable()
+        print('[FiLM] Disabled gradient checkpointing in LLM for gradient flow')
+
+    # Keep batch norm and dropout in eval mode for frozen layers
     for name, module in model.named_modules():
         if 'film_gamma' not in name and 'film_beta' not in name:
             if isinstance(module, (nn.BatchNorm2d, nn.LayerNorm, nn.Dropout)):
@@ -323,30 +358,27 @@ def main():
 
         for step, data in enumerate(data_loader):
             try:
-                losses = forward_film_training(model, data)
+                outputs = forward_film_training(model, data)
             except Exception as e:
-                print(f'\n[WARN] Step {step} failed: {e}')
+                import traceback
+                tb = traceback.format_exc()
+                print(f'\n[WARN] Step {step} failed: {e}\n{tb}')
                 prog_bar.update()
                 continue
 
-            if not losses:
+            if outputs is None or 'loss' not in outputs:
                 prog_bar.update()
                 continue
 
-            # Combine losses (focus on planning, downweight VLM/VAE)
-            total_loss = torch.tensor(0.0, device='cuda', requires_grad=True)
-            for k, v in losses.items():
-                if v is not None and torch.is_tensor(v) and v.requires_grad:
-                    if 'plan' in k:
-                        total_loss = total_loss + v  # full weight for planning
-                    elif 'vae' in k:
-                        total_loss = total_loss + 0.1 * v
-                    elif 'vlm' in k:
-                        total_loss = total_loss + 0.01 * v  # minimal VLM influence
+            total_loss = outputs['loss']
 
             if total_loss.requires_grad:
                 (total_loss / args.grad_accum).backward()
                 epoch_losses.append(total_loss.item())
+                if step % 200 == 0:
+                    log_vars = outputs.get('log_vars', {})
+                    print(f'\n  [Step {step}] '
+                          f'{" ".join(f"{k}={v:.4f}" for k,v in log_vars.items())}')
 
             if (step + 1) % args.grad_accum == 0:
                 torch.nn.utils.clip_grad_norm_(film_params, max_norm=1.0)
