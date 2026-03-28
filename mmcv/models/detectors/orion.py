@@ -121,6 +121,7 @@ class Orion(MVXTwoStageDetector):
                  loss_plan_col=dict(type='PlanCollisionLoss', loss_weight=1.0),
                  loss_vae_gen=dict(type='ProbabilisticLoss', loss_weight=1.0),
                  plan_cls_loss_smooth = False,
+                 use_uncertainty_l2 = False,  # [UQ] FiLM L2 at VAE level
                  ):
         super(Orion, self).__init__(pts_voxel_layer, pts_voxel_encoder,
                              pts_middle_encoder, pts_fusion_layer,
@@ -253,7 +254,20 @@ class Orion(MVXTwoStageDetector):
                     self.loss_plan_col = build_loss(loss_plan_col)
                 # self.loss_plan_dir = build_loss(loss_plan_dir)
                 self.loss_vae_gen = build_loss(loss_vae_gen)
-            
+
+                # [UQ] FiLM L2: modulate ego_feature (current_states) before VAE
+                self.use_uncertainty_l2 = use_uncertainty_l2
+                if self.use_uncertainty_l2:
+                    uncertainty_dim = 256  # UQEstimator embedding dim
+                    ego_dim = self.present_distribution_in_channels  # 4096
+                    self.film_gamma_l2 = nn.Linear(uncertainty_dim, ego_dim)
+                    self.film_beta_l2 = nn.Linear(uncertainty_dim, ego_dim)
+                    # Identity init: gamma=1, beta=0 so FiLM starts as no-op
+                    nn.init.zeros_(self.film_gamma_l2.weight)
+                    nn.init.ones_(self.film_gamma_l2.bias)
+                    nn.init.zeros_(self.film_beta_l2.weight)
+                    nn.init.zeros_(self.film_beta_l2.bias)
+
             elif self.use_diff_decoder:
                 self.plan_cls_loss_smooth = plan_cls_loss_smooth
                 self.diff_loss_weight = diff_loss_weight
@@ -532,7 +546,7 @@ class Orion(MVXTwoStageDetector):
         losses = dict()
 
         if self.with_pts_bbox:
-            outs_bbox, det_query = self.pts_bbox_head(img_metas, pos_embed, **data) # (1, 257, 4096)
+            outs_bbox, det_query, _uncertainty_emb = self.pts_bbox_head(img_metas, pos_embed, **data) # (1, 257, 4096)
             vision_embeded_obj = det_query.clone()
             loss_inputs = [gt_bboxes_3d, gt_labels_3d, outs_bbox, gt_attr_labels]
             if self.pts_bbox_head.pred_traffic_light_state:
@@ -573,6 +587,12 @@ class Orion(MVXTwoStageDetector):
                     data['ego_fut_masks'][:,0,0] *= valid_input_mask.unsqueeze(-1)
                 losses.update(vlm_loss=vlm_loss[0])
                 current_states = ego_feature.unsqueeze(1)
+
+                # [UQ] FiLM L2: modulate current_states before VAE path
+                if self.use_uncertainty_l2 and _uncertainty_emb is not None:
+                    gamma_l2 = self.film_gamma_l2(_uncertainty_emb)  # [B, 4096]
+                    beta_l2 = self.film_beta_l2(_uncertainty_emb)    # [B, 4096]
+                    current_states = gamma_l2.unsqueeze(1) * current_states + beta_l2.unsqueeze(1)  # [B, 1, 4096]
 
                 if not self.use_diff_decoder and not self.use_mlp_decoder:
                     distribution_comp = {}
@@ -716,7 +736,7 @@ class Orion(MVXTwoStageDetector):
         pos_embed = self.position_embeding(data, location, img_metas)
         bbox_results = []
         if self.with_pts_bbox:
-            outs, det_query = self.pts_bbox_head(img_metas, pos_embed, **data)
+            outs, det_query, uncertainty_emb = self.pts_bbox_head(img_metas, pos_embed, **data)
             vision_embeded_obj = det_query.clone()
             if self.use_col_loss:
                 bbox_list = self.pts_bbox_head.get_motion_bboxes(
@@ -793,7 +813,14 @@ class Orion(MVXTwoStageDetector):
                     )
                     ego_feature = ego_feature.to(torch.float32)
                     current_states = ego_feature.unsqueeze(1)
-                    if not self.use_diff_decoder and not self.use_mlp_decoder: # VAE-based generate 
+
+                    # [UQ] FiLM L2: modulate current_states before VAE path
+                    if hasattr(self, 'use_uncertainty_l2') and self.use_uncertainty_l2 and uncertainty_emb is not None:
+                        gamma_l2 = self.film_gamma_l2(uncertainty_emb)  # [B, 4096]
+                        beta_l2 = self.film_beta_l2(uncertainty_emb)    # [B, 4096]
+                        current_states = gamma_l2.unsqueeze(1) * current_states + beta_l2.unsqueeze(1)  # [B, 1, 4096]
+
+                    if not self.use_diff_decoder and not self.use_mlp_decoder: # VAE-based generate
                         distribution_comp = {}
                         noise = None
                         self.fut_ts = 6

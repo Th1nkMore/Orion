@@ -198,17 +198,25 @@ def main():
                 uq_ckpt['model_state_dict'], strict=False)
             print(f'[UQ] Reloaded UQEstimator from {uq_ckpt_path} after Orion checkpoint')
 
-    # [UQ] Load trained FiLM weights if available
+    # [UQ] Load trained FiLM weights if available (L1 + L2)
     film_ckpt_path = os.environ.get('UQ_FILM_CHECKPOINT', '')
     if film_ckpt_path and os.path.exists(film_ckpt_path):
         film_ckpt = torch.load(film_ckpt_path, map_location='cpu', weights_only=False)
+        # FiLM L1 (QT-Former level)
         transformer = model.pts_bbox_head.transformer
-        if hasattr(transformer, 'film_gamma'):
+        if hasattr(transformer, 'film_gamma') and 'film_gamma_weight' in film_ckpt:
             transformer.film_gamma.weight.data = film_ckpt['film_gamma_weight']
             transformer.film_gamma.bias.data = film_ckpt['film_gamma_bias']
             transformer.film_beta.weight.data = film_ckpt['film_beta_weight']
             transformer.film_beta.bias.data = film_ckpt['film_beta_bias']
-            print(f'[UQ] Loaded trained FiLM weights from {film_ckpt_path}')
+            print(f'[UQ] Loaded FiLM L1 weights from {film_ckpt_path}')
+        # FiLM L2 (VAE level)
+        if hasattr(model, 'film_gamma_l2') and 'film_gamma_l2_weight' in film_ckpt:
+            model.film_gamma_l2.weight.data = film_ckpt['film_gamma_l2_weight']
+            model.film_gamma_l2.bias.data = film_ckpt['film_gamma_l2_bias']
+            model.film_beta_l2.weight.data = film_ckpt['film_beta_l2_weight']
+            model.film_beta_l2.bias.data = film_ckpt['film_beta_l2_bias']
+            print(f'[UQ] Loaded FiLM L2 weights from {film_ckpt_path}')
 
     if args.fuse_conv_bn:
         model = fuse_conv_bn(model)

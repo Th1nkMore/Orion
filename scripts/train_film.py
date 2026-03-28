@@ -117,8 +117,8 @@ def forward_film_training(model, data):
     location = orion.prepare_location(img_metas, **data)
     pos_embed = orion.position_embeding(data, location, img_metas)
 
-    # ─── Step 4: detection head (includes UQ + FiLM) ───
-    outs_bbox, det_query = orion.pts_bbox_head(img_metas, pos_embed, **data)
+    # ─── Step 4: detection head (includes UQ + FiLM L1) ───
+    outs_bbox, det_query, uncertainty_emb = orion.pts_bbox_head(img_metas, pos_embed, **data)
     vision_embeded_obj = det_query.clone()
 
     # ─── Step 5: map head (no loss needed, just features) ───
@@ -164,6 +164,12 @@ def forward_film_training(model, data):
             data['ego_fut_masks'][:, 0, 0] *= valid_input_mask.unsqueeze(-1)
 
         current_states = ego_feature.unsqueeze(1)
+
+        # [UQ] FiLM L2: modulate current_states before VAE path
+        if hasattr(orion, 'use_uncertainty_l2') and orion.use_uncertainty_l2 and uncertainty_emb is not None:
+            gamma_l2 = orion.film_gamma_l2(uncertainty_emb)  # [B, 4096]
+            beta_l2 = orion.film_beta_l2(uncertainty_emb)    # [B, 4096]
+            current_states = gamma_l2.unsqueeze(1) * current_states + beta_l2.unsqueeze(1)  # [B, 1, 4096]
 
         # ─── Step 7: VAE → trajectory prediction ───
         if not orion.use_diff_decoder and not orion.use_mlp_decoder:
@@ -349,6 +355,12 @@ def main():
                     'film_beta_bias': model.pts_bbox_head.transformer.film_beta.bias.data.cpu(),
                     'loss': mean_loss,
                 }
+                # [UQ] Also save FiLM L2 weights if present
+                if hasattr(model, 'film_gamma_l2'):
+                    save_dict['film_gamma_l2_weight'] = model.film_gamma_l2.weight.data.cpu()
+                    save_dict['film_gamma_l2_bias'] = model.film_gamma_l2.bias.data.cpu()
+                    save_dict['film_beta_l2_weight'] = model.film_beta_l2.weight.data.cpu()
+                    save_dict['film_beta_l2_bias'] = model.film_beta_l2.bias.data.cpu()
                 torch.save(save_dict, args.out)
                 print(f'  Saved best checkpoint (loss={mean_loss:.4f})')
         else:

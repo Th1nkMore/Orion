@@ -974,7 +974,8 @@ class OrionHead(AnchorFreeHead):
             if self.pred_traffic_light_state:
                 outs.update(dict(all_traffic_states = all_traffic_states))
 
-        return outs, vlm_memory
+        # [UQ] Return uncertainty_emb for FiLM L2 (VAE-level modulation)
+        return outs, vlm_memory, uncertainty_emb
     
     def prepare_for_loss(self, mask_dict):
         """
