@@ -46,6 +46,10 @@ def parse_args():
                    help='gradient accumulation steps (effective batch = grad_accum)')
     p.add_argument('--max-samples', type=int, default=None,
                    help='limit training samples (for testing)')
+    p.add_argument('--lambda-col', type=float, default=1.0,
+                   help='weight for collision margin loss (0 to disable)')
+    p.add_argument('--col-margin', type=float, default=4.0,
+                   help='safety margin in meters for collision loss')
     p.add_argument('--out', default='checkpoints/film/best.pt')
     p.add_argument('--seed', type=int, default=42)
     return p.parse_args()
@@ -61,6 +65,70 @@ def custom_wrap_fp16_model(model):
     for module_name, v in custom_fp16.items():
         if module_name in model._modules:
             model._modules[module_name].fp16_enabled = v
+
+
+def gt_collision_margin_loss(ego_fut_preds, gt_attr_labels, gt_bboxes_3d,
+                             uq_score=None, margin=2.0):
+    """Differentiable collision margin loss using GT agent trajectories.
+
+    Args:
+        ego_fut_preds: [B, 20, 6, 2] predicted trajectory offsets (differentiable)
+        gt_attr_labels: [N, 34] GT agent attributes (dims 0-11 = future offsets)
+        gt_bboxes_3d: LiDARInstance3DBoxes [N, 9] (x,y,z,w,l,h,yaw,vx,vy)
+        uq_score: [B, 1] uncertainty score (detached), or None
+        margin: safety distance in meters
+
+    Returns:
+        Scalar loss tensor
+    """
+    device = ego_fut_preds.device
+
+    # No agents → no collision risk
+    if gt_attr_labels is None or gt_attr_labels.shape[0] == 0:
+        return torch.tensor(0.0, device=device)
+
+    # gt_bboxes_3d may be a list (from dataloader); unwrap to get the boxes object
+    bboxes = gt_bboxes_3d
+    while isinstance(bboxes, list):
+        if len(bboxes) == 0:
+            return torch.tensor(0.0, device=device)
+        bboxes = bboxes[0]
+
+    # Agent current position from bboxes
+    agent_xy = bboxes.tensor[:, :2].to(device)  # [N, 2]
+
+    # Agent future trajectory offsets from gt_attr_labels dims 0-11 → [N, 6, 2]
+    if gt_attr_labels.dim() == 1:
+        gt_attr_labels = gt_attr_labels.unsqueeze(0)
+    N = gt_attr_labels.shape[0]
+    n_cols = gt_attr_labels.shape[1] if gt_attr_labels.dim() > 1 else 0
+    if n_cols < 12:
+        return torch.tensor(0.0, device=device)
+    fut_data = gt_attr_labels[:, :12]  # [N, 12]
+    agent_fut_offsets = fut_data.reshape(N, 6, 2).to(device)
+
+    # Cumulative sum to get absolute future positions relative to current pos
+    agent_abs = agent_xy[:, None, :] + agent_fut_offsets.cumsum(dim=1)  # [N, 6, 2]
+
+    # Ego best-mode cumulative trajectory: [B, 6, 2]
+    ego_cum = ego_fut_preds[:, 0].cumsum(dim=1)
+
+    # Pairwise distance: ego [B, 6, 1, 2] vs agent [1, 1, N, 2] → [B, 6, N]
+    dist = torch.norm(
+        ego_cum[:, :, None, :] - agent_abs[None, :, :, :].permute(0, 2, 1, 3),
+        dim=-1)
+
+    # Min distance to any agent at each timestep: [B, 6]
+    min_dist = dist.min(dim=2)[0]
+
+    # Hinge loss: penalize when closer than margin
+    violation = torch.relu(margin - min_dist)  # [B, 6]
+
+    # UQ-weighted: higher uncertainty → stronger collision penalty
+    if uq_score is not None:
+        violation = violation * uq_score  # [B, 1] broadcasts to [B, 6]
+
+    return violation.mean()
 
 
 def freeze_all_except_film(model):
@@ -84,11 +152,15 @@ def freeze_all_except_film(model):
     return [p for _, p in film_params]
 
 
-def forward_film_training(model, data):
+def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
     """Custom forward for FiLM training with test-format data.
 
     Replicates ORION's inference path through QT-Former + FiLM, then
     teacher-forces through LLM and computes planning loss.
+
+    Args:
+        lambda_col: weight for collision margin loss (0 to disable)
+        col_margin: safety margin in meters
 
     Returns dict with 'loss' tensor and 'log_vars' dict.
     """
@@ -97,7 +169,7 @@ def forward_film_training(model, data):
 
     # ─── Step 1: unpack test-format data ───
     img_metas = data['img_metas']
-    SPECIAL_KEYS = {'img', 'input_ids', 'gt_bboxes_3d', 'vlm_labels', 'img_metas'}
+    SPECIAL_KEYS = {'img', 'input_ids', 'gt_bboxes_3d', 'gt_attr_labels', 'vlm_labels', 'img_metas'}
     for key in list(data.keys()):
         if key in SPECIAL_KEYS:
             continue
@@ -114,6 +186,19 @@ def forward_film_training(model, data):
     vlm_labels_1d = raw_ids.clone()
 
     data['gt_bboxes_3d'] = data['gt_bboxes_3d'][0]
+
+    # Unpack gt_attr_labels for collision loss: nested list → [N, 34] tensor
+    if 'gt_attr_labels' in data:
+        attr = data['gt_attr_labels']
+        while isinstance(attr, (list, tuple)):
+            if len(attr) == 0:
+                attr = None
+                break
+            attr = attr[0]
+        if attr is not None and torch.is_tensor(attr):
+            data['gt_attr_labels'] = attr.cuda()
+        else:
+            data.pop('gt_attr_labels', None)
 
     # Skip samples without valid future trajectory
     ego_fut_masks = data['ego_fut_masks']  # [1, 1, 1, 6] after unpacking
@@ -227,10 +312,27 @@ def forward_film_training(model, data):
         vlm_loss_val = vlm_loss if torch.is_tensor(vlm_loss) else torch.tensor(0.0, device='cuda')
         total = plan_loss + 0.1 * loss_vae + 0.01 * vlm_loss_val
 
+        # Collision margin loss (Plan C)
+        col_loss_val = torch.tensor(0.0, device='cuda')
+        if lambda_col > 0 and 'gt_attr_labels' in data:
+            # Get UQ score (detached — no backprop through UQ estimator)
+            uq_score = None
+            if hasattr(orion.pts_bbox_head, 'uq_output') and orion.pts_bbox_head.uq_output is not None:
+                uq_score = orion.pts_bbox_head.uq_output.score.detach()
+
+            col_loss_val = gt_collision_margin_loss(
+                ego_fut_preds,
+                data['gt_attr_labels'],
+                data['gt_bboxes_3d'],
+                uq_score=uq_score,
+                margin=col_margin)
+            total = total + lambda_col * col_loss_val
+
         log_vars = {
             'plan_reg': plan_loss.item(),
             'vae': loss_vae.item(),
             'vlm': vlm_loss_val.item() if torch.is_tensor(vlm_loss_val) else 0,
+            'col': col_loss_val.item(),
             'total': total.item(),
         }
         return {'loss': total, 'log_vars': log_vars}
@@ -358,7 +460,10 @@ def main():
 
         for step, data in enumerate(data_loader):
             try:
-                outputs = forward_film_training(model, data)
+                outputs = forward_film_training(
+                    model, data,
+                    lambda_col=args.lambda_col,
+                    col_margin=args.col_margin)
             except Exception as e:
                 import traceback
                 tb = traceback.format_exc()

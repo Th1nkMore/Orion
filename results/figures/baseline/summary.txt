@@ -1,0 +1,36 @@
+UQ-ORION Open-Loop Evaluation Summary
+==================================================
+
+Total samples: 12806
+Normal: 2709, Adverse: 10097
+
+--- Normal (2709 total, 2709 with metrics) ---
+  UQ score: mean=0.5450, std=0.4399, median=0.7436
+  L2@1s: 0.4849 +/- 1.0479
+  Col@1s: 0.0002
+  L2@2s: 1.2473 +/- 1.9419
+  Col@2s: 0.0001
+  L2@3s: 2.3791 +/- 3.1300
+  Col@3s: 0.0001
+
+--- Adverse (10097 total, 10097 with metrics) ---
+  UQ score: mean=0.7804, std=0.3314, median=0.9633
+  L2@1s: 0.4618 +/- 0.9749
+  Col@1s: 0.0178
+  L2@2s: 1.0368 +/- 1.8439
+  Col@2s: 0.0170
+  L2@3s: 1.7791 +/- 2.8356
+  Col@3s: 0.0161
+
+--- All (12806 total, 12806 with metrics) ---
+  UQ score: mean=0.7306, std=0.3699, median=0.9444
+  L2@1s: 0.4667 +/- 0.9908
+  Col@1s: 0.0141
+  L2@2s: 1.0813 +/- 1.8670
+  Col@2s: 0.0134
+  L2@3s: 1.9060 +/- 2.9107
+  Col@3s: 0.0127
+
+Spearman(UQ, L2@3s): rho=0.2753, p=2.12e-221
+Pearson(UQ, L2@3s):  r=0.1276, p=1.17e-47
+AUROC(UQ -> adverse): 0.6211

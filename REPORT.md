@@ -1,6 +1,6 @@
 # UQ-ORION 阶段性研究报告
 
-> 日期：2026-03-28
+> 日期：2026-03-30（最新更新，修正了碰撞感知训练的 ADE 权衡分析）
 > 硬件：1x NVIDIA A100 80GB
 > 基线模型：ORION (ICCV 2025)
 > 目标：在 ORION 基础上轻量化引入不确定性感知，提升恶劣天气场景安全性
@@ -191,6 +191,79 @@ python scripts/eval_openloop.py \
 
 ---
 
+### Stage 2b：FiLM 训练 ✅
+
+**完成日期**：2026-03-28
+
+**做了什么**：分别训练三组 FiLM 权重，用于 ablation 实验。
+
+| 模型 | Epochs | Best Loss | 参数量 | Checkpoint |
+|------|--------|-----------|--------|------------|
+| FiLM L1 (QT-Former) | 3 | 0.1058 | 131K | `checkpoints/film/best_l1.pt` |
+| FiLM L2 (VAE) | 3 | 0.1160 | 2.1M | `checkpoints/film/best_l2.pt` |
+| FiLM L1+L2 | 3 | 0.1080 | 2.2M | `checkpoints/film/best_l1l2.pt` |
+
+**训练方式**：冻结 ORION 全部主干，只训 FiLM gamma/beta 参数。通过 LLM teacher forcing 保持梯度流。
+
+**关键命令**：
+```bash
+# L1 only
+python scripts/train_film.py --config ... --epochs 3 --lr 1e-3 --out checkpoints/film/best_l1.pt
+
+# L2 only
+python scripts/train_film.py --config ... --film-mode l2 --epochs 3 --lr 1e-3 --out checkpoints/film/best_l2.pt
+
+# L1+L2
+python scripts/train_film.py --config ... --film-mode l1l2 --epochs 3 --lr 1e-3 --out checkpoints/film/best_l1l2.pt
+```
+
+**权重验证**：所有 checkpoint 的 gamma_bias ≈ 1, beta_bias ≈ 0（接近 identity），标准差 ~0.02（有效但保守的调制）。
+
+**初步开环评估（500 样本）**：
+- FiLM L1 vs Baseline: L2@3s 1.885m vs 1.916m（改善 1.6%）
+- UQ Spearman 相关性: -0.291 vs -0.276（提升）
+- 注意：L2 轨迹精度改善不等于安全性改善，需闭环碰撞率验证
+
+---
+
+### Stage 3：评估工具构建 ✅
+
+**完成日期**：2026-03-29
+
+**做了什么**：构建两个评估脚本，支持后续快速迭代。
+
+**1. 热交换 Ablation 评估** (`scripts/eval_ablation_full.py`)
+- 加载 7.5B 模型一次，热交换 FiLM 权重评估 4 组：A=Baseline, B=L1, C=L2, D=L1+L2
+- 节省 ~5 小时的重复模型加载
+- 快速测试通过（10 样本，4 组产生不同指标）
+
+**2. 闭环回放评估** (`scripts/eval_closedloop_replay.py`)
+- 使用 Bench2Drive 录制数据，无需 CARLA 环境
+- 流程：ORION 推理 → PID 控制器 → 对比 GT 控制信号
+- 指标：Control MAE (steer/throttle/brake)、Traj ADE、碰撞率、UQ 分层
+- 快速测试通过：steer MAE=0.005, ADE@3s=7.21
+
+**关键命令**：
+```bash
+# Ablation 评估（全量 ~3h，快测 --max-samples 100）
+python scripts/eval_ablation_full.py \
+    adzoo/orion/configs/orion_stage3_infer.py ckpts/Orion.pth \
+    --film-l1 checkpoints/film/best_l1.pt \
+    --film-l2 checkpoints/film/best_l2.pt \
+    --film-l1l2 checkpoints/film/best_l1l2.pt \
+    --out-dir results/ablation
+
+# 闭环回放评估（全量 ~85min，快测 --max-scenarios 2）
+python scripts/eval_closedloop_replay.py \
+    adzoo/orion/configs/orion_stage3_infer.py ckpts/Orion.pth \
+    --ann-file data/infos/b2d_infos_val.pkl \
+    --film-checkpoint checkpoints/film/best_l1l2.pt \
+    --out results/closedloop_replay.json \
+    --frame-step 5
+```
+
+---
+
 ## 三、关键数据与分析
 
 ### 3.1 天气分类
@@ -317,7 +390,9 @@ CARLA 场景按天气 ID 分为两类：
 | `scripts/train_uq.py` | ~250 | UQEstimator 训练 | Stage 1b |
 | `scripts/validate_uq.py` | ~150 | 验证报告 + 可视化 | Stage 1c |
 | `scripts/eval_openloop.py` | ~430 | 开环评估 + UQ score 捕获 | Stage 2a |
-| `scripts/train_film.py` | ~380 | FiLM L1/L2 微调（teacher forcing）| Stage 2b |
+| `scripts/train_film.py` | ~480 | FiLM 微调 + 碰撞感知 loss（方案 C）| Stage 2b/4b |
+| `scripts/eval_ablation_full.py` | ~325 | 热交换 ablation 评估（4 组一次跑完）| Stage 4 |
+| `scripts/eval_closedloop_replay.py` | ~510 | 闭环回放评估（Bench2Drive，无 CARLA）| 闭环 |
 | `scripts/visualize_eval.py` | ~460 | 论文级评估可视化（5 种图表）| 可视化 |
 | `scripts/visualize_attention.py` | ~590 | QT-Former attention map 可视化 | 可视化 |
 | `scripts/run_ablation.sh` | ~200 | 四组 Ablation 自动化 | Stage 4 |
@@ -382,34 +457,139 @@ tests/test_film.py      — 12 tests (全部通过)
 | `data/features/` | 235GB | 预提取的 EVAViT patch tokens |
 | `data/labels/uq_labels.pt` | 1.3MB | 不确定性伪标签 |
 | `checkpoints/uq/best.pt` | 25MB | 训练好的 UQEstimator |
+| `checkpoints/film/best_l1.pt` | 516KB | FiLM L1 权重 |
+| `checkpoints/film/best_l2.pt` | 8.2MB | FiLM L2 权重 |
+| `checkpoints/film/best_l1l2.pt` | 8.5MB | FiLM L1+L2 权重（L2 loss 版本）|
+| `checkpoints/film/best_l1l2_col.pt` | ~8.5MB | FiLM L1+L2 权重（碰撞感知 loss，方案 C）|
 | `results/eval_openloop_full.pt` | ~50MB | 开环评估逐样本结果 |
+| `results/closedloop_film_baseline.json` | ~5KB | 闭环评估结果（baseline vs FiLM L2-loss）|
 | `results/figures/baseline/` | ~440KB | 5 张可视化图表 |
 
 ---
 
 ## 七、下一步计划
 
-### 即刻可执行（GPU 已释放）
+### Stage 4a：闭环碰撞率验证（L2-loss FiLM） ✅
 
-| 步骤 | 命令 | 预计时间 | 说明 |
-|------|------|---------|------|
-| FiLM L1 训练 | `python scripts/train_film.py --epochs 3 --lr 1e-3 --out checkpoints/film/best.pt` | ~2h | 只训练 131K 参数（gamma/beta），通过 LLM teacher forcing 传梯度 |
-| FiLM L1 评估 | `python scripts/eval_openloop.py ... --film-checkpoint checkpoints/film/best.pt` | ~6h | 对比 baseline vs L1 |
-| 可视化对比 | `python scripts/visualize_eval.py --input ... --input-film ...` | <1min | 生成 baseline vs FiLM 对比图 |
+**完成日期**：2026-03-29
 
-### 后续阶段
+**做了什么**：运行 baseline vs FiLM L1+L2（L2 loss 训练版本）的闭环回放评估，对比碰撞率。
 
-| 阶段 | 内容 | 预计时间 |
-|------|------|---------|
-| Stage 3 | FiLM L2 训练（已实现，待训练）+ Attention map 可视化 | 1-2 天 |
-| Stage 4 | 四组 Ablation（`bash scripts/run_ablation.sh --all`）| 2-3 天 |
-| 论文 | 撰写初稿 | 1-2 周 |
+**结果**：
+
+| 指标 | Baseline | FiLM L1+L2 (L2 loss) | 变化 |
+|------|----------|-----------------------|------|
+| Adverse 碰撞率 | 1.17% | 1.22% | +4.3% ❌ |
+| ADE@3s | 2.26m | 3.90m | +73% ❌ |
+| Throttle MAE | 0.26 | 0.40 | +54% ❌ |
+| Steer MAE | 0.006 | 0.005 | -17% |
+
+**结论**：用 L2 轨迹 loss 训练的 FiLM **无法降低碰撞率**，反而使轨迹精度和控制精度退化。这验证了核心 insight：**L2 轨迹匹配 ≠ 安全性**。
+
+---
+
+### Stage 4b：碰撞感知 FiLM 训练（方案 C） ✅
+
+**完成日期**：2026-03-29
+
+**做了什么**：在 `train_film.py` 中新增可微分的 GT-agent 碰撞边距 loss，重新训练 FiLM。
+
+**碰撞感知 Loss 设计**：
+```
+gt_collision_margin_loss:
+  1. 从 gt_bboxes_3d 获取 agent 当前位置 [N, 2]
+  2. 从 gt_attr_labels[:, 0:12] 获取 agent 未来轨迹偏移 → cumsum → [N, 6, 2]
+  3. 计算 ego 预测轨迹到最近 agent 的距离 → min_dist [B, 6]
+  4. Hinge loss: relu(margin - min_dist)
+  5. UQ score 加权: violation * uq_score.detach()
+
+total = plan_reg + 0.1*vae + 0.01*vlm + lambda_col * col_loss
+```
+
+**为什么用 GT agent 而非预测 agent**：FiLM 训练中 ORION 主干冻结，agent 预测不可用（需要检测头的训练模式数据字段）。GT agent 提供精确的障碍物位置，是可靠的碰撞判定基础。
+
+**为什么 UQ score detach**：UQ score 只做权重（高不确定性 → 更强碰撞惩罚），不通过 UQ 反传梯度——FiLM 训练只优化 FiLM 参数，不改变 UQ 估计本身。
+
+**关键实验发现——margin 选择**：
+
+| margin | col_loss | 有效样本比例 | 说明 |
+|--------|----------|-------------|------|
+| 2.0m | 0.000 | ~0% | 几乎所有 agent 距离 > 2m，无梯度信号 |
+| 4.0m | 0.242 | ~30% | 合理，部分帧有碰撞风险梯度 |
+| 5.0m | 1.023 | ~60% | 过于激进，可能让模型过度保守 |
+
+最终选择 **margin=4.0m**（约 2 个车身宽度），`lambda_col=0.5`。
+
+**训练配置**：
+```bash
+USE_FILM_L1L2=1 python scripts/train_film.py \
+    --max-samples 3000 --epochs 5 \
+    --lr 1e-3 --lambda-col 0.5 --col-margin 4.0 \
+    --out checkpoints/film/best_l1l2_col.pt
+```
+
+**训练结果**：Epoch 1: 77.31 → Epoch 2: 0.18 → Epoch 3: 0.14 → Epoch 4: 0.18 → **Epoch 5: 0.13 (最佳)**。
+
+**闭环评估结果**（50 adverse 场景，7 个与 baseline 重叠）：
+
+| 指标 | Baseline | FiLM Col | 变化 |
+|------|----------|----------|------|
+| 平均 ADE@3s | 2.49m | 3.52m | **+41.5% ❌** |
+| 平均 Collision@3s | 1.17% | 0.96% | **-17.5% ✅** |
+| 平均 Brake MAE | 0.274 | 0.627 | +129% |
+| 平均 Throttle MAE | 0.248 | 0.431 | +74% |
+
+**逐场景得失**（7 个重叠 adverse 场景）：
+
+| 场景 | Baseline Col | FiLM Col | ΔCol | ΔADE@3s | 状态 |
+|------|-------------|----------|------|---------|------|
+| ControlLoss_Town04 | 3.47% | 3.47% | 0 | -2.33m | ➖ ADE改善 |
+| ConstructionObstacle | 3.07% | 2.63% | -0.44% | +1.24m | ✅ Col改善 |
+| ControlLoss_Town10HD | 1.63% | 0.41% | -1.22% | +0.13m | ✅ Col改善 |
+| CrossingBicycleFlow | 0.00% | 0.23% | +0.23% | +4.64m | ❌ Col退化 |
+| BlockedIntersection | 0.00% | 0.00% | 0 | +0.53m | ➖ |
+| Accident_Town05 | 0.00% | 0.00% | 0 | +1.58m | ➖ |
+| AccidentTwoWays | 0.00% | 0.00% | 0 | +1.43m | ➖ |
+
+**ADE 退化原因分析**：
+
+1. **全面制动增加**：FiLM Col 使 Brake MAE 增加 129%，Throttle MAE 增加 74%。模型采取更保守的加减速策略
+2. **不必然导致安全**：CrossingBicycleFlow 碰撞率从 0% 升至 0.23%，说明过度制动反而可能引入新的碰撞风险
+3. **有效场景**：碰撞改善的两个场景（ControlLoss、ConstructionObstacle）恰好是 baseline 碰撞率最高的两个，说明碰撞感知训练在最需要它的场景有效
+4. **唯一 ADE 改善**：ControlLoss_Town04 碰撞率不变但 ADE 大幅下降 2.33m——该场景 FiLM 的保守策略同时带来了更好的轨迹质量
+
+**结论**：碰撞感知训练使模型全面趋于保守（更多制动），在 2/7 场景降低了碰撞率（高风险场景），但代价是 ADE 增加 41.5%。这是一种**安全性 vs 轨迹效率的权衡**，而非纯粹的改善。
+
+---
+
+## 七、下一步计划
+
+### 已验证结论
+
+1. **L2 轨迹 loss 训练的 FiLM 无法降低碰撞率**（Stage 4a 已证实）
+2. **L2 轨迹精度 ≠ 安全性**：FoggySunset L2 最低但碰撞率 0%，Unknown23 L2 低但碰撞率 11.25%
+3. **Adverse 碰撞率是 Normal 的 161 倍**（1.61% vs 0.01%）——核心安全问题
+4. **碰撞感知 FiLM 训练使碰撞率降低 17.5%**（1.17%→0.96%），但 ADE 增加 41.5%——存在安全性 vs 轨迹效率的权衡
+5. **碰撞率改善仅在 2/7 个 shared adverse 场景中成立**，且改善集中在原本碰撞率最高的两个场景
+
+### 当前进行中
+
+1. ~~碰撞感知 FiLM 训练（方案 C）~~ → ✅ 已完成
+2. ~~闭环评估~~ → ✅ 已完成（50 场景）
+
+### 待做
+
+1. **扩大训练数据**：从 3000 样本扩展到全量 12,806 样本，看碰撞率改善是否更显著
+2. **调参搜索**：尝试更大的 margin（如 5m）和更高的 lambda_col（如 1.0），或反过来的激进设置
+3. **方向感知项**：惩罚朝向 agent 运动的轨迹，而不仅是距离上的接近
+4. **全量 Ablation**：A=Baseline, B=L1, C=L2, D=L1+L2, E=L1+L2+Col（5 组）
+5. **信号灯场景分析**：VanillaSignalizedTurnEncounterRedLight 碰撞率 19.89% 是新发现，需补充该类数据
 
 ### 需要关注的风险
 
-1. **AUROC 不达标**（当前 0.621，目标 0.7）：可通过改进伪标签方案提升（加入 temporal inconsistency 分量、VLM 辅助分类）
-2. **碰撞率集中在少数场景**：Unknown(23) 占全部碰撞的绝大多数，需确认该场景的 UQ score 是否足够高以触发保守策略
-3. **FiLM 训练可能不收敛**：梯度需要经过 LLM teacher forcing 路径，链条很长。备选方案：降低学习率、分阶段训练
+1. **ADE 退化风险**：碰撞感知训练的保守化策略会显著降低轨迹效率（ADE+41.5%），论文需正面讨论这个 tradeoff
+2. **AUROC 不达标**（当前 0.621，目标 0.7）：伪标签方案需改进
+3. **泛化性有限**：改善仅在 2/7 场景成立，新场景可能出现新失败模式
 
 ---
 
@@ -455,6 +635,146 @@ bash scripts/run_ablation.sh --all
 
 ---
 
-*报告生成时间：2026-03-28*
-*Git 分支：dev (commit 479e038)*
-*所有代码已推送至 origin/dev*
+## 九、FiLM 训练与评估详情
+
+### 9.1 FiLM Checkpoints
+
+| Checkpoint | 文件 | 大小 | 内容 |
+|------------|------|------|------|
+| `checkpoints/film/best_l1.pt` | 516KB | FiLM L1 weights (gamma/beta for QT-Former) |
+| `checkpoints/film/best_l2.pt` | 8.2MB | FiLM L2 weights (gamma/beta for VAE) |
+| `checkpoints/film/best_l1l2.pt` | 8.5MB | FiLM L1+L2 combined weights |
+
+### 9.2 碰撞感知 Loss 实现细节
+
+`gt_collision_margin_loss()` 函数（`scripts/train_film.py`）：
+
+```python
+# 输入
+ego_fut_preds: [B, 20, 6, 2]   # 可微分的预测轨迹 offsets
+gt_attr_labels: [N, 34]         # GT agent 属性（dims 0-11 = 未来轨迹偏移）
+gt_bboxes_3d: `LiDARInstance3DBoxes` [N, 9] (x,y,z,w,l,h,yaw,vx,vy)
+uq_score: [B, 1]               # detached，作为权重
+
+# 计算
+agent_abs = agent_xy + cumsum(agent_fut_offsets)  # [N, 6, 2] 绝对未来位置
+ego_cum = ego_fut_preds[:, 0].cumsum(dim=1)       # [B, 6, 2] best-mode 累积轨迹
+dist = ||ego_cum - agent_abs||                     # [B, 6, N] 距离矩阵
+min_dist = dist.min(dim=agent)                     # [B, 6] 到最近 agent 距离
+violation = relu(margin - min_dist) * uq_score     # hinge + UQ 加权
+loss = violation.mean()
+```
+
+**数据格式注意**：
+- `gt_attr_labels` 从 dataloader 出来是嵌套 list，需要递归 unwrap 到 tensor
+- `gt_bboxes_3d` 同样是 list 包裹的 LiDARInstance3DBoxes 对象
+- 单个帧可能没有 agent（N=0），此时返回 loss=0
+
+### 9.3 已知问题
+
+- FiLM L1+L2 训练 epoch 1 出现异常 mean loss (116.86)，实际步级 loss 正常 (~0.1)，由极端 outlier 样本拉高。Epoch 2/3 正常收敛
+- `train_film.py` 中 L2-only 模式的 checkpoint 保存曾有 bug（已修复，加了 hasattr 防护）
+- 碰撞 loss 稀疏：约 70% 帧的 col_loss=0（所有 agent > margin），只有近距离交互帧产生梯度
+
+### 9.3 闭环回放评估技术细节
+
+`eval_closedloop_replay.py` 的数据流：
+```
+For each scenario (folder in data_infos):
+  Sort frames by frame_idx
+  Init fresh PIDController
+  For each frame (every N-th):
+    mmcv collate → model inference → ego_fut_preds [6, 2]
+    world2lidar transform → local_command
+    PID(ego_fut_preds, speed, local_cmd) → steer, throttle, brake
+    Compare vs GT controls → Control MAE
+    metric_stp3 occupancy grid → collision detection
+```
+
+注意：model 输出的 `metric_results` 包含 `plan_L2_*` 和 `plan_obj_col_*`，即使 `fut_valid_flag=False` 也有值。评估脚本使用 `has_plan_metrics`（L2 > 0）而非 `fut_valid_flag` 来过滤。
+
+---
+
+---
+
+## 十、论文 Insights 与故事线
+
+### 10.1 核心论点
+
+**Claim**: 端到端自动驾驶模型在恶劣天气下过度自信，轻量不确定性感知注入可在不修改主干的前提下显著降低碰撞风险。
+
+### 10.2 可写入论文的关键 Insights
+
+**Insight 1: L2 轨迹精度 ≠ 安全性（反直觉发现）**
+
+| 场景 | L2@3s (m) | 碰撞率 |
+|------|-----------|--------|
+| FoggySunset | **0.855** (最低) | **0.00%** |
+| Unknown(23) | 0.968 (次低) | **11.25%** (最高) |
+| CloudyNoon | 3.890 (最高) | 0.02% |
+
+解读：低 L2 error 说明轨迹与 GT 接近，但 GT 本身可能就在碰撞路径上（Unknown23 场景复杂，GT 也可能不是最优）。高 L2 说明偏离 GT，但偏离方向可能恰好更安全（CloudyNoon 速度快、偏移大但远离障碍物）。
+
+**论文用途**：motivation 段落，说明为什么传统开环 L2 评估不足以衡量安全性，需要碰撞率指标。
+
+**Insight 2: 恶劣天气碰撞率放大效应**
+
+- Adverse 碰撞率是 Normal 的 **161 倍**（1.61% vs 0.01%）
+- 而 Adverse 的 L2 error 反而**低于** Normal（1.779m vs 2.379m）
+- 原因：恶劣天气下 CARLA 车辆低速行驶，GT 轨迹短，L2 天然低；但感知降质导致碰撞检测失败
+
+**论文用途**：Introduction 的 safety gap 论述——现有模型在恶劣天气下「看起来精度不错」但实际碰撞风险剧增。
+
+**Insight 3: 纯 L2 loss 训练的 FiLM 让碰撞率上升（+4.3%）**
+
+L2-loss FiLM（L1+L2）：碰撞率 1.17% → 1.22%，ADE 2.26m → 3.90m。优化 L2 匹配的 FiLM 让模型学会更好地拟合训练分布，但这个分布本身不包含安全性信号——L2 降低不等于安全提升。
+
+**论文用途**：Ablation study 的重要对照组——证明需要碰撞感知训练目标，单纯调制不够。
+
+**Insight 3b: 碰撞感知 FiLM 降低碰撞率 17.5%，但以 ADE 增加 41.5% 为代价**
+
+碰撞感知训练（margin=4m, λ_col=0.5）：碰撞率 1.17% → 0.96%，ADE 2.49m → 3.52m。
+- 改善仅在 2/7 个 shared adverse 场景成立（ControlLoss_Town10HD: -75%, ConstructionObstacle: -14%）
+- CrossingBicycleFlow 反而出现新的碰撞（0% → 0.23%）
+- ControlLoss_Town04 碰撞不变但 ADE 大幅改善（-2.33m）——保守策略在该场景恰好也更好
+- Brake MAE 增加 129%，说明模型全面趋于保守
+
+**权衡分析**：碰撞感知训练本质上是"用轨迹效率换安全性"。ADE 增加 41.5% 是否可接受，取决于应用场景——如果是物流园区低速场景可能值得，如果是高速路则不然。
+
+**论文用途**：实验章节的核心结果，但需正面承认这个 tradeoff，这是碰撞感知训练的固有局限。
+
+**Insight 4: UQ score 有效但需要碰撞感知桥接**
+
+- UQ score normal/adverse 均值差 = 0.235（Spearman ρ=0.96 vs 伪标签）
+- 但 UQ score 与碰撞率的直接相关性弱（ρ=-0.077）
+- 说明 UQ score 捕获了「感知质量下降」但没有直接翻译为「应该规避碰撞」
+- 碰撞感知 loss 中 UQ score 做权重 = 桥接不确定性估计和安全决策
+
+**论文用途**：方法章节——解释为什么需要碰撞感知 loss 而非仅仅将 UQ embedding 注入网络。
+
+**Insight 5: 碰撞 loss 的稀疏性问题与 margin 工程**
+
+- margin=2m: 0% 帧有碰撞梯度（所有 agent > 2m）
+- margin=4m: ~30% 帧有碰撞梯度
+- margin=5m: ~60% 帧有碰撞梯度
+- 实际碰撞距离 ~1-2m，但需要更大 margin 才能让足够多的训练帧提供梯度
+- 类似于 focal loss 思想：需要人为放大稀有事件（近距离交互）的学习信号
+
+**论文用途**：实验章节的超参分析，可做 margin sensitivity 曲线。
+
+### 10.3 论文故事线草案
+
+1. **Problem**: VLM-based E2E 驾驶在恶劣天气下碰撞率剧增 161×，但开环指标看不出问题
+2. **Why it's hard**: L2 优化不等于安全优化（Insight 1/2/3），模型需要感知自身的不确定性
+3. **Our approach**: 轻量 UQ 估计 (2.24M) + 双层 FiLM 注入 (2.24M)，零主干微调
+4. **Key innovation**: 碰撞感知 FiLM 训练——UQ score 加权的 hinge collision loss
+5. **Results**:
+   - L2-loss FiLM（L1+L2）反而使碰撞率上升（1.17%→1.22%）——L2 优化 ≠ 安全
+   - 碰撞感知 FiLM 使碰撞率降低 17.5%（1.17%→0.96%），但 ADE 增加 41.5%
+   - 改善集中在原本碰撞率最高的场景（ControlLoss、ConstructionObstacle）
+   - 改善以保守化为代价——brake MAE 增加 129%
+
+---
+
+*报告更新时间：2026-03-30*
+*Git 分支：dev*
