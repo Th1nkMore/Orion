@@ -69,7 +69,9 @@ uq-orion/
 │   ├── train_uq.py                # Stage 1b: 训练 UQEstimator
 │   ├── validate_uq.py            # Stage 1c: 验证报告 + 可视化
 │   ├── eval_openloop.py           # Stage 2a: 开环评估 + UQ score 分析
-│   ├── train_film.py             # Stage 2b: FiLM L1 微调（只训 gamma/beta）
+│   ├── train_film.py             # Stage 2b/4b: FiLM 微调 + 碰撞感知 loss（方案 C）
+│   ├── eval_ablation_full.py     # Stage 4: 热交换 ablation 评估（A/B/C/D 四组）
+│   ├── eval_closedloop_replay.py # 闭环回放评估（Bench2Drive 数据，无需 CARLA）
 │   └── e2e_mock_test.py          # 端到端 mock 测试
 ├── configs/
 │   └── uq_train.yaml       # 模型/训练/数据配置
@@ -77,6 +79,7 @@ uq-orion/
 │   ├── __init__.py
 │   └── test_uq_model.py    # pytest 测试
 ├── checkpoints/uq/best.pt  # 已训练的 UQEstimator 权重
+├── checkpoints/film/        # FiLM 训练权重（best_l1.pt, best_l2.pt, best_l1l2.pt）
 ├── results/                 # 评估结果输出目录
 ├── requirements.txt         # ORION 原始依赖（勿动）
 ├── requirements_uq.txt      # UQ 项目依赖（uv 管理）
