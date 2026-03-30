@@ -244,6 +244,8 @@ def main() -> None:
                         help="Output label file")
     parser.add_argument("--stat_cache", type=str, default="",
                         help="Path to stat_cache.pt for fast label generation")
+    parser.add_argument("--scene_type_map", type=str, default="",
+                        help="Path to .pt mapping fname->scene_type (overrides feature file)")
     parser.add_argument("--n_workers", type=int, default=4,
                         help="Parallel workers (CPU fallback only)")
     parser.add_argument("--dry_run", action="store_true",
@@ -271,8 +273,12 @@ def main() -> None:
     labels: dict[str, dict] = {}
     failed: list[str] = []
 
-    # Build fname → scene_type mapping from feature files (first pass, lightweight)
-    fname_to_scene: dict[str, str] = {}
+    # Optional external scene_type override (weather-based instead of scenario-based)
+    scene_type_override: dict[str, str] = {}
+    if args.scene_type_map and Path(args.scene_type_map).is_file():
+        scene_type_override = torch.load(args.scene_type_map, weights_only=True, map_location="cpu")
+        print(f"Loaded scene_type_map: {len(scene_type_override)} entries (overrides feature file)")
+
     stat_cache: dict[str, torch.Tensor] = {}
     if args.stat_cache and Path(args.stat_cache).is_file():
         stat_cache = torch.load(args.stat_cache, weights_only=True, map_location="cpu")
@@ -288,11 +294,15 @@ def main() -> None:
             if fname not in stat_cache:
                 failed.append(fname)
                 continue
-            try:
-                d = torch.load(str(fp), map_location="cpu", weights_only=True)
-                scene_type = d.get("scene_type", "unknown")
-            except Exception:
-                scene_type = "unknown"
+
+            if fname in scene_type_override:
+                scene_type = scene_type_override[fname]
+            else:
+                try:
+                    d = torch.load(str(fp), map_location="cpu", weights_only=True)
+                    scene_type = d.get("scene_type", "unknown")
+                except Exception:
+                    scene_type = "unknown"
 
             stat = stat_cache[fname].float().numpy()  # [5]
             raw = compute_raw_score_from_stats(stat)
@@ -317,7 +327,8 @@ def main() -> None:
                     d = torch.load(str(fp), map_location="cpu", weights_only=True)
                     tokens_list.append(d["tokens"])
                     fnames.append(fp.name)
-                    scene_types_b.append(d.get("scene_type", "unknown"))
+                    st = scene_type_override.get(fp.name, d.get("scene_type", "unknown"))
+                    scene_types_b.append(st)
                 except Exception as e:
                     print(f"[WARN] failed to load {fp.name}: {e}")
                     failed.append(fp.name)
@@ -356,7 +367,8 @@ def main() -> None:
             if score is None:
                 failed.append(fname)
             else:
-                raw_records.append((fname, score, scene_type))
+                st = scene_type_override.get(fname, scene_type)
+                raw_records.append((fname, score, st))
         calibrated = calibrate_scores(raw_records)
         for fname, score, st in calibrated:
             labels[fname] = {"score": score, "scene_type": st}
