@@ -1,0 +1,41 @@
+# UQ Ablation: without calibration regularisation
+# Tests contribution of score-spread regularisation (1/std penalty)
+
+model:
+  d_patch: 1024
+  n_views: 6
+  n_patches: 1600
+  n_query: 16
+  d_stat: 64
+  d_hidden: 512
+  d_out: 256
+  use_stat_features: true
+  use_transformer_decoder: true
+
+training:
+  batch_size: 64
+  lr: 3.0e-4
+  weight_decay: 1.0e-4
+  epochs: 20
+  warmup_epochs: 3
+  seed: 42
+
+loss:
+  lambda_cal: 0.1
+  lambda_rank: 0.5
+  use_ranking: true
+  use_calibration: false
+
+data:
+  feature_dir: ./data/features
+  label_file: ./data/labels/uq_labels.pt
+  val_ratio: 0.1
+  stat_cache_file: ./data/stat_cache.pt
+  preload: false
+  preload_workers: 16
+  n_patches_subsample: 256
+
+logging:
+  save_dir: ./checkpoints/uq_ablation/no_cal
+  log_interval: 10
+  save_interval: 5
