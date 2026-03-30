@@ -37,35 +37,43 @@ class UQEstimator(nn.Module):
         d_hidden: int = config["d_hidden"]       # 512
         d_out: int = config["d_out"]             # 256
 
+        # Ablation switches
+        self.use_stat_features = config.get("use_stat_features", True)
+        self.use_transformer_decoder = config.get("use_transformer_decoder", True)
+
         # -- 1. Patch projection: D → d_out (reduce dim before decoder) ------
         self.patch_proj = nn.Linear(d_patch, d_out)  # [*, D] → [*, d_out]
 
         # -- 2. Learnable queries for cross-attention pooling ----------------
-        self.queries = nn.Parameter(
-            torch.randn(1, n_query, d_out) * (1.0 / math.sqrt(d_out))
-        )  # [1, n_query, d_out]
+        if self.use_transformer_decoder:
+            self.queries = nn.Parameter(
+                torch.randn(1, n_query, d_out) * (1.0 / math.sqrt(d_out))
+            )  # [1, n_query, d_out]
 
-        # -- 3. Two-layer Transformer decoder (query cross-attends patches) --
-        decoder_layer = nn.TransformerDecoderLayer(
-            d_model=d_out,
-            nhead=8,
-            dim_feedforward=d_out * 2,
-            dropout=0.1,
-            activation="gelu",
-            batch_first=True,
-        )
-        self.decoder = nn.TransformerDecoder(decoder_layer, num_layers=2)
+            # -- 3. Two-layer Transformer decoder (query cross-attends patches)
+            decoder_layer = nn.TransformerDecoderLayer(
+                d_model=d_out,
+                nhead=8,
+                dim_feedforward=d_out * 2,
+                dropout=0.1,
+                activation="gelu",
+                batch_first=True,
+            )
+            self.decoder = nn.TransformerDecoder(decoder_layer, num_layers=2)
 
         # -- 4. Stat-feature projection (5 raw → d_stat) + LayerNorm --------
-        self.stat_proj = nn.Sequential(
-            nn.Linear(D_STAT_RAW, d_stat),
-            nn.GELU(),
-        )
-        self.stat_norm = nn.LayerNorm(d_stat)
+        fusion_in_dim = d_out
+        if self.use_stat_features:
+            self.stat_proj = nn.Sequential(
+                nn.Linear(D_STAT_RAW, d_stat),
+                nn.GELU(),
+            )
+            self.stat_norm = nn.LayerNorm(d_stat)
+            fusion_in_dim += d_stat
 
         # -- 5. Fusion MLP --------------------------------------------------
         self.fusion = nn.Sequential(
-            nn.Linear(d_out + d_stat, d_hidden),
+            nn.Linear(fusion_in_dim, d_hidden),
             nn.GELU(),
             nn.Dropout(0.1),
             nn.Linear(d_hidden, d_out),
@@ -102,21 +110,27 @@ class UQEstimator(nn.Module):
         x = self.patch_proj(x)  # [B*N_views, N_patches, d_out]
         d = x.shape[-1]  # d_out
 
-        # 2. Cross-attention pooling
-        queries = self.queries.expand(B * N_views, -1, -1)  # [B*N_views, n_query, d_out]
-        attn_out = self.decoder(queries, x)  # [B*N_views, n_query, d_out]
-        attn_out = attn_out.mean(dim=1)  # [B*N_views, d_out]
+        # 2. Patch aggregation: cross-attention decoder or simple mean pool
+        if self.use_transformer_decoder:
+            queries = self.queries.expand(B * N_views, -1, -1)  # [B*N_views, n_query, d_out]
+            attn_out = self.decoder(queries, x)  # [B*N_views, n_query, d_out]
+            attn_out = attn_out.mean(dim=1)  # [B*N_views, d_out]
+        else:
+            attn_out = x.mean(dim=1)  # [B*N_views, d_out]
 
         # Restore view dimension and average across views
         attn_out = attn_out.reshape(B, N_views, d)  # [B, N_views, d_out]
         attn_out = attn_out.mean(dim=1)  # [B, d_out]
 
-        # 3. Stat-feature branch: project 5 → d_stat, then LayerNorm
-        stat_out = self.stat_proj(stat_features)  # [B, d_stat]
-        stat_out = self.stat_norm(stat_out)  # [B, d_stat]
+        # 3. Stat-feature branch (optional)
+        if self.use_stat_features:
+            stat_out = self.stat_proj(stat_features)  # [B, d_stat]
+            stat_out = self.stat_norm(stat_out)  # [B, d_stat]
+            fused = torch.cat([attn_out, stat_out], dim=-1)  # [B, d_out + d_stat]
+        else:
+            fused = attn_out  # [B, d_out]
 
         # 4. Fusion
-        fused = torch.cat([attn_out, stat_out], dim=-1)  # [B, d_out + d_stat]
         embedding = self.fusion(fused)  # [B, d_out]
 
         # 5. Output heads
