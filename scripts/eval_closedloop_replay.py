@@ -273,6 +273,50 @@ def aggregate_results(scenario_results, data_infos):
     return aggregate
 
 
+def _extract_scenario_type(folder):
+    """Extract scenario type from folder like 'v1/AccidentTwoWays_Town12_Route1115_Weather23'."""
+    parts = folder.split('/')
+    name = parts[-1] if len(parts) > 1 else parts[0]
+    tokens = name.split('_')
+    type_tokens = []
+    for t in tokens:
+        if t.startswith('Town') or t.startswith('Route') or t.startswith('Weather'):
+            break
+        type_tokens.append(t)
+    return '_'.join(type_tokens) if type_tokens else 'Unknown'
+
+
+def aggregate_by_scenario_type(scenario_results):
+    """Aggregate results grouped by scenario type (e.g., Accident, BlockedIntersection)."""
+    from collections import defaultdict
+
+    type_groups = defaultdict(list)
+    for folder, result in scenario_results.items():
+        stype = _extract_scenario_type(folder)
+        type_groups[stype].append(result)
+
+    metric_keys = ['control_mae_steer', 'control_mae_throttle', 'control_mae_brake',
+                   'traj_ade_1s', 'traj_ade_2s', 'traj_ade_3s',
+                   'collision_rate_3s', 'valid_ratio', 'avg_speed']
+
+    type_aggregate = {}
+    for stype, results in sorted(type_groups.items()):
+        agg = {'n_scenarios': len(results)}
+        for k in metric_keys:
+            vals = [r[k] for r in results if k in r]
+            if vals:
+                agg[f'{k}_mean'] = float(np.mean(vals))
+                agg[f'{k}_std'] = float(np.std(vals))
+        # UQ score per type
+        uq_vals = [r.get('uq_score_mean', 0) for r in results if 'uq_score_mean' in r]
+        if uq_vals:
+            agg['uq_score_mean'] = float(np.mean(uq_vals))
+            agg['uq_score_std'] = float(np.std(uq_vals))
+        type_aggregate[stype] = agg
+
+    return type_aggregate
+
+
 def stratify_by_uq(scenario_results, uq_scenario_scores):
     """Split scenario results by UQ score quartiles."""
     scored = [(folder, r, uq_scenario_scores.get(folder, 0.5))
@@ -440,6 +484,7 @@ def main():
     # ── Aggregate ──
     aggregate = aggregate_results(scenario_results, data_infos)
     uq_stratified = stratify_by_uq(scenario_results, uq_scenario_scores)
+    type_aggregate = aggregate_by_scenario_type(scenario_results)
 
     # ── Print report ──
     print('\n' + '=' * 70)
@@ -461,6 +506,22 @@ def main():
         print(f'  Collision@3s: {agg.get("collision_rate_3s_mean", 0)*100:.2f}%')
         print(f'  Valid ratio:  {agg.get("valid_ratio_mean", 0)*100:.1f}%')
 
+    # Per-scenario-type breakdown
+    if type_aggregate:
+        print(f'\n── PER-SCENARIO TYPE ({len(type_aggregate)} types) ──')
+        header = f'  {"Type":30s} | {"n":>4s} | {"ADE@3s":>8s} | {"Col@3s":>8s} | {"Steer":>8s} | {"UQ":>6s}'
+        print(header)
+        print('  ' + '-' * (len(header) - 2))
+        for stype, agg in sorted(type_aggregate.items(),
+                                  key=lambda x: x[1].get('traj_ade_3s_mean', 0),
+                                  reverse=True):
+            n = agg['n_scenarios']
+            ade = agg.get('traj_ade_3s_mean', 0)
+            col = agg.get('collision_rate_3s_mean', 0) * 100
+            steer = agg.get('control_mae_steer_mean', 0)
+            uq = agg.get('uq_score_mean', 0)
+            print(f'  {stype:30s} | {n:>4d} | {ade:>8.4f} | {col:>7.2f}% | {steer:>8.4f} | {uq:>6.3f}')
+
     if uq_stratified:
         print('\n── UQ STRATIFIED (by scenario mean UQ score) ──')
         for qname, q in uq_stratified.items():
@@ -478,6 +539,7 @@ def main():
                              for k, v in scenario_results.items()},
         'aggregate': aggregate,
         'uq_stratified': uq_stratified,
+        'scenario_type_breakdown': type_aggregate,
         'config': {
             'film_checkpoint': args.film_checkpoint,
             'frame_step': args.frame_step,

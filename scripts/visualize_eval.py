@@ -1,16 +1,32 @@
 """
 Paper-ready visualization from open-loop evaluation results.
 
-Generates figures for paper Section 3.1 (UQ Score Analysis):
+Generates figures for paper:
   1. UQ score distribution: normal vs adverse histogram
   2. AUROC curve: UQ score as adverse detector
   3. UQ score vs planning L2 error scatter
   4. Per-weather-type box plot of UQ scores
   5. Planning metrics comparison bar chart (normal vs adverse)
+  6. Baseline vs FiLM comparison (optional, needs --input-film)
+  7. Reliability diagram (UQ calibration curve)
+  8. Per-scenario-type performance breakdown
+  9. UQ score temporal evolution within scenarios
 
 Usage:
     python scripts/visualize_eval.py \
         --input results/eval_openloop_full.pt \
+        --out-dir results/figures
+
+    # With FiLM comparison:
+    python scripts/visualize_eval.py \
+        --input results/eval_openloop_full.pt \
+        --input-film results/eval_B_film_l1_500.pt \
+        --out-dir results/figures
+
+    # With closed-loop replay data for scenario breakdown:
+    python scripts/visualize_eval.py \
+        --input results/eval_openloop_full.pt \
+        --closedloop-json results/closedloop_baseline.json \
         --out-dir results/figures
 """
 import argparse
@@ -50,6 +66,8 @@ def parse_args():
     p.add_argument('--input', required=True, help='eval_openloop .pt result file')
     p.add_argument('--input-film', default=None,
                    help='optional second result file (FiLM L1) for comparison')
+    p.add_argument('--closedloop-json', default=None,
+                   help='closed-loop replay JSON for per-scenario breakdown')
     p.add_argument('--out-dir', default='results/figures')
     p.add_argument('--format', default='pdf', choices=['pdf', 'png', 'svg'])
     return p.parse_args()
@@ -368,6 +386,253 @@ def plot_comparison(records_base, records_film, plt, out_path):
     print(f'  Saved: {out_path}')
 
 
+# ── Figure 7: Reliability Diagram (Calibration Curve) ──────────────────
+def plot_reliability_diagram(records, plt, out_path, n_bins=10):
+    """Calibration curve: binned UQ score vs actual planning error.
+
+    For each UQ score bin, computes mean predicted UQ and mean actual L2@3s.
+    A well-calibrated estimator should show monotonic increase.
+    """
+    valid = [r for r in records if (r['plan_L2_3s'] > 0 or r['fut_valid']) and 'uq_score' in r]
+    if len(valid) < n_bins * 5:
+        print('  Skipping reliability diagram: insufficient data')
+        return
+
+    uq = np.array([r['uq_score'] for r in valid])
+    l2 = np.array([r['plan_L2_3s'] for r in valid])
+    col = np.array([r['plan_obj_col_3s'] for r in valid])
+
+    bin_edges = np.linspace(0, 1, n_bins + 1)
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+    mean_uq, mean_l2, mean_col, counts = [], [], [], []
+    for lo, hi in zip(bin_edges[:-1], bin_edges[1:]):
+        if lo == bin_edges[-2]:
+            mask = (uq >= lo) & (uq <= hi)
+        else:
+            mask = (uq >= lo) & (uq < hi)
+        if mask.sum() < 2:
+            mean_uq.append(np.nan)
+            mean_l2.append(np.nan)
+            mean_col.append(np.nan)
+            counts.append(0)
+            continue
+        mean_uq.append(uq[mask].mean())
+        mean_l2.append(l2[mask].mean())
+        mean_col.append(col[mask].mean())
+        counts.append(int(mask.sum()))
+
+    mean_uq = np.array(mean_uq)
+    mean_l2 = np.array(mean_l2)
+    mean_col = np.array(mean_col)
+    counts = np.array(counts)
+    valid_mask = counts >= 2
+
+    fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+
+    # Left: UQ score vs L2 error (calibration)
+    ax = axes[0]
+    ax.bar(bin_centers[valid_mask], mean_l2[valid_mask], width=0.8/n_bins,
+           color='#1976D2', alpha=0.7, edgecolor='white')
+    ax.set_xlabel('UQ Score (binned)')
+    ax.set_ylabel('Mean L2 Error @3s (m)')
+    ax.set_title('Calibration: UQ Score → L2 Error')
+    ax.set_xlim(0, 1)
+
+    # Middle: UQ score vs collision rate
+    ax = axes[1]
+    ax.bar(bin_centers[valid_mask], mean_col[valid_mask] * 100, width=0.8/n_bins,
+           color='#D32F2F', alpha=0.7, edgecolor='white')
+    ax.set_xlabel('UQ Score (binned)')
+    ax.set_ylabel('Collision Rate (%)')
+    ax.set_title('Calibration: UQ Score → Collision Rate')
+    ax.set_xlim(0, 1)
+
+    # Right: sample count per bin
+    ax = axes[2]
+    colors = ['#1976D2' if c >= 50 else '#BBDEFB' for c in counts]
+    ax.bar(bin_centers, counts, width=0.8/n_bins, color=colors,
+           edgecolor='white')
+    ax.set_xlabel('UQ Score (binned)')
+    ax.set_ylabel('Sample Count')
+    ax.set_title('UQ Score Distribution (per bin)')
+    ax.set_xlim(0, 1)
+
+    fig.suptitle('Reliability Diagram: UQ Score Calibration', fontsize=14, y=1.02)
+    fig.tight_layout()
+    fig.savefig(out_path)
+    plt.close(fig)
+    print(f'  Saved: {out_path}')
+
+
+# ── Figure 8: Per-Scenario-Type Breakdown ──────────────────────────────
+def _extract_scenario_type(folder):
+    """Extract scenario type from folder like 'v1/AccidentTwoWays_Town12_Route1115_Weather23'."""
+    parts = folder.split('/')
+    name = parts[-1] if len(parts) > 1 else parts[0]
+    tokens = name.split('_')
+    type_tokens = []
+    for t in tokens:
+        if t.startswith('Town') or t.startswith('Route') or t.startswith('Weather'):
+            break
+        type_tokens.append(t)
+    return '_'.join(type_tokens) if type_tokens else 'Unknown'
+
+
+def plot_scenario_breakdown(closedloop_json_path, plt, out_path):
+    """Per-scenario-type performance bar chart from closed-loop replay results."""
+    with open(closedloop_json_path, 'r') as f:
+        data = json.load(f)
+
+    scenario_results = data.get('scenario_results', {})
+    if not scenario_results:
+        print('  Skipping scenario breakdown: no scenario data')
+        return
+
+    type_metrics = {}
+    for folder, result in scenario_results.items():
+        stype = _extract_scenario_type(folder)
+        if stype not in type_metrics:
+            type_metrics[stype] = {'ade_3s': [], 'col_3s': [], 'steer_mae': [], 'uq': []}
+        type_metrics[stype]['ade_3s'].append(result.get('traj_ade_3s', 0))
+        type_metrics[stype]['col_3s'].append(result.get('collision_rate_3s', 0))
+        type_metrics[stype]['steer_mae'].append(result.get('control_mae_steer', 0))
+        if 'uq_score_mean' in result:
+            type_metrics[stype]['uq'].append(result['uq_score_mean'])
+
+    # Sort by mean ADE descending (hardest scenarios first)
+    sorted_types = sorted(type_metrics.keys(),
+                          key=lambda t: np.mean(type_metrics[t]['ade_3s']),
+                          reverse=True)
+
+    # Limit to top 15 scenario types for readability
+    sorted_types = sorted_types[:15]
+
+    fig, axes = plt.subplots(1, 3, figsize=(16, 6))
+
+    x = np.arange(len(sorted_types))
+    labels = [f'{t}\n(n={len(type_metrics[t]["ade_3s"])})' for t in sorted_types]
+
+    # ADE@3s
+    ax = axes[0]
+    vals = [np.mean(type_metrics[t]['ade_3s']) for t in sorted_types]
+    stds = [np.std(type_metrics[t]['ade_3s']) for t in sorted_types]
+    ax.barh(x, vals, xerr=stds, color='#1976D2', alpha=0.7, capsize=2)
+    ax.set_yticks(x)
+    ax.set_yticklabels(labels, fontsize=8)
+    ax.set_xlabel('ADE @3s (m)')
+    ax.set_title('Trajectory Error by Scenario')
+    ax.invert_yaxis()
+
+    # Collision rate
+    ax = axes[1]
+    vals = [np.mean(type_metrics[t]['col_3s']) * 100 for t in sorted_types]
+    ax.barh(x, vals, color='#D32F2F', alpha=0.7)
+    ax.set_yticks(x)
+    ax.set_yticklabels(labels, fontsize=8)
+    ax.set_xlabel('Collision Rate @3s (%)')
+    ax.set_title('Collision Rate by Scenario')
+    ax.invert_yaxis()
+
+    # Mean UQ score
+    ax = axes[2]
+    vals = [np.mean(type_metrics[t]['uq']) if type_metrics[t]['uq'] else 0
+            for t in sorted_types]
+    colors = ['#D32F2F' if v > 0.8 else '#FF9800' if v > 0.6 else '#4CAF50'
+              for v in vals]
+    ax.barh(x, vals, color=colors, alpha=0.7)
+    ax.set_yticks(x)
+    ax.set_yticklabels(labels, fontsize=8)
+    ax.set_xlabel('Mean UQ Score')
+    ax.set_title('Uncertainty by Scenario')
+    ax.set_xlim(0, 1)
+    ax.invert_yaxis()
+
+    fig.suptitle('Per-Scenario Performance Breakdown', fontsize=14, y=1.02)
+    fig.tight_layout()
+    fig.savefig(out_path)
+    plt.close(fig)
+    print(f'  Saved: {out_path}')
+
+
+# ── Figure 9: UQ Score Temporal Evolution ──────────────────────────────
+def plot_uq_temporal(records, plt, out_path, max_scenarios=6):
+    """UQ score evolution over time within scenarios.
+
+    Shows how uncertainty changes frame-by-frame, highlighting
+    sudden spikes that may correlate with dangerous events.
+    """
+    from collections import defaultdict
+
+    scenarios = defaultdict(list)
+    for r in records:
+        if 'uq_score' in r and 'folder' in r:
+            scenarios[r['folder']].append(r)
+
+    if not scenarios:
+        print('  Skipping UQ temporal: no scenario data')
+        return
+
+    for folder in scenarios:
+        scenarios[folder].sort(key=lambda r: r.get('frame_idx', r.get('idx', 0)))
+
+    # Pick scenarios with most variation in UQ score
+    scenario_stats = []
+    for folder, recs in scenarios.items():
+        if len(recs) < 5:
+            continue
+        scores = [r['uq_score'] for r in recs]
+        scenario_stats.append((folder, np.std(scores), len(recs)))
+
+    scenario_stats.sort(key=lambda x: -x[1])
+    selected = [s[0] for s in scenario_stats[:max_scenarios]]
+
+    if not selected:
+        print('  Skipping UQ temporal: no qualifying scenarios')
+        return
+
+    n = len(selected)
+    cols = min(n, 3)
+    rows = (n + cols - 1) // cols
+    fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 3.5 * rows), squeeze=False)
+
+    for idx, folder in enumerate(selected):
+        row, col = divmod(idx, cols)
+        ax = axes[row][col]
+        recs = scenarios[folder]
+        frames = list(range(len(recs)))
+        scores = [r['uq_score'] for r in recs]
+        is_adv = recs[0].get('is_adverse', False)
+
+        ax.plot(frames, scores, '-', color='#D32F2F' if is_adv else '#1976D2',
+                linewidth=1.2, alpha=0.8)
+        ax.fill_between(frames, scores, alpha=0.15,
+                         color='#D32F2F' if is_adv else '#1976D2')
+
+        # Mark collision frames
+        for i, r in enumerate(recs):
+            if r.get('plan_obj_col_3s', 0) > 0:
+                ax.axvline(i, color='red', linestyle=':', alpha=0.5, linewidth=0.8)
+
+        short_name = _extract_scenario_type(folder)
+        weather = recs[0].get('weather_name', '')
+        ax.set_title(f'{short_name}\n{weather}', fontsize=9)
+        ax.set_xlabel('Frame')
+        ax.set_ylabel('UQ Score')
+        ax.set_ylim(0, 1)
+
+    # Hide unused axes
+    for idx in range(n, rows * cols):
+        row, col = divmod(idx, cols)
+        axes[row][col].set_visible(False)
+
+    fig.suptitle('UQ Score Temporal Evolution (selected scenarios)', fontsize=13, y=1.02)
+    fig.tight_layout()
+    fig.savefig(out_path)
+    plt.close(fig)
+    print(f'  Saved: {out_path}')
+
+
 # ── Text Summary ───────────────────────────────────────────────────────
 def write_summary(records, out_path):
     """Write a text summary of key statistics."""
@@ -448,6 +713,20 @@ def main():
         records_film = load_records(args.input_film)
         plot_comparison(records, records_film, plt,
                         os.path.join(args.out_dir, f'fig6_comparison.{ext}'))
+
+    # Reliability diagram (calibration curve)
+    plot_reliability_diagram(records, plt,
+                             os.path.join(args.out_dir, f'fig7_reliability.{ext}'))
+
+    # Per-scenario breakdown (from closed-loop replay data)
+    if args.closedloop_json and os.path.exists(args.closedloop_json):
+        print(f'\nLoading closed-loop data from {args.closedloop_json}...')
+        plot_scenario_breakdown(args.closedloop_json, plt,
+                                os.path.join(args.out_dir, f'fig8_scenario_breakdown.{ext}'))
+
+    # UQ temporal evolution
+    plot_uq_temporal(records, plt,
+                     os.path.join(args.out_dir, f'fig9_uq_temporal.{ext}'))
 
     # Text summary
     write_summary(records, os.path.join(args.out_dir, 'summary.txt'))
