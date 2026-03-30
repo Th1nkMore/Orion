@@ -45,6 +45,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from PIL import Image
 import imageio.v2 as imageio
+import cv2
 
 
 # ── Args ──────────────────────────────────────────────────────────────
@@ -268,102 +269,200 @@ def run_scenario_inference(model, dataset, frame_indices, data_infos,
 
 # ── Rendering ─────────────────────────────────────────────────────────
 
-BEV_RANGE = 20.0
 EGO_LENGTH = 4.5
 EGO_WIDTH = 2.0
+
+# Trajectory colors (consistent across camera and BEV)
+COLOR_GT = '#43A047'
+COLOR_BASE = '#EF5350'
+COLOR_FILM = '#1E88E5'
+
+
+def _auto_bev_range(gt_traj, base_traj, film_traj, pad=0.4):
+    """Compute tight BEV range to make all trajectories clearly visible."""
+    pts = []
+    for t in [gt_traj, base_traj, film_traj]:
+        if t is not None and len(t) > 0:
+            pts.append(np.array(t))
+    if not pts:
+        return 3.0
+    all_pts = np.concatenate(pts, axis=0)
+    max_abs = max(np.abs(all_pts).max(), 0.3)
+    return max_abs + pad
+
+
+def _draw_cam_trajectories(cam_img, gt_traj, base_traj, film_traj):
+    """Draw trajectory direction indicators directly on the camera image.
+
+    Uses a simple perspective mapping: lidar (x_lat, y_fwd) ->
+    camera pixel with vanishing point at image center-top.
+    """
+    h, w = cam_img.shape[:2]
+    overlay = cam_img.copy()
+
+    vanish_x, vanish_y = w // 2, int(h * 0.42)
+    ego_x, ego_y = w // 2, h - 10
+
+    def _lidar_to_pixel(x_lat, y_fwd, scale=200):
+        """Approximate perspective: map lidar (lat, fwd) to pixel coords."""
+        t = min(y_fwd * scale / max(h, 1), 0.85)
+        t = max(t, 0.0)
+        px = int(ego_x + (vanish_x - ego_x) * t - x_lat * scale * (1 - t * 0.6))
+        py = int(ego_y + (vanish_y - ego_y) * t)
+        return px, py
+
+    trajs = [
+        (gt_traj, COLOR_GT, 'GT'),
+        (base_traj, COLOR_BASE, 'Baseline'),
+        (film_traj, COLOR_FILM, 'Ours'),
+    ]
+
+    for traj, hex_color, label in trajs:
+        if traj is None or len(traj) == 0:
+            continue
+        r = int(hex_color[1:3], 16)
+        g = int(hex_color[3:5], 16)
+        b = int(hex_color[5:7], 16)
+        bgr = (b, g, r)
+
+        pts_px = []
+        for x_lat, y_fwd in traj:
+            px, py = _lidar_to_pixel(x_lat, y_fwd)
+            px = max(0, min(w - 1, px))
+            py = max(0, min(h - 1, py))
+            pts_px.append((px, py))
+
+        for i in range(len(pts_px) - 1):
+            cv2.line(overlay, pts_px[i], pts_px[i + 1], bgr, 4, cv2.LINE_AA)
+        for i, (px, py) in enumerate(pts_px):
+            cv2.circle(overlay, (px, py), 6, bgr, -1, cv2.LINE_AA)
+            cv2.circle(overlay, (px, py), 6, (255, 255, 255), 1, cv2.LINE_AA)
+
+        if pts_px:
+            cv2.putText(overlay, label, (pts_px[-1][0] + 8, pts_px[-1][1] + 4),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, bgr, 2, cv2.LINE_AA)
+            cv2.putText(overlay, label, (pts_px[-1][0] + 8, pts_px[-1][1] + 4),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+
+    result = cv2.addWeighted(overlay, 0.7, cam_img, 0.3, 0)
+    return result
 
 
 def render_composite_frame(cam_img, gt_traj, base_traj, film_traj,
                            uq_score, frame_idx, scenario_name, weather,
                            l2_base, l2_film, col_base, col_film):
-    """Render a single composite frame: camera left + BEV right.
+    """Render composite: camera with trajectory overlay (top) + BEV inset (bottom-right).
 
     Returns:
         np.ndarray [H, W, 3] uint8 RGB image
     """
-    fig = plt.figure(figsize=(12.8, 4.8), dpi=100)
+    cam_with_traj = _draw_cam_trajectories(cam_img.copy(), gt_traj, base_traj, film_traj)
 
-    # Left: camera image
-    ax_cam = fig.add_axes([0.0, 0.0, 0.5, 1.0])
-    ax_cam.imshow(cam_img)
-    ax_cam.axis('off')
+    # --- Render BEV as a matplotlib figure → image ---
+    bev_range = _auto_bev_range(gt_traj, base_traj, film_traj, pad=0.5)
+    fig_bev, ax_bev = plt.subplots(1, 1, figsize=(4.0, 4.0), dpi=100)
+    fig_bev.patch.set_facecolor('#1a1a2e')
+    ax_bev.set_facecolor('#1a1a2e')
 
-    # Overlay text on camera
-    info_lines = [
-        f'{scenario_name}',
-        f'Weather: {weather}  |  Frame: {frame_idx}',
-    ]
-    if uq_score is not None:
-        info_lines.append(f'UQ Score: {uq_score:.3f}')
-    info_text = '\n'.join(info_lines)
-    ax_cam.text(0.02, 0.98, info_text, transform=ax_cam.transAxes,
-                fontsize=9, va='top', ha='left', color='white',
-                bbox=dict(boxstyle='round,pad=0.4', facecolor='black', alpha=0.7),
-                family='monospace')
-
-    # Right: BEV trajectory
-    ax_bev = fig.add_axes([0.52, 0.05, 0.46, 0.9])
-    ax_bev.set_xlim(-BEV_RANGE, BEV_RANGE)
-    ax_bev.set_ylim(-BEV_RANGE, BEV_RANGE)
+    ax_bev.set_xlim(-bev_range, bev_range)
+    ax_bev.set_ylim(-bev_range * 0.3, bev_range * 1.5)
     ax_bev.set_aspect('equal')
-    ax_bev.grid(True, alpha=0.15, linewidth=0.5)
-    ax_bev.axhline(0, color='gray', linewidth=0.3, alpha=0.4)
-    ax_bev.axvline(0, color='gray', linewidth=0.3, alpha=0.4)
+    ax_bev.grid(True, alpha=0.15, linewidth=0.5, color='white')
 
     # Ego vehicle
-    rect = Rectangle((-EGO_LENGTH / 2, -EGO_WIDTH / 2), EGO_LENGTH, EGO_WIDTH,
-                      linewidth=1.5, edgecolor='#333', facecolor='#555', alpha=0.6, zorder=5)
+    rect = Rectangle((-EGO_WIDTH / 2, -EGO_LENGTH / 2), EGO_WIDTH, EGO_LENGTH,
+                      linewidth=2, edgecolor='white', facecolor='#555', alpha=0.7, zorder=5)
     ax_bev.add_patch(rect)
-    ax_bev.annotate('', xy=(EGO_LENGTH / 2 + 0.5, 0), xytext=(0, 0),
-                     arrowprops=dict(arrowstyle='->', color='#333', lw=1.5), zorder=6)
+    ax_bev.annotate('', xy=(0, EGO_LENGTH / 2 + 0.15), xytext=(0, 0),
+                     arrowprops=dict(arrowstyle='->', color='white', lw=2), zorder=6)
 
-    def _plot_traj(ax, traj, color, label, marker='o', lw=2.2, zorder=4):
+    def _plot_bev(ax, traj, color, label, marker='o', lw=3.5, ms=60, zorder=4):
         if traj is None or len(traj) == 0:
             return
         t = np.array(traj)
         ax.plot(t[:, 0], t[:, 1], '-', color=color, linewidth=lw,
-                alpha=0.9, label=label, zorder=zorder)
-        ax.scatter(t[:, 0], t[:, 1], c=color, s=25, marker=marker,
-                   alpha=0.9, edgecolors='white', linewidths=0.5, zorder=zorder)
+                alpha=0.95, label=label, zorder=zorder)
+        ax.scatter(t[:, 0], t[:, 1], c=color, s=ms, marker=marker,
+                   alpha=0.95, edgecolors='white', linewidths=1.0, zorder=zorder)
         for i, (x, y) in enumerate(t):
-            ax.annotate(f'{(i+1)*0.5:.1f}s', (x, y), fontsize=5.5,
-                        ha='center', va='bottom', color=color, alpha=0.7)
+            if i % 2 == 1 or i == len(t) - 1:
+                ax.annotate(f'{(i+1)*0.5:.1f}s', (x, y),
+                            fontsize=7, fontweight='bold',
+                            ha='center', va='bottom', color=color,
+                            textcoords='offset points', xytext=(0, 6))
 
-    _plot_traj(ax_bev, gt_traj, '#2E7D32', 'GT', marker='s', lw=2.5, zorder=3)
-    _plot_traj(ax_bev, base_traj, '#757575', 'Baseline', marker='o')
-    _plot_traj(ax_bev, film_traj, '#1565C0', 'FiLM (Ours)', marker='^')
+    _plot_bev(ax_bev, gt_traj, COLOR_GT, 'GT', marker='s', lw=3.5, ms=70, zorder=3)
+    _plot_bev(ax_bev, base_traj, COLOR_BASE, 'Baseline', marker='o', lw=3.0, ms=55)
+    _plot_bev(ax_bev, film_traj, COLOR_FILM, 'Ours (FiLM)', marker='^', lw=3.0, ms=55)
 
-    # L2 / collision annotations
-    ann_lines = []
+    ax_bev.legend(loc='upper left', fontsize=8, framealpha=0.85,
+                  facecolor='#1a1a2e', edgecolor='white', labelcolor='white')
+    ax_bev.tick_params(colors='white', labelsize=7)
+    for spine in ax_bev.spines.values():
+        spine.set_color('white')
+        spine.set_alpha(0.3)
+    ax_bev.set_xlabel('lateral (m)', fontsize=8, color='white')
+    ax_bev.set_ylabel('forward (m)', fontsize=8, color='white')
+
+    fig_bev.canvas.draw()
+    buf = np.frombuffer(fig_bev.canvas.buffer_rgba(), dtype=np.uint8)
+    bw, bh = fig_bev.canvas.get_width_height()
+    bev_img = buf.reshape(bh, bw, 4)[:, :, :3].copy()
+    plt.close(fig_bev)
+
+    # --- Compose final image ---
+    cam_h, cam_w = cam_with_traj.shape[:2]
+    out_w = cam_w
+    bev_inset_h = int(cam_h * 0.55)
+    bev_inset_w = bev_inset_h
+    bev_resized = cv2.resize(bev_img, (bev_inset_w, bev_inset_h), interpolation=cv2.INTER_AREA)
+
+    # Place BEV inset in bottom-right corner with border
+    pad = 6
+    y0 = cam_h - bev_inset_h - pad
+    x0 = cam_w - bev_inset_w - pad
+    cam_with_traj[y0:y0 + bev_inset_h, x0:x0 + bev_inset_w] = bev_resized
+    cv2.rectangle(cam_with_traj, (x0 - 1, y0 - 1),
+                  (x0 + bev_inset_w, y0 + bev_inset_h), (255, 255, 255), 2)
+
+    # Info overlay (top-left)
+    info_lines = [scenario_name]
+    info_lines.append(f'Weather: {weather}  |  Frame: {frame_idx}')
+    if uq_score is not None:
+        info_lines.append(f'UQ Score: {uq_score:.3f}')
+
+    y_text = 28
+    for line in info_lines:
+        cv2.putText(cam_with_traj, line, (12, y_text),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 3, cv2.LINE_AA)
+        cv2.putText(cam_with_traj, line, (12, y_text),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
+        y_text += 24
+
+    # Metrics overlay (top-right, above BEV inset)
+    metric_lines = []
     if l2_base > 0:
-        ann_lines.append(f'Baseline L2@3s: {l2_base:.2f}m')
+        metric_lines.append(f'Baseline L2: {l2_base:.2f}m')
     if l2_film > 0:
-        ann_lines.append(f'FiLM L2@3s: {l2_film:.2f}m')
+        metric_lines.append(f'Ours L2: {l2_film:.2f}m')
     if col_base > 0:
-        ann_lines.append(f'Baseline Col: YES')
+        metric_lines.append('Baseline: COLLISION')
     if col_film > 0:
-        ann_lines.append(f'FiLM Col: YES')
-    if ann_lines:
-        ax_bev.text(0.02, 0.02, '\n'.join(ann_lines), transform=ax_bev.transAxes,
-                    fontsize=7.5, va='bottom', ha='left',
-                    bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8),
-                    family='monospace')
+        metric_lines.append('Ours: COLLISION')
 
-    ax_bev.set_xlabel('x (m) → forward', fontsize=8)
-    ax_bev.set_ylabel('y (m) → left', fontsize=8)
-    ax_bev.legend(loc='upper right', fontsize=7.5, framealpha=0.8)
-    ax_bev.set_title('BEV Trajectory Comparison', fontsize=10, pad=4)
-    ax_bev.tick_params(labelsize=7)
+    y_metric = 28
+    for line in metric_lines:
+        tw = cv2.getTextSize(line, cv2.FONT_HERSHEY_SIMPLEX, 0.55, 2)[0][0]
+        cv2.putText(cam_with_traj, line, (cam_w - tw - 12, y_metric),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 0), 3, cv2.LINE_AA)
+        cv2.putText(cam_with_traj, line, (cam_w - tw - 12, y_metric),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 1, cv2.LINE_AA)
+        y_metric += 22
 
-    fig.canvas.draw()
-    buf = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8)
-    w, h = fig.canvas.get_width_height()
-    img = buf.reshape(h, w, 4)[:, :, :3]
-    plt.close(fig)
-    return img
+    return cam_with_traj
 
 
-def load_camera_image(data_root, folder, frame_idx, target_size=(640, 480)):
+def load_camera_image(data_root, folder, frame_idx, target_size=(960, 540)):
     """Load front camera image for a frame."""
     img_path = os.path.join(data_root, folder, 'camera', 'rgb_front', f'{frame_idx:05d}.jpg')
     if not os.path.exists(img_path):
