@@ -19,7 +19,7 @@ import torch.nn as nn
 import yaml
 from torch.utils.data import DataLoader
 
-from uq_estimator.dataset import UQFeatureDataset
+from uq_estimator.dataset import UQFeatureDataset, FastTensorLoader
 from uq_estimator.losses import CombinedUQLoss
 from uq_estimator.model import UQEstimator
 
@@ -171,6 +171,7 @@ def main() -> None:
     train_cfg = cfg["training"]
     data_cfg = cfg["data"]
     log_cfg = cfg["logging"]
+    loss_cfg = cfg.get("loss", {})
 
     set_seed(train_cfg["seed"])
 
@@ -190,6 +191,7 @@ def main() -> None:
     preload = data_cfg.get("preload", False) and not args.mock
     preload_workers = data_cfg.get("preload_workers", 16)
 
+    n_patches_subsample = data_cfg.get("n_patches_subsample", 0)
     ds_kwargs = dict(
         feature_dir=feature_dir,
         label_file=label_file,
@@ -202,23 +204,27 @@ def main() -> None:
         stat_cache_file=stat_cache_file,
         preload=preload,
         preload_workers=preload_workers,
+        n_patches_subsample=n_patches_subsample,
     )
     train_ds = UQFeatureDataset(split="train", **ds_kwargs)
     val_ds = UQFeatureDataset(split="val", **ds_kwargs)
 
     use_cuda = device.type == "cuda"
     batch_size = train_cfg["batch_size"] if not args.smoke else 4
-    # With stat_cache, __getitem__ is ~50ms/sample (OS cache hit on tokens +
-    # O(1) stat cache lookup). Use 4 workers for parallel I/O.
-    effective_workers = 0 if args.mock else 4
-    loader_kwargs = dict(
-        batch_size=batch_size,
-        num_workers=effective_workers,
-        pin_memory=use_cuda,
-        prefetch_factor=2 if effective_workers > 0 else None,
-    )
-    train_loader = DataLoader(train_ds, shuffle=True, **loader_kwargs)
-    val_loader = DataLoader(val_ds, shuffle=False, **loader_kwargs)
+
+    if preload and not args.mock:
+        train_loader = FastTensorLoader(train_ds, batch_size=batch_size, shuffle=True, device=device)
+        val_loader = FastTensorLoader(val_ds, batch_size=batch_size, shuffle=False, device=device)
+    else:
+        effective_workers = 0 if args.mock else 4
+        loader_kwargs = dict(
+            batch_size=batch_size,
+            num_workers=effective_workers,
+            pin_memory=use_cuda,
+            prefetch_factor=2 if effective_workers > 0 else None,
+        )
+        train_loader = DataLoader(train_ds, shuffle=True, **loader_kwargs)
+        val_loader = DataLoader(val_ds, shuffle=False, **loader_kwargs)
 
     print(f"Train samples: {len(train_ds)} | Val samples: {len(val_ds)}")
 
@@ -243,7 +249,20 @@ def main() -> None:
     )
 
     start_epoch = 1
-    criterion = CombinedUQLoss()
+    lambda_cal = loss_cfg.get("lambda_cal", 0.1) if loss_cfg.get("use_calibration", True) else 0.0
+    lambda_rank = loss_cfg.get("lambda_rank", 0.5) if loss_cfg.get("use_ranking", True) else 0.0
+    criterion = CombinedUQLoss(lambda_cal=lambda_cal, lambda_rank=lambda_rank)
+    ablation_info = []
+    if not loss_cfg.get("use_ranking", True):
+        ablation_info.append("ranking_loss=OFF")
+    if not loss_cfg.get("use_calibration", True):
+        ablation_info.append("calibration_reg=OFF")
+    if not model_cfg.get("use_stat_features", True):
+        ablation_info.append("stat_features=OFF")
+    if not model_cfg.get("use_transformer_decoder", True):
+        ablation_info.append("transformer_decoder=OFF (mean pool)")
+    if ablation_info:
+        print(f"[Ablation] {', '.join(ablation_info)}")
 
     # ── Resume ────────────────────────────────────────────────────────────
     best_val_loss = float("inf")
