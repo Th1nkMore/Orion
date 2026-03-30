@@ -295,9 +295,14 @@ class PETRTemporalTransformer(nn.Module):
 
     def init_weights(self):
         # follow the official DETR to init parameters
+        # [UQ] Skip FiLM layers — they use identity init (zeros weight, ones/zeros bias)
+        film_params = set()
+        if self.use_uncertainty:
+            film_params = {id(self.film_gamma.weight), id(self.film_beta.weight)}
         for m in self.modules():
             if hasattr(m, 'weight') and m.weight.dim() > 1:
-                nn.init.xavier_uniform_(m.weight)
+                if id(m.weight) not in film_params:
+                    nn.init.xavier_uniform_(m.weight)
 
 
     def forward(self, query, key, query_pos=None, key_pos=None, attn_mask=None, temp_memory=None, temp_pos=None, uncertainty_emb=None):
