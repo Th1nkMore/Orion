@@ -29,8 +29,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-# Add project root to path
+# Add project root and scripts dir to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from mmcv.utils import set_random_seed, Config, load_checkpoint, ProgressBar
 from mmcv.models import build_model
