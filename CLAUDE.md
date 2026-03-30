@@ -72,6 +72,8 @@ uq-orion/
 │   ├── train_film.py             # Stage 2b/4b: FiLM 微调 + 碰撞感知 loss（方案 C）
 │   ├── eval_ablation_full.py     # Stage 4: 热交换 ablation 评估（A/B/C/D 四组）
 │   ├── eval_closedloop_replay.py # 闭环回放评估 + 场景类型汇总
+│   ├── generate_trajectory_gifs.py # 轨迹对比 GIF（Baseline vs FiLM vs GT，18 场景）
+│   ├── merge_v2_uq_scores.py     # UQ score 合并到已有 eval 结果
 │   ├── visualize_eval.py         # 论文图表生成（9 种图 + 文本摘要）
 │   ├── visualize_attention.py    # QT-Former 注意力可视化 + FiLM 对比
 │   ├── visualize_trajectory.py   # BEV 轨迹对比可视化
@@ -95,7 +97,10 @@ uq-orion/
 ├── results/
 │   ├── eval_openloop_v3.pt/.json  # v3 开环评估（AUROC=0.954）
 │   ├── closedloop_replay_v3.json  # v3 闭环评估（50场景，Col=0.52%）
-│   └── eval_openloop_full.pt     # 原始开环评估（v1 UQ score）
+│   ├── eval_openloop_full.pt     # 原始开环评估（v1 UQ score）
+│   └── gifs/                      # 轨迹对比 GIF（18 场景 ~250MB）
+│       ├── trajectory_data.pt     # 缓存轨迹数据（离线重渲染用）
+│       └── *.gif                  # 18 个场景 GIF 文件
 ├── requirements.txt         # ORION 原始依赖（勿动）
 ├── requirements_uq.txt      # UQ 项目依赖（uv 管理）
 └── .gitignore
@@ -140,6 +145,7 @@ uq-orion/
 ### 其他可视化
 - visualize_attention.py: 注意力热力图、空间分布、熵分析、FiLM 对比
 - visualize_trajectory.py: BEV 轨迹对比（GT/Baseline/FiLM）+ UQ 分层分析
+- generate_trajectory_gifs.py: 18 场景逐帧 GIF（前置摄像头+BEV inset，GT/Baseline/FiLM 三线对比）
 - benchmark_overhead.py: 计算开销报告（参数量、延迟、吞吐）
 
 ## ORION 文件修改清单

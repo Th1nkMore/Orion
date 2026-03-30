@@ -1,6 +1,6 @@
 # UQ-ORION 阶段性研究报告
 
-> 日期：2026-03-30（v3 更新：修正 scene_type 分类，AUROC 0.954；v3 FiLM 重训 + 闭环评估）
+> 日期：2026-03-30（v3 更新：修正 scene_type 分类，AUROC 0.954；v3 FiLM 重训 + 闭环评估；18 场景轨迹对比 GIF）
 > 硬件：1x NVIDIA A100 80GB
 > 基线模型：ORION (ICCV 2025)
 > 目标：在 ORION 基础上轻量化引入不确定性感知，提升恶劣天气场景安全性
@@ -444,6 +444,8 @@ CARLA 场景按天气 ID 分为两类：
 | `scripts/eval_closedloop_replay.py` | ~510 | 闭环回放评估（Bench2Drive，无 CARLA）| 闭环 |
 | `scripts/visualize_eval.py` | ~460 | 论文级评估可视化（5 种图表）| 可视化 |
 | `scripts/visualize_attention.py` | ~590 | QT-Former attention map 可视化 | 可视化 |
+| `scripts/generate_trajectory_gifs.py` | ~660 | 轨迹对比 GIF 生成（Baseline vs FiLM vs GT）| 可视化 |
+| `scripts/merge_v2_uq_scores.py` | ~150 | UQ score 合并到已有 eval 结果 | 工具 |
 | `scripts/run_ablation.sh` | ~200 | 四组 Ablation 自动化 | Stage 4 |
 | `tests/test_uq_model.py` | ~97 | UQEstimator 单元测试 | 测试 |
 | `tests/test_film.py` | ~280 | FiLM L1/L2 单元测试（12 tests）| 测试 |
@@ -493,6 +495,99 @@ tests/test_film.py      — 12 tests (全部通过)
 | `scripts/visualize_eval.py --input-film` | Baseline vs FiLM 对比模式 | FiLM eval 完成后 |
 | `scripts/run_ablation.sh --viz` | 四组 Ablation 对比图 | 全部 eval 完成后 |
 
+### 5.2 轨迹对比 GIF 可视化 ✅
+
+**完成日期**：2026-03-30
+
+**做了什么**：在 Bench2Drive 验证集上选取 18 个代表性场景，分别运行 Baseline（FiLM→identity）和 FiLM（L1+L2+collision-aware）两轮推理，逐帧捕获 GT 轨迹、Baseline 预测轨迹、FiLM 预测轨迹和 UQ score，生成动态 GIF 对比图。
+
+**为什么需要**：静态图表只能展示统计汇总。GIF 可以在论文的 supplementary material 和 presentation 中直观展示：
+- 高不确定性场景下 FiLM 如何调制轨迹
+- 正常天气 vs 恶劣天气的视觉对比
+- 碰撞风险场景中轨迹差异的时间演化
+
+**工具脚本**：`scripts/generate_trajectory_gifs.py`
+
+**渲染方案**：
+```
+┌──────────────────────────────────────────────┐
+│  前置摄像头画面 (960×540)                      │
+│  + 轨迹方向箭头叠加（近似透视投影）             │
+│    - 绿色: GT 轨迹                             │
+│    - 红色: Baseline 轨迹                       │
+│    - 蓝色: Ours (FiLM) 轨迹                   │
+│                           ┌──────────────┐    │
+│                           │  BEV 俯视图   │    │
+│                           │  (自适应缩放)  │    │
+│                           │  暗色主题      │    │
+│                           └──────────────┘    │
+│  场景名 / 天气 / 帧号 / UQ Score               │
+│  Baseline L2 / Ours L2 / 碰撞状态             │
+└──────────────────────────────────────────────┘
+```
+
+**关键技术细节**：
+- **增量缓存**：已缓存场景自动跳过，支持分批添加新场景
+- **Baseline pass 中间保存**：防止 FiLM pass 失败导致 baseline 数据丢失
+- **FiLM 权重设备修复**：`reload_film()` 使用 `map_location=dev` + `.to(dev)` 确保权重始终在 GPU 上
+- **自适应 BEV 缩放**：`_auto_bev_range()` 根据三条轨迹的实际范围动态设置 BEV 显示范围
+- **近似透视投影**：`_draw_cam_trajectories()` 在前置摄像头画面上叠加轨迹方向指示
+- **离线渲染**：`--render-only` 模式从缓存的 `trajectory_data.pt` 重新渲染 GIF，无需 GPU/模型
+
+**关键命令**：
+```bash
+# 全量推理 + 渲染（需要 GPU，~83 分钟 / 18 场景）
+PYTHONPATH=. python scripts/generate_trajectory_gifs.py \
+    adzoo/orion/configs/orion_stage3_infer.py ckpts/Orion.pth \
+    --film-checkpoint checkpoints/film/best_l1l2_col_v3.pt \
+    --ann-file data/infos/b2d_infos_val.pkl \
+    --frame-step 5 --out-dir results/gifs --fps 4 \
+    --scenarios Accident_Town05_Route218_Weather10 ...
+
+# 离线重新渲染（无需 GPU，~2 分钟）
+PYTHONPATH=. python scripts/generate_trajectory_gifs.py \
+    adzoo/orion/configs/orion_stage3_infer.py ckpts/Orion.pth \
+    --render-only --out-dir results/gifs --fps 4
+```
+
+**18 个场景选取与分组**：
+
+| # | 故事线 | 场景名 | 天气 | 帧数 | UQ | Col(Base) | Col(FiLM) | 选取理由 |
+|---|--------|--------|------|------|-----|-----------|-----------|----------|
+| | **S1: 碰撞率改善** | | | | | | | |
+| 1 | S1 | ControlLoss_Town04_Weather14 | MidRainyNight | 72 | 0.995 | 3.47% | 2.08% | Baseline 高碰撞，FiLM 显著降低 |
+| 2 | S1 | ConstructionObstacle_Town10HD_Weather22 | WetCloudySunset | 38 | 0.997 | 3.07% | 2.63% | 施工障碍场景碰撞率下降 |
+| | **S2: 高 UQ 危险场景** | | | | | | | |
+| 3 | S2 | YieldToEmergencyVehicle_Town04_Weather10 | MidRainyNoon | 67 | 0.997 | — | 2.74% | 让行急救车，极高不确定性 |
+| 4 | S2 | Accident_Town05_Weather10 | MidRainyNoon | 42 | 0.993 | — | 0.00% | 事故场景，FiLM 零碰撞 |
+| 5 | S2 | HazardAtSideLane_Town10HD_Weather9 | WetCloudyNoon | 35 | 0.996 | — | 2.38% | 侧道危险物 |
+| 6 | S2 | ParkedObstacle_Town10HD_Weather8 | FoggyNoon | 33 | 0.997 | — | 2.02% | 雾天停车障碍 |
+| 7 | S2 | StaticCutIn_Town05_Weather18 | FoggySunset | 42 | 0.997 | — | 0.00% | 雾天静态加塞 |
+| | **S3: 正常 vs 恶劣天气** | | | | | | | |
+| 8 | S3 | ConstructionObstacle_Town12_Weather0 | ClearNoon | 43 | 0.000 | — | 0.00% | 晴天 UQ≈0，FiLM 近乎透明 |
+| 9 | S3 | DynamicObjectCrossing_Town01_Weather3 | CloudySunset | 39 | 0.001 | — | 0.00% | 晴天过路行人 |
+| 10 | S3 | TJunction_Town05_Weather0 | ClearNoon | 109 | 0.000 | — | 0.00% | 晴天 T 型路口 |
+| | **S4: 复杂交通交互** | | | | | | | |
+| 11 | S4 | PedestrianCrossing_Town13_Weather19 | HardRainNight | 103 | 0.918 | — | 0.00% | 暴雨夜行人过马路 |
+| 12 | S4 | OppositeVehicleRunningRedLight_Town04_Weather23 | Unknown | 31 | 0.982 | — | 0.00% | 对面车闯红灯 |
+| 13 | S4 | SignalizedTurnEncounterRedLight_Town15_Weather23 | Unknown | 119 | 0.912 | — | 5.18% | 最高碰撞率场景 |
+| 14 | S4 | BlockedIntersection_Town03_Weather5 | HardRainSunset | 121 | 0.930 | — | 0.00% | 封锁路口 |
+| | **S5: 高速/汇入** | | | | | | | |
+| 15 | S5 | MergerIntoSlowTraffic_Town06_Weather5 | HardRainSunset | 34 | 0.954 | — | 1.47% | 暴雨中汇入慢车流 |
+| 16 | S5 | LaneChange_Town06_Weather21 | HardRainNight | 27 | 0.931 | — | 0.00% | 暴雨夜变道 |
+| | **S6: 特殊场景** | | | | | | | |
+| 17 | S6 | VehicleOpensDoorTwoWays_Town12_Weather7 | SoftRainNight | 85 | 0.000 | — | 3.14% | 车门突然打开 |
+| 18 | S6 | SignalizedJunctionLeftTurn_Town04_Weather26 | Unknown | 122 | 0.948 | — | 0.00% | 信号灯路口左转 |
+
+**Storytelling 亮点**：
+1. **S1 碰撞率对比**：ControlLoss 场景碰撞率从 3.47% 降至 2.08%，视觉上可以看到 FiLM 轨迹更保守地避让障碍物
+2. **S3 天气对比**：同类型场景（ConstructionObstacle）在 ClearNoon（UQ=0.000）和 WetCloudySunset（UQ=0.997）下的行为差异——晴天 FiLM 几乎透明，恶劣天气 FiLM 积极调制
+3. **S4 复杂交互**：暴雨夜行人过马路 103 帧，可以看到 UQ score 随场景风险变化的时序演化
+
+**产出**：
+- `results/gifs/trajectory_data.pt` — 18 场景的缓存轨迹数据（779KB），包含逐帧 GT/Baseline/FiLM 轨迹、UQ score、planning metrics，支持离线重新渲染
+- `results/gifs/*.gif` — 18 个 GIF 文件，总计约 250MB
+
 ---
 
 ## 六、数据资产清单
@@ -514,7 +609,11 @@ tests/test_film.py      — 12 tests (全部通过)
 | `checkpoints/film/best_l1l2_col.pt` | ~8.5MB | FiLM L1+L2 权重（碰撞感知 loss，方案 C）|
 | `results/eval_openloop_full.pt` | ~50MB | 开环评估逐样本结果 |
 | `results/closedloop_film_baseline.json` | ~5KB | 闭环评估结果（baseline vs FiLM L2-loss）|
+| `results/closedloop_replay_v3.json` | ~15KB | v3 闭环评估结果（50 场景，含逐场景指标）|
+| `results/eval_openloop_v3.pt/.json` | ~50MB | v3 开环评估（AUROC=0.954）|
 | `results/figures/baseline/` | ~440KB | 5 张可视化图表 |
+| `results/gifs/trajectory_data.pt` | 779KB | 18 场景缓存轨迹数据（支持离线重渲染）|
+| `results/gifs/*.gif` | ~250MB | 18 个轨迹对比 GIF（Baseline vs FiLM vs GT）|
 
 ---
 
