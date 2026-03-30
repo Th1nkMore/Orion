@@ -153,7 +153,16 @@ uq-orion/
 - `adzoo/orion/configs/orion_stage3_infer.py` (+3行): use_uncertainty, uq_checkpoint 配置
 - `adzoo/orion/test.py` (+26行): UQ checkpoint 和 FiLM 权重重新加载
 - `mmcv/models/dense_heads/orion_head.py` (+23行): UQEstimator 初始化 + forward 中计算 uncertainty_emb
-- `mmcv/models/utils/petr_transformers.py` (+16行): FiLM 调制层 + identity 初始化
+- `mmcv/models/utils/petr_transformers.py` (+16行): FiLM 调制层 + identity 初始化 + init_weights 保护
+- `mmcv/models/detectors/orion.py` (+35行): FiLM L2 层定义 + identity init + train/inference 调制
+
+## 已知问题与待修复
+- **FiLM embed_head LayerNorm 问题**：embed_head 末尾的 LayerNorm 使所有样本 embedding norm 恒定（≈√256），
+  导致 FiLM 对 Normal 场景（UQ score≈0）也产生非平凡调制。Normal ADE 从 2.78m→6.00m（+116%）。
+  **解决方案**：Score-Gated FiLM（`gamma = 1 + score*(gamma_raw-1)`, `beta = score*beta_raw`），
+  需改 petr_transformers.py + orion.py 各 ~3 行 + 重训 FiLM。详见 REPORT.md。
+- **闭环 baseline 数据**：修复 init_weights bug 前的 `closedloop_baseline.json`（10 场景）不可信。
+  修复后的 `closedloop_baseline_50.json`（50 场景）是正确的 baseline。
 
 ## 环境管理
 - **禁止在 base conda 环境中安装任何依赖**

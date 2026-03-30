@@ -732,19 +732,73 @@ USE_FILM_L1L2=1 python scripts/train_film.py \
 5. ~~v3 闭环评估（50 场景）~~ → ✅ Col@3s=0.52%
 6. ~~FiLM bug 修复~~ → ✅ `uq_output` 未赋值、import 路径
 
+### Bug 发现：init_weights 覆盖 FiLM identity init（2026-03-30）
+
+**问题**：`PETRTemporalTransformer.init_weights()` 遍历所有 `self.modules()`，对 `weight.dim() > 1` 的层做 `xavier_uniform_`。这会覆盖 FiLM 层在 `__init__` 中设置的 identity init（weight=0, bias=gamma→1/beta→0），导致未加载训练权重时 FiLM 不是 identity 而是随机调制。
+
+**影响**：
+- `closedloop_baseline.json`（10 场景）：受随机 FiLM 干扰，**数据不可信** ❌
+- `closedloop_film_col.json` / `closedloop_replay_v3.json`：加载了训练权重覆盖 xavier，**数据可信** ✅
+- Stage 4a 的 Baseline vs FiLM L2-loss 对比：Baseline 侧不可信
+
+**修复**：在 `init_weights()` 中用 `film_params = {id(self.film_gamma.weight), id(self.film_beta.weight)}` 排除 FiLM 层。L2 FiLM（`orion.py`）无 `init_weights` 方法，不受影响。
+
+**修复后 50 场景 Baseline vs FiLM v3 对比**（`closedloop_baseline_50.json`）：
+
+|  | Baseline | FiLM v3 | Delta |
+|--|----------|---------|-------|
+| **ALL (50) Col@3s** | 0.66% | 0.52% | **-21%** |
+| **ALL (50) ADE@3s** | 2.46m | 4.44m | +80% |
+| Normal (11) Col@3s | 0.05% | 0.11% | +0.06% |
+| Normal (11) ADE@3s | 2.78m | 6.00m | **+3.23m** ❌ |
+| Adverse (39) Col@3s | 0.83% | 0.64% | **-23%** |
+| Adverse (39) ADE@3s | 2.37m | 4.00m | +1.63m |
+
+**关键问题**：Normal 场景 UQ score ≈ 0（0.0001~0.0015），FiLM 不应有任何调制效果，但 ADE 从 2.78m → 6.00m（+116%）。
+
+**根因**：`embed_head` 末尾的 `LayerNorm` 使所有样本的 embedding L2 norm 恒定（≈ √256 ≈ 16），无论 UQ score 高低。FiLM 计算 `gamma = W @ embedding + bias`，由于 embedding norm 恒定，Normal 和 Adverse 场景的调制幅度相当。
+
+### Score-Gated FiLM 设计方案（下一步核心改动）
+
+**目标**：让 UQ score 控制调制强度，score=0 时严格 identity。
+
+```python
+# 当前（有问题）：embedding 经 LayerNorm，norm 恒定，score 未参与 FiLM
+gamma = W_gamma @ embedding + b_gamma
+beta  = W_beta  @ embedding + b_beta
+output = gamma * input + beta
+
+# 改进：score 作为 gate，score=0 → 严格 identity
+gamma_raw = W_gamma @ embedding + b_gamma   # 学习调制方向
+beta_raw  = W_beta  @ embedding + b_beta
+gamma = 1 + score * (gamma_raw - 1)         # score→0: gamma→1
+beta  = score * beta_raw                     # score→0: beta→0
+output = gamma * input + beta
+```
+
+**改动范围**：`petr_transformers.py` L1 FiLM forward（~3行）+ `orion.py` L2 FiLM forward（~3行）。需要将 `uq_score` 传递到 FiLM 调用处。改完后需重训 FiLM。
+
+**预期效果**：
+- Normal 场景（score≈0）：gamma≈1, beta≈0，ADE 应与 Baseline 几乎一致
+- Adverse 场景（score≈1）：gamma≈gamma_raw, beta≈beta_raw，保留碰撞改善效果
+- 解耦"是否调制"（score 控制）和"如何调制"（embedding 方向控制）
+
 ### 待做（优先级由高到低）
 
-1. **UQ 组件消融实验**：利用已准备的 ablation configs，验证各组件贡献
+1. **Score-Gated FiLM 实现 + 重训**：核心修复，解决 Normal ADE 退化问题
+2. **UQ 组件消融实验**：利用已准备的 ablation configs，验证各组件贡献
    - w/o stat_features, w/o decoder, w/o ranking, w/o calibration
-2. **FiLM Ablation 全量比较**：A=Baseline, B=L1, C=L2, D=L1+L2
-3. **重新生成可视化图表**：用 v3 结果更新所有 figures
-4. **调参搜索**：碰撞感知 loss 的 margin (3-6m) 和 lambda_col (0.1-1.0)
+3. **FiLM Ablation 全量比较**：A=Baseline, B=L1, C=L2, D=L1+L2
+4. **重新生成可视化图表**：用 v3 结果更新所有 figures
+5. **调参搜索**：碰撞感知 loss 的 margin (3-6m) 和 lambda_col (0.1-1.0)
 
 ### 需要关注的风险
 
-1. **ADE 退化风险**：FiLM 调制的保守化策略可能降低轨迹效率，论文需正面讨论 safety vs efficiency tradeoff
-2. ~~**AUROC 不达标**~~ → **已解决** ✅（v3 AUROC=0.954）
-3. ~~**scene_type 分类不一致**~~ → **已解决** ✅（v3 使用 weather-based 分类）
+1. **Normal ADE 退化**：当前 FiLM 因 embedding LayerNorm 导致 Normal 场景也被调制，Score-Gated 方案应解决此问题
+2. **ADE 退化风险**：FiLM 调制的保守化策略可能降低轨迹效率，论文需正面讨论 safety vs efficiency tradeoff
+3. ~~**AUROC 不达标**~~ → **已解决** ✅（v3 AUROC=0.954）
+4. ~~**scene_type 分类不一致**~~ → **已解决** ✅（v3 使用 weather-based 分类）
+5. ~~**init_weights 覆盖 FiLM identity init**~~ → **已修复** ✅（2026-03-30）
 
 ---
 
