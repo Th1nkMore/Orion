@@ -60,21 +60,30 @@ uq-orion/
 ├── mmcv/                   # ORION 依赖（2 个文件有 [UQ] 标记的修改）
 ├── uq_estimator/           # UQ 扩展模块（所有新增代码在此）
 │   ├── __init__.py         # 导出：UQEstimator, UQOutput, CombinedUQLoss, UQFeatureDataset
-│   ├── model.py            # UQEstimator 模型 + smoke test
+│   ├── model.py            # UQEstimator 模型 + smoke test（支持消融开关）
 │   ├── losses.py           # 损失函数
 │   └── dataset.py          # UQFeatureDataset + compute_stat_features
 ├── scripts/
 │   ├── extract_orion_features.py  # Stage 0: 从 ORION 提取 patch tokens
 │   ├── generate_labels.py         # Stage 1a: 生成不确定性伪标签
-│   ├── train_uq.py                # Stage 1b: 训练 UQEstimator
+│   ├── train_uq.py                # Stage 1b: 训练 UQEstimator（支持消融配置）
 │   ├── validate_uq.py            # Stage 1c: 验证报告 + 可视化
 │   ├── eval_openloop.py           # Stage 2a: 开环评估 + UQ score 分析
 │   ├── train_film.py             # Stage 2b/4b: FiLM 微调 + 碰撞感知 loss（方案 C）
 │   ├── eval_ablation_full.py     # Stage 4: 热交换 ablation 评估（A/B/C/D 四组）
-│   ├── eval_closedloop_replay.py # 闭环回放评估（Bench2Drive 数据，无需 CARLA）
+│   ├── eval_closedloop_replay.py # 闭环回放评估 + 场景类型汇总
+│   ├── visualize_eval.py         # 论文图表生成（9 种图 + 文本摘要）
+│   ├── visualize_attention.py    # QT-Former 注意力可视化 + FiLM 对比
+│   ├── visualize_trajectory.py   # BEV 轨迹对比可视化
+│   ├── benchmark_overhead.py     # 计算开销测量（UQEstimator + FiLM 延迟）
+│   ├── run_ablation.sh           # 编排脚本：训练 + 评估 + 可视化
 │   └── e2e_mock_test.py          # 端到端 mock 测试
 ├── configs/
-│   └── uq_train.yaml       # 模型/训练/数据配置
+│   ├── uq_train.yaml              # 模型/训练/数据配置（含消融开关）
+│   ├── uq_ablation_no_stat.yaml   # 消融：去掉统计特征
+│   ├── uq_ablation_no_decoder.yaml # 消融：去掉 Transformer decoder
+│   ├── uq_ablation_no_ranking.yaml # 消融：去掉排序损失
+│   └── uq_ablation_no_cal.yaml    # 消融：去掉校准正则
 ├── tests/
 │   ├── __init__.py
 │   └── test_uq_model.py    # pytest 测试
@@ -85,6 +94,47 @@ uq-orion/
 ├── requirements_uq.txt      # UQ 项目依赖（uv 管理）
 └── .gitignore
 ```
+
+## 实验矩阵
+
+### FiLM 消融实验（eval_ablation_full.py / run_ablation.sh）
+| 组 | 设置 | FiLM L1 | FiLM L2 | Checkpoint |
+|----|------|---------|---------|------------|
+| A | Baseline | ✗ | ✗ | identity |
+| B | L1 only | ✓ | ✗ | best_l1.pt |
+| C | L2 only | ✗ | ✓ | best_l2.pt |
+| D | L1+L2 | ✓ | ✓ | best_l1l2.pt |
+
+指标：L2@1s/2s/3s, Col@1s/2s/3s, UQ score，分 all/normal/adverse 三组
+
+### UQ 组件消融实验（train_uq.py + 消融 config）
+| 消融 | 配置文件 | 说明 |
+|------|---------|------|
+| Full model | uq_train.yaml | 完整 UQEstimator |
+| w/o stat_features | uq_ablation_no_stat.yaml | 去掉 5 维统计特征 |
+| w/o decoder | uq_ablation_no_decoder.yaml | mean pool 替代 Transformer decoder |
+| w/o ranking loss | uq_ablation_no_ranking.yaml | 仅 MSE + calibration |
+| w/o calibration | uq_ablation_no_cal.yaml | 仅 MSE + ranking |
+
+指标：val_loss, Spearman, separation（validate_uq.py 验证）
+
+### 可视化产出目录（visualize_eval.py）
+| 编号 | 文件名 | 内容 |
+|------|--------|------|
+| fig1 | fig1_score_dist | UQ 分数分布直方图（Normal vs Adverse） |
+| fig2 | fig2_auroc | ROC 曲线（UQ → 劣天气检测 AUROC） |
+| fig3 | fig3_uq_vs_l2 | UQ score vs L2 error 散点图 + Spearman |
+| fig4 | fig4_weather_boxplot | 按天气类型分组的 UQ 箱线图 |
+| fig5 | fig5_planning_bars | Normal/Adverse 规划指标对比柱状图 |
+| fig6 | fig6_comparison | Baseline vs FiLM 对比（需 --input-film） |
+| fig7 | fig7_reliability | 校准曲线（UQ bin → 实际 L2/碰撞率） |
+| fig8 | fig8_scenario_breakdown | 按场景类型拆解（需 --closedloop-json） |
+| fig9 | fig9_uq_temporal | UQ score 时序演化（选取高方差场景） |
+
+### 其他可视化
+- visualize_attention.py: 注意力热力图、空间分布、熵分析、FiLM 对比
+- visualize_trajectory.py: BEV 轨迹对比（GT/Baseline/FiLM）+ UQ 分层分析
+- benchmark_overhead.py: 计算开销报告（参数量、延迟、吞吐）
 
 ## ORION 文件修改清单
 所有修改均以 `[UQ]` 注释标记，可通过 `grep -r "\[UQ\]" adzoo/ mmcv/` 查找。
