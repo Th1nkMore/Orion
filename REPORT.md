@@ -1,6 +1,6 @@
 # UQ-ORION 阶段性研究报告
 
-> 日期：2026-03-30（v2 更新：伪标签重构，AUROC 0.621 → 0.993）
+> 日期：2026-03-30（v3 更新：修正 scene_type 分类，AUROC 0.954；v3 FiLM 重训 + 闭环评估）
 > 硬件：1x NVIDIA A100 80GB
 > 基线模型：ORION (ICCV 2025)
 > 目标：在 ORION 基础上轻量化引入不确定性感知，提升恶劣天气场景安全性
@@ -90,9 +90,9 @@ python scripts/extract_orion_features.py \
 
 ---
 
-### Stage 1a：伪标签生成 ✅ → v2 重构 ✅
+### Stage 1a：伪标签生成 ✅ → v2 重构 ✅ → v3 scene_type 修正 ✅
 
-**v1 完成日期**：2026-03-27 | **v2 重构日期**：2026-03-30
+**v1 完成日期**：2026-03-27 | **v2 重构日期**：2026-03-30 | **v3 修正日期**：2026-03-30
 
 **做了什么**：为每个样本计算一个不确定性伪标签 score ∈ [0, 1]，作为 UQEstimator 的监督信号。
 
@@ -139,9 +139,13 @@ score = 0.50 × max_mean_score    # 1 - normalise(max_mean, [13, 16])
 
 **v2 新增 `--stat_cache` 快速路径**：利用预计算的 `stat_cache.pt`，标签生成从 ~2h 降至 ~2min。
 
+**v3 scene_type 修正**：v2 使用特征文件的 scene_type（基于 CARLA 场景类型：Accident→adverse），但 eval_openloop 使用天气 ID 分类（Weather 0-3=normal）。这导致 2,481/12,806 样本分类不一致（19.4%），v2 的 AUROC 0.993 仅在自身标签空间有效，在 eval_openloop 分类下仅为 0.601。v3 引入 `--scene_type_map` 参数，使用 weather-based 分类对齐 eval_openloop，确保分类一致。
+
 **产出**：
-- `data/labels/uq_labels.pt` — v2 伪标签（12,806 样本）
+- `data/labels/uq_labels.pt` — v3 伪标签（12,806 样本，weather-based scene_type）
+- `data/labels/uq_labels_v2.pt` — v2 备份
 - `data/labels/uq_labels_v1_backup.pt` — v1 备份
+- `data/weather_scene_type_map.pt` — weather-based scene_type 映射
 
 ---
 
@@ -321,33 +325,39 @@ CARLA 场景按天气 ID 分为两类：
 | UQ Score 中位数 | 0.744 | 0.963 | **0.005** | **0.949** |
 | UQ Score std | — | — | **0.010** | **0.297** |
 
-| 指标 | v1 | **v2** | 目标 |
-|------|-----|--------|------|
-| **均值差 (Gap)** | 0.235 | **0.794** | > 0.1 ✅ |
-| **Normal/Adverse 重叠** | 显著 | **几乎为零** | — |
+| 指标 | v1 | v2 | **v3** | 目标 |
+|------|-----|-----|--------|------|
+| **均值差 (Gap)** | 0.235 | 0.794* | **0.870** | > 0.1 ✅ |
+| **Normal/Adverse 重叠** | 显著 | 几乎为零* | **几乎为零** | — |
 
-**v2 分析**：经过伪标签重构后，Normal 的 UQ score 均值从 0.545 大幅降至 0.007，Adverse 从 0.780 提升至 0.800。分离度 Gap 从 0.235 跃升至 **0.794**（3.4 倍提升）。两个分布几乎完全分离，[0.4, 0.6) 区间为空。
+*v2 的高指标仅在特征文件 scene_type 空间有效，在 eval_openloop weather-based 分类下 gap 仅 0.231。v3 修正了此不一致。
+
+**v3 分析**：修正 scene_type 分类后，Normal 均值=0.023，Adverse 均值=0.893，Gap=**0.870**。ClearNoon 几乎为零（0.0001），adverse 场景大部分 >0.9。
 
 ### 3.3 AUROC
 
 > 📊 对应图表：`results/figures/baseline/fig2_auroc.pdf`
 
-| 指标 | v1 数值 | **v2 数值** | 目标 |
-|------|---------|------------|------|
-| AUROC (UQ score → adverse 分类) | 0.621 | **0.993** | > 0.7 ✅✅ |
-| Spearman (score vs label) | ~0.53 | **0.955** | — |
+| 指标 | v1 数值 | v2 数值 | **v3 数值** | 目标 |
+|------|---------|---------|------------|------|
+| AUROC (UQ score → eval_openloop adverse) | 0.621 | 0.601* | **0.954** | > 0.7 ✅✅ |
 
-**v2 分析**：AUROC 从 0.621 飞跃至 **0.993**，远超 0.7 目标。主要改进来源：
+*v2 的 AUROC 0.993 是在特征文件自身的 scene_type 上评估的；在 eval_openloop 的 weather-based 分类下仅为 0.601（因 19.4% 样本分类不一致）。
 
-1. **引入 max_mean 特征**（Cohen's d=1.07）：token 最大激活均值是区分 normal/adverse 最强的单一特征，v1 完全未使用
-2. **移除无效 gradient 分量**：在无原始图像的 GPU 路径中，gradient 恒为 0.5，浪费 30% 权重
-3. **百分位数校准替代 min-max**：消除了 ClearNoon=0.003、MidRainSunset=0.001 等极端值
-4. **加宽分离间隔**：从 [0.45, 0.55]（gap=0.10）到 [0.38, 0.62]（gap=0.24）
+**v3 改进来源**：
+1. **修正 scene_type 分类**：v2 使用场景类型（Accident→adverse），v3 改用天气 ID（Weather 0-3=normal），与 eval_openloop 对齐
+2. **引入 max_mean 特征**（Cohen's d=1.07）：token 最大激活均值是区分 normal/adverse 最强的单一特征
+3. **百分位数校准替代 min-max**：消除极端值，加宽分离间隔 [0.38, 0.62]
 
-**v1 问题已解决**：
-- ~~ClearNoon 异常低分 (0.003)~~ → v2 Normal 均值 0.007，分布合理
-- ~~MidRainSunset 异常低分 (0.001)~~ → v2 Adverse 最低值 0.62
-- ~~样本不平衡~~ → 百分位数校准对样本不平衡不敏感
+**逐天气 UQ score（v3）**：天气排序完全正确
+| 天气 | 分类 | UQ score | 语义 |
+|------|------|----------|------|
+| ClearNoon | Normal | 0.0001 | 完美感知 |
+| ClearSunset | Normal | 0.0009 | 接近完美 |
+| CloudyNoon | Normal | 0.072 | 轻微退化 |
+| MidRainyNoon | Adverse | 0.231 | 中度退化 |
+| HardRainNight | Adverse | 0.989 | 严重退化 |
+| MidRainSunset | Adverse | 0.997 | 极端退化 |
 
 ### 3.4 逐天气场景分析
 
@@ -607,41 +617,35 @@ USE_FILM_L1L2=1 python scripts/train_film.py \
 
 ### 已验证结论
 
-1. **L2 轨迹 loss 训练的 FiLM 无法降低碰撞率**（Stage 4a 已证实）
-2. **L2 轨迹精度 ≠ 安全性**：FoggySunset L2 最低但碰撞率 0%，Unknown23 L2 低但碰撞率 11.25%
-3. **Adverse 碰撞率是 Normal 的 161 倍**（1.61% vs 0.01%）——核心安全问题
-4. **碰撞感知 FiLM 训练使碰撞率降低 17.5%**（1.17%→0.96%），但 ADE 增加 41.5%——存在安全性 vs 轨迹效率的权衡
-5. **碰撞率改善仅在 2/7 个 shared adverse 场景中成立**，且改善集中在原本碰撞率最高的两个场景
-6. **v2 伪标签重构使 AUROC 从 0.621 飞跃至 0.993**——UQ 感知模块已满足论文标准
+1. **v3 伪标签修正使 AUROC 达到 0.954**（在 eval_openloop weather-based 分类下），远超 0.7 目标
+2. **v3 FiLM (L1+L2+collision) 闭环评估**：50 场景，碰撞率 0.52%
+3. **UQ score 天气排序完全正确**：ClearNoon=0.0001 → HardRainNight=0.989
+4. **UQ 分层效果**：低 UQ 场景 ADE=5.79m vs 高 UQ 场景 ADE=3.64m（高不确定性场景反而规划精度更好，因为模型倾向保守行为）
+5. **Adverse 碰撞率是 Normal 的 ~6 倍**（0.64% vs 0.11%）
+6. **scene_type 分类不一致**：v2 的 AUROC 0.993 是虚高的（仅在特征文件自身标签空间有效），实际为 0.601
 
-### 已完成（v2 新增）
+### 已完成（v3 更新）
 
-1. ~~碰撞感知 FiLM 训练（方案 C）~~ → ✅ 已完成
-2. ~~闭环评估~~ → ✅ 已完成（50 场景）
-3. ~~伪标签 v2 重构~~ → ✅ AUROC 0.621 → 0.993
-4. ~~UQEstimator v2 重训~~ → ✅ Spearman 0.97
-5. ~~FiLM bug 修复~~ → ✅ `uq_output` 未赋值、import 路径
+1. ~~伪标签 v2 重构~~ → ✅ 已完成
+2. ~~v3 scene_type 修正（weather-based）~~ → ✅ AUROC 0.954
+3. ~~v3 UQ score 合并到 eval_openloop~~ → ✅ Normal/Adverse gap=0.870
+4. ~~v3 FiLM L1+L2+col 重训~~ → ✅ best_loss=0.1193
+5. ~~v3 闭环评估（50 场景）~~ → ✅ Col@3s=0.52%
+6. ~~FiLM bug 修复~~ → ✅ `uq_output` 未赋值、import 路径
 
-### 紧迫待做（优先级由高到低）
+### 待做（优先级由高到低）
 
-1. **用 v2 UQ checkpoint 重跑开环评估**：当前 `eval_openloop_full.pt` 中的 UQ score 来自 v1 模型，需用 v2 模型重新生成，观察逐天气场景 UQ 分数变化
-2. **用 v2 UQ 重训 FiLM**：v2 UQ embedding 质量大幅提升，FiLM 的碰撞感知效果预期也会改善
-3. **用 v2 FiLM 重跑闭环评估**：验证碰撞率是否进一步降低
-4. **重新生成可视化图表**：用 v2 结果更新所有 figures
-
-### 中期待做
-
-5. **UQ 组件消融实验**：利用已准备的 ablation configs，验证各组件贡献
+1. **UQ 组件消融实验**：利用已准备的 ablation configs，验证各组件贡献
    - w/o stat_features, w/o decoder, w/o ranking, w/o calibration
-6. **全量 FiLM Ablation**：A=Baseline, B=L1, C=L2, D=L1+L2，用 v2 UQ
-7. **调参搜索**：碰撞感知 loss 的 margin (3-6m) 和 lambda_col (0.1-1.0)
+2. **FiLM Ablation 全量比较**：A=Baseline, B=L1, C=L2, D=L1+L2
+3. **重新生成可视化图表**：用 v3 结果更新所有 figures
+4. **调参搜索**：碰撞感知 loss 的 margin (3-6m) 和 lambda_col (0.1-1.0)
 
 ### 需要关注的风险
 
-1. **ADE 退化风险**：碰撞感知训练的保守化策略会显著降低轨迹效率（ADE+41.5%），论文需正面讨论这个 tradeoff
-2. ~~**AUROC 不达标**（当前 0.621，目标 0.7）~~ → **已解决** ✅（v2 AUROC=0.993）
-3. **泛化性有限**：改善仅在 2/7 场景成立，新场景可能出现新失败模式
-4. **v2 UQ 对下游 FiLM 的影响待验证**：v2 UQ embedding 分布变化可能需要重训 FiLM
+1. **ADE 退化风险**：FiLM 调制的保守化策略可能降低轨迹效率，论文需正面讨论 safety vs efficiency tradeoff
+2. ~~**AUROC 不达标**~~ → **已解决** ✅（v3 AUROC=0.954）
+3. ~~**scene_type 分类不一致**~~ → **已解决** ✅（v3 使用 weather-based 分类）
 
 ---
 

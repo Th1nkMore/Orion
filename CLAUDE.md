@@ -87,9 +87,15 @@ uq-orion/
 ├── tests/
 │   ├── __init__.py
 │   └── test_uq_model.py    # pytest 测试
-├── checkpoints/uq/best.pt  # 已训练的 UQEstimator 权重
-├── checkpoints/film/        # FiLM 训练权重（best_l1.pt, best_l2.pt, best_l1l2.pt）
-├── results/                 # 评估结果输出目录
+├── checkpoints/uq/best.pt  # v3 UQEstimator 权重（weather-based scene_type）
+├── checkpoints/uq/best_v2.pt  # v2 备份（scenario-based scene_type）
+├── checkpoints/film/        # FiLM 训练权重
+│   ├── best_l1l2_col_v3.pt  # v3 FiLM L1+L2+collision（当前最佳）
+│   ├── best_l1.pt, best_l2.pt, best_l1l2.pt  # 旧版 FiLM
+├── results/
+│   ├── eval_openloop_v3.pt/.json  # v3 开环评估（AUROC=0.954）
+│   ├── closedloop_replay_v3.json  # v3 闭环评估（50场景，Col=0.52%）
+│   └── eval_openloop_full.pt     # 原始开环评估（v1 UQ score）
 ├── requirements.txt         # ORION 原始依赖（勿动）
 ├── requirements_uq.txt      # UQ 项目依赖（uv 管理）
 └── .gitignore
