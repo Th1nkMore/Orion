@@ -184,19 +184,20 @@ def disable_film(model):
 def reload_film(model, film_checkpoint):
     """Re-load FiLM weights for FiLM inference pass."""
     m = model.module if hasattr(model, 'module') else model
-    film_ckpt = torch.load(film_checkpoint, map_location='cpu', weights_only=False)
+    dev = next(m.parameters()).device
+    film_ckpt = torch.load(film_checkpoint, map_location=dev, weights_only=False)
     transformer = m.pts_bbox_head.transformer
     if hasattr(transformer, 'film_gamma') and 'film_gamma_weight' in film_ckpt:
-        transformer.film_gamma.weight.data = film_ckpt['film_gamma_weight']
-        transformer.film_gamma.bias.data = film_ckpt['film_gamma_bias']
-        transformer.film_beta.weight.data = film_ckpt['film_beta_weight']
-        transformer.film_beta.bias.data = film_ckpt['film_beta_bias']
+        transformer.film_gamma.weight.data = film_ckpt['film_gamma_weight'].to(dev)
+        transformer.film_gamma.bias.data = film_ckpt['film_gamma_bias'].to(dev)
+        transformer.film_beta.weight.data = film_ckpt['film_beta_weight'].to(dev)
+        transformer.film_beta.bias.data = film_ckpt['film_beta_bias'].to(dev)
         print('[FiLM] Reloaded FiLM L1 weights')
     if hasattr(m, 'film_gamma_l2') and 'film_gamma_l2_weight' in film_ckpt:
-        m.film_gamma_l2.weight.data = film_ckpt['film_gamma_l2_weight']
-        m.film_gamma_l2.bias.data = film_ckpt['film_gamma_l2_bias']
-        m.film_beta_l2.weight.data = film_ckpt['film_beta_l2_weight']
-        m.film_beta_l2.bias.data = film_ckpt['film_beta_l2_bias']
+        m.film_gamma_l2.weight.data = film_ckpt['film_gamma_l2_weight'].to(dev)
+        m.film_gamma_l2.bias.data = film_ckpt['film_gamma_l2_bias'].to(dev)
+        m.film_beta_l2.weight.data = film_ckpt['film_beta_l2_weight'].to(dev)
+        m.film_beta_l2.bias.data = film_ckpt['film_beta_l2_bias'].to(dev)
         print('[FiLM] Reloaded FiLM L2 weights')
 
 
@@ -529,11 +530,15 @@ def main():
     set_random_seed(args.seed, deterministic=True)
     os.makedirs(args.out_dir, exist_ok=True)
 
+    # Load existing cache if available (for incremental addition)
     all_data = {}
-
-    if args.render_only and os.path.exists(args.cache):
-        print(f'Loading cached trajectory data from {args.cache}...')
+    if os.path.exists(args.cache):
+        print(f'Loading existing cache from {args.cache}...')
         all_data = torch.load(args.cache, map_location='cpu', weights_only=False)
+        print(f'  {len(all_data)} scenarios already cached')
+
+    if args.render_only:
+        print('Render-only mode, skipping inference.')
     else:
         # ── Build model and dataset ──
         cfg = Config.fromfile(args.config)
@@ -548,81 +553,95 @@ def main():
 
         scenarios = group_scenarios(data_infos)
 
-        # Find matching scenario folders
+        # Find matching scenario folders, skip already cached
         target_folders = {}
+        skipped = []
         for folder in scenarios:
             name = match_scenario(folder, args.scenarios)
             if name:
-                target_folders[name] = folder
-                print(f'  Matched: {name} -> {folder} ({len(scenarios[folder])} frames)')
+                if name in all_data and 'film' in all_data[name] and all_data[name]['film']:
+                    skipped.append(name)
+                else:
+                    target_folders[name] = folder
+                    print(f'  Matched: {name} -> {folder} ({len(scenarios[folder])} frames)')
+
+        if skipped:
+            print(f'  Skipped (already cached): {len(skipped)} scenarios')
+            for s in skipped:
+                print(f'    - {s}')
 
         if not target_folders:
-            print('ERROR: No matching scenarios found!')
-            return
+            print('All scenarios already cached, nothing to infer.')
+        else:
+            total_sampled = sum(
+                len(scenarios[f][::args.frame_step])
+                for f in target_folders.values())
+            print(f'Total frames to process per pass: {total_sampled}')
+            print(f'Estimated time: ~{total_sampled * 2 * 2 / 60:.0f} min (2 passes)')
 
-        total_sampled = sum(
-            len(scenarios[f][::args.frame_step])
-            for f in target_folders.values())
-        print(f'Total frames to process per pass: {total_sampled}')
-        print(f'Estimated time: ~{total_sampled * 2 * 2 / 60:.0f} min (2 passes)')
+            # ── Build model ──
+            print('\nBuilding ORION model...')
+            model = build_orion_model(cfg, args.checkpoint, args.film_checkpoint)
 
-        # ── Build model ──
-        print('\nBuilding ORION model...')
-        model = build_orion_model(cfg, args.checkpoint, args.film_checkpoint)
+            uq_capture = UQScoreCapture()
+            uq_capture.register(model)
 
-        uq_capture = UQScoreCapture()
-        uq_capture.register(model)
+            # ── Pass 1: Baseline (FiLM disabled) ──
+            print('\n═══ Pass 1: Baseline inference (FiLM → identity) ═══')
+            disable_film(model)
 
-        # ── Pass 1: Baseline (FiLM disabled) ──
-        print('\n═══ Pass 1: Baseline inference (FiLM → identity) ═══')
-        disable_film(model)
+            for scenario_name, folder in target_folders.items():
+                print(f'\n  Processing: {scenario_name}')
+                frame_indices = scenarios[folder]
+                uq_capture.scores.clear()
+                torch.cuda.empty_cache()
 
-        for scenario_name, folder in target_folders.items():
-            print(f'\n  Processing: {scenario_name}')
-            frame_indices = scenarios[folder]
-            uq_capture.scores.clear()
-            torch.cuda.empty_cache()
+                t0 = time.time()
+                records = run_scenario_inference(
+                    model, dataset, frame_indices, data_infos,
+                    args.frame_step, uq_capture)
+                elapsed = time.time() - t0
+                print(f'    {len(records)} frames captured in {elapsed:.1f}s '
+                      f'({elapsed/max(len(records),1):.2f}s/frame)')
 
-            t0 = time.time()
-            records = run_scenario_inference(
-                model, dataset, frame_indices, data_infos,
-                args.frame_step, uq_capture)
-            elapsed = time.time() - t0
-            print(f'    {len(records)} frames captured in {elapsed:.1f}s '
-                  f'({elapsed/max(len(records),1):.2f}s/frame)')
+                if scenario_name not in all_data:
+                    all_data[scenario_name] = {
+                        'folder': folder,
+                        'weather_id': parse_weather_id(folder),
+                    }
+                all_data[scenario_name]['baseline'] = records
 
-            if scenario_name not in all_data:
-                all_data[scenario_name] = {
-                    'folder': folder,
-                    'weather_id': parse_weather_id(folder),
-                }
-            all_data[scenario_name]['baseline'] = records
+            # Save after baseline pass to prevent data loss
+            cache_path = args.cache
+            os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+            torch.save(all_data, cache_path)
+            print(f'\nSaved baseline pass ({len(all_data)} scenarios): {cache_path}')
 
-        # ── Pass 2: FiLM ──
-        print('\n═══ Pass 2: FiLM inference ═══')
-        reload_film(model, args.film_checkpoint)
+            # ── Pass 2: FiLM ──
+            print('\n═══ Pass 2: FiLM inference ═══')
+            reload_film(model, args.film_checkpoint)
 
-        for scenario_name, folder in target_folders.items():
-            print(f'\n  Processing: {scenario_name}')
-            frame_indices = scenarios[folder]
-            uq_capture.scores.clear()
-            torch.cuda.empty_cache()
+            for scenario_name, folder in target_folders.items():
+                print(f'\n  Processing: {scenario_name}')
+                frame_indices = scenarios[folder]
+                uq_capture.scores.clear()
+                torch.cuda.empty_cache()
 
-            t0 = time.time()
-            records = run_scenario_inference(
-                model, dataset, frame_indices, data_infos,
-                args.frame_step, uq_capture)
-            elapsed = time.time() - t0
-            print(f'    {len(records)} frames captured in {elapsed:.1f}s '
-                  f'({elapsed/max(len(records),1):.2f}s/frame)')
+                t0 = time.time()
+                records = run_scenario_inference(
+                    model, dataset, frame_indices, data_infos,
+                    args.frame_step, uq_capture)
+                elapsed = time.time() - t0
+                print(f'    {len(records)} frames captured in {elapsed:.1f}s '
+                      f'({elapsed/max(len(records),1):.2f}s/frame)')
 
-            all_data[scenario_name]['film'] = records
+                all_data[scenario_name]['film'] = records
 
-        # ── Cache trajectory data ──
-        cache_path = args.cache
-        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-        torch.save(all_data, cache_path)
-        print(f'\nCached trajectory data: {cache_path}')
+            # ── Save merged cache ──
+            cache_path = args.cache
+            os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+            torch.save(all_data, cache_path)
+            print(f'\nCached trajectory data ({len(all_data)} scenarios): {cache_path}')
 
     # ── Render GIFs ──
     print('\n═══ Rendering GIFs ═══')
