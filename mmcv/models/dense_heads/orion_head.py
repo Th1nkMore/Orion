@@ -768,6 +768,7 @@ class OrionHead(AnchorFreeHead):
             stat_feat = compute_stat_features(patch_tokens)  # [B, 5]
             uq_out = self.uq_estimator(patch_tokens, stat_feat)
             uncertainty_emb = uq_out.embedding  # [B, 256]
+            self.uq_output = uq_out  # [UQ] expose for collision-aware FiLM training
 
         if self.use_memory :    
             current_query = self.memory_query.weight.unsqueeze(0).repeat(B,1,1) # (4, 16, 256)
