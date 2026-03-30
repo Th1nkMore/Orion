@@ -1,9 +1,8 @@
-# UQ project additions
+# UQ project additions (large artifacts stay local)
 data/features/
 data/labels/
 checkpoints/uq/
 data/stat_cache.pt
-reports/
 *.pt
 !tests/**/*.pt
 !checkpoints/film/*.pt
@@ -35,9 +34,13 @@ test/
 # Local assistant artifacts
 .claude/
 
-# Local results (keep paper-ready figures under results/figures/ if needed)
-results/*.json
+# Reports: keep small, useful outputs; ignore notebooks/temp
+reports/.ipynb_checkpoints/
+# Keep text + figures for reproducibility
+!reports/**/*.md
+!reports/**/*.txt
+!reports/**/*.png
+!reports/**/*.pdf
 
-# Local planning doc
-PLAN.md
-HANDOVER.md
+# Results: keep small summaries & evaluation JSON; large tensors (.pt) remain ignored by '*.pt'
+!results/**/*.json
