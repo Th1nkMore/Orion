@@ -104,3 +104,16 @@ All changes searchable via `[UQ]` tag. See README.md for full details.
 | `data/bench2drive/v1/` | 407GB | Bench2Drive raw dataset |
 | `data/infos/b2d_infos_val.pkl` | 141MB | Val annotations (12806 samples) |
 | `data/infos/b2d_infos_train.pkl` | 22MB | Train annotations (234848 samples) |
+
+## Latest Update (2026-03-30)
+
+- **Progress**: 第一版 `UQEstimator` 与 `FiLM`（L1/L2/L1+L2）已完成训练与评估；目前正在进行第二轮训练迭代。
+- **Issue observed**: 第一版效果不佳，模型倾向通过“整体更保守”（更频繁制动/降速/等待/绕行）来降低碰撞率，导致 ADE/控制误差等驾驶质量指标退化，且收益集中在少数高风险场景。
+- **Working hypothesis**: 这是安全目标下的典型“保守捷径”——当碰撞惩罚强、进度/舒适/效率约束不足时，模型会走最容易的解来减少碰撞，而不是学习更高质量的规避策略。
+- **Plan for round-2** (high level):
+  - 引入或加强 **进度/舒适/效率约束**，明确“可接受驾驶质量”边界，堵住“停住就安全”的捷径。
+  - 做 **UQ 门控/分段权重**：低不确定性尽量贴近 baseline，高不确定性才允许更强调制与更保守动作。
+  - 加 **FiLM 幅度约束**（\(\gamma\) 近 1、\(\beta\) 近 0 的正则/范围限制），防止全局分布漂移导致效率退化或新失败模式。
+  - 训练中跟踪诊断指标：UQ 分布是否常高、FiLM 调制幅度统计、停滞比例、碰撞率是否主要来自减速等。
+
+> 详情与可写进论文的表述已整理到 `REPORT.md` 的 “10.4 最新 Insight”。
