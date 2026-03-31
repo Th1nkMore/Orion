@@ -164,18 +164,22 @@ def build_orion_model(cfg, checkpoint_path, film_checkpoint=None):
 
 
 def disable_film(model):
-    """Reset FiLM layers to identity (gamma=1, beta=0) for baseline inference."""
+    """Reset FiLM layers to identity (gamma=1, beta=0) for baseline inference.
+
+    Identity init: gamma = W @ emb + b.  For gamma≡1 we need W=0, b=1.
+    For beta≡0 we need W=0, b=0.
+    """
     m = model.module if hasattr(model, 'module') else model
     transformer = m.pts_bbox_head.transformer
     if hasattr(transformer, 'film_gamma'):
-        torch.nn.init.ones_(transformer.film_gamma.weight)
-        torch.nn.init.zeros_(transformer.film_gamma.bias)
+        torch.nn.init.zeros_(transformer.film_gamma.weight)  # W=0
+        torch.nn.init.ones_(transformer.film_gamma.bias)      # b=1  → gamma = 1
         torch.nn.init.zeros_(transformer.film_beta.weight)
         torch.nn.init.zeros_(transformer.film_beta.bias)
         print('[Baseline] FiLM L1 reset to identity')
     if hasattr(m, 'film_gamma_l2'):
-        torch.nn.init.ones_(m.film_gamma_l2.weight)
-        torch.nn.init.zeros_(m.film_gamma_l2.bias)
+        torch.nn.init.zeros_(m.film_gamma_l2.weight)  # W=0
+        torch.nn.init.ones_(m.film_gamma_l2.bias)      # b=1  → gamma = 1
         torch.nn.init.zeros_(m.film_beta_l2.weight)
         torch.nn.init.zeros_(m.film_beta_l2.bias)
         print('[Baseline] FiLM L2 reset to identity')
@@ -255,6 +259,22 @@ def run_scenario_inference(model, dataset, frame_indices, data_infos,
         # Planning metrics
         metric = r.get('metric_results', {})
 
+        # Front-camera lidar2img matrix (CAM_FRONT = index 0)
+        lidar2img = None
+        try:
+            img_meta = batch['img_metas'][0]
+            if isinstance(img_meta, list):
+                img_meta = img_meta[0]
+            if isinstance(img_meta, dict):
+                l2i_list = img_meta.get('lidar2img', None)
+            else:
+                # DataContainer
+                l2i_list = img_meta.data.get('lidar2img', None)
+            if l2i_list is not None:
+                lidar2img = np.array(l2i_list[0], dtype=np.float64)  # front cam
+        except Exception:
+            pass
+
         records.append({
             'frame_idx': frame_idx,
             'ds_idx': ds_idx,
@@ -263,6 +283,7 @@ def run_scenario_inference(model, dataset, frame_indices, data_infos,
             'uq_score': uq_score,
             'plan_L2_3s': float(metric.get('plan_L2_3s', 0)),
             'plan_obj_col_3s': float(metric.get('plan_obj_col_3s', 0)),
+            'lidar2img': lidar2img,  # (4,4) or None
         })
 
     return records
@@ -292,28 +313,47 @@ def _auto_bev_range(gt_traj, base_traj, film_traj, pad=0.4):
     return max_abs + pad
 
 
-def _draw_cam_trajectories(cam_img, gt_traj, base_traj, film_traj):
-    """Draw trajectory direction indicators directly on the camera image.
+def _project_traj_lidar2img(traj, lidar2img):
+    """Project 2-D lidar-frame trajectory onto a camera image using the
+    calibrated lidar→image matrix.
 
-    Uses a simple perspective mapping: lidar (x_lat, y_fwd) ->
-    camera pixel with vanishing point at image center-top.
+    Args:
+        traj: (N, 2) array of [x_lat, y_fwd] positions in lidar frame.
+        lidar2img: (4, 4) or (3, 4) lidar-to-image transform.
+
+    Returns:
+        List of (px, py) pixel tuples for points in front of the camera.
+        Points behind the camera (depth ≤ 0) are dropped.
+    """
+    if traj is None or len(traj) == 0:
+        return []
+    L2I = np.array(lidar2img, dtype=np.float64)   # (4,4) or (3,4)
+    pts = []
+    for (x_lat, y_fwd) in traj:
+        # Trajectory is in lidar ground-plane (z ≈ 0)
+        p_lidar = np.array([x_lat, y_fwd, 0.0, 1.0])
+        p_img = L2I @ p_lidar          # (4,) or (3,)
+        depth = p_img[2]
+        if depth <= 0.1:               # behind camera — skip
+            continue
+        px = float(p_img[0]) / depth
+        py = float(p_img[1]) / depth
+        pts.append((int(round(px)), int(round(py))))
+    return pts
+
+
+def _draw_cam_trajectories(cam_img, gt_traj, base_traj, film_traj, lidar2img=None):
+    """Draw trajectory overlays on the front-camera image.
+
+    When ``lidar2img`` (the calibrated 4×4 lidar-to-image matrix for the front
+    camera) is provided, proper perspective projection is used.  Otherwise a
+    rough vanishing-point heuristic is used as fallback.
     """
     h, w = cam_img.shape[:2]
     overlay = cam_img.copy()
 
-    vanish_x, vanish_y = w // 2, int(h * 0.42)
-    ego_x, ego_y = w // 2, h - 10
-
-    def _lidar_to_pixel(x_lat, y_fwd, scale=200):
-        """Approximate perspective: map lidar (lat, fwd) to pixel coords."""
-        t = min(y_fwd * scale / max(h, 1), 0.85)
-        t = max(t, 0.0)
-        px = int(ego_x + (vanish_x - ego_x) * t - x_lat * scale * (1 - t * 0.6))
-        py = int(ego_y + (vanish_y - ego_y) * t)
-        return px, py
-
     trajs = [
-        (gt_traj, COLOR_GT, 'GT'),
+        (gt_traj,   COLOR_GT,   'GT'),
         (base_traj, COLOR_BASE, 'Baseline'),
         (film_traj, COLOR_FILM, 'Ours'),
     ]
@@ -321,43 +361,65 @@ def _draw_cam_trajectories(cam_img, gt_traj, base_traj, film_traj):
     for traj, hex_color, label in trajs:
         if traj is None or len(traj) == 0:
             continue
-        r = int(hex_color[1:3], 16)
-        g = int(hex_color[3:5], 16)
-        b = int(hex_color[5:7], 16)
-        bgr = (b, g, r)
+        r_c = int(hex_color[1:3], 16)
+        g_c = int(hex_color[3:5], 16)
+        b_c = int(hex_color[5:7], 16)
+        bgr = (b_c, g_c, r_c)
 
-        pts_px = []
-        for x_lat, y_fwd in traj:
-            px, py = _lidar_to_pixel(x_lat, y_fwd)
-            px = max(0, min(w - 1, px))
-            py = max(0, min(h - 1, py))
-            pts_px.append((px, py))
+        if lidar2img is not None:
+            # --- Accurate projection using calibrated camera matrix ---
+            pts_px = _project_traj_lidar2img(traj, lidar2img)
+            # keep only in-image points, but don't clip — we rely on the
+            # actual projection to naturally land inside the image
+            pts_px = [(px, py) for px, py in pts_px
+                      if 0 <= px < w and 0 <= py < h]
+        else:
+            # --- Fallback: vanishing-point heuristic ---
+            vanish_x, vanish_y = w // 2, int(h * 0.42)
+            ego_x_c, ego_y_c = w // 2, h - 10
+            pts_px = []
+            for x_lat, y_fwd in traj:
+                scale = 200
+                t = max(0.0, min(y_fwd * scale / max(h, 1), 0.85))
+                px = int(ego_x_c + (vanish_x - ego_x_c) * t
+                         - x_lat * scale * (1 - t * 0.6))
+                py = int(ego_y_c + (vanish_y - ego_y_c) * t)
+                px = max(0, min(w - 1, px))
+                py = max(0, min(h - 1, py))
+                pts_px.append((px, py))
+
+        if len(pts_px) < 1:
+            continue
 
         for i in range(len(pts_px) - 1):
             cv2.line(overlay, pts_px[i], pts_px[i + 1], bgr, 4, cv2.LINE_AA)
-        for i, (px, py) in enumerate(pts_px):
+        for px, py in pts_px:
             cv2.circle(overlay, (px, py), 6, bgr, -1, cv2.LINE_AA)
             cv2.circle(overlay, (px, py), 6, (255, 255, 255), 1, cv2.LINE_AA)
 
-        if pts_px:
-            cv2.putText(overlay, label, (pts_px[-1][0] + 8, pts_px[-1][1] + 4),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, bgr, 2, cv2.LINE_AA)
-            cv2.putText(overlay, label, (pts_px[-1][0] + 8, pts_px[-1][1] + 4),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+        # Label near last visible point
+        lx, ly = pts_px[-1]
+        cv2.putText(overlay, label, (lx + 8, ly + 4),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, bgr, 2, cv2.LINE_AA)
+        cv2.putText(overlay, label, (lx + 8, ly + 4),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
-    result = cv2.addWeighted(overlay, 0.7, cam_img, 0.3, 0)
-    return result
+    return cv2.addWeighted(overlay, 0.7, cam_img, 0.3, 0)
 
 
 def render_composite_frame(cam_img, gt_traj, base_traj, film_traj,
                            uq_score, frame_idx, scenario_name, weather,
-                           l2_base, l2_film, col_base, col_film):
+                           l2_base, l2_film, col_base, col_film,
+                           lidar2img=None):
     """Render composite: camera with trajectory overlay (top) + BEV inset (bottom-right).
 
+    Args:
+        lidar2img: (4,4) lidar-to-front-camera matrix for accurate projection.
     Returns:
         np.ndarray [H, W, 3] uint8 RGB image
     """
-    cam_with_traj = _draw_cam_trajectories(cam_img.copy(), gt_traj, base_traj, film_traj)
+    cam_with_traj = _draw_cam_trajectories(cam_img.copy(), gt_traj, base_traj, film_traj,
+                                           lidar2img=lidar2img)
 
     # --- Render BEV as a matplotlib figure → image ---
     bev_range = _auto_bev_range(gt_traj, base_traj, film_traj, pad=0.5)
@@ -495,6 +557,9 @@ def generate_gif(scenario_name, base_records, film_records, data_root,
 
         uq_score = film_rec.get('uq_score', rec.get('uq_score'))
 
+        # Prefer lidar2img from FiLM record; fall back to baseline record
+        lidar2img = film_rec.get('lidar2img') or rec.get('lidar2img')
+
         composite = render_composite_frame(
             cam_img=cam_img,
             gt_traj=gt_traj,
@@ -508,6 +573,7 @@ def generate_gif(scenario_name, base_records, film_records, data_root,
             l2_film=film_rec.get('plan_L2_3s', 0),
             col_base=rec.get('plan_obj_col_3s', 0),
             col_film=film_rec.get('plan_obj_col_3s', 0),
+            lidar2img=lidar2img,
         )
         frames.append(composite)
 

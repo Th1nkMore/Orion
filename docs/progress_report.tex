@@ -1,0 +1,569 @@
+% !TEX program = xelatex
+\documentclass[12pt, a4paper]{ctexart}
+
+% ====== 宏包 ======
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath, amssymb}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+
+% ====== 颜色定义 ======
+\definecolor{codeblue}{RGB}{0, 102, 204}
+\definecolor{codegray}{RGB}{128, 128, 128}
+\definecolor{alertred}{RGB}{204, 0, 0}
+\definecolor{okgreen}{RGB}{0, 153, 0}
+\definecolor{warncolor}{RGB}{200, 120, 0}
+
+% ====== hyperref 设置 ======
+\hypersetup{
+    colorlinks=true,
+    linkcolor=codeblue,
+    citecolor=codeblue,
+    urlcolor=codeblue
+}
+
+% ====== 页眉页脚 ======
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small UQ-ORION 研究进展报告}
+\fancyhead[R]{\small 2026-03-31}
+\fancyfoot[C]{\thepage}
+
+% ====== 代码框 ======
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!5},
+    keywordstyle=\color{codeblue},
+    commentstyle=\color{codegray},
+}
+
+% ====== tcolorbox 定义 ======
+\newtcolorbox{insightbox}[1][]{
+    colback=blue!3, colframe=codeblue,
+    fonttitle=\bfseries, title={#1},
+    boxrule=0.5pt, arc=2pt
+}
+
+\newtcolorbox{issuebox}[1][]{
+    colback=red!3, colframe=alertred,
+    fonttitle=\bfseries, title={#1},
+    boxrule=0.5pt, arc=2pt
+}
+
+\newtcolorbox{statusbox}[1][]{
+    colback=green!3, colframe=okgreen,
+    fonttitle=\bfseries, title={#1},
+    boxrule=0.5pt, arc=2pt
+}
+
+% ====== 图路径 ======
+\graphicspath{{../results/figures/baseline/}}
+
+% ====== 标题信息 ======
+\title{\textbf{UQ-ORION: 面向恶劣天气的\\不确定性感知端到端自动驾驶安全扩展}\\[0.8em]
+\large 研究进展报告}
+\author{}
+\date{2026 年 3 月 31 日}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+% ============================================================
+\begin{abstract}
+本报告总结 UQ-ORION 项目的当前进展。该项目在 ORION（ICCV 2025）端到端自动驾驶框架的基础上，通过轻量不确定性量化（UQ）模块和 FiLM 条件调制机制，提升模型在恶劣天气场景（雨、雾、夜间）下的安全性。
+
+截至目前，我们已完成 UQEstimator 训练（AUROC=0.954）、FiLM 双层注入、碰撞感知训练、以及 50 场景闭环评估。实验表明恶劣天气下碰撞率降低 21\%--23\%，但存在正常场景轨迹退化问题，已定位根因并设计了 Score-Gated FiLM 修复方案。本报告详细记录了技术路线、实验结果、遇到的问题与解决方案，并对后续工作的资源需求和可行性进行分析。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{研究背景与动机}
+
+\subsection{问题定义}
+
+ORION 是一个基于 VLM（Vision-Language Model）的端到端自动驾驶框架，在标准场景下表现优秀。其核心流程为：
+\begin{center}
+    Vision Encoder $\to$ QT-Former $\to$ VLM $\to$ Planning Token $\to$ VAE $\to$ 轨迹
+\end{center}
+
+然而，VLM-based planner 存在一个关键缺陷：\textbf{在恶劣天气（雨、雾、夜间）等 OOD 场景下过度自信}，无法感知自身感知质量的下降，从而做出激进的轨迹决策。
+
+通过对 Bench2Drive 验证集（12,806 个样本）的分析，我们发现了一个令人警醒的统计事实：
+
+\begin{insightbox}[核心发现：恶劣天气碰撞率放大效应]
+\begin{itemize}[leftmargin=1.5em]
+    \item 恶劣天气碰撞率是正常天气的 \textbf{161 倍}（1.61\% vs 0.01\%）
+    \item 但恶劣天气的 L2 轨迹误差反而\textbf{低于}正常天气（1.78m vs 2.38m）
+    \item 模型「看起来精度不错」但实际碰撞风险剧增
+\end{itemize}
+\end{insightbox}
+
+这一发现揭示了传统开环 L2 评估指标的局限性——轨迹精度与安全性是两个不同维度的概念。
+
+\subsection{研究目标}
+
+在不微调 ORION 主干（${\sim}1$B 参数，36GB 模型文件）的前提下，设计一个轻量即插即用的不确定性感知安全扩展方案：
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{感知不确定性}：训练轻量 UQ 估计器，从视觉特征判断当前感知质量
+    \item \textbf{注入不确定性}：通过 FiLM 调制机制将不确定性信号注入规划流程
+    \item \textbf{降低碰撞率}：在恶劣天气下显著减少碰撞，同时尽量保持正常天气性能
+\end{enumerate}
+
+约束条件：新增参数 $<$ 5M（实际 4.45M），零主干微调，\texttt{use\_uncertainty=True/False} 一行开关切换。
+
+% ============================================================
+\section{技术方案}
+
+\subsection{整体架构}
+
+\begin{figure}[H]
+\centering
+\begin{tcolorbox}[colback=white, colframe=black!50, boxrule=0.3pt, width=\textwidth]
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize, frame=none, backgroundcolor=\color{white}]
+Vision Encoder (EVAViT, frozen)
+    | patch_tokens [B, 6, 1600, 1024]
+    |--------------------------------------------+
+    |                                            v
+    |                                    UQEstimator (2.21M)
+    |                                            |
+    |                                 uncertainty_embedding [B, 256]
+    |                                 uncertainty_score     [B, 1]
+    |                                            |
+QT-Former (frozen) <-- FiLM L1 (0.13M) --------+
+    | vlm_memory                                 |
+LLM / Qwen (frozen)                             |
+    | ego_feature [B, 4096]                      |
+    |<----- FiLM L2 (2.11M) --------------------+
+    v
+VAE (frozen) --> trajectory
+\end{lstlisting}
+\end{tcolorbox}
+\caption{UQ-ORION 整体架构。灰色部分为 ORION 原有冻结模块，蓝色为本项目新增模块。}
+\end{figure}
+
+\subsection{UQEstimator 模型}
+
+UQEstimator 接收 EVAViT 的 patch tokens 和 5 维统计特征，输出不确定性 score $\in [0,1]$ 和 256 维 embedding。
+
+\textbf{模型结构}：
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{Patch 投影}：Linear($1024 \to 256$)，降维控制参数量
+    \item \textbf{Cross-Attention 池化}：2 层 TransformerDecoder，16 个 learnable queries 通过 cross-attention 自适应关注最相关的 patches
+    \item \textbf{统计特征分支}：5 维原始特征 $\to$ Linear($5 \to 64$) + GELU + LayerNorm
+    \item \textbf{融合}：concat $[256 + 64] \to 512 \to 256$
+    \item \textbf{输出头}：score\_head (Sigmoid $\to [0,1]$)，embed\_head (LayerNorm $\to$ FiLM 条件向量)
+\end{itemize}
+
+总参数量：2,210,817（2.21M），远在 5M 预算之内。
+
+\subsection{FiLM 双层注入}
+
+FiLM（Feature-wise Linear Modulation）通过 $\text{output} = \gamma \odot \text{input} + \beta$ 实现条件调制：
+
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{FiLM L1}（QT-Former 层，0.13M）：调制检测 query，让下游 LLM 接收到``视野受限''的场景表示
+    \item \textbf{FiLM L2}（VAE 层，2.11M）：调制 ego\_feature（规划 token），将轨迹分布向保守模式偏移
+\end{itemize}
+
+两层 FiLM 均采用 Identity 初始化（$\gamma = 1, \beta = 0$），确保新增模块不破坏原有性能。
+
+\subsection{损失函数设计}
+
+\textbf{UQEstimator 训练}：
+\begin{equation}
+    \mathcal{L}_{\text{UQ}} = \mathcal{L}_{\text{MSE}} + 0.1 \cdot \mathcal{L}_{\text{cal}} + 0.5 \cdot \mathcal{L}_{\text{rank}}
+\end{equation}
+其中 $\mathcal{L}_{\text{cal}}$ 为校准正则项（惩罚 score 标准差过小），$\mathcal{L}_{\text{rank}}$ 为 pairwise margin ranking loss。
+
+\textbf{FiLM 碰撞感知训练}：
+\begin{equation}
+    \mathcal{L}_{\text{FiLM}} = \mathcal{L}_{\text{plan}} + \lambda_{\text{col}} \cdot \mathcal{L}_{\text{col}}
+\end{equation}
+其中碰撞 loss 为 UQ score 加权的 hinge margin loss：
+\begin{equation}
+    \mathcal{L}_{\text{col}} = \mathbb{E}\left[ \text{ReLU}(m - d_{\min}) \cdot s_{\text{UQ}} \right], \quad m = 4.0\text{m}, \quad \lambda_{\text{col}} = 0.5
+\end{equation}
+
+\subsection{参数预算}
+
+\begin{table}[H]
+\centering
+\caption{新增模块参数量}
+\begin{tabular}{llrl}
+\toprule
+\textbf{模块} & \textbf{位置} & \textbf{参数量} & \textbf{说明} \\
+\midrule
+UQEstimator & 独立模块 & 2,210,817 (2.21M) & Transformer decoder + MLP \\
+FiLM L1 ($\gamma + \beta$) & QT-Former & 131,584 (0.13M) & Linear($256 \to 256$) $\times$ 2 \\
+FiLM L2 ($\gamma + \beta$) & VAE 前 & 2,105,344 (2.11M) & Linear($256 \to 4096$) $\times$ 2 \\
+\midrule
+\textbf{合计} & & \textbf{4,447,745 (4.45M)} & \textbf{ORION 主干的 0.45\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{当前进展}
+
+\subsection{完成阶段概览}
+
+\begin{table}[H]
+\centering
+\caption{项目流水线各阶段状态}
+\begin{tabular}{clll}
+\toprule
+\textbf{阶段} & \textbf{内容} & \textbf{状态} & \textbf{关键产出} \\
+\midrule
+Stage 0 & 特征提取（EVAViT） & \textcolor{okgreen}{\textbf{完成}} & 12,806 样本，235GB \\
+Stage 1a & 伪标签生成（v3） & \textcolor{okgreen}{\textbf{完成}} & AUROC 0.954 \\
+Stage 1b & UQEstimator 训练 & \textcolor{okgreen}{\textbf{完成}} & Spearman $\rho$=0.97 \\
+Stage 2a & 开环评估 + UQ hook & \textcolor{okgreen}{\textbf{完成}} & 12,806 样本全量 \\
+Stage 2b & FiLM L1/L2/L1+L2 训练 & \textcolor{okgreen}{\textbf{完成}} & 3 组权重 \\
+Stage 3 & 碰撞感知 FiLM 训练 & \textcolor{okgreen}{\textbf{完成}} & Col$-$21\% \\
+Stage 4 & 50 场景闭环评估 & \textcolor{okgreen}{\textbf{完成}} & 含 Baseline 对照 \\
+可视化 & 5 张图 + 18 个 GIF & \textcolor{okgreen}{\textbf{完成}} & 论文级可视化 \\
+\midrule
+下一步 & Score-Gated FiLM & \textcolor{warncolor}{\textbf{待实现}} & 修复 Normal 退化 \\
+下一步 & UQ 组件消融 & \textcolor{warncolor}{\textbf{待实验}} & 4 组消融对比 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{实验结果}
+
+\subsubsection{UQ Score 分离度（v3，weather-based 分类）}
+
+\begin{table}[H]
+\centering
+\caption{UQ Score 分离度指标}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{指标} & \textbf{Normal} & \textbf{Adverse} & \textbf{Gap} & \textbf{目标} \\
+\midrule
+UQ Score 均值 & 0.023 & 0.893 & \textbf{0.870} & $>0.1$ \textcolor{okgreen}{\checkmark} \\
+UQ Score 中位数 & 0.00008 & 0.970 & 0.970 & --- \\
+AUROC (adverse 检测) & \multicolumn{2}{c}{---} & \textbf{0.954} & $>0.7$ \textcolor{okgreen}{\checkmark\checkmark} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+UQ score 在天气维度上的排序完全正确（表~\ref{tab:weather_uq}），从 ClearNoon 的接近零到 MidRainSunset 的接近 1，与视觉降质程度高度一致。
+
+\begin{table}[H]
+\centering
+\caption{逐天气类型 UQ Score}
+\label{tab:weather_uq}
+\begin{tabular}{llcc}
+\toprule
+\textbf{天气} & \textbf{分类} & \textbf{UQ Score} & \textbf{语义} \\
+\midrule
+ClearNoon & Normal & 0.0001 & 完美感知 \\
+ClearSunset & Normal & 0.0009 & 接近完美 \\
+CloudyNoon & Normal & 0.072 & 轻微退化 \\
+\midrule
+MidRainyNoon & Adverse & 0.231 & 中度退化 \\
+HardRainNight & Adverse & 0.989 & 严重退化 \\
+MidRainSunset & Adverse & 0.997 & 极端退化 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{闭环评估结果（50 场景，修复 init\_weights 后）}
+
+\begin{table}[H]
+\centering
+\caption{闭环评估：Baseline vs FiLM v3（50 场景）}
+\label{tab:closedloop}
+\begin{tabular}{lccr}
+\toprule
+\textbf{指标} & \textbf{Baseline} & \textbf{FiLM v3} & \textbf{变化} \\
+\midrule
+\textbf{ALL (50)} Col@3s & 0.66\% & 0.52\% & \textcolor{okgreen}{\textbf{$-$21\%}} \\
+ALL ADE@3s & 2.46m & 4.44m & \textcolor{alertred}{+80\%} \\
+\midrule
+Normal (11) Col@3s & 0.05\% & 0.11\% & +0.06\% \\
+Normal ADE@3s & 2.78m & 6.00m & \textcolor{alertred}{\textbf{+116\%}} \\
+\midrule
+Adverse (39) Col@3s & 0.83\% & 0.64\% & \textcolor{okgreen}{\textbf{$-$23\%}} \\
+Adverse ADE@3s & 2.37m & 4.00m & +69\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{insightbox}[结果解读]
+\begin{itemize}[leftmargin=1.5em]
+    \item 恶劣天气碰撞率降低 23\%（0.83\% $\to$ 0.64\%），符合预期
+    \item 但正常天气 ADE 从 2.78m 退化至 6.00m（+116\%），这是当前最严重的问题
+    \item 根因已定位：embed\_head 的 LayerNorm 导致 FiLM 在 Normal 场景也产生非平凡调制
+\end{itemize}
+\end{insightbox}
+
+\subsubsection{Baseline 规划指标分析}
+
+\begin{table}[H]
+\centering
+\caption{Baseline 开环指标（12,806 样本）}
+\begin{tabular}{lccr}
+\toprule
+\textbf{指标} & \textbf{Normal} & \textbf{Adverse} & \textbf{倍数} \\
+\midrule
+L2@3s & 2.38m & 1.78m & $0.75\times$ \\
+Col@1s & 0.02\% & 1.78\% & $89\times$ \\
+Col@3s & \textbf{0.01\%} & \textbf{1.61\%} & $\mathbf{161\times}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{遇到的问题与解决方案}
+
+\subsection{问题 1：伪标签分类不一致（已解决）}
+
+\begin{issuebox}[严重性：高 \quad 状态：\textcolor{okgreen}{已解决}]
+\textbf{现象}：v2 伪标签使用场景类型（Accident$\to$adverse）分类，但 eval\_openloop 使用天气 ID（Weather 0-3=normal）分类。2,481/12,806 样本（19.4\%）分类不一致。
+
+\textbf{影响}：v2 AUROC 0.993 仅在自身标签空间有效，在 eval\_openloop 空间实际仅为 0.601。
+
+\textbf{解决方案}（v3）：引入 weather-based 分类对齐 eval\_openloop，修正后 AUROC 提升至 \textbf{0.954}。
+\end{issuebox}
+
+\subsection{问题 2：init\_weights 覆盖 FiLM Identity Init（已修复）}
+
+\begin{issuebox}[严重性：高 \quad 状态：\textcolor{okgreen}{已修复}]
+\textbf{现象}：\texttt{PETRTemporalTransformer.init\_weights()} 对所有 Linear 层执行 \texttt{xavier\_uniform\_}，覆盖了 FiLM 层精心设置的 identity 初始化（$\gamma=1, \beta=0$）。
+
+\textbf{影响}：未加载训练权重时 FiLM 不是 identity 而是随机调制。早期 10 场景 baseline 数据不可信。
+
+\textbf{解决方案}：在 \texttt{init\_weights()} 中用参数 ID 排除 FiLM 层。修复后重跑 50 场景 baseline 获得可信对照数据。
+\end{issuebox}
+
+\subsection{问题 3：Normal 场景 ADE 严重退化（待解决）}
+
+\begin{issuebox}[严重性：\textcolor{alertred}{关键} \quad 状态：\textcolor{warncolor}{已定位根因，待实现修复}]
+\textbf{现象}：Normal 场景 UQ score $\approx$ 0（0.0001--0.0015），FiLM 不应有任何调制效果，但 ADE 从 2.78m $\to$ 6.00m（+116\%）。
+
+\textbf{根因}：\texttt{embed\_head} 末尾的 LayerNorm 使所有样本的 embedding $\ell_2$ norm 恒定（$\approx \sqrt{256} \approx 16$），无论 UQ score 高低。FiLM 计算 $\gamma = W \cdot \text{emb} + b$ 时，由于 embedding norm 恒定，Normal 和 Adverse 场景的调制幅度相当。
+
+\textbf{设计方案}：Score-Gated FiLM（见第~\ref{sec:scoregated}节）。
+\end{issuebox}
+
+\subsection{问题 4：FiLM 的``保守捷径''现象}
+
+\begin{issuebox}[严重性：中 \quad 状态：\textcolor{warncolor}{需第二轮训练解决}]
+\textbf{现象}：碰撞感知训练使模型全面趋于保守（Brake MAE +129\%，Throttle MAE +74\%），通过``更慢、更停、更让''降低碰撞率，而非更智能的避障。
+
+\textbf{影响}：ADE 增加 41--80\%。部分场景（CrossingBicycleFlow）甚至因过度制动引入新碰撞。
+
+\textbf{解决方向}：
+\begin{enumerate}[leftmargin=2em]
+    \item 引入进度/舒适约束，抑制无理由降速
+    \item Score-Gated FiLM 实现选择性调制
+    \item 对 $\gamma, \beta$ 偏离 identity 加正则约束
+\end{enumerate}
+\end{issuebox}
+
+% ============================================================
+\section{预期目标}
+\label{sec:scoregated}
+
+\subsection{短期目标（1--2 周）}
+
+\subsubsection{Score-Gated FiLM 实现与重训}
+
+当前 FiLM 的根本问题是 UQ score 未参与调制强度控制。修改方案：
+\begin{align}
+    \gamma_{\text{raw}} &= W_\gamma \cdot \text{emb} + b_\gamma \\
+    \beta_{\text{raw}} &= W_\beta \cdot \text{emb} + b_\beta \\
+    \gamma &= 1 + s \cdot (\gamma_{\text{raw}} - 1) \quad \text{// score} \to 0: \gamma \to 1 \\
+    \beta &= s \cdot \beta_{\text{raw}} \quad\quad\quad\quad\quad \text{// score} \to 0: \beta \to 0
+\end{align}
+
+\textbf{改动量}：\texttt{petr\_transformers.py}（L1 FiLM $\sim$3行）+ \texttt{orion.py}（L2 FiLM $\sim$3行）。
+
+\textbf{预期效果}：
+\begin{itemize}[leftmargin=2em]
+    \item Normal 场景（score $\approx$ 0）：$\gamma \approx 1, \beta \approx 0$，ADE 恢复至 baseline 水平（$\sim$2.78m）
+    \item Adverse 场景（score $\approx$ 1）：保留碰撞改善效果（Col $-$23\%）
+\end{itemize}
+
+\subsubsection{UQ 组件消融实验}
+
+利用已准备的 4 组消融配置，验证各组件对 AUROC 和 Spearman 的贡献：
+
+\begin{table}[H]
+\centering
+\caption{UQ 组件消融实验设计}
+\begin{tabular}{lll}
+\toprule
+\textbf{消融} & \textbf{配置文件} & \textbf{说明} \\
+\midrule
+Full model & \texttt{uq\_train.yaml} & 完整 UQEstimator \\
+w/o stat\_features & \texttt{uq\_ablation\_no\_stat.yaml} & 去掉 5 维统计特征 \\
+w/o decoder & \texttt{uq\_ablation\_no\_decoder.yaml} & mean pool 替代 Transformer \\
+w/o ranking loss & \texttt{uq\_ablation\_no\_ranking.yaml} & 仅 MSE + calibration \\
+w/o calibration & \texttt{uq\_ablation\_no\_cal.yaml} & 仅 MSE + ranking \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{中期目标（2--4 周）}
+
+\begin{enumerate}[leftmargin=2em]
+    \item 完成 Score-Gated FiLM 闭环评估，生成完整消融对比表
+    \item 完成 FiLM 4 组消融（Baseline / L1 / L2 / L1+L2）全量评估
+    \item 更新全部可视化图表（v3 + Score-Gated 结果）
+    \item 撰写论文初稿的 Method 和 Experiments 章节
+\end{enumerate}
+
+\subsection{长期目标}
+
+\begin{enumerate}[leftmargin=2em]
+    \item 论文投稿（目标会议待定）
+    \item 扩展到更多 OOD 类型（传感器故障、遮挡、罕见物体等）
+    \item 探索 UQ score 在在线自适应中的应用（如动态调整安全距离）
+\end{enumerate}
+
+% ============================================================
+\section{资源需求}
+
+\subsection{计算资源}
+
+\begin{table}[H]
+\centering
+\caption{各阶段计算资源需求}
+\begin{tabular}{lccc}
+\toprule
+\textbf{任务} & \textbf{GPU 需求} & \textbf{显存} & \textbf{预估时间} \\
+\midrule
+特征提取（已完成） & 1$\times$ A100 & $\sim$40GB & $\sim$12h \\
+UQ 训练 & 1$\times$ A100 & $\sim$5GB & $\sim$100min \\
+FiLM 训练 & 1$\times$ A100 & $\sim$50GB & $\sim$3h/组 \\
+开环评估（全量） & 1$\times$ A100 & $\sim$40GB & $\sim$6.5h \\
+闭环评估（50 场景） & 1$\times$ A100 & $\sim$40GB & $\sim$85min \\
+\midrule
+\textbf{Score-Gated 重训+评估} & 1$\times$ A100 & $\sim$50GB & $\sim$12h \\
+\textbf{UQ 消融 (4 组)} & 1$\times$ A100 & $\sim$5GB & $\sim$7h \\
+\textbf{FiLM 消融全量评估} & 1$\times$ A100 & $\sim$40GB & $\sim$26h \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{存储资源}
+
+\begin{table}[H]
+\centering
+\caption{数据资产存储需求}
+\begin{tabular}{lrl}
+\toprule
+\textbf{数据} & \textbf{大小} & \textbf{说明} \\
+\midrule
+Bench2Drive 数据集 & 407 GB & 原始数据（已就位） \\
+ORION 模型 + LLM 权重 & $\sim$50 GB & 已就位 \\
+预提取 patch tokens & 235 GB & 已就位 \\
+Checkpoints + 结果 & $\sim$1 GB & 持续增长 \\
+\midrule
+\textbf{总计} & $\sim$\textbf{693 GB} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{软件环境}
+
+\begin{itemize}[leftmargin=2em]
+    \item Python 3.11.5，PyTorch 2.1.0，CUDA 11.8
+    \item 使用 \texttt{uv} 管理虚拟环境（\texttt{.venv/}）
+    \item ORION 原始依赖 + UQ 扩展依赖（\texttt{requirements\_uq.txt}）
+\end{itemize}
+
+% ============================================================
+\section{可行性分析}
+
+\subsection{技术可行性}
+
+\begin{statusbox}[技术可行性评估：\textcolor{okgreen}{高}]
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{UQ 估计已验证}：AUROC=0.954 远超 0.7 目标，Spearman $\rho$=0.97，天气排序完全正确。UQ estimation 部分技术路线已经走通。
+
+    \item \textbf{FiLM 注入机制已验证}：恶劣天气碰撞率降低 23\%，证明 FiLM 调制确实能改变模型行为。
+
+    \item \textbf{Score-Gated 方案改动量小}：仅需修改 $\sim$6 行代码 + 重训 FiLM，技术风险低。
+
+    \item \textbf{消融实验框架已就绪}：配置文件、训练/评估脚本、可视化工具全部就位。
+\end{enumerate}
+\end{statusbox}
+
+\subsection{风险评估}
+
+\begin{table}[H]
+\centering
+\caption{风险评估矩阵}
+\begin{tabular}{p{5cm}ccp{5cm}}
+\toprule
+\textbf{风险} & \textbf{概率} & \textbf{影响} & \textbf{缓解措施} \\
+\midrule
+Score-Gated FiLM 未能完全解决 Normal 退化 & 低 & 高 & 可进一步移除 LayerNorm 或添加 FiLM 幅度正则 \\
+\addlinespace
+碰撞改善不够显著（审稿人质疑） & 中 & 高 & 补充更多场景评估；讨论 safety-efficiency tradeoff \\
+\addlinespace
+消融实验某组件贡献不显著 & 中 & 低 & 如实报告，可将其作为``简化版本''的卖点 \\
+\addlinespace
+计算资源不足 & 低 & 中 & 单卡 A100 足够；可分批评估 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{创新点与论文贡献}
+
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{发现}：端到端 VLM 驾驶在恶劣天气下碰撞率放大 161$\times$，但开环 L2 指标无法反映
+    \item \textbf{方法}：轻量不确定性感知扩展（4.45M 参数，零主干微调），适用于任意 VLM-based 驾驶框架
+    \item \textbf{设计}：碰撞感知 + UQ 加权的 FiLM 训练目标，桥接感知不确定性与安全决策
+    \item \textbf{分析}：系统性消融实验（UQ 组件 + FiLM 层级 + 训练目标），揭示 L2 优化 $\neq$ 安全优化
+\end{enumerate}
+
+% ============================================================
+\section{时间规划}
+
+\begin{table}[H]
+\centering
+\caption{后续工作时间规划}
+\begin{tabular}{lll}
+\toprule
+\textbf{时间} & \textbf{任务} & \textbf{交付物} \\
+\midrule
+第 1 周 & Score-Gated FiLM 实现 + 重训 & 代码 + 新 checkpoint \\
+第 1--2 周 & Score-Gated 闭环评估 & 更新版表~\ref{tab:closedloop} \\
+第 2 周 & UQ 4 组消融实验 & 消融对比表 \\
+第 2--3 周 & FiLM 4 组消融全量评估 & 完整消融矩阵 \\
+第 3 周 & 更新所有可视化 & 论文级图表 \\
+第 3--4 周 & 论文 Method + Experiments 初稿 & 草稿 \\
+第 4--5 周 & Introduction + Related Work & 完整初稿 \\
+第 5--6 周 & 审阅修改 + 定稿 & 可投稿版本 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{总结}
+
+UQ-ORION 项目已完成核心技术路线的验证：UQ 估计器在恶劣天气检测上达到 AUROC=0.954 的优秀水平，FiLM 碰撞感知训练在恶劣天气场景降低了 23\% 的碰撞率。当前主要瓶颈是 FiLM 对正常场景的非预期干扰（ADE +116\%），已定位根因并设计了 Score-Gated 修复方案。
+
+后续工作重点为：(1) 实现 Score-Gated FiLM 并验证 Normal 场景恢复；(2) 完成 UQ 和 FiLM 的系统消融实验；(3) 撰写论文。所需计算资源（单卡 A100）已就位，技术风险可控，预计 5--6 周内可完成论文初稿。
+
+\end{document}

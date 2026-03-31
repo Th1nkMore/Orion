@@ -1,0 +1,712 @@
+% !TEX program = xelatex
+\documentclass[aspectratio=169, 11pt]{ctexbeamer}
+
+% ====== 主题 ======
+\usetheme{metropolis}
+\metroset{
+    progressbar=frametitle,
+    numbering=fraction,
+    block=fill,
+}
+
+% ====== 宏包 ======
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath, amssymb}
+\usepackage{tikz}
+\usepackage{appendixnumberbeamer}
+\usepackage{multicol}
+
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
+
+% ====== 颜色 ======
+\definecolor{mDarkTeal}{HTML}{23373B}
+\definecolor{mLightBrown}{HTML}{EB811B}
+\definecolor{mLightGreen}{HTML}{14B03D}
+\definecolor{mAlertRed}{HTML}{CC0000}
+\definecolor{mSoftBlue}{HTML}{3366CC}
+
+\setbeamercolor{alerted text}{fg=mLightBrown}
+
+% ====== 图路径 ======
+\graphicspath{{../results/figures/baseline/}}
+
+% ====== 标题 ======
+\title{UQ-ORION}
+\subtitle{面向恶劣天气的不确定性感知端到端自动驾驶安全扩展}
+\date{2026 年 3 月 31 日}
+\author{}
+\institute{}
+
+\begin{document}
+
+% ============================================================
+\maketitle
+
+% ============================================================
+\begin{frame}{目录}
+    \setbeamertemplate{section in toc}[sections numbered]
+    \tableofcontents[hideallsubsections]
+\end{frame}
+
+% ============================================================
+\section{研究动机}
+
+% ============================================================
+\begin{frame}{ORION：VLM-based 端到端自动驾驶}
+
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+\textbf{ORION}（ICCV 2025）流程：
+\begin{enumerate}
+    \item 多视角图像 $\to$ EVAViT encoder
+    \item QT-Former 场景理解
+    \item Qwen VLM 推理 + 规划
+    \item VAE 解码 $\to$ 轨迹
+\end{enumerate}
+
+\vspace{0.5em}
+\textbf{优势}：利用 VLM 的世界知识做驾驶决策
+
+\vspace{0.5em}
+\textbf{问题}：在恶劣天气下\alert{过度自信}
+\begin{itemize}
+    \item 不知道``自己看不清了''
+    \item 依然做出激进决策
+\end{itemize}
+\end{column}
+
+\begin{column}{0.4\textwidth}
+\begin{tikzpicture}[
+    box/.style={draw, rounded corners, minimum width=3cm, minimum height=0.6cm, font=\small, fill=gray!10},
+    arr/.style={-{Stealth[length=5pt]}, thick},
+    scale=0.85, transform shape
+]
+    \node[box] (enc) {EVAViT Encoder};
+    \node[box, below=0.4cm of enc] (qt) {QT-Former};
+    \node[box, below=0.4cm of qt] (vlm) {Qwen VLM};
+    \node[box, below=0.4cm of vlm] (vae) {VAE Decoder};
+    \node[box, below=0.4cm of vae, fill=green!10] (traj) {Trajectory};
+
+    \draw[arr] (enc) -- (qt);
+    \draw[arr] (qt) -- (vlm);
+    \draw[arr] (vlm) -- (vae);
+    \draw[arr] (vae) -- (traj);
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\begin{frame}{核心发现：恶劣天气碰撞率放大 161$\times$}
+
+\begin{table}
+\centering
+\begin{tabular}{lcc>{\bfseries}r}
+\toprule
+\textbf{指标} & \textbf{Normal} & \textbf{Adverse} & \textbf{倍数} \\
+\midrule
+L2@3s & 2.38m & 1.78m & $0.75\times$ \\
+Col@1s & 0.02\% & 1.78\% & $89\times$ \\
+Col@3s & 0.01\% & 1.61\% & $161\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.5em}
+
+\begin{alertblock}{反直觉发现}
+\begin{itemize}
+    \item 恶劣天气的 L2 误差反而\textbf{更低}（低速→短轨迹→天然低 L2）
+    \item 但碰撞率高出 \textbf{161 倍}
+    \item \textbf{L2 轨迹精度 $\neq$ 安全性}，开环指标看不出问题
+\end{itemize}
+\end{alertblock}
+
+\vspace{0.3em}
+{\small \textcolor{gray}{数据来源：Bench2Drive 验证集，12,806 个样本}}
+\end{frame}
+
+% ============================================================
+\section{技术方案}
+
+% ============================================================
+\begin{frame}{整体架构：轻量 UQ + 双层 FiLM 注入}
+
+\begin{center}
+\begin{tikzpicture}[
+    box/.style={draw, rounded corners, minimum width=2.8cm, minimum height=0.55cm, font=\small, fill=gray!10},
+    uqbox/.style={draw, rounded corners, minimum width=2.5cm, minimum height=0.55cm, font=\small, fill=blue!10, draw=mSoftBlue},
+    filmbox/.style={draw, rounded corners, minimum width=2cm, minimum height=0.45cm, font=\scriptsize, fill=orange!10, draw=mLightBrown},
+    arr/.style={-{Stealth[length=4pt]}, thick},
+    darr/.style={-{Stealth[length=4pt]}, thick, dashed, color=mSoftBlue},
+    scale=0.9, transform shape
+]
+    \node[box] (enc) {EVAViT (frozen)};
+    \node[box, below=0.5cm of enc] (qt) {QT-Former (frozen)};
+    \node[box, below=0.5cm of qt] (vlm) {Qwen VLM (frozen)};
+    \node[box, below=0.5cm of vlm] (vae) {VAE (frozen)};
+    \node[box, below=0.4cm of vae, fill=green!10] (traj) {Trajectory};
+
+    % UQ
+    \node[uqbox, right=2.5cm of enc] (uq) {UQEstimator};
+    \node[font=\scriptsize, below=0.05cm of uq, text=mSoftBlue] (uqp) {2.21M params};
+
+    % FiLM
+    \node[filmbox, right=1.5cm of qt] (film1) {FiLM L1};
+    \node[font=\scriptsize, below=0.02cm of film1, text=mLightBrown] {0.13M};
+    \node[filmbox, right=1.5cm of vae] (film2) {FiLM L2};
+    \node[font=\scriptsize, below=0.02cm of film2, text=mLightBrown] {2.11M};
+
+    % Arrows
+    \draw[arr] (enc) -- (qt);
+    \draw[arr] (qt) -- (vlm);
+    \draw[arr] (vlm) -- (vae);
+    \draw[arr] (vae) -- (traj);
+
+    % UQ connections
+    \draw[darr] (enc.east) -- ++(0.8,0) |- (uq.west);
+    \draw[darr] (uq.south) -- ++(0,-0.3) -| (film1.north);
+    \draw[darr] (uq.south) -- ++(0,-0.3) -- ++(0.8,0) |- (film2.east);
+
+    % FiLM inject
+    \draw[arr, color=mLightBrown] (film1.west) -- (qt.east);
+    \draw[arr, color=mLightBrown] (film2.west) -- (vae.east);
+
+    % Labels
+    \node[font=\scriptsize, above right=0.1cm and -0.2cm of enc.east, text=gray] {patch\_tokens};
+    \node[font=\scriptsize, right=0.05cm of uq.east, text=mSoftBlue] {score + emb};
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.3em}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{设计原则}：
+\begin{itemize}
+    \item 零主干微调
+    \item 新增参数 4.45M（主干的 0.45\%）
+    \item 一行开关切换
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{FiLM 调制}：$\text{out} = \gamma \odot \text{in} + \beta$
+\begin{itemize}
+    \item L1：调制场景理解
+    \item L2：调制轨迹规划
+    \item Identity 初始化保证无损
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\begin{frame}{UQEstimator：从视觉特征估计不确定性}
+
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+\textbf{输入}：
+\begin{itemize}
+    \item Patch tokens $[B, 6, 1600, 1024]$
+    \item 5 维统计特征（激活值、熵、跨视角一致性）
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{架构}：
+\begin{enumerate}
+    \item Patch 投影 $1024 \to 256$
+    \item 2 层 TransformerDecoder
+    \item[] （16 learnable queries cross-attend patches）
+    \item 统计特征分支 $5 \to 64$
+    \item 融合 $[256+64] \to 512 \to 256$
+    \item 双输出头：score + embedding
+\end{enumerate}
+\end{column}
+
+\begin{column}{0.4\textwidth}
+\textbf{训练}：
+\begin{itemize}
+    \item 伪标签监督（weather-based）
+    \item 损失：MSE + calibration + ranking
+    \item 12,806 样本，256 patch 子采样
+    \item \textbf{Epoch 2 即收敛}
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{性能}：
+\begin{itemize}
+    \item 参数量：\textbf{2.21M}
+    \item Spearman $\rho$ = \textbf{0.97}
+    \item 训练时间：$\sim$100min
+    \item 显存：$<$ 5GB
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\begin{frame}{碰撞感知 FiLM 训练}
+
+传统 L2 loss 训练的 FiLM 无法降低碰撞率（反而 +4.3\%），因此我们设计了碰撞感知训练目标：
+
+\vspace{0.5em}
+
+$$\mathcal{L}_{\text{FiLM}} = \mathcal{L}_{\text{plan}} + 0.5 \cdot \underbrace{\mathbb{E}\left[ \text{ReLU}(m - d_{\min}) \cdot s_{\text{UQ}} \right]}_{\text{UQ-weighted collision margin loss}}$$
+
+\vspace{0.5em}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{关键设计}：
+\begin{itemize}
+    \item Margin $m = 4.0$m（$\approx$ 2 车身宽度）
+    \item UQ score 作为权重（detached）
+    \item[] 高不确定性 $\to$ 更强碰撞惩罚
+    \item 冻结 ORION 主干，只训 FiLM
+\end{itemize}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\textbf{Margin 选择实验}：
+
+\begin{tabular}{lrl}
+\toprule
+\textbf{Margin} & \textbf{有效帧} & \textbf{说明} \\
+\midrule
+2.0m & $\sim$0\% & 无梯度信号 \\
+\textbf{4.0m} & $\sim$\textbf{30\%} & 合理 \\
+5.0m & $\sim$60\% & 过于激进 \\
+\bottomrule
+\end{tabular}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\section{实验结果}
+
+% ============================================================
+\begin{frame}{UQ Score：Normal vs Adverse 分离度}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+
+\begin{table}
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+ & \textbf{Normal} & \textbf{Adverse} \\
+\midrule
+UQ 均值 & 0.023 & 0.893 \\
+UQ 中位数 & 0.00008 & 0.970 \\
+\midrule
+\textbf{Gap} & \multicolumn{2}{c}{\textbf{0.870}} \\
+\textbf{AUROC} & \multicolumn{2}{c}{\textbf{0.954}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3em}
+{\small
+\textcolor{mSoftBlue}{ClearNoon: 0.0001} \\
+CloudyNoon: 0.072 \\
+MidRainyNoon: 0.231 \\
+HardRainNight: 0.989 \\
+\textcolor{mAlertRed}{MidRainSunset: 0.997}
+}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{fig1_score_dist.pdf}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{fig2_auroc.pdf}
+\end{figure}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\begin{frame}{逐天气 UQ 分布}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig4_weather_boxplot.pdf}
+\end{figure}
+
+UQ score 与视觉降质程度\textbf{单调递增}，天气排序完全正确。
+\end{frame}
+
+% ============================================================
+\begin{frame}{UQ Score vs 规划质量}
+
+\begin{columns}[T]
+\begin{column}{0.50\textwidth}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{fig3_uq_vs_l2.pdf}
+\end{figure}
+\end{column}
+
+\begin{column}{0.45\textwidth}
+\textbf{相关性分析}：
+
+\vspace{0.5em}
+\begin{tabular}{lr}
+\toprule
+\textbf{指标} & \textbf{值} \\
+\midrule
+Spearman(UQ, L2) & $\rho = 0.301$ \\
+Pearson(UQ, L2) & $r = 0.182$ \\
+Spearman(UQ, Col) & $\rho = -0.077$ \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.8em}
+\textbf{解读}：
+\begin{itemize}
+    \item UQ 捕获了\textbf{感知质量下降}
+    \item 但无法直接翻译为\textbf{碰撞风险}
+    \item 需要碰撞感知 loss 桥接
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\begin{frame}{闭环评估：50 场景 Baseline vs FiLM}
+
+\begin{table}
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{指标} & \textbf{Baseline} & \textbf{FiLM v3} & \textbf{变化} \\
+\midrule
+\textbf{ALL (50) Col@3s} & 0.66\% & 0.52\% & \textcolor{mLightGreen}{\textbf{$-$21\%}} \\
+ALL ADE@3s & 2.46m & 4.44m & \textcolor{mAlertRed}{+80\%} \\
+\midrule
+Normal (11) Col@3s & 0.05\% & 0.11\% & +0.06\% \\
+Normal ADE@3s & 2.78m & 6.00m & \textcolor{mAlertRed}{+116\%} \\
+\midrule
+\textbf{Adverse (39) Col@3s} & 0.83\% & 0.64\% & \textcolor{mLightGreen}{\textbf{$-$23\%}} \\
+Adverse ADE@3s & 2.37m & 4.00m & +69\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3em}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textcolor{mLightGreen}{\textbf{碰撞率改善}}：
+\begin{itemize}
+    \item 恶劣天气碰撞率 $-$23\%
+    \item 高风险场景改善最大
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textcolor{mAlertRed}{\textbf{已知问题}}：
+\begin{itemize}
+    \item Normal ADE +116\%
+    \item 根因：FiLM 未做 score 门控
+    \item 修复方案已设计
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\begin{frame}{L2 Loss FiLM vs 碰撞感知 FiLM}
+
+\begin{table}
+\centering
+\begin{tabular}{lcc}
+\toprule
+ & \textbf{L2 Loss FiLM} & \textbf{Collision-Aware FiLM} \\
+\midrule
+Adverse Col@3s & 1.22\% (\textcolor{mAlertRed}{+4.3\%}) & 0.64\% (\textcolor{mLightGreen}{\textbf{$-$23\%}}) \\
+ADE@3s & 3.90m (+73\%) & 4.44m (+80\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.5em}
+
+\begin{alertblock}{Insight：L2 优化 $\neq$ 安全优化}
+\begin{itemize}
+    \item 纯 L2 loss 训练的 FiLM 让碰撞率\textbf{上升} 4.3\%
+    \item L2 降低 = 更好地拟合训练分布，但分布本身不含安全信号
+    \item 必须引入碰撞感知目标才能提升安全性
+\end{itemize}
+\end{alertblock}
+\end{frame}
+
+% ============================================================
+\section{问题与解决方案}
+
+% ============================================================
+\begin{frame}{关键问题：Normal 场景 ADE 退化 +116\%}
+
+\textbf{现象}：Normal 场景 UQ score $\approx$ 0，FiLM 不应有调制，但 ADE 从 2.78m $\to$ 6.00m
+
+\vspace{0.5em}
+
+\textbf{根因}：\texttt{embed\_head} 的 LayerNorm 使所有样本 embedding $\|\mathbf{e}\| \approx \sqrt{256}$
+
+$$\gamma = W_\gamma \cdot \underbrace{\text{emb}}_{\|\cdot\| \approx 16} + b_\gamma \quad \Longrightarrow \quad \text{Normal 和 Adverse 调制幅度相当}$$
+
+\vspace{0.5em}
+
+\textbf{修复方案：Score-Gated FiLM}
+
+\vspace{-0.3em}
+\begin{align*}
+    \gamma &= 1 + \underbrace{s}_{\text{score}} \cdot (\gamma_{\text{raw}} - 1) & \beta &= s \cdot \beta_{\text{raw}} \\
+    s \to 0 &: \gamma \to 1, \; \beta \to 0 \quad \text{(identity)} & s \to 1 &: \gamma \to \gamma_{\text{raw}}, \; \beta \to \beta_{\text{raw}}
+\end{align*}
+
+\vspace{0.3em}
+改动量：$\sim$6 行代码 + FiLM 重训
+\end{frame}
+
+% ============================================================
+\begin{frame}{``保守捷径''现象}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{观察}：
+\begin{itemize}
+    \item Brake MAE \textcolor{mAlertRed}{+129\%}
+    \item Throttle MAE \textcolor{mAlertRed}{+74\%}
+    \item 模型学会``更慢、更停、更让''
+    \item 碰撞降低但效率退化
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{本质}：安全 vs 效率的权衡（Pareto tradeoff），而非纯改善
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\textbf{第二轮训练方向}：
+\begin{enumerate}
+    \item \textbf{堵捷径}：
+    \begin{itemize}
+        \item 引入进度/速度保持约束
+        \item 舒适性（acc/jerk）正则
+    \end{itemize}
+    \item \textbf{门控}：
+    \begin{itemize}
+        \item Score-Gated FiLM
+        \item 低 UQ $\to$ 轨迹质量优先
+        \item 高 UQ $\to$ 安全优先
+    \end{itemize}
+    \item \textbf{约束幅度}：
+    \begin{itemize}
+        \item $\|\gamma - 1\|$ 和 $\|\beta\|$ 正则
+        \item 防止过强调制
+    \end{itemize}
+\end{enumerate}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\section{下一步计划}
+
+% ============================================================
+\begin{frame}{后续工作路线图}
+
+\begin{table}
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{时间} & \textbf{任务} & \textbf{交付物} \\
+\midrule
+\textcolor{mAlertRed}{\textbf{第 1 周}} & Score-Gated FiLM 实现+重训 & 代码 + checkpoint \\
+第 1--2 周 & Score-Gated 闭环评估 & 更新结果表 \\
+第 2 周 & UQ 消融 (4 组) & 消融对比表 \\
+第 2--3 周 & FiLM 消融全量评估 & 完整消融矩阵 \\
+第 3 周 & 更新可视化 & 论文级图表 \\
+第 3--5 周 & 论文撰写 & 完整初稿 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.5em}
+
+\textbf{资源需求}：单卡 A100 80GB，$\sim$693GB 存储（已就位）
+
+\textbf{预计总 GPU 时间}：$\sim$45h（Score-Gated 12h + 消融 33h）
+\end{frame}
+
+% ============================================================
+\begin{frame}{消融实验设计}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{UQ 组件消融}：
+
+\vspace{0.3em}
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{消融} & \textbf{说明} \\
+\midrule
+Full model & 完整 UQEstimator \\
+w/o stat & 去掉统计特征 \\
+w/o decoder & mean pool 替代 \\
+w/o ranking & 仅 MSE+cal \\
+w/o calibration & 仅 MSE+rank \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.3em}
+指标：AUROC, Spearman, separation
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\textbf{FiLM 层级消融}：
+
+\vspace{0.3em}
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{组} & \textbf{L1} & \textbf{L2} \\
+\midrule
+A: Baseline & --- & --- \\
+B: L1 only & \checkmark & --- \\
+C: L2 only & --- & \checkmark \\
+D: L1+L2 & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.3em}
+指标：L2@1/2/3s, Col@1/2/3s, \\
+按 normal/adverse 分组
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\begin{frame}{可行性与风险评估}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textcolor{mLightGreen}{\textbf{技术可行性：高}}
+
+\vspace{0.3em}
+\begin{itemize}
+    \item UQ 估计已验证（AUROC 0.954）
+    \item FiLM 机制已验证（Col $-$23\%）
+    \item Score-Gated 改动量极小（$\sim$6 行）
+    \item 消融框架已就绪
+    \item 计算资源已就位
+\end{itemize}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\textcolor{mAlertRed}{\textbf{风险点}}
+
+\vspace{0.3em}
+\begin{itemize}
+    \item Score-Gated 可能不完全解决 Normal 退化
+    \item[$\to$] 备选：移除 LayerNorm + 幅度正则
+    \item 碰撞改善幅度可能不够显著
+    \item[$\to$] 补充更多场景 + 讨论 tradeoff
+    \item 消融某组件贡献不显著
+    \item[$\to$] 如实报告，可作为简化卖点
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\section{总结}
+
+% ============================================================
+\begin{frame}{总结}
+
+\begin{enumerate}
+    \item \textbf{发现}：端到端 VLM 驾驶在恶劣天气下碰撞率放大 161$\times$，\\但开环 L2 指标无法反映
+
+    \vspace{0.3em}
+    \item \textbf{方法}：轻量不确定性感知扩展（4.45M 参数，零主干微调）
+
+    \vspace{0.3em}
+    \item \textbf{结果}：
+    \begin{itemize}
+        \item UQ 估计 AUROC = \textbf{0.954}（远超 0.7 目标）
+        \item 恶劣天气碰撞率 \textbf{$-$23\%}
+        \item L2 loss FiLM 碰撞率反而上升 → 验证了碰撞感知训练的必要性
+    \end{itemize}
+
+    \vspace{0.3em}
+    \item \textbf{下一步}：Score-Gated FiLM（修复 Normal 退化）+ 系统消融实验 + 论文
+\end{enumerate}
+
+\end{frame}
+
+% ============================================================
+\appendix
+
+\begin{frame}[standout]
+    谢谢！
+\end{frame}
+
+% ============================================================
+\begin{frame}[allowframebreaks]{备用：逐天气场景详细数据}
+
+\small
+\begin{table}
+\centering
+\begin{tabular}{lrccc}
+\toprule
+\textbf{天气} & \textbf{样本} & \textbf{UQ} & \textbf{L2@3s} & \textbf{Col@3s} \\
+\midrule
+ClearNoon & 906 & 0.003 & 1.554 & 0.02\% \\
+ClearSunset & 688 & 0.746 & 1.581 & 0.00\% \\
+CloudyNoon & 824 & 0.885 & 3.890 & 0.02\% \\
+CloudySunset & 291 & 0.794 & 2.559 & 0.00\% \\
+\midrule
+HardRainSunset & 717 & 0.936 & 3.968 & 2.09\% \\
+HardRainNoon & 388 & 0.984 & 1.954 & 0.00\% \\
+MidRainyNoon & 714 & 0.993 & 2.540 & 0.68\% \\
+MidRainyNight & 537 & 0.981 & 1.051 & 0.53\% \\
+SoftRainNight & 632 & 0.820 & 1.033 & 1.50\% \\
+WetCloudyNoon & 431 & 0.989 & 1.593 & 0.27\% \\
+WetCloudySunset & 409 & 0.940 & 2.843 & 0.49\% \\
+FoggyNoon & 354 & 0.929 & 2.255 & 0.00\% \\
+FoggySunset & 962 & 0.876 & 0.855 & 0.00\% \\
+ClearNight & 508 & 0.235 & 1.181 & 0.00\% \\
+Unknown(23) & 1,070 & 0.675 & 0.968 & 11.25\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+% ============================================================
+\begin{frame}{备用：参数预算}
+
+\begin{table}
+\centering
+\begin{tabular}{llrl}
+\toprule
+\textbf{模块} & \textbf{位置} & \textbf{参数量} & \textbf{说明} \\
+\midrule
+UQEstimator & 独立模块 & 2.21M & Transformer decoder + MLP \\
+FiLM L1 & QT-Former & 0.13M & Linear(256$\to$256) $\times$ 2 \\
+FiLM L2 & VAE & 2.11M & Linear(256$\to$4096) $\times$ 2 \\
+\midrule
+\textbf{合计} & & \textbf{4.45M} & \textbf{ORION 主干的 0.45\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\end{document}
