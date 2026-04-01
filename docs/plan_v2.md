@@ -1,8 +1,15 @@
 # UQ-ORION 研究计划 v2
 
-> 版本：2026-04-01
-> 状态：待 Gemini 审核
+> 版本：2026-04-01 rev.1（Gemini 审核后更新）
+> 状态：审核完成，待实施
 > 目标：申请计算资源前的完整规划
+>
+> **本版本主要变更**（基于 Gemini 反馈）：
+> - Phase 0：新增 Local Contrast 质量指标
+> - Phase 2：补充注意力非局域性风险及 Attention Rollout 备用方案；修正 attn_weights 显存估算
+> - Phase 3：λ 训练目标加入 Spearman Rank Correlation
+> - Phase 4：新增 F 组消融（全局惩罚 vs 空间惩罚，证明 BEV Map 的空间信息有独立贡献）
+> - 定位补充："Plug-and-play for Frozen E2E Models"
 
 ---
 
@@ -15,6 +22,8 @@
 3. **安全规划**：用不确定性约束轨迹模式选择，主动规避感知可靠性低的区域
 
 **核心创新点**：首次在高速端到端自动驾驶中，将 aleatoric 感知不确定性（传感器退化型）提升为 BEV 代价图，直接约束多模态轨迹决策，参数增量 < 0.5M，不侵入冻结的 backbone。
+
+**定位**：*Plug-and-play for Frozen E2E Models*——任何已部署的端到端自动驾驶模型均可通过增加 < 0.5M 参数获得感知不确定性感知能力，无需重训昂贵的视觉骨干网络或语言模型。
 
 ---
 
@@ -110,9 +119,13 @@ UQ 扩展模块（新训练）:
 
 #### 要做的事
 
-1. 对现有 18 个场景的前置摄像头图像，按帧计算 per-patch Laplacian variance 和梯度幅值
-2. 按天气类型（normal / adverse）分组，绘制统计对比图
-3. 验证假设：恶劣天气帧的 patch quality 均值显著低于正常天气帧
+1. 对现有 18 个场景的前置摄像头图像，按帧计算三类 per-patch quality 指标：
+   - **Laplacian variance**：边缘清晰度（雨/运动模糊→低）
+   - **Gradient magnitude**：纹理丰富度（雾→低）
+   - **Local Contrast（新增）**：局部标准差（雾天对比度下降比边缘模糊更敏感，Gemini 建议）
+2. 按天气类型（normal / adverse）分组，绘制三类指标的统计对比图（box plot + KDE）
+3. 验证假设：恶劣天气帧的 patch quality 均值显著低于正常天气帧（t-test，p < 0.01）
+4. 额外验证：三类指标的组合权重（用 PCA 或逐步回归）与全局 UQ score 的相关性
 
 #### 需要准备的文件
 
@@ -218,6 +231,24 @@ query     = gamma * query + beta
 | B2D 验证集 | `data/bench2drive/` |
 | `cls_logits` 缓存 | 需要从 Phase 1 的完整推理中提取并保存 |
 
+#### Phase 2 核心假设的风险与缓解（Gemini 审查意见）
+
+**假设**：BEV query 对某 patch 的注意力权重 ≈ 该 patch 对该 BEV 区域规划质量的影响程度。
+
+**合理性**：有 Attention Rollout、Grad-CAM 等可解释性研究先例，Cross-Attention 权重反映信息流向，物理意义基本成立。
+
+**已知风险：注意力的非局域性**
+- QT-Former 使用多层 Transformer，最终 attention 经过多次 softmax renormalization，导致权重"弥散"——即使某个 patch 与某 BEV query 几何上不相关，也可能因为全局归一化获得非零权重
+- 结果：BEV uncertainty map 可能过于平滑，丧失空间分辨率
+
+**缓解方案（分优先级）**：
+1. **首选**：直接用最后一层 cross-attention（而非累积 rollout），空间局域性更强
+2. **备用**：Gradient-weighted attention（类 Grad-CAM）：`attn_weight * |∂output/∂attn|`，保留空间敏感度
+3. **验证**：Phase 2 验证时计算热力图的空间熵（高熵=弥散，低熵=集中），若大多数帧熵过高则切换到方案 2
+
+**显存估算修正（Gemini 提示）**：
+- `attn_weights [B, 900, 9600]`：900 × 9600 × 4 bytes × B = **34 MB/sample (fp32)**，按序处理存磁盘即可，不需同时在显存中保存全部验证集
+
 #### 关键技术细节：如何不加载 LLM
 
 ```python
@@ -249,8 +280,19 @@ cfg.model.tokenizer = None
 1. 编写 `scripts/train_lambda.py`：
    - 加载缓存数据（不需要 ORION）
    - 计算 `uncertainty_cost [B, 20]`：对每个 plan_anchor 轨迹做 BEV uncertainty 双线性采样 + 平均
-   - 优化目标：`minimize E[Col(argmax(cls_logit - λ*score*uncertainty_cost), GT)]`
-   - 使用验证集 held-out 分割，防止过拟合
+   - **优化目标（Gemini 建议修正）**：
+     ```
+     Loss = α * Collision_Loss + (1-α) * (1 - Spearman_Rho(adjusted_rank, safety_rank))
+     ```
+     其中 `safety_rank` 是基于 GT 轨迹的逆向安全评分排序（L2 越小 = 越安全）
+     - 理由：纯碰撞率是粗粒度 0/1 信号，Spearman Rho 对 mode 排序的优化更稳定，不依赖 VAE 的离散采样
+     - `α` 建议初始设为 0.5，做超参搜索
+   - 使用验证集 held-out 分割，防止过拟合（k=5 fold）
+
+**关于 VAE 随机性问题（Gemini 提示）**：
+- `cls_logits` 是 mode 选择分数，最终轨迹还经过 VAE sampling
+- 风险：`cls_logits` 分布平坦时（熵大），λ 扰动可能无效
+- 缓解：记录各帧 cls_logits 的 softmax 熵，若熵均值 > 2.5（几乎均匀分布），说明 mode selection 本身不稳定，需重新审视 ORION 的 mode collapse 问题
 
 2. 消融实验（小规模，CPU 可跑）：
    - λ=0（纯 FiLM，无 BEV cost）
@@ -288,15 +330,22 @@ cfg.model.tokenizer = None
 3. 闭环评估（100+ 场景）：重点对比 normal ADE 和 adverse collision rate
 4. 消融实验矩阵（4组 × 2指标）
 
-#### 消融实验矩阵
+#### 消融实验矩阵（Gemini 建议新增 F 组）
 
-| 组别 | Score-Gated FiLM | BEV Cost (λ) | 预期效果 |
-|------|:----------------:|:------------:|---------|
-| A: Baseline | ✗ | ✗ | 参考基线 |
-| B: FiLM-v3 (现有) | ✗（buggy）| ✗ | Normal ADE 退化 |
-| C: Score-Gated FiLM | ✓ | ✗ | Normal ADE 恢复，Adverse Col 改善 |
-| D: BEV Cost only | ✗ | ✓ | Adverse Col 改善，空间感知 |
-| E: Full (C+D) | ✓ | ✓ | 双重改善 |
+| 组别 | Score-Gated FiLM | BEV Cost (λ) | 说明 |
+|------|:----------------:|:------------:|------|
+| A: Baseline | ✗ | ✗ | 纯 ORION，参考基线 |
+| B: FiLM-v3 (现有) | ✗（buggy）| ✗ | Normal ADE 退化，展示问题 |
+| C: Score-Gated FiLM | ✓ | ✗ | 修复 normal 退化 |
+| D: BEV Cost only | ✗ | ✓ | 验证空间不确定性的独立贡献 |
+| **F: Global Score Penalty（新增）** | ✗ | **λ·score（无 BEV map）** | **关键对照组** |
+| E: Full (C+D) | ✓ | ✓ | 最终完整方案 |
+
+**F 组是关键（Gemini 强调）**：
+- F 组用 `adjusted_logit = cls_logit - λ·score`（全局标量惩罚，不使用 BEV 空间地图）
+- D vs F 的对比直接证明："空间化的不确定性信息"是否比"全局不确定性惩罚"有额外收益
+- 如果 D 显著优于 F，说明 BEV uncertainty map 的空间信息有独立贡献，是论文的核心实验证据
+- 如果 D ≈ F，说明空间信息贡献有限，需要重新审视方案 B（per-BEV-query Spatial FiLM）
 
 #### 计算资源估算
 
@@ -359,9 +408,9 @@ model = LlavaLlamaForCausalLM.from_pretrained(
 | Phase | 任务 | 最低硬件 | 时间 | 优先级 |
 |-------|------|---------|------|--------|
 | 1 | Score-Gated FiLM 重训 | 1×A100 40GB | 24 h | 高 |
-| 4 | 开环评估（5组） | 1×A100 40GB | 10 h | 高 |
-| 4 | 闭环评估（100场景 × 3组） | 1×A100 + CARLA | 48 h | 高 |
-| 4 | λ 对 cls_logits 缓存提取 | 1×A100 40GB | 4 h | 中 |
+| 4 | 开环评估（**6组**，含 F 组） | 1×A100 40GB | 12 h | 高 |
+| 4 | 闭环评估（100场景 × **4组** A/C/D+F/E） | 1×A100 + CARLA | 60 h | 高 |
+| 4 | cls_logits + attn_weights 缓存提取（全验证集）| 1×A100 40GB | 4 h | 中 |
 
 **申请资源时的 justification**：
 - FP16 LLM 需要 ~18 GB，超出消费级 GPU 上限，必须用 A100/V100
@@ -374,10 +423,13 @@ model = LlavaLlamaForCausalLM.from_pretrained(
 | 风险 | 可能性 | 影响 | 缓解方案 |
 |------|--------|------|---------|
 | QT-Former attention hook 读取失败 | 中 | 高 | 改 QT-Former forward 接口，显式返回 attn_weights |
-| BEV uncertainty map 与 UQ score 相关性弱 | 低 | 高 | Phase 0 验证，失败则换 patch quality 指标 |
+| **BEV map 过于平滑（注意力非局域性）** | 中 | 中 | Phase 2 计算热力图空间熵；过高则切换 Gradient-weighted attention |
+| BEV uncertainty map 与 UQ score 相关性弱 | 低 | 高 | Phase 0 验证，失败则换 patch quality 指标组合 |
+| **D 组 ≈ F 组（空间信息无额外贡献）** | 中 | 高 | 若成立，转向方案 B（Per-BEV-query Spatial FiLM）|
+| **cls_logits 熵过大（VAE mode collapse）** | 中 | 中 | 记录 logits 熵分布；若均值 > 2.5 需重新审视 ORION 训练质量 |
 | INT8 LLM 量化导致 FiLM 训练不稳定 | 中 | 中 | 用 bfloat16 代替，或 CPU offload |
-| λ 过拟合小数据集 | 低 | 低 | k-fold 交叉验证，或固定 λ=1 |
-| Normal ADE 仍不达 baseline | 低 | 高 | Score-Gated 设计理论保证 score=0 时恒等 |
+| λ 过拟合小数据集 | 低 | 低 | k=5 fold 交叉验证；备选：固定 λ=1 做零训练验证 |
+| Normal ADE 仍不达 baseline | 低 | 高 | Score-Gated 设计理论保证 score=0 时恒等变换 |
 
 ---
 
@@ -399,6 +451,9 @@ model = LlavaLlamaForCausalLM.from_pretrained(
 
 **reviewer 差异化话术**：
 > *While [LPv59noPAy] similarly leverages spatial uncertainty for navigation, their work targets epistemic uncertainty arising from incomplete 3D scene reconstruction in indoor VLN. In contrast, our method addresses aleatoric sensor uncertainty in high-speed autonomous driving, where uncertainty stems from weather-induced image degradation rather than scene incompleteness. We do not build an explicit 3D map; instead, we propagate patch-level image quality through the frozen QT-Former's cross-attention to construct a BEV uncertainty field, achieving spatial uncertainty awareness with near-zero additional parameters, compatible with single-frame frozen E2E backbones.*
+
+**补充定位（Gemini 建议）**：
+> *Our approach is designed as a plug-and-play extension for any frozen end-to-end autonomous driving model. By adding fewer than 0.5M parameters and requiring no retraining of the vision backbone or language model, it enables safety-aware planning under adverse perception conditions on already-deployed systems — a practical advantage not addressed by prior work requiring full end-to-end training.*
 
 ---
 
