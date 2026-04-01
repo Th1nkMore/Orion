@@ -34,7 +34,7 @@
 % ====== 标题 ======
 \title{UQ-ORION}
 \subtitle{面向恶劣天气的不确定性感知端到端自动驾驶安全扩展}
-\date{2026 年 3 月 31 日}
+\date{2026 年 4 月 1 日}
 \author{}
 \institute{}
 
@@ -447,7 +447,7 @@ ADE@3s & 3.90m (+73\%) & 4.44m (+80\%) \\
 \end{frame}
 
 % ============================================================
-\section{问题与解决方案}
+\section{问题分析与改进方向}
 
 % ============================================================
 \begin{frame}{关键问题：Normal 场景 ADE 退化 +116\%}
@@ -516,6 +516,118 @@ $$\gamma = W_\gamma \cdot \underbrace{\text{emb}}_{\|\cdot\| \approx 16} + b_\ga
 \end{frame}
 
 % ============================================================
+\section{新方向：BEV 不确定性热力图}
+
+% ============================================================
+\begin{frame}{现有 FiLM 的空间盲目性}
+
+\begin{columns}[T]
+\begin{column}{0.50\textwidth}
+\textbf{当前信息流失过程}：
+
+\vspace{0.3em}
+\small
+\begin{enumerate}
+    \item patch\_tokens $[B, 6, 1600, 1024]$
+    \item cross-attention $\to$ attn\_weights \textcolor{mAlertRed}{（空间信息在此丢失）}
+    \item \textbf{mean pool} $\to$ emb $[B, 256]$
+    \item FiLM 对所有 BEV query \textbf{施加相同调制}
+\end{enumerate}
+
+\vspace{0.5em}
+结果：\alert{无法区分``前方不确定''和``侧方不确定''}
+
+\vspace{0.5em}
+\textbf{两个根本缺陷}：
+\begin{itemize}
+    \item LayerNorm 使 embedding norm 恒定\\→ score=0 时调制幅度不为零
+    \item 全局调制，无空间感知
+\end{itemize}
+\end{column}
+
+\begin{column}{0.46\textwidth}
+\textbf{我们希望的效果}：
+
+\vspace{0.3em}
+\begin{tikzpicture}[scale=0.75, transform shape]
+    % BEV grid
+    \draw[step=0.5cm, gray!40] (0,0) grid (3,3);
+    % High uncertainty region (fog ahead)
+    \fill[red!40, opacity=0.6] (1,2) rectangle (2,3);
+    \fill[red!20, opacity=0.6] (0.5,1.5) rectangle (2.5,3);
+    % Ego car
+    \fill[blue!60] (1.2,0.1) rectangle (1.8,0.5);
+    % Safe trajectory
+    \draw[->, very thick, mLightGreen] (1.5,0.5) -- (1.5,1.4);
+    \draw[->, very thick, mAlertRed, dashed] (1.5,0.5) -- (1.5,2.5);
+    % Labels
+    \node[font=\tiny, right] at (3.1,2.5) {高不确定性区域};
+    \node[font=\tiny, right] at (3.1,2.0) {（雾/遮挡）};
+    \node[font=\tiny, mLightGreen, right] at (3.1,1.2) {安全轨迹};
+    \node[font=\tiny, mAlertRed, right] at (3.1,0.7) {危险轨迹};
+    \node[font=\tiny] at (1.5,-0.2) {Ego};
+    % Forward arrow
+    \node[font=\tiny, gray] at (-0.3,1.5) {前向};
+\end{tikzpicture}
+
+\vspace{0.3em}
+\small 规划器应感知``哪个区域感知不可靠''，主动规避
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\begin{frame}{BEV 不确定性热力图：零参数空间化}
+
+\textbf{核心思路}：用图像质量指标 + QT-Former attention 替代``压缩为全局向量''的信息流
+
+\vspace{0.5em}
+
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+\small
+\textbf{Step 1}：per-patch quality（\textcolor{mLightGreen}{无需学习}）
+$$q_j = f(\underbrace{\text{Laplacian\_var}}_{\text{边缘清晰度}},\, \underbrace{\text{Gradient\_mag}}_{\text{纹理丰富度}},\, \underbrace{\text{Contrast}}_{\text{雾天对比度}})$$
+
+\vspace{0.3em}
+\textbf{Step 2}：通过 attention 传播到 BEV
+$$u_i = \sum_j \underbrace{a_{ij}}_{\text{QT-Former attn}} \cdot (1 - q_j), \quad [B, 900] \to [B,30,30]$$
+
+\vspace{0.3em}
+\textbf{Step 3}：轨迹代价积分
+$$c_m = \text{mean}_t \; \text{bilinear}(U, \text{wp}_{m,t})$$
+
+\vspace{0.3em}
+\textbf{Step 4}：调整 mode 选择（\alert{仅学 $\lambda$，1个标量}）
+$$\hat{\ell}_m = \ell_m - \lambda \cdot s \cdot c_m$$
+\end{column}
+
+\begin{column}{0.40\textwidth}
+\textbf{实施可行性}：
+
+\vspace{0.3em}
+\begin{tabular}{ll}
+\toprule
+\textbf{部分} & \textbf{硬件} \\
+\midrule
+patch quality 计算 & CPU \\
+BEV map 提取 & 16GB 本地 \\
+$\lambda$ 训练 & CPU \\
+\midrule
+FiLM 重训 & A100 \\
+闭环评估 & A100 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.5em}
+\textbf{BEV map 提取不需要 LLM}\\
+仅需 EVAViT + QT-Former\\
+$\approx$ \textbf{0.73 GB 显存}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
 \section{下一步计划}
 
 % ============================================================
@@ -524,32 +636,64 @@ $$\gamma = W_\gamma \cdot \underbrace{\text{emb}}_{\|\cdot\| \approx 16} + b_\ga
 \begin{table}
 \centering
 \small
-\begin{tabular}{lll}
+\begin{tabular}{llll}
 \toprule
-\textbf{时间} & \textbf{任务} & \textbf{交付物} \\
+\textbf{时间} & \textbf{任务} & \textbf{资源} & \textbf{交付物} \\
 \midrule
-\textcolor{mAlertRed}{\textbf{第 1 周}} & Score-Gated FiLM 实现+重训 & 代码 + checkpoint \\
-第 1--2 周 & Score-Gated 闭环评估 & 更新结果表 \\
-第 2 周 & UQ 消融 (4 组) & 消融对比表 \\
-第 2--3 周 & FiLM 消融全量评估 & 完整消融矩阵 \\
-第 3 周 & 更新可视化 & 论文级图表 \\
-第 3--5 周 & 论文撰写 & 完整初稿 \\
+\textcolor{mLightGreen}{\textbf{第 1 周}} & 信号验证 + BEV map 提取 & \textcolor{mLightGreen}{本地} & 热力图可视化 \\
+\textcolor{mLightGreen}{\textbf{第 1 周}} & Score-Gated 代码实现 & \textcolor{mLightGreen}{本地} & 代码 \\
+\textcolor{mLightGreen}{\textbf{第 2 周}} & $\lambda$ 训练与 mode cost 验证 & \textcolor{mLightGreen}{本地} & $\lambda$ + 结果 \\
+\midrule
+第 2--3 周 & Score-Gated FiLM 重训 & \textcolor{mAlertRed}{A100} & Checkpoint \\
+第 3 周 & UQ 消融 + FiLM 消融 & \textcolor{mAlertRed}{A100} & 消融表 \\
+第 3--4 周 & 6 组完整闭环评估 & \textcolor{mAlertRed}{A100} & 主实验表 \\
+\midrule
+第 4--6 周 & 论文撰写 & 本地 & 完整初稿 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\vspace{0.5em}
+\vspace{0.3em}
 
-\textbf{资源需求}：单卡 A100 80GB，$\sim$693GB 存储（已就位）
-
-\textbf{预计总 GPU 时间}：$\sim$45h（Score-Gated 12h + 消融 33h）
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textcolor{mLightGreen}{\textbf{本地可立即推进}}（16GB）：\\
+前 2 周的工作全部可在本地完成
+\end{column}
+\begin{column}{0.48\textwidth}
+\textcolor{mAlertRed}{\textbf{申请服务器资源}}：\\
+$\sim$103h A100 GPU 时间
+\end{column}
+\end{columns}
 \end{frame}
 
 % ============================================================
 \begin{frame}{消融实验设计}
 
 \begin{columns}[T]
-\begin{column}{0.48\textwidth}
+\begin{column}{0.50\textwidth}
+\textbf{FiLM + BEV Cost 消融（关键）}：
+
+\vspace{0.3em}
+\small
+\begin{tabular}{p{0.3cm}p{1.6cm}p{1cm}p{1.2cm}}
+\toprule
+组 & 配置 & SG-FiLM & BEV Cost \\
+\midrule
+A & Baseline & --- & --- \\
+B & FiLM-v3 & $\times$ & --- \\
+C & Score-Gated & \checkmark & --- \\
+D & BEV Cost & --- & 空间 \\
+\textbf{F} & \textbf{Global} & --- & \textbf{全局} \\
+E & Full & \checkmark & 空间 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.3em}
+\alert{\textbf{D vs F = 空间性的直接证明}}
+\end{column}
+
+\begin{column}{0.46\textwidth}
 \textbf{UQ 组件消融}：
 
 \vspace{0.3em}
@@ -566,29 +710,9 @@ w/o calibration & 仅 MSE+rank \\
 \bottomrule
 \end{tabular}
 
-\vspace{0.3em}
-指标：AUROC, Spearman, separation
-\end{column}
-
-\begin{column}{0.48\textwidth}
-\textbf{FiLM 层级消融}：
-
-\vspace{0.3em}
-\small
-\begin{tabular}{lcc}
-\toprule
-\textbf{组} & \textbf{L1} & \textbf{L2} \\
-\midrule
-A: Baseline & --- & --- \\
-B: L1 only & \checkmark & --- \\
-C: L2 only & --- & \checkmark \\
-D: L1+L2 & \checkmark & \checkmark \\
-\bottomrule
-\end{tabular}
-
-\vspace{0.3em}
-指标：L2@1/2/3s, Col@1/2/3s, \\
-按 normal/adverse 分组
+\vspace{0.5em}
+指标：L2@3s, Col@3s\\
+按 normal / adverse 分组
 \end{column}
 \end{columns}
 \end{frame}
@@ -633,21 +757,22 @@ D: L1+L2 & \checkmark & \checkmark \\
 \begin{frame}{总结}
 
 \begin{enumerate}
-    \item \textbf{发现}：端到端 VLM 驾驶在恶劣天气下碰撞率放大 161$\times$，\\但开环 L2 指标无法反映
+    \item \textbf{发现}：VLM 驾驶在恶劣天气下碰撞率放大 161$\times$，\\开环 L2 指标无法反映——L2 精度与安全性正交
 
     \vspace{0.3em}
-    \item \textbf{方法}：轻量不确定性感知扩展（4.45M 参数，零主干微调）
+    \item \textbf{已有成果}：UQ 估计（AUROC=\textbf{0.954}）+ FiLM 碰撞感知训练（Col \textbf{$-$23\%}）\\
+    \hspace*{1.5em}{\small\textcolor{gray}{当前问题：Normal ADE +116\%，根因：FiLM 调制的空间盲目性}}
 
     \vspace{0.3em}
-    \item \textbf{结果}：
+    \item \textbf{新方向}：BEV 不确定性热力图
     \begin{itemize}
-        \item UQ 估计 AUROC = \textbf{0.954}（远超 0.7 目标）
-        \item 恶劣天气碰撞率 \textbf{$-$23\%}
-        \item L2 loss FiLM 碰撞率反而上升 → 验证了碰撞感知训练的必要性
+        \item patch 图像质量 $\xrightarrow{\text{QT-Former attn}}$ BEV 空间不确定性场
+        \item 轨迹模式选择时主动规避感知可靠性低的区域
+        \item 核心计算无需 LLM，16GB 本地可运行
     \end{itemize}
 
     \vspace{0.3em}
-    \item \textbf{下一步}：Score-Gated FiLM（修复 Normal 退化）+ 系统消融实验 + 论文
+    \item \textbf{即插即用}：参数增量 $<$ 0.5M，适用于任意冻结的端到端驾驶模型
 \end{enumerate}
 
 \end{frame}
