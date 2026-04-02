@@ -25,7 +25,7 @@ gamma * query + beta             ← 对所有 BEV query 施加相同调制
 
 **两个根本缺陷：**
 
-1. **空间盲目**：256 维 embedding 无法区分"前方不确定"还是"侧方不确定"，FiLM 对 900 个 BEV query 一视同仁
+1. **空间盲目**：256 维 embedding 无法区分"前方不确定"还是"侧方不确定"，FiLM 对 600 个 BEV detection query 一视同仁
 2. **Score 未参与调制强度**：embed_head 末尾 LayerNorm 使 embedding 模恒为 √256，正常场景也受到等幅调制 → Normal ADE +116%
 
 ### Score-Gated FiLM 的局限
@@ -143,10 +143,10 @@ per_mode_uncertainty_cost [B, 20]
 #### 架构
 
 ```
-QT-Former 输出: BEV queries [B, 900, 256]（frozen，不改动）
+QT-Former 输出: BEV queries [B, 600, 256]（frozen，不改动）
       │
       ▼  UQ Spatial Head（轻量 MLP + cross-attn from patch uncertainty）
-per_query_uncertainty [B, 900]  →  reshape [B, 30, 30]
+per_query_uncertainty [B, 600]  →  散点/Voronoi 渲染（non-grid learned queries）
       │
       ├──▶  BEV uncertainty heatmap（可视化 / 辅助损失）
       │
@@ -193,7 +193,7 @@ query_i = gamma_i * query_i + beta_i
 #### 主要挑战
 
 - Per-query 不确定性软标签的质量取决于 QT-Former attention 的可解释性
-- Spatial FiLM 参数量显著增大（原来 256→256，现在 900 个独立调制）
+- Spatial FiLM 参数量显著增大（原来 256→256，现在 600 个独立调制）
 - 需要在 frozen QT-Former 上挂 hook 读取 attention 权重
 
 ---

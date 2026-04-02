@@ -16,6 +16,7 @@
 \usepackage{tikz}
 \usepackage{appendixnumberbeamer}
 \usepackage{multicol}
+\usepackage[normalem]{ulem}  % \sout{} for strikethrough
 
 \usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
 
@@ -471,7 +472,7 @@ $$\gamma = W_\gamma \cdot \underbrace{\text{emb}}_{\|\cdot\| \approx 16} + b_\ga
 \end{align*}
 
 \vspace{0.3em}
-改动量：$\sim$6 行代码 + FiLM 重训
+改动量：3 个文件 $\sim$12 行代码 + FiLM 重训
 \end{frame}
 
 % ============================================================
@@ -511,6 +512,50 @@ $$\gamma = W_\gamma \cdot \underbrace{\text{emb}}_{\|\cdot\| \approx 16} + b_\ga
         \item 防止过强调制
     \end{itemize}
 \end{enumerate}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\section{Phase $-$1 可行性验证}
+
+% ============================================================
+\begin{frame}{Phase $-$1：关键假设验证（本地完成）}
+
+\small
+\begin{table}
+\centering
+\begin{tabular}{clll}
+\toprule
+\textbf{Q} & \textbf{假设} & \textbf{结论} & \textbf{影响} \\
+\midrule
+Q1 & attn\_weights 可提取 & \textcolor{mAlertRed}{Flash Attn 阻断} & 临时关闭即可 \\
+Q2 & BEV query 30$\times$30 网格 & \textcolor{mAlertRed}{600+300 learned} & \textbf{双线性$\to$k-NN} \\
+Q3 & poses\_cls 为 softmax & \textcolor{mAlertRed}{sigmoid scores} & \textbf{减法$\to$乘法门控} \\
+Q4 & anchor 空间覆盖 & \textcolor{mLightGreen}{充分} (IoU$<$0.5: 89\%) & BEV cost 有区分力 \\
+Q5 & 16GB 可部分加载 & 待服务器验证 & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3em}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textcolor{mLightGreen}{\textbf{确认的有利条件}}：
+\begin{itemize}
+    \item UQ score 高度双峰\\Normal $\approx$ 0, Adverse $\approx$ 0.97
+    \item Score-Gated FiLM 安全可行
+    \item 20 mode 空间展幅 25.7m $\times$ 51.9m
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textcolor{mAlertRed}{\textbf{修正的错误假设}}：
+\begin{itemize}
+    \item BEV query 非规则网格\\$\to$ k-NN 空间插值（k=5）
+    \item poses\_cls 非 softmax\\$\to$ 乘法门控替代 logit 减法
+    \item Score-Gated 涉及 3 文件\\（非 2 文件，$\sim$12 行非 6 行）
+\end{itemize}
 \end{column}
 \end{columns}
 \end{frame}
@@ -591,15 +636,17 @@ $$q_j = f(\underbrace{\text{Laplacian\_var}}_{\text{边缘清晰度}},\, \underb
 
 \vspace{0.3em}
 \textbf{Step 2}：通过 attention 传播到 BEV
-$$u_i = \sum_j \underbrace{a_{ij}}_{\text{QT-Former attn}} \cdot (1 - q_j), \quad [B, 900] \to [B,30,30]$$
+$$u_i = \sum_j \underbrace{a_{ij}}_{\text{QT-Former attn}} \cdot (1 - q_j)$$
+{\scriptsize 600+300 个 learned query（非规则网格）}
 
 \vspace{0.3em}
-\textbf{Step 3}：轨迹代价积分
-$$c_m = \text{mean}_t \; \text{bilinear}(U, \text{wp}_{m,t})$$
+\textbf{Step 3}：k-NN 空间插值（k=5）
+$$c_m = \text{mean}_t \; \text{knn}(U, \text{ref\_xy}, \text{wp}_{m,t})$$
 
 \vspace{0.3em}
-\textbf{Step 4}：调整 mode 选择（\alert{仅学 $\lambda$，1个标量}）
-$$\hat{\ell}_m = \ell_m - \lambda \cdot s \cdot c_m$$
+\textbf{Step 4}：乘法门控（\alert{仅学 $\lambda$}）
+$$\hat{s}_m = \texttt{poses\_cls}_m \cdot (1 - \lambda \cdot s \cdot c_m)$$
+{\scriptsize \texttt{poses\_cls} 为 sigmoid scores，非 softmax}
 \end{column}
 
 \begin{column}{0.40\textwidth}
@@ -646,7 +693,7 @@ $\approx$ \textbf{0.73 GB 显存}
 \midrule
 第 2--3 周 & Score-Gated FiLM 重训 & \textcolor{mAlertRed}{A100} & Checkpoint \\
 第 3 周 & UQ 消融 + FiLM 消融 & \textcolor{mAlertRed}{A100} & 消融表 \\
-第 3--4 周 & 6 组完整闭环评估 & \textcolor{mAlertRed}{A100} & 主实验表 \\
+第 3--4 周 & 7 组完整闭环评估 & \textcolor{mAlertRed}{A100} & 主实验表 \\
 \midrule
 第 4--6 周 & 论文撰写 & 本地 & 完整初稿 \\
 \bottomrule
@@ -676,21 +723,22 @@ $\sim$103h A100 GPU 时间
 
 \vspace{0.3em}
 \small
-\begin{tabular}{p{0.3cm}p{1.6cm}p{1cm}p{1.2cm}}
+\begin{tabular}{p{0.3cm}p{1.6cm}p{0.8cm}p{1.2cm}}
 \toprule
-组 & 配置 & SG-FiLM & BEV Cost \\
+组 & 配置 & SG & BEV Cost \\
 \midrule
 A & Baseline & --- & --- \\
 B & FiLM-v3 & $\times$ & --- \\
-C & Score-Gated & \checkmark & --- \\
+C & Score-Gated & $\checkmark$ & --- \\
 D & BEV Cost & --- & 空间 \\
+E & Full & $\checkmark$ & 空间 \\
 \textbf{F} & \textbf{Global} & --- & \textbf{全局} \\
-E & Full & \checkmark & 空间 \\
+\textbf{G} & \textbf{C+F} & $\checkmark$ & 全局 \\
 \bottomrule
 \end{tabular}
 
 \vspace{0.3em}
-\alert{\textbf{D vs F = 空间性的直接证明}}
+\alert{\textbf{D vs F \& E vs G = 空间性证明}}
 \end{column}
 
 \begin{column}{0.46\textwidth}
@@ -728,23 +776,23 @@ w/o calibration & 仅 MSE+rank \\
 \begin{itemize}
     \item UQ 估计已验证（AUROC 0.954）
     \item FiLM 机制已验证（Col $-$23\%）
-    \item Score-Gated 改动量极小（$\sim$6 行）
-    \item 消融框架已就绪
-    \item 计算资源已就位
+    \item Score-Gated 改动量小（3 文件 $\sim$12 行）
+    \item \textcolor{mLightGreen}{Phase $-$1：4/5 项已确认}
+    \item Plan anchor 多样性充分（IoU$<$0.5）
 \end{itemize}
 \end{column}
 
 \begin{column}{0.48\textwidth}
-\textcolor{mAlertRed}{\textbf{风险点}}
+\textcolor{mAlertRed}{\textbf{风险与修正}}
 
 \vspace{0.3em}
 \begin{itemize}
-    \item Score-Gated 可能不完全解决 Normal 退化
-    \item[$\to$] 备选：移除 LayerNorm + 幅度正则
-    \item 碰撞改善幅度可能不够显著
-    \item[$\to$] 补充更多场景 + 讨论 tradeoff
-    \item 消融某组件贡献不显著
-    \item[$\to$] 如实报告，可作为简化卖点
+    \item \sout{Score-Gated 不解决退化}
+    \item[$\to$] \textcolor{mLightGreen}{已排除}：UQ score 双峰
+    \item \sout{BEV query 非网格}
+    \item[$\to$] \textcolor{mLightGreen}{已修正}：k-NN 替代双线性
+    \item Flash Attention 阻断 attn
+    \item[$\to$] \textcolor{mLightGreen}{已确认}：临时关闭即可
 \end{itemize}
 \end{column}
 \end{columns}
@@ -764,15 +812,19 @@ w/o calibration & 仅 MSE+rank \\
     \hspace*{1.5em}{\small\textcolor{gray}{当前问题：Normal ADE +116\%，根因：FiLM 调制的空间盲目性}}
 
     \vspace{0.3em}
+    \item \textbf{Phase $-$1 验证}：修正 BEV query 布局（learned $\to$ k-NN）、poses\_cls 类型（sigmoid $\to$ 乘法门控）等关键假设
+
+    \vspace{0.3em}
     \item \textbf{新方向}：BEV 不确定性热力图
     \begin{itemize}
         \item patch 图像质量 $\xrightarrow{\text{QT-Former attn}}$ BEV 空间不确定性场
-        \item 轨迹模式选择时主动规避感知可靠性低的区域
+        \item k-NN 插值 + 乘法门控注入轨迹 mode 选择
         \item 核心计算无需 LLM，16GB 本地可运行
+        \item 7 组消融（含 G 组验证空间 vs 全局）
     \end{itemize}
 
     \vspace{0.3em}
-    \item \textbf{即插即用}：参数增量 $<$ 0.5M，适用于任意冻结的端到端驾驶模型
+    \item \textbf{轻量侧信道注入}：参数增量 $<$ 0.5M，适用于任意冻结的端到端驾驶模型
 \end{enumerate}
 
 \end{frame}

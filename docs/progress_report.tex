@@ -17,6 +17,7 @@
 \usepackage{fancyhdr}
 \usepackage{titlesec}
 \usepackage{tcolorbox}
+\usepackage[normalem]{ulem}  % \sout{} for strikethrough
 
 % ====== 颜色定义 ======
 \definecolor{codeblue}{RGB}{0, 102, 204}
@@ -88,7 +89,7 @@
 
 截至目前，我们已完成 UQEstimator 训练（AUROC=0.954）、FiLM 双层注入、碰撞感知训练、以及 50 场景闭环评估。实验表明恶劣天气下碰撞率降低 21\%--23\%，但存在正常场景轨迹退化问题（ADE +116\%），已定位根因（FiLM 调制的空间盲目性与 LayerNorm 范数崩塌）。
 
-在此基础上，本报告提出第二阶段改进方向：以 BEV 不确定性热力图替代全局调制，将感知不确定性空间化，使规划器能够主动规避感知可靠性低的区域。该方向不依赖语言模型（LLM）的前向传播即可计算核心特征，具备在 16GB 消费级 GPU 上推进的条件。本报告对完整技术路线、各阶段资源需求与可行性进行系统分析。
+在此基础上，我们完成了 Phase $-$1 可行性验证（5 项中 4 项已确认），发现了若干关键的计划假设偏差：BEV query 并非 $30 \times 30$ 规则网格而是 600 + 300 个 learned embedding；\texttt{poses\_cls} 采用 sigmoid focal loss（非 softmax）；Flash Attention 阻断 attention weights 提取但有明确缓解方案。本报告据此修正技术路线，提出以 k-NN 空间插值替代双线性采样、以乘法门控替代 logit 减法的 BEV 不确定性代价注入方案。
 \end{abstract}
 
 \tableofcontents
@@ -127,7 +128,7 @@ ORION 是一个基于 VLM（Vision-Language Model）的端到端自动驾驶框�
     \item \textbf{约束轨迹决策}：用不确定性代价约束多模态轨迹模式选择，主动规避感知可靠性低的区域
 \end{enumerate}
 
-约束条件：新增参数 $<$ 5M，零主干微调，即插即用（任意冻结的端到端驾驶模型均可适用）。
+约束条件：新增参数 $<$ 5M，零主干微调，轻量侧信道注入（在冻结层的激活值上施加 FiLM 调制，适用于任意冻结的端到端驾驶模型）。
 
 % ============================================================
 \section{技术方案}
@@ -190,7 +191,7 @@ FiLM（Feature-wise Linear Modulation）通过 $\text{output} = \gamma \odot \te
 
 在第一阶段的实验结果中，Normal 场景 ADE 退化 +116\% 揭示了当前方案的两个结构性缺陷：
 
-\textbf{缺陷一：空间盲目性。} UQEstimator 通过 mean-pool 将 $6 \times 1600$ 个 patch 的 cross-attention 权重压缩为 256 维全局向量，空间信息完全丢失。FiLM 对 900 个 BEV query 施加相同调制，无法区分"前方不确定"与"侧方不确定"。
+\textbf{缺陷一：空间盲目性。} UQEstimator 通过 mean-pool 将 $6 \times 1600$ 个 patch 的 cross-attention 权重压缩为 256 维全局向量，空间信息完全丢失。FiLM 对所有 BEV query 施加相同调制，无法区分"前方不确定"与"侧方不确定"。
 
 \textbf{缺陷二：LayerNorm 范数崩塌。} \texttt{embed\_head} 末尾的 LayerNorm 使所有样本的 embedding $\ell_2$-norm 恒定（$\approx \sqrt{256}$）。因此，FiLM 的调制强度不随 UQ score 变化，Normal 场景（score $\approx 0$）也受到等幅调制。
 
@@ -252,11 +253,55 @@ Stage 3 & 碰撞感知 FiLM 训练 & \textcolor{okgreen}{\textbf{完成}} & Col$
 Stage 4 & 50 场景闭环评估 & \textcolor{okgreen}{\textbf{完成}} & 含 Baseline 对照 \\
 可视化 & 5 张图 + 18 个 GIF & \textcolor{okgreen}{\textbf{完成}} & 论文级可视化 \\
 \midrule
+Phase $-$1 & 可行性验证（5 项） & \textcolor{okgreen}{\textbf{4/5 完成}} & 计划修正 + 报告 \\
+\midrule
 下一步 & Score-Gated FiLM & \textcolor{warncolor}{\textbf{待实现}} & 修复 Normal 退化 \\
 下一步 & UQ 组件消融 & \textcolor{warncolor}{\textbf{待实验}} & 4 组消融对比 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{Phase $-$1 可行性验证结果}
+
+在推进 BEV 不确定性热力图方案之前，我们在本地（Apple M3 / 16GB / 无 CUDA）完成了 5 项关键假设的验证。结果导致了若干重要的计划修正。
+
+\begin{table}[H]
+\centering
+\caption{Phase $-$1 可行性验证总结}
+\label{tab:feasibility}
+\begin{tabular}{clp{7cm}l}
+\toprule
+\textbf{Q} & \textbf{问题} & \textbf{结论} & \textbf{状态} \\
+\midrule
+Q1 & Flash Attention 是否阻断 attn\_weights？ & \textbf{是}，5 个 transformer 组件均 \texttt{flash\_attn=True}。缓解：提取时临时覆盖为 False & \textcolor{okgreen}{已确认} \\
+Q2 & BEV query 是否 $30 \times 30$ 网格？ & \textbf{否}。600 main + 300 propagated 个 \texttt{nn.Embedding}，learned positions & \textcolor{warncolor}{需服务器看分布} \\
+Q3 & \texttt{poses\_cls} 值分布 & 本地无 per-frame 数据。Sigmoid focal loss（$\gamma=2$），推测一高多低分布 & \textcolor{alertred}{待服务器} \\
+Q4 & Plan anchor 空间覆盖 & \textbf{充分}。$\pm$13m lateral $\times$ 52m forward，88.9\% mode pair IoU $< 0.5$ & \textcolor{okgreen}{已确认} \\
+Q5 & 16GB 能否仅加载 EVAViT + QT-Former？ & 本地无 checkpoint，两种方案待验证 & \textcolor{alertred}{待服务器} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{关键修正}
+
+基于 Phase $-$1 发现，以下计划假设被修正：
+
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{BEV query 布局}：原假设 900 个 query 排列在 $30 \times 30$ 规则网格上，实际为 600 main (\texttt{nn.Embedding(600,3)}) + 300 propagated (\texttt{nn.Embedding(300,3)}) 个 learned 位置。\textbf{双线性采样不可用}，改用基于 \texttt{reference\_points} 坐标的 k-NN 空间插值（k=5）。
+    \item \textbf{\texttt{poses\_cls} 类型}：原假设为 softmax logits，实际为 sigmoid focal loss 训练的独立 scores。Mode 选择为 \texttt{argmax(poses\_cls)}。\textbf{logit 空间减法不适用}（sigmoid 极端值对减法不敏感），改用乘法门控。
+    \item \textbf{attn\_weights shape}：$[B, 900, 9600] \to [B, 600, 9600]$（600 main queries 参与 cross-attention，300 propagated 需 hook 验证）。显存估算从 34MB/sample 降至 23MB/sample。
+    \item \textbf{Score-Gated FiLM 改动范围}：原估 2 个文件约 6 行，修正为 3 个文件约 12 行（新增 \texttt{orion\_head.py} 传递 \texttt{uncertainty\_score}）。
+\end{enumerate}
+
+\subsubsection{补充发现：UQ Score 高度双峰分布}
+
+对 12,806 帧 eval 数据分析确认 UQ score 呈高度双峰分布（Normal 中位数 $\approx$ 0，Adverse 中位数 $\approx$ 0.97），\textbf{消除了 Score-Gated FiLM 在 Normal 场景仍被调制的风险}——当 $s \to 0$ 时 FiLM 严格退化为恒等变换。
+
+\subsubsection{补充发现：Plan Anchor 空间多样性充分}
+
+对 20 个 plan anchor 的 BEV 走廊 IoU 分析（3m 宽度）：mean IoU = 0.261，88.9\% 的 mode pair IoU $< 0.5$。这证明 BEV uncertainty cost 在不同 mode 上会产生显著不同的值，D 组 vs F 组的对比有意义。建议 cost 计算时对后期时间步（$t \geq 2$）加权，因早期展幅小、区分力弱。
+
+详细报告见 \texttt{results/feasibility/feasibility\_report.md}，可视化见 \texttt{results/feasibility/} 目录。
 
 \subsection{实验结果}
 
@@ -407,7 +452,14 @@ Col@3s & \textbf{0.01\%} & \textbf{1.61\%} & $\mathbf{161\times}$ \\
     \beta  = s \cdot \beta_{\text{raw}}
 \end{align}
 
-当 $s \to 0$（正常场景）时，$\gamma \to 1, \beta \to 0$，FiLM 退化为恒等变换；当 $s \to 1$（恶劣天气）时，FiLM 满幅调制。改动量仅约 6 行代码，需重训 FiLM。
+当 $s \to 0$（正常场景）时，$\gamma \to 1, \beta \to 0$，FiLM 退化为恒等变换；当 $s \to 1$（恶劣天气）时，FiLM 满幅调制。
+
+\textbf{代码改动范围}（约 12 行，3 个文件）：
+\begin{itemize}[leftmargin=2em]
+    \item \texttt{orion\_head.py}：传递 \texttt{uncertainty\_score} 至 transformer（当前仅传 \texttt{uncertainty\_emb}）
+    \item \texttt{petr\_transformers.py}：FiLM L1 接收 \texttt{uncertainty\_score}，实现 Score-Gated 公式
+    \item \texttt{orion.py}：FiLM L2 同步修改，接收从 \texttt{orion\_head} 返回的新参数
+\end{itemize}
 
 \subsubsection{信号有效性验证（Phase 0，无 GPU 需求）}
 
@@ -429,29 +481,34 @@ Step 1: per-patch quality（从原始图像计算，无需学习）
   patch_quality[j] = f(Laplacian_var[j], grad_mag[j], contrast[j])
 
 Step 2: BEV uncertainty map（通过 QT-Former attention 传播）
-  attn_weight[i,j] = QT-Former cross-attention (hook 读取)
+  attn_weight[i,j] = QT-Former cross-attention (hook 读取, flash_attn=False)
   bev_uncertainty[i] = sum_j attn_weight[i,j] * (1 - patch_quality[j])
-  reshape: [B, 900] -> [B, 30, 30]
+  # 注：BEV query 为 600 main + 300 propagated = 900 个 learned embedding
+  # reference_points 为 nn.Embedding(600,3) + nn.Embedding(300,3)，非规则网格
 
-Step 3: per-mode uncertainty cost
-  uncertainty_cost[m] = mean_t bilinear_sample(bev_uncertainty, waypoint[m,t])
+Step 3: per-mode uncertainty cost（k-NN 空间插值，k=5）
+  ref_xy = reference_points[:, :2] * 102.4 - 51.2   # learned -> 物理坐标
+  uncertainty_cost[m] = mean_t knn_interp(bev_unc, ref_xy, waypoint[m,t], k=5)
 
 Step 4: adjusted mode selection（仅需学 1 个标量 lambda）
-  adjusted_logit = cls_logit - lambda * score * uncertainty_cost
+  # poses_cls 为 sigmoid scores（非 softmax logits），采用乘法门控
+  adjusted_score = poses_cls * (1 - lambda * uq_score * uncertainty_cost)
 \end{lstlisting}
 \end{tcolorbox}
-\caption{BEV 不确定性代价计算流程，全程无新增可学习参数（\(\lambda\) 为唯一训练参数）。}
+\caption{BEV 不确定性代价计算流程（修正版）。BEV query 为 learned embedding 而非规则网格，采用 k-NN 空间插值替代双线性采样；\texttt{poses\_cls} 为 sigmoid scores，采用乘法门控替代 logit 减法。\(\lambda\) 为唯一训练参数。}
 \end{figure}
 
 \textbf{关键优势}：（1）不需要深度估计或 camera-to-BEV 几何投影；（2）计算 BEV uncertainty map 不需要 LLM 参与，仅需 EVAViT 和 QT-Former（约 0.73GB 显存），可在 16GB 本地设备上完整运行；（3）$\lambda$ 训练可利用离线缓存的特征数据，与 ORION 推理完全解耦。
 
+\textbf{关键修正}（基于 Phase $-$1 验证）：（1）BEV query 为 600 main + 300 propagated 个 learned embedding（\texttt{nn.Embedding}，初始化 $\text{uniform}(0,1)$，训练后学习），并非 $30 \times 30$ 规则网格，因此双线性采样不可行，改用基于 \texttt{reference\_points} 的 k-NN 空间插值（k=5）；（2）\texttt{poses\_cls} 使用 sigmoid focal loss 训练（$\gamma=2, \alpha=0.25$），输出为独立 sigmoid scores 而非 softmax 概率，mode 选择方式为 $\text{argmax}(\texttt{poses\_cls})$——因此不应在 logit 空间做减法（sigmoid 极端值对减法不敏感），改用乘法门控：$\text{adjusted\_score} = \texttt{poses\_cls} \cdot (1 - \lambda \cdot s \cdot c_m)$；（3）Flash Attention 在所有 5 个 transformer 组件中默认开启，阻断 attention weights 提取——缓解方案为提取时临时覆盖 \texttt{flash\_attn=False}，推理速度约降 2$\times$ 但仅影响缓存提取阶段。
+
 \subsubsection{lambda 训练目标}
 
-训练 $\lambda$ 时采用组合损失，同时优化碰撞率和 mode 排序质量：
+$\lambda$ 为单一标量参数，训练方式有两种选择：（1）\textbf{网格搜索}（首选）：$\lambda \in \{0.1, 0.3, 0.5, 0.7, 1.0\}$，直接优化离线缓存数据上的 mode 选择命中率（选中 GT 最近 mode 的概率），计算量极小（CPU 秒级）；（2）\textbf{可微训练}：采用 pairwise margin ranking loss 替代 Spearman rank correlation（\texttt{torch.argsort} 无梯度），对每对 mode $(m_i, m_j)$，若 $m_i$ 更安全则鼓励 $\text{adjusted\_score}(m_i) > \text{adjusted\_score}(m_j)$。
 \begin{equation}
-    \mathcal{L}_\lambda = \alpha \cdot \mathcal{L}_{\text{col}} + (1 - \alpha) \cdot \left(1 - \rho_s(\text{adjusted\_rank},\, \text{safety\_rank})\right)
+    \mathcal{L}_\lambda = \sum_{m_i \succ m_j} \max\left(0,\; \text{margin} - (\hat{s}_{m_i} - \hat{s}_{m_j})\right), \quad \hat{s}_m = \texttt{poses\_cls}_m \cdot (1 - \lambda \cdot s \cdot c_m)
 \end{equation}
-其中 $\rho_s$ 为 Spearman 相关系数，$\text{safety\_rank}$ 基于各模式与 GT 的 L2 距离构造。相比纯碰撞率，Spearman 损失对 mode 排序的优化更稳定，不受 VAE 离散采样噪声的干扰。
+其中安全排序基于各模式与 GT 的 L2 距离构造。注意：原计划中使用的 Spearman $\rho_s$ 不可微（依赖 \texttt{argsort}），已替换为等价的 pairwise ranking formulation。
 
 \subsection{第三阶段：完整消融实验（需申请服务器）}
 
@@ -465,16 +522,17 @@ Step 4: adjusted mode selection（仅需学 1 个标量 lambda）
 \textbf{组别} & \textbf{配置} & \textbf{Score-Gated FiLM} & \textbf{BEV Cost} & \textbf{说明} \\
 \midrule
 A & Baseline   & --- & --- & 纯 ORION，参考基线 \\
-B & FiLM-v3    & ✗（有 bug）& --- & 展示问题，历史对照 \\
-C & Score-Gated FiLM & ✓ & --- & 修复 Normal 退化 \\
-D & BEV Cost only & --- & ✓（空间）& 验证空间信息独立贡献 \\
-\textbf{F} & \textbf{Global Score Penalty} & --- & \textbf{✓（全局）} & \textbf{关键对照：D vs F 证明空间性} \\
-E & Full (C+D) & ✓ & ✓ & 完整方案 \\
+B & FiLM-v3    & $\times$（有 bug）& --- & 展示问题，历史对照 \\
+C & Score-Gated FiLM & $\checkmark$ & --- & 修复 Normal 退化 \\
+D & BEV Cost only & --- & $\checkmark$（空间）& 验证空间信息独立贡献 \\
+E & Full (C+D) & $\checkmark$ & $\checkmark$（空间）& 完整方案 \\
+\textbf{F} & \textbf{Global Score Penalty} & --- & \textbf{$\checkmark$（全局）} & \textbf{关键对照：D vs F 证明空间性} \\
+\textbf{G} & \textbf{C+F} & $\checkmark$ & $\checkmark$（全局）& E vs G 证明空间 BEV 优于全局 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{F 组是关键对照组}：F 组将 $\lambda \cdot s$（全局标量惩罚，不含 BEV 地图）作为所有 mode 的均匀惩罚。D 组与 F 组的差异直接量化了空间不确定性信息对规划质量的独立贡献——若 D 显著优于 F，则空间化是有价值的新贡献；否则应进一步探索 per-BEV-query 细粒度调制。
+\textbf{F 组和 G 组是关键对照}：F 组将 $\lambda \cdot s$（全局标量惩罚，不含 BEV 地图）作为所有 mode 的均匀惩罚。D vs F 直接量化空间不确定性信息在无 FiLM 时的独立贡献；E vs G 测试当 FiLM 已存在时，空间 BEV cost 是否仍优于全局标量——若 E 显著优于 G，则空间化是有价值的新贡献；否则应进一步探索 per-BEV-query 细粒度调制。
 
 \subsubsection{UQ 组件消融}
 
@@ -571,7 +629,7 @@ Checkpoints + 结果 & $\sim$1 GB & 持续增长 \\
 
     \item \textbf{FiLM 注入机制已验证}：恶劣天气碰撞率降低 23\%，证明 FiLM 调制确实能改变模型行为。
 
-    \item \textbf{Score-Gated 方案改动量小}：仅需修改 $\sim$6 行代码 + 重训 FiLM，技术风险低。
+    \item \textbf{Score-Gated 方案改动量小}：修改 3 个文件约 12 行代码 + 重训 FiLM，技术风险低。
 
     \item \textbf{消融实验框架已就绪}：配置文件、训练/评估脚本、可视化工具全部就位。
 \end{enumerate}
@@ -586,11 +644,17 @@ Checkpoints + 结果 & $\sim$1 GB & 持续增长 \\
 \toprule
 \textbf{风险} & \textbf{概率} & \textbf{影响} & \textbf{缓解措施} \\
 \midrule
-Score-Gated FiLM 未能完全解决 Normal 退化 & 低 & 高 & 理论上 score=0 时恒等，若仍退化则检查 UQEstimator 对 Normal 帧的误判率 \\
+Score-Gated FiLM 未能完全解决 Normal 退化 & \textcolor{okgreen}{极低} & 高 & \textcolor{okgreen}{Phase $-$1 确认}：UQ score 高度双峰，Normal 中位数 $\approx$ 0，score=0 时 FiLM 严格恒等 \\
 \addlinespace
 BEV 热力图过于平滑（QT-Former attention 非局域性） & 中 & 中 & 优先用最后一层 attention；若仍平滑则改用 gradient-weighted attention（类 Grad-CAM）\\
 \addlinespace
-D 组与 F 组无显著差异（空间性贡献存疑） & 中 & 高 & 转向 per-BEV-query Spatial FiLM 方案；BEV Cost 作为辅助验证 \\
+D/F/G 组无显著差异（空间性贡献存疑） & 中 & 高 & 转向 per-BEV-query Spatial FiLM 方案；BEV Cost 作为辅助验证 \\
+\addlinespace
+\sout{BEV query 非规则网格，双线性采样不可用} & --- & --- & \textcolor{okgreen}{Phase $-$1 已发现并修正}：改用 k-NN 插值 \\
+\addlinespace
+\sout{Plan anchor 空间覆盖不足} & --- & --- & \textcolor{okgreen}{Phase $-$1 已排除}：88.9\% pair IoU $< 0.5$ \\
+\addlinespace
+Flash Attention 阻断 attn\_weights 提取 & \textcolor{okgreen}{已确认} & 低 & 提取时 \texttt{flash\_attn=False}，速度降 2$\times$ 但仅缓存阶段 \\
 \addlinespace
 碰撞改善幅度不够显著 & 中 & 高 & 扩大评估场景数（100+）；补充 Bench2Drive 高危场景子集分析 \\
 \addlinespace
@@ -605,7 +669,7 @@ D 组与 F 组无显著差异（空间性贡献存疑） & 中 & 高 & 转向 pe
     \item \textbf{发现}：端到端 VLM 驾驶在恶劣天气下碰撞率放大 161$\times$，但开环 L2 指标无法反映；L2 精度与安全性是两个正交维度
     \item \textbf{方法（第一层）}：轻量 UQ 估计器 + Score-Gated FiLM，通过感知不确定性对 QT-Former 和 VAE 实施条件调制，零主干微调，参数增量仅 4.45M
     \item \textbf{方法（第二层，新贡献）}：将 per-patch 图像质量通过 QT-Former cross-attention 传播为 BEV 不确定性热力图，直接约束轨迹模式选择，首次实现感知可靠性的空间感知规划
-    \item \textbf{定位}：即插即用设计，适用于任意冻结的端到端驾驶模型，无需重训骨干网络
+    \item \textbf{定位}：轻量侧信道注入设计（在冻结层激活值上施加 FiLM 调制），适用于任意冻结的端到端驾驶模型，无需重训骨干网络
     \item \textbf{分析}：系统消融实验（UQ 组件 / FiLM 层级 / 全局 vs 空间不确定性）揭示各模块贡献
 \end{enumerate}
 
@@ -625,7 +689,7 @@ D 组与 F 组无显著差异（空间性贡献存疑） & 中 & 高 & 转向 pe
 \midrule
 第 2--3 周 & Score-Gated FiLM 重训 + 开环评估（A100）& 更新版表~\ref{tab:closedloop} \\
 第 3 周 & UQ 消融（4 组）+ FiLM 层级消融（A100）& 消融对比表 \\
-第 3--4 周 & 完整 6 组闭环评估（A100 + CARLA，100 场景）& 主要实验表 \\
+第 3--4 周 & 完整 7 组闭环评估（A100 + CARLA，100 场景）& 主要实验表 \\
 \midrule
 第 4--5 周 & 论文 Method + Experiments 初稿 & 草稿 \\
 第 5--6 周 & Introduction + Related Work + 图表 & 完整初稿 \\
@@ -639,6 +703,8 @@ D 组与 F 组无显著差异（空间性贡献存疑） & 中 & 高 & 转向 pe
 
 UQ-ORION 项目第一阶段已完成核心验证：UQEstimator 在恶劣天气检测上达到 AUROC=0.954，FiLM 碰撞感知训练在恶劣天气场景降低了 23\% 的碰撞率。当前主要问题是 FiLM 对正常场景的非预期干扰（ADE +116\%），根因已明确为 FiLM 调制的全局性与 LayerNorm 范数崩塌。
 
-第二阶段以此为切入点，提出 BEV 不确定性热力图方案，将感知可靠性空间化，直接指导轨迹模式选择。该方案的核心计算链路（EVAViT + QT-Former + 图像统计量）不依赖 LLM，可在现有 16GB 本地设备上完整运行，具备近期快速推进的条件。需申请 A100 资源的部分（FiLM 重训、大规模闭环评估）预计总 GPU 时间约 103 小时。预计 6--7 周内可完成论文初稿。
+Phase $-$1 可行性验证（5 项中 4 项已完成）发现并修正了若干关键计划假设：BEV query 为 600+300 个 learned embedding（非 $30 \times 30$ 网格），须用 k-NN 替代双线性采样；\texttt{poses\_cls} 为 sigmoid scores（非 softmax logits），须用乘法门控替代 logit 减法；同时确认了 plan anchor 空间多样性充分（88.9\% pair IoU $< 0.5$）、UQ score 高度双峰（Score-Gated FiLM 可行）、Flash Attention 有明确缓解方案。
+
+第二阶段以此为切入点，提出修正后的 BEV 不确定性热力图方案，将感知可靠性空间化，直接指导轨迹模式选择。该方案的核心计算链路（EVAViT + QT-Former + 图像统计量）不依赖 LLM，可在现有 16GB 本地设备上完整运行。消融实验扩展至 7 组（新增 G 组：Score-Gated FiLM + Global Penalty），以更严格地验证空间 BEV cost 的独立贡献。需申请 A100 资源的部分（FiLM 重训、大规模闭环评估）预计总 GPU 时间约 103 小时。预计 6--7 周内可完成论文初稿。
 
 \end{document}
