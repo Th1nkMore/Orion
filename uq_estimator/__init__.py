@@ -4,6 +4,8 @@ from uq_estimator.dataset import UQFeatureDataset
 from uq_estimator.bev_uncertainty import (
     compute_patch_quality,
     compute_bev_uncertainty,
+    compute_bev_uncertainty_ipm,
+    make_b2d_calibration,
     compute_trajectory_cost,
     adjust_mode_scores,
     render_bev_heatmap,
@@ -12,5 +14,6 @@ from uq_estimator.bev_uncertainty import (
 __all__ = [
     "UQEstimator", "UQOutput", "CombinedUQLoss", "UQFeatureDataset",
     "compute_patch_quality", "compute_bev_uncertainty",
+    "compute_bev_uncertainty_ipm", "make_b2d_calibration",
     "compute_trajectory_cost", "adjust_mode_scores", "render_bev_heatmap",
 ]
