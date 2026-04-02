@@ -756,8 +756,9 @@ class OrionHead(AnchorFreeHead):
         # prepare for the tgt and query_pos using mln.
         tgt, query_pos, reference_points, temp_memory, temp_pos, rec_ego_pose = self.temporal_alignment(query_pos, tgt, reference_points)
 
-        # [UQ] Compute uncertainty embedding from image features
+        # [UQ] Compute uncertainty embedding and score from image features
         uncertainty_emb = None
+        uncertainty_score = None  # [UQ] for Score-Gated FiLM
         if self.use_uncertainty and hasattr(self, 'uq_estimator'):
             # x is img_feats: [B, N_views, C, H, W]
             # Reshape to [B, N_views, H*W, C] for patch token format
@@ -768,6 +769,7 @@ class OrionHead(AnchorFreeHead):
             stat_feat = compute_stat_features(patch_tokens)  # [B, 5]
             uq_out = self.uq_estimator(patch_tokens, stat_feat)
             uncertainty_emb = uq_out.embedding  # [B, 256]
+            uncertainty_score = uq_out.score  # [UQ] [B, 1] for Score-Gated FiLM
             self.uq_output = uq_out  # [UQ] expose for collision-aware FiLM training
 
         if self.use_memory :    
@@ -796,7 +798,7 @@ class OrionHead(AnchorFreeHead):
                   
 
         # transformer here is a little different from PETR
-        outs_dec = self.transformer(tgt, memory, query_pos, pos_embed, attn_mask, temp_memory, temp_pos, uncertainty_emb=uncertainty_emb)
+        outs_dec = self.transformer(tgt, memory, query_pos, pos_embed, attn_mask, temp_memory, temp_pos, uncertainty_emb=uncertainty_emb, uncertainty_score=uncertainty_score)
         if mask_dict and mask_dict['pad_size'] > 0:
             reference_points = torch.cat([reference_points[:, :mask_dict['pad_size'], :], reference_points[:, mask_dict['pad_size']+self.num_extra:, :]], dim=-2)
         else:
@@ -975,8 +977,8 @@ class OrionHead(AnchorFreeHead):
             if self.pred_traffic_light_state:
                 outs.update(dict(all_traffic_states = all_traffic_states))
 
-        # [UQ] Return uncertainty_emb for FiLM L2 (VAE-level modulation)
-        return outs, vlm_memory, uncertainty_emb
+        # [UQ] Return uncertainty_emb and score for FiLM L2 (Score-Gated modulation)
+        return outs, vlm_memory, uncertainty_emb, uncertainty_score
     
     def prepare_for_loss(self, mask_dict):
         """

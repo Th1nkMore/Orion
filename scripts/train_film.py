@@ -218,7 +218,7 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
     pos_embed = orion.position_embeding(data, location, img_metas_list)
 
     # ─── Step 4: detection + UQ + FiLM L1 ───
-    outs_bbox, det_query, uncertainty_emb = orion.pts_bbox_head(img_metas_list, pos_embed, **data)
+    outs_bbox, det_query, uncertainty_emb, uncertainty_score = orion.pts_bbox_head(img_metas_list, pos_embed, **data)
     vision_embeded_obj = det_query.clone()
 
     # ─── Step 5: map head ───
@@ -264,11 +264,18 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
 
     current_states = ego_feature.unsqueeze(1)
 
-    # [UQ] FiLM L2: modulate before VAE
+    # [UQ] Score-Gated FiLM L2: modulate before VAE
     if hasattr(orion, 'use_uncertainty_l2') and orion.use_uncertainty_l2 and uncertainty_emb is not None:
-        gamma_l2 = orion.film_gamma_l2(uncertainty_emb)
-        beta_l2 = orion.film_beta_l2(uncertainty_emb)
-        current_states = gamma_l2.unsqueeze(1) * current_states + beta_l2.unsqueeze(1)
+        gamma_raw_l2 = orion.film_gamma_l2(uncertainty_emb)
+        beta_raw_l2 = orion.film_beta_l2(uncertainty_emb)
+        if uncertainty_score is not None:
+            s = uncertainty_score.unsqueeze(-1)  # [B, 1, 1]
+            gamma_l2 = 1.0 + s * (gamma_raw_l2.unsqueeze(1) - 1.0)
+            beta_l2 = s * beta_raw_l2.unsqueeze(1)
+        else:
+            gamma_l2 = gamma_raw_l2.unsqueeze(1)
+            beta_l2 = beta_raw_l2.unsqueeze(1)
+        current_states = gamma_l2 * current_states + beta_l2
 
     # ─── Step 7: VAE → trajectory ───
     if not orion.use_diff_decoder and not orion.use_mlp_decoder:

@@ -305,19 +305,26 @@ class PETRTemporalTransformer(nn.Module):
                     nn.init.xavier_uniform_(m.weight)
 
 
-    def forward(self, query, key, query_pos=None, key_pos=None, attn_mask=None, temp_memory=None, temp_pos=None, uncertainty_emb=None):
+    def forward(self, query, key, query_pos=None, key_pos=None, attn_mask=None, temp_memory=None, temp_pos=None, uncertainty_emb=None, uncertainty_score=None):
         """ Forward function for transformer decoder
         Args:
             vision_tokens: shape [bs, sequence_length, embed_dims]
             uncertainty_emb: [B, uncertainty_dim], optional UQ embedding for FiLM modulation
+            uncertainty_score: [B, 1], optional UQ score for Score-Gated FiLM
         Output:
             re-sampled token sequences: [bs, num_queries, embed_dims]
         """
-        # [UQ] FiLM modulation: query is [num_query, B, D], uncertainty_emb is [B, uncertainty_dim]
+        # [UQ] Score-Gated FiLM: query is [num_query, B, D], score gates the modulation
         if uncertainty_emb is not None and self.use_uncertainty:
             # query shape: [num_query, B, D]
-            gamma = self.film_gamma(uncertainty_emb).unsqueeze(1)  # [B, 1, D]
-            beta = self.film_beta(uncertainty_emb).unsqueeze(1)    # [B, 1, D]
+            gamma_raw = self.film_gamma(uncertainty_emb).unsqueeze(1)  # [B, 1, D]
+            beta_raw = self.film_beta(uncertainty_emb).unsqueeze(1)    # [B, 1, D]
+            if uncertainty_score is not None:
+                s = uncertainty_score.unsqueeze(-1)  # [B, 1, 1]
+                gamma = 1.0 + s * (gamma_raw - 1.0)
+                beta = s * beta_raw
+            else:
+                gamma, beta = gamma_raw, beta_raw
             query = gamma * query + beta  # broadcast over num_query dim
 
         out = self.query_decoder(query, key, query_pos, key_pos, attn_mask, temp_memory, temp_pos) # feature from the last layer

@@ -546,7 +546,7 @@ class Orion(MVXTwoStageDetector):
         losses = dict()
 
         if self.with_pts_bbox:
-            outs_bbox, det_query, _uncertainty_emb = self.pts_bbox_head(img_metas, pos_embed, **data) # (1, 257, 4096)
+            outs_bbox, det_query, _uncertainty_emb, _uncertainty_score = self.pts_bbox_head(img_metas, pos_embed, **data) # (1, 257, 4096)
             vision_embeded_obj = det_query.clone()
             loss_inputs = [gt_bboxes_3d, gt_labels_3d, outs_bbox, gt_attr_labels]
             if self.pts_bbox_head.pred_traffic_light_state:
@@ -588,11 +588,18 @@ class Orion(MVXTwoStageDetector):
                 losses.update(vlm_loss=vlm_loss[0])
                 current_states = ego_feature.unsqueeze(1)
 
-                # [UQ] FiLM L2: modulate current_states before VAE path
+                # [UQ] Score-Gated FiLM L2: modulate current_states before VAE path
                 if self.use_uncertainty_l2 and _uncertainty_emb is not None:
-                    gamma_l2 = self.film_gamma_l2(_uncertainty_emb)  # [B, 4096]
-                    beta_l2 = self.film_beta_l2(_uncertainty_emb)    # [B, 4096]
-                    current_states = gamma_l2.unsqueeze(1) * current_states + beta_l2.unsqueeze(1)  # [B, 1, 4096]
+                    gamma_raw_l2 = self.film_gamma_l2(_uncertainty_emb)  # [B, 4096]
+                    beta_raw_l2 = self.film_beta_l2(_uncertainty_emb)    # [B, 4096]
+                    if _uncertainty_score is not None:
+                        s = _uncertainty_score.unsqueeze(-1)  # [B, 1, 1]
+                        gamma_l2 = 1.0 + s * (gamma_raw_l2.unsqueeze(1) - 1.0)
+                        beta_l2 = s * beta_raw_l2.unsqueeze(1)
+                    else:
+                        gamma_l2 = gamma_raw_l2.unsqueeze(1)
+                        beta_l2 = beta_raw_l2.unsqueeze(1)
+                    current_states = gamma_l2 * current_states + beta_l2  # [B, 1, 4096]
 
                 if not self.use_diff_decoder and not self.use_mlp_decoder:
                     distribution_comp = {}
@@ -736,7 +743,7 @@ class Orion(MVXTwoStageDetector):
         pos_embed = self.position_embeding(data, location, img_metas)
         bbox_results = []
         if self.with_pts_bbox:
-            outs, det_query, uncertainty_emb = self.pts_bbox_head(img_metas, pos_embed, **data)
+            outs, det_query, uncertainty_emb, _uncertainty_score = self.pts_bbox_head(img_metas, pos_embed, **data)
             vision_embeded_obj = det_query.clone()
             if self.use_col_loss:
                 bbox_list = self.pts_bbox_head.get_motion_bboxes(
@@ -814,11 +821,18 @@ class Orion(MVXTwoStageDetector):
                     ego_feature = ego_feature.to(torch.float32)
                     current_states = ego_feature.unsqueeze(1)
 
-                    # [UQ] FiLM L2: modulate current_states before VAE path
+                    # [UQ] Score-Gated FiLM L2: modulate current_states before VAE path
                     if hasattr(self, 'use_uncertainty_l2') and self.use_uncertainty_l2 and uncertainty_emb is not None:
-                        gamma_l2 = self.film_gamma_l2(uncertainty_emb)  # [B, 4096]
-                        beta_l2 = self.film_beta_l2(uncertainty_emb)    # [B, 4096]
-                        current_states = gamma_l2.unsqueeze(1) * current_states + beta_l2.unsqueeze(1)  # [B, 1, 4096]
+                        gamma_raw_l2 = self.film_gamma_l2(uncertainty_emb)  # [B, 4096]
+                        beta_raw_l2 = self.film_beta_l2(uncertainty_emb)    # [B, 4096]
+                        if _uncertainty_score is not None:
+                            s = _uncertainty_score.unsqueeze(-1)  # [B, 1, 1]
+                            gamma_l2 = 1.0 + s * (gamma_raw_l2.unsqueeze(1) - 1.0)
+                            beta_l2 = s * beta_raw_l2.unsqueeze(1)
+                        else:
+                            gamma_l2 = gamma_raw_l2.unsqueeze(1)
+                            beta_l2 = beta_raw_l2.unsqueeze(1)
+                        current_states = gamma_l2 * current_states + beta_l2  # [B, 1, 4096]
 
                     if not self.use_diff_decoder and not self.use_mlp_decoder: # VAE-based generate
                         distribution_comp = {}
@@ -894,6 +908,21 @@ class Orion(MVXTwoStageDetector):
                                 timestep=k,
                                 sample=img
                             ).prev_sample
+                        # [UQ] BEV uncertainty cost for spatial-aware mode selection
+                        if hasattr(self, 'use_bev_uncertainty') and self.use_bev_uncertainty:
+                            from uq_estimator.bev_uncertainty import (
+                                compute_bev_uncertainty, compute_trajectory_cost, adjust_mode_scores
+                            )
+                            bev_unc = compute_bev_uncertainty(
+                                self._attn_hook['attn_weights'], self._patch_quality
+                            )
+                            ref_xy = self.pts_bbox_head.reference_points.weight[:, :2].detach()
+                            ref_xy_m = ref_xy * (self.pc_range[3] - self.pc_range[0]) + self.pc_range[0]
+                            traj_cost = compute_trajectory_cost(bev_unc, ref_xy_m, poses_reg[..., :2], k=5)
+                            poses_cls = adjust_mode_scores(
+                                poses_cls, traj_cost, _uncertainty_score, lambda_val=self.bev_lambda
+                            )
+
                         mode_idx = poses_cls.argmax(dim=-1)
                         mode_masks = torch.zeros(*poses_cls.shape[:2],device=poses_cls.device)
                         for mask, idx in zip(mode_masks, mode_idx):
