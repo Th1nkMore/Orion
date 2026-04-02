@@ -11,8 +11,8 @@ ORION 原有流程：Vision Encoder → QT-Former → VLM → planning token →
 
 ### UQEstimator 模型结构（已实现）
 ```
-patch_tokens [B, N_views, N_patches, 1152]
-  → patch_proj Linear(1152→256)       # 降维，控制参数量
+patch_tokens [B, N_views, N_patches, 1024]
+  → patch_proj Linear(1024→256)       # 降维，控制参数量
   → 2层 TransformerDecoder            # 16个 learnable query cross-attend patches
   → mean pool queries → mean pool views → [B, 256]
                                             ↓
@@ -37,13 +37,15 @@ stat_features [B, 5]                        │
   - forward 返回 dict：{'total', 'regression', 'ranking', 'calibration'}
 
 ### 统计特征（dataset 中计算，5 维原始特征）
-- 图像梯度幅值的均值和方差（2 维）
-- patch token 激活值的均值和方差（2 维）
+- 各视角 patch token 激活值方差均值（1 维）
+- 跨 patch softmax 熵均值（归一化到 [0,1]）（1 维）
 - 跨视角 token 余弦相似度矩阵均值（1 维）
+- token 激活值绝对均值（1 维）
+- token 激活值最大值均值（1 维）
 - 模型内部 Linear(5→64) 投影到 d_stat
 
 ## Tensor 维度约定（严格遵守）
-- patch_tokens: [B, N_views, N_patches, D]，D=1024（EVAViT output，注意：非 1152）
+- patch_tokens: [B, N_views, N_patches, D]，D=1024（EVAViT embed_dim=1024）
 - N_patches=1600（640/16 × 640/16 = 40×40），N_views=6
 - uncertainty_embedding: [B, 256]
 - uncertainty_score: [B, 1]，值域 [0, 1]
@@ -55,9 +57,9 @@ stat_features [B, 5]                        │
 ## 项目结构
 ```
 uq-orion/
-├── adzoo/                  # ORION 原始代码（4 个文件有 [UQ] 标记的修改）
+├── adzoo/                  # ORION 原始代码（2 个文件有 [UQ] 标记的修改）
 ├── team_code/              # ORION 原始代码
-├── mmcv/                   # ORION 依赖（2 个文件有 [UQ] 标记的修改）
+├── mmcv/                   # ORION 依赖（3 个文件有 [UQ] 标记的修改，另有 1 个 NumPy 兼容修复）
 ├── uq_estimator/           # UQ 扩展模块（所有新增代码在此）
 │   ├── __init__.py         # 导出：UQEstimator, UQOutput, CombinedUQLoss, UQFeatureDataset
 │   ├── model.py            # UQEstimator 模型 + smoke test（支持消融开关）
@@ -77,6 +79,7 @@ uq-orion/
 │   ├── visualize_eval.py         # 论文图表生成（9 种图 + 文本摘要）
 │   ├── visualize_attention.py    # QT-Former 注意力可视化 + FiLM 对比
 │   ├── visualize_trajectory.py   # BEV 轨迹对比可视化
+│   ├── render_bev_gifs.py        # BEV-only 离线 GIF 渲染（从 trajectory_data.pt 缓存）
 │   ├── benchmark_overhead.py     # 计算开销测量（UQEstimator + FiLM 延迟）
 │   ├── run_ablation.sh           # 编排脚本：训练 + 评估 + 可视化
 │   └── e2e_mock_test.py          # 端到端 mock 测试
@@ -88,19 +91,27 @@ uq-orion/
 │   └── uq_ablation_no_cal.yaml    # 消融：去掉校准正则
 ├── tests/
 │   ├── __init__.py
-│   └── test_uq_model.py    # pytest 测试
-├── checkpoints/uq/best.pt  # v3 UQEstimator 权重（weather-based scene_type）
-├── checkpoints/uq/best_v2.pt  # v2 备份（scenario-based scene_type）
-├── checkpoints/film/        # FiLM 训练权重
+│   ├── fixtures.py          # mock 数据生成器（normal/adverse/random 样本）
+│   ├── test_uq_model.py    # UQEstimator 模型/损失/数据集测试
+│   ├── test_film.py         # FiLM 初始化/梯度/checkpoint/freeze 测试
+│   ├── test_training.py     # 训练脚本 smoke test
+│   └── test_generate_labels.py  # 标签生成验证
+├── checkpoints/uq/best.pt  # v3 UQEstimator 权重（weather-based scene_type，已备份，gitignored）
+├── checkpoints/uq/best_v2.pt  # v2 备份（scenario-based scene_type，已备份，gitignored）
+├── checkpoints/film/        # FiLM 训练权重（已提交到 git）
 │   ├── best_l1l2_col_v3.pt  # v3 FiLM L1+L2+collision（当前最佳）
+│   ├── best_l1l2_col.pt     # FiLM L1+L2+collision（旧版）
 │   ├── best_l1.pt, best_l2.pt, best_l1l2.pt  # 旧版 FiLM
 ├── results/
-│   ├── eval_openloop_v3.pt/.json  # v3 开环评估（AUROC=0.954）
+│   ├── eval_openloop_v3.json      # v3 开环评估（AUROC=0.954）
+│   ├── eval_openloop_v3.pt        # v3 开环评估 PyTorch 格式（已备份，gitignored）
 │   ├── closedloop_replay_v3.json  # v3 闭环评估（50场景，Col=0.52%）
-│   ├── eval_openloop_full.pt     # 原始开环评估（v1 UQ score）
+│   ├── eval_openloop_full.pt      # 原始开环评估（v1 UQ score，已备份，gitignored）
+│   ├── eval_openloop_full_summary.json  # 原始开环评估摘要
 │   └── gifs/                      # 轨迹对比 GIF（18 场景 ~250MB）
 │       ├── trajectory_data.pt     # 缓存轨迹数据（离线重渲染用）
-│       └── *.gif                  # 18 个场景 GIF 文件
+│       ├── *.gif                  # 18 个场景 GIF 文件
+│       └── bev_only/              # 18 个 BEV-only GIF（轻量，~20MB）
 ├── requirements.txt         # ORION 原始依赖（勿动）
 ├── requirements_uq.txt      # UQ 项目依赖（uv 管理）
 └── .gitignore
@@ -149,12 +160,13 @@ uq-orion/
 - benchmark_overhead.py: 计算开销报告（参数量、延迟、吞吐）
 
 ## ORION 文件修改清单
-所有修改均以 `[UQ]` 注释标记，可通过 `grep -r "\[UQ\]" adzoo/ mmcv/` 查找。
+所有修改均以 `[UQ]` 注释标记（共 25 处），可通过 `grep -r "\[UQ\]" adzoo/ mmcv/` 查找。
 - `adzoo/orion/configs/orion_stage3_infer.py` (+3行): use_uncertainty, uq_checkpoint 配置
 - `adzoo/orion/test.py` (+26行): UQ checkpoint 和 FiLM 权重重新加载
 - `mmcv/models/dense_heads/orion_head.py` (+23行): UQEstimator 初始化 + forward 中计算 uncertainty_emb
 - `mmcv/models/utils/petr_transformers.py` (+16行): FiLM 调制层 + identity 初始化 + init_weights 保护
 - `mmcv/models/detectors/orion.py` (+35行): FiLM L2 层定义 + identity init + train/inference 调制
+- `mmcv/datasets/pipelines/loading.py` (+3行): NumPy 2.0+ 兼容性修复（np.int64/np.bool_）
 
 ## 已知问题与待修复
 - **FiLM embed_head LayerNorm 问题**：embed_head 末尾的 LayerNorm 使所有样本 embedding norm 恒定（≈√256），
@@ -178,7 +190,7 @@ uq-orion/
 - 对 ORION 原文件的修改，commit message 必须以 [UQ] 开头
 - 每个函数必须有 shape 注释，格式：# [B, N, D]
 - 不允许在模型代码里出现硬编码数字，全部从 config 读取
-- mock 数据统一用：B=2, N_views=6, N_patches=256, D=1152
+- mock 数据统一用：B=2, N_views=6, N_patches=256, D=1152（注：实际 EVAViT D=1024，mock 用 1152 测试兼容性）
 
 ## 不要做的事
 - 不要修改 adzoo/ 目录下的任何文件（ORION 原始代码），除非明确要求
