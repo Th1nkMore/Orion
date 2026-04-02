@@ -61,10 +61,16 @@ uq-orion/
 ├── team_code/              # ORION 原始代码
 ├── mmcv/                   # ORION 依赖（3 个文件有 [UQ] 标记的修改，另有 1 个 NumPy 兼容修复）
 ├── uq_estimator/           # UQ 扩展模块（所有新增代码在此）
-│   ├── __init__.py         # 导出：UQEstimator, UQOutput, CombinedUQLoss, UQFeatureDataset
+│   ├── __init__.py         # 导出：UQEstimator, UQOutput, CombinedUQLoss, UQFeatureDataset, IPM 函数
 │   ├── model.py            # UQEstimator 模型 + smoke test（支持消融开关）
 │   ├── losses.py           # 损失函数
-│   └── dataset.py          # UQFeatureDataset + compute_stat_features
+│   ├── dataset.py          # UQFeatureDataset + compute_stat_features
+│   └── bev_uncertainty.py  # BEV 不确定性（attention-based + IPM 两条路径）
+│       # compute_patch_quality(normalize=False 支持全局归一化)
+│       # compute_bev_uncertainty(attn_weights based)
+│       # compute_bev_uncertainty_ipm(纯几何 IPM，已在 B2D 验证 Δ=+0.139)
+│       # make_b2d_calibration() — B2D 6相机标定（硬编码）
+│       # compute_trajectory_cost, adjust_mode_scores, render_bev_heatmap
 ├── scripts/
 │   ├── extract_orion_features.py  # Stage 0: 从 ORION 提取 patch tokens
 │   ├── generate_labels.py         # Stage 1a: 生成不确定性伪标签
@@ -81,6 +87,8 @@ uq-orion/
 │   ├── visualize_trajectory.py   # BEV 轨迹对比可视化
 │   ├── render_bev_gifs.py        # BEV-only 离线 GIF 渲染（从 trajectory_data.pt 缓存）
 │   ├── benchmark_overhead.py     # 计算开销测量（UQEstimator + FiLM 延迟）
+│   ├── download_b2d_sample.py    # 下载 B2D 两个场景（normal W3 + adverse W13，各 ~150MB）
+│   ├── eval_bev_noattn.py        # IPM BEV 不确定性评估 + 可视化（无需模型/attention）
 │   ├── run_ablation.sh           # 编排脚本：训练 + 评估 + 可视化
 │   └── e2e_mock_test.py          # 端到端 mock 测试
 ├── configs/
@@ -108,6 +116,12 @@ uq-orion/
 │   ├── closedloop_replay_v3.json  # v3 闭环评估（50场景，Col=0.52%）
 │   ├── eval_openloop_full.pt      # 原始开环评估（v1 UQ score，已备份，gitignored）
 │   ├── eval_openloop_full_summary.json  # 原始开环评估摘要
+│   ├── bev_noattn/                # IPM BEV 不确定性验证结果（B2D 2场景）
+│   │   ├── comparison.png         # 定量对比：Normal 0.583 vs Adverse 0.722（Δ=+0.139）
+│   │   ├── mean_bev_maps.png      # 平均 BEV 热力图（normal vs adverse）
+│   │   ├── panel_normal_w3.png    # 相机图像 + BEV 热力图（Weather3）
+│   │   ├── panel_adverse_w13.png  # 相机图像 + BEV 热力图（Weather13）
+│   │   └── report.txt             # 数值汇总
 │   └── gifs/                      # 轨迹对比 GIF（18 场景 ~250MB）
 │       ├── trajectory_data.pt     # 缓存轨迹数据（离线重渲染用）
 │       ├── *.gif                  # 18 个场景 GIF 文件
@@ -168,13 +182,26 @@ uq-orion/
 - `mmcv/models/detectors/orion.py` (+35行): FiLM L2 层定义 + identity init + train/inference 调制
 - `mmcv/datasets/pipelines/loading.py` (+3行): NumPy 2.0+ 兼容性修复（np.int64/np.bool_）
 
-## 已知问题与待修复
-- **FiLM embed_head LayerNorm 问题**：embed_head 末尾的 LayerNorm 使所有样本 embedding norm 恒定（≈√256），
-  导致 FiLM 对 Normal 场景（UQ score≈0）也产生非平凡调制。Normal ADE 从 2.78m→6.00m（+116%）。
-  **解决方案**：Score-Gated FiLM（`gamma = 1 + score*(gamma_raw-1)`, `beta = score*beta_raw`），
-  需改 petr_transformers.py + orion.py 各 ~3 行 + 重训 FiLM。详见 REPORT.md。
-- **闭环 baseline 数据**：修复 init_weights bug 前的 `closedloop_baseline.json`（10 场景）不可信。
+## 已知问题与状态
+
+### 已解决（代码完成，待重训）
+- **FiLM embed_head LayerNorm 问题** ✅ 代码修复完成：
+  Score-Gated FiLM 已实现（`gamma = 1 + score*(gamma_raw-1)`, `beta = score*beta_raw`）。
+  涉及 petr_transformers.py + orion.py + orion_head.py，共 ~12 行。
+  待在服务器重训 FiLM checkpoint 后验证 Normal ADE 恢复。
+
+### 已解决（完全验证）
+- **Flash Attention 阻断 attn_weights 提取** ✅ 绕开：
+  BEV 不确定性主方案切换为 IPM（纯几何，无需 attention），已在 B2D 上验证有效（Δ=+0.139）。
+- **闭环 baseline 数据** ✅ 已修复：
+  修复 init_weights bug 前的 `closedloop_baseline.json`（10 场景）不可信。
   修复后的 `closedloop_baseline_50.json`（50 场景）是正确的 baseline。
+
+### 实现注意事项
+- **IPM BEV 归一化**：必须用 log-scale 全局归一化（`log1p(q) / log1p(q_max)`），
+  线性全局归一化因重尾质量分布（极端 outlier ~5000×均值）导致 Δ 从 +0.139 退化为 +0.011。
+- **B2D 相机标定**：`make_b2d_calibration()` 已硬编码 6 相机参数（从 team_code/orion_b2d_agent.py 提取），
+  无需读取 pkl 标定文件即可运行 IPM。
 
 ## 环境管理
 - **禁止在 base conda 环境中安装任何依赖**

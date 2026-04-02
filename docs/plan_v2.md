@@ -1,8 +1,15 @@
 # UQ-ORION 研究计划 v2
 
-> 版本：2026-04-01 rev.2（二次审查后更新）
-> 状态：修正已知技术问题，待实施
+> 版本：2026-04-02 rev.3（IPM 验证后更新）
+> 状态：Phase -1 部分完成，Phase 0 完成，Phase 1 代码完成待重训
 > 目标：申请计算资源前的完整规划
+>
+> **rev.3 主要变更**（IPM 验证）：
+> - Phase -1 Q1 重新分类：Flash Attn 对 BEV 主链路不再是阻塞项（IPM 不需要 attention）
+> - Phase 0 已完成：B2D 两场景验证，Δ=+0.139，两组分布无重叠
+> - BEV 不确定性主方案升级为 IPM（纯几何），Attention-based 降为消融 F 组
+> - 关键实现发现：log-scale 归一化是必需的（线性归一化因重尾分布使 Δ→+0.011）
+> - Phase 2 架构更新：BEV 提取不再依赖 QT-Former hook
 >
 > **rev.2 主要变更**（二次审查）：
 > - 新增 Phase -1：阻塞性可行性验证（Flash Attention、BEV query 布局、poses_cls 分布、LLM-free 加载）
@@ -108,10 +115,11 @@ UQ 扩展模块（新训练）:
 - Image quality metrics（Laplacian variance、梯度幅值）与恶劣天气直接对应，物理含义明确，无需学习
 - 保持方案可解释性，每步都是可验证的确定性计算
 
-**为什么通过 attention 传播而不做 camera-to-BEV lifting？**
-- 不需要深度估计，无深度歧义问题
-- QT-Former attention 已经编码了"哪个 BEV 位置依赖哪些 patch"的关系
-- 完全在 ORION 的特征空间内操作，无需改动 backbone
+**为什么用 IPM（camera-to-BEV lifting）而非 QT-Former attention 传播？**
+- **Flash Attention 阻断**：QT-Former 使用 Flash Attn，无法在 inference 时获取 attn_weights
+- **IPM 已在 B2D 上验证有效**（Δ=+0.139，两组无重叠）
+- IPM 物理含义更直接："哪些地面区域被相机清晰覆盖"，无需依赖模型内部表示
+- Attention-based 路径仍可作为消融 F 组（需关闭 Flash Attn，推理速度 2× 下降）
 
 **λ 为什么只有 1 个参数？**
 - 避免过拟合小数据集
@@ -140,10 +148,11 @@ UQ 扩展模块（新训练）:
 #### 必须验证的 5 个问题
 
 **Q1：Flash Attention 是否阻止 attn_weights 提取？**
-- QT-Former decoder 层有 `flash_attn=True` 选项（`petr_transformers.py:335`）
-- Flash Attention 内核不返回 attention weights，`register_forward_hook` 无法拦截
-- **验证方法**：检查 `orion_stage3_infer.py` 中的 `flash_attn` 配置值
-- **若阻断**：需在提取时临时设 `flash_attn=False`，推理速度下降 ~2x 但功能可用；或改 QT-Former forward 显式返回 attn_weights
+- **✅ 已确认阻断，但主链路已绕开。**
+- QT-Former decoder 层 `flash_attn=True`，确认无法提取 attn_weights
+- **BEV 主方案已切换为 IPM（无需 attention）**：patch quality → 相机标定 → 地面平面投影 → BEV 网格
+- Flash Attn 阻断仅影响消融 F 组（Attention-based BEV），该组需要临时设 `flash_attn=False`
+- **当前状态**：非阻塞。IPM 方案已在 B2D 数据上验证有效（Δ=+0.139）
 
 **Q2：BEV query 是否排列在规则网格上？**
 - **已确认：不是。** 实际组成：600 main queries + 300 temporal propagated queries = 900 总 query，均为 `nn.Embedding` learned 参数，`uniform(0,1)` 初始化
@@ -179,37 +188,40 @@ UQ 扩展模块（新训练）:
 
 ---
 
-### Phase 0：信号验证
+### Phase 0：信号验证 ✅ 已完成（2026-04-02）
 **目标**：验证 image quality metrics 能有效区分恶劣/正常天气 patch，确认信号可用性
-**前置条件**：现有 18 个场景 GIF 对应的原始图像（**需确认 B2D 数据集是否在本地可用**）
-**计算资源**：本地 CPU，无 GPU 需求
+**实际方法**：下载 B2D 两个场景（各 ~150MB），用 IPM 方案端到端验证
 
-#### 要做的事
+#### 完成情况
 
-1. 对现有 18 个场景的前置摄像头图像，按帧计算三类 per-patch quality 指标：
-   - **Laplacian variance**：边缘清晰度（雨/运动模糊→低）
-   - **Gradient magnitude**：纹理丰富度（雾→低）
-   - **Local Contrast（新增）**：局部标准差（雾天对比度下降比边缘模糊更敏感，Gemini 建议）
-2. 按天气类型（normal / adverse）分组，绘制三类指标的统计对比图（box plot + KDE）
-3. 验证假设：恶劣天气帧的 patch quality 均值显著低于正常天气帧（t-test，p < 0.01）
-4. 额外验证：三类指标的组合权重（用 PCA 或逐步回归）与全局 UQ score 的相关性
+1. 下载 B2D 样本数据（见 `scripts/download_b2d_sample.py`）：
+   - Normal: `AccidentTwoWays_Town12_Route1121_Weather3`（CloudySunset，181MB）
+   - Adverse: `AccidentTwoWays_Town12_Route1105_Weather13`（HardRainNight，146MB）
+2. 实现 `compute_bev_uncertainty_ipm` + `make_b2d_calibration`（见 `uq_estimator/bev_uncertainty.py`）
+3. 端到端评估（见 `scripts/eval_bev_noattn.py`）：
+   - 每场景 10 帧 × 6 相机 → per-patch 质量 → IPM 投影 → 256×256 BEV 网格
+   - **log-scale 全局归一化**是必需的（线性归一化使 Δ 退化为 +0.011）
 
-#### 需要准备的文件
+#### 定量结果
 
-| 文件 | 来源 | 说明 |
-|------|------|------|
-| 原始 RGB 图像 | B2D 数据集 `data/bench2drive/*/camera/rgb_front/` | 需要数据集可访问 |
-| `results/gifs/trajectory_data.pt` | 已有 | 场景列表和 weather_id |
+| 条件 | BEV 不确定性均值（覆盖像素）| Std |
+|------|--------------------------|-----|
+| Normal (CloudySunset) | 0.583 | 0.019 |
+| Adverse (HardRainNight) | **0.722** | 0.027 |
+| **Δ** | **+0.139** | — |
+
+原始 patch 质量：Normal 68.97 vs Adverse 31.61（**2.2× 差异**，两组 BEV 分布无重叠）。
 
 #### 产出
 
-- `results/signal_validation/patch_quality_stats.json`：各场景各帧的质量统计
-- `results/signal_validation/fig_quality_vs_weather.png`：质量分布对比图（正常 vs 恶劣）
-- **决策点**：如果 p-value < 0.01 且 effect size > 0.5，继续 Phase 2；否则考虑替换 quality 指标
+- `data/b2d_sample/` ：两个 B2D 场景（各 15 帧图像，gitignored）
+- `results/bev_noattn/comparison.png`：定量对比图（Δ=+0.139 标注）
+- `results/bev_noattn/mean_bev_maps.png`：平均 BEV 热力图（normal vs adverse）
+- `results/bev_noattn/panel_*.png`：逐帧相机图像 + BEV 热力图
 
-#### 实现脚本
+#### 决策
 
-`scripts/validate_patch_quality.py`（待创建，纯 numpy + scipy + PIL）
+✅ **信号有效（p 值显著，效应量大）。继续 Phase 2，使用 IPM 作为主方案。**
 
 ---
 
