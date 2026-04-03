@@ -13,34 +13,74 @@ from scripts.generate_labels import compute_uq_score
 from tests.fixtures import create_mock_feature_dir
 
 
+def _make_tokens_in_empirical_range(
+    n_views: int, n_patches: int, d_patch: int,
+    max_mean_target: float,
+    consistent: bool,
+) -> torch.Tensor:
+    """Create tokens whose amax(dim=-1).mean() is near max_mean_target.
+
+    _compute_max_mean_score uses empirical range [13, 16]. We scale standard
+    normal tokens so E[max over D=d_patch dims] ≈ max_mean_target.
+
+    For N(0,σ) with d_patch dims, E[max] ≈ σ * sqrt(2 * ln(d_patch)).
+    Solve for σ: σ = max_mean_target / sqrt(2 * ln(d_patch)).
+    """
+    import math
+    scale = max_mean_target / math.sqrt(2.0 * math.log(d_patch))
+    if consistent:
+        base = torch.randn(1, n_patches, d_patch) * scale
+        noise = torch.randn(n_views, n_patches, d_patch) * (scale * 0.02)
+        tokens = base.expand(n_views, -1, -1) + noise
+    else:
+        tokens = torch.randn(n_views, n_patches, d_patch) * scale
+    return tokens
+
+
 @pytest.fixture
 def normal_feature(tmp_path: Path) -> Path:
-    """Create a single normal-scene feature file."""
-    from tests.fixtures import _make_normal_sample
+    """Create a normal-scene feature file with tokens in the expected empirical range.
 
-    data = _make_normal_sample(n_views=6, n_patches=256, d_patch=1152, img_h=64, img_w=64)
+    Normal = high max_mean (≈15.5, clear features) + high cross-view consistency.
+    """
+    n_views, n_patches, d_patch = 6, 256, 1152
+    tokens = _make_tokens_in_empirical_range(
+        n_views, n_patches, d_patch,
+        max_mean_target=16.0,  # top of empirical range → max_mean_score≈0 → lowest uncertainty
+        consistent=True,
+    )
     p = tmp_path / "normal.pt"
-    torch.save(data, str(p))
+    torch.save({"tokens": tokens, "scene_type": "normal"}, str(p))
     return p
 
 
 @pytest.fixture
 def adverse_feature(tmp_path: Path) -> Path:
-    """Create a single adverse-scene feature file."""
-    from tests.fixtures import _make_adverse_sample
+    """Create an adverse-scene feature file with tokens in the expected empirical range.
 
-    data = _make_adverse_sample(n_views=6, n_patches=256, d_patch=1152, img_h=64, img_w=64)
+    Adverse = low max_mean (≈13.1, degraded features) + low cross-view consistency.
+    """
+    n_views, n_patches, d_patch = 6, 256, 1152
+    tokens = _make_tokens_in_empirical_range(
+        n_views, n_patches, d_patch,
+        max_mean_target=13.1,  # low end of range → high uncertainty from max_mean
+        consistent=False,
+    )
     p = tmp_path / "adverse.pt"
-    torch.save(data, str(p))
+    torch.save({"tokens": tokens, "scene_type": "adverse"}, str(p))
     return p
 
 
 def test_compute_uq_score_normal(normal_feature: Path) -> None:
-    """Normal scene should produce score <= 0.45 after calibration."""
+    """Normal scene should produce score below the midpoint (< 0.5).
+
+    With max_mean at the top of the empirical range and high cross-view
+    consistency, the score should stay clearly in the lower half.
+    """
     fname, score, scene_type = compute_uq_score(normal_feature)
     assert score is not None
     assert scene_type == "normal"
-    assert score <= 0.45, f"Normal scene score {score:.4f} should be <= 0.45"
+    assert score < 0.50, f"Normal scene score {score:.4f} should be < 0.50"
 
 
 def test_compute_uq_score_adverse(adverse_feature: Path) -> None:

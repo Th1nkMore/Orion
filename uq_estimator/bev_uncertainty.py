@@ -391,7 +391,8 @@ def compute_bev_uncertainty_ipm(
     sigma: float = 1.5,
     patch_quality: Optional[torch.Tensor] = None,
     normalize_output: bool = True,
-) -> torch.Tensor:
+    return_coverage: bool = False,
+) -> "torch.Tensor | tuple[torch.Tensor, torch.Tensor]":
     """Compute BEV uncertainty heatmap using Inverse Perspective Mapping.
 
     No model or attention weights required — uses camera geometry only.
@@ -400,6 +401,9 @@ def compute_bev_uncertainty_ipm(
     to the ground plane via IPM.  Uncertainty = 1 − quality.  A Gaussian
     kernel splatts each patch's uncertainty onto the BEV grid.
 
+    The Gaussian σ is distance-adaptive: σ = max(sigma, d_bev_px * 0.20),
+    bridging the projection gaps that grow with distance from the ego.
+
     Args:
         images:          [B, N_views, 3, H, W] float tensor (any pixel range).
         cam_intrinsics:  list of N_views tensors, each [3, 3].
@@ -407,16 +411,22 @@ def compute_bev_uncertainty_ipm(
         patch_size:      ViT patch size in pixels (default 16).
         bev_range:       half-extent of BEV grid in metres (default ±51.2 m).
         bev_resolution:  metres per BEV pixel (default 0.4 m/px → 256×256 grid).
-        sigma:           Gaussian splat σ in BEV pixels (default 1.5).
+        sigma:           Minimum Gaussian splat σ in BEV pixels (default 1.5).
+                         Actual σ scales linearly with BEV distance to close
+                         projection gaps at far range.
         patch_quality:   optional pre-computed [B, N_views, N_patches] quality
                          tensor.  When provided, images is only used for shape.
                          Pass normalize=False quality for cross-condition comparison.
         normalize_output: if True (default), per-sample min-max normalise the
                          output BEV map to [0,1].  Set False to preserve absolute
                          magnitudes for cross-condition comparison.
+        return_coverage: if True, return (bev_unc, covered) where covered is a
+                         [B, H_bev, W_bev] bool tensor marking pixels with any
+                         camera projection.
 
     Returns:
         bev_unc: [B, H_bev, W_bev].  In [0,1] when normalize_output=True.
+        covered: [B, H_bev, W_bev] bool (only when return_coverage=True).
     """
     B, N_views, C, H, W = images.shape
     device = images.device
@@ -449,24 +459,33 @@ def compute_bev_uncertainty_ipm(
             continue
 
         # Convert metres → grid indices (origin at centre)
-        # x: left-right, y: forward-back in ego frame
-        # BEV grid: row 0 = +y (forward top), col 0 = -x (left)
+        # Ego frame (CARLA/B2D): x=forward, y=right, z=up
+        # Standard BEV convention: forward=up, right=right
+        #   col = (y_ego + bev_range) / bev_res   (right-lateral → col)
+        #   row = (bev_range - x_ego) / bev_res   (forward → row 0 at top)
         xy_valid = xy_bev[valid_mask]  # [N_v, 2]
-        col = ((xy_valid[:, 0] + bev_range) / bev_resolution).long()  # x → col
-        row = ((bev_range - xy_valid[:, 1]) / bev_resolution).long()  # y → row (flipped)
+        col = ((xy_valid[:, 1] + bev_range) / bev_resolution).long()  # y_ego (right) → col
+        row = ((bev_range - xy_valid[:, 0]) / bev_resolution).long()  # x_ego (forward) → row
         in_grid = (col >= 0) & (col < W_bev) & (row >= 0) & (row < H_bev)
 
         col = col[in_grid]
         row = row[in_grid]
         valid_idx = torch.where(valid_mask)[0][in_grid]  # original patch indices
 
-        # Simple Gaussian splat (σ=1.5 bev_pixels ≈ 0.6 m)
-        rad = int(sigma * 3)
+        # Distance-adaptive σ: farther patches need wider splats to bridge gaps.
+        # At BEV distance d_px, adjacent projected patch rows are ~d_px²/64 px apart;
+        # σ = max(sigma, d_px * 0.20) closes those gaps at far range.
+        d_bev_px = torch.sqrt(
+            (col.float() - W_bev / 2) ** 2 + (row.float() - H_bev / 2) ** 2
+        )  # [N_v], distance from BEV centre in pixels
+
         for b in range(B):
             unc_b = patch_unc[b, vi]  # [N_p]
             for i in range(len(col)):
                 r0, c0 = row[i].item(), col[i].item()
                 v = unc_b[valid_idx[i]].item()
+                sig = max(sigma, d_bev_px[i].item() * 0.20)
+                rad = int(sig * 3)
                 r_lo = max(0, r0 - rad)
                 r_hi = min(H_bev, r0 + rad + 1)
                 c_lo = max(0, c0 - rad)
@@ -474,7 +493,7 @@ def compute_bev_uncertainty_ipm(
                 rs = torch.arange(r_lo, r_hi, device=device)
                 cs = torch.arange(c_lo, c_hi, device=device)
                 gr, gc = torch.meshgrid(rs, cs, indexing="ij")
-                g = torch.exp(-((gr - r0) ** 2 + (gc - c0) ** 2) / (2 * sigma ** 2))
+                g = torch.exp(-((gr - r0) ** 2 + (gc - c0) ** 2) / (2 * sig ** 2))
                 bev_out[b, r_lo:r_hi, c_lo:c_hi] += v * g
                 weight_out[b, r_lo:r_hi, c_lo:c_hi] += g
 
@@ -483,10 +502,11 @@ def compute_bev_uncertainty_ipm(
     # Zero out areas with no camera coverage (weight ≈ 0)
     bev_unc = bev_unc * (weight_out > 1e-6).float()
 
+    covered = weight_out > 1e-6  # [B, H_bev, W_bev] bool
+
     if normalize_output:
         # Per-sample min-max to [0, 1] over COVERED pixels only
         # (uncovered pixels are 0; we normalise the non-zero range)
-        covered = weight_out > 1e-6
         for b in range(B):
             vals = bev_unc[b][covered[b]]
             if vals.numel() > 0:
@@ -499,6 +519,8 @@ def compute_bev_uncertainty_ipm(
                         torch.zeros_like(bev_unc[b]),
                     )
 
+    if return_coverage:
+        return bev_unc, covered  # [B, H_bev, W_bev], [B, H_bev, W_bev] bool
     return bev_unc  # [B, H_bev, W_bev]
 
 

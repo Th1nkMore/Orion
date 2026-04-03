@@ -99,11 +99,15 @@ uq-orion/
 │   └── uq_ablation_no_cal.yaml    # 消融：去掉校准正则
 ├── tests/
 │   ├── __init__.py
-│   ├── fixtures.py          # mock 数据生成器（normal/adverse/random 样本）
-│   ├── test_uq_model.py    # UQEstimator 模型/损失/数据集测试
-│   ├── test_film.py         # FiLM 初始化/梯度/checkpoint/freeze 测试
-│   ├── test_training.py     # 训练脚本 smoke test
-│   └── test_generate_labels.py  # 标签生成验证
+│   ├── fixtures.py               # mock 数据生成器（normal/adverse/random 样本）
+│   ├── test_uq_model.py          # UQEstimator 模型/损失/数据集基础测试
+│   ├── test_film.py              # FiLM 初始化/梯度/checkpoint/freeze/score-gated 测试
+│   ├── test_training.py          # 训练脚本 smoke test（含 resume 验证）
+│   ├── test_generate_labels.py   # 标签生成验证（fixture 已修正为经验范围内的 token）
+│   ├── test_losses_extended.py   # 损失函数边界测试（no-pair ranking, B=1 NaN, 梯度流）
+│   ├── test_dataset_extended.py  # 数据集扩展测试（stat feature 形状/范围/fp16, split 正确性, cache）
+│   ├── test_model_extended.py    # 模型消融测试（no_stat/no_decoder/both, 梯度流, 确定性）
+│   └── test_training_helpers.py  # 训练辅助函数 + 所有消融配置 smoke train
 ├── checkpoints/uq/best.pt  # v3 UQEstimator 权重（weather-based scene_type，已备份，gitignored）
 ├── checkpoints/uq/best_v2.pt  # v2 备份（scenario-based scene_type，已备份，gitignored）
 ├── checkpoints/film/        # FiLM 训练权重（已提交到 git）
@@ -202,6 +206,9 @@ uq-orion/
   线性全局归一化因重尾质量分布（极端 outlier ~5000×均值）导致 Δ 从 +0.139 退化为 +0.011。
 - **B2D 相机标定**：`make_b2d_calibration()` 已硬编码 6 相机参数（从 team_code/orion_b2d_agent.py 提取），
   无需读取 pkl 标定文件即可运行 IPM。
+- **B=1 batch 导致 calibration NaN**：`torch.std()` 对单个元素返回 NaN（Bessel 修正 n-1=0）。
+  训练脚本 batch_size 始终 ≥ 4，不会触发。但务必不要把 batch_size 降到 1（如调试时）。
+  已在 `test_losses_extended.py::test_batch_size_one_calibration_nan` 中文档化。
 
 ## 环境管理
 - **禁止在 base conda 环境中安装任何依赖**
@@ -209,7 +216,7 @@ uq-orion/
 - 激活方式：`source .venv/bin/activate`
 - Python 3.11.5，torch 2.1.0
 - 安装依赖：`uv pip install -r requirements_uq.txt`
-- 运行测试：`pytest tests/test_uq_model.py -v`
+- 运行全部测试：`pytest tests/ -v`（115 passed，4 skipped — FastTensorLoader 需要 CUDA）
 - 运行 smoke test：`python uq_estimator/model.py`
 
 ## 代码规范
@@ -229,6 +236,10 @@ uq-orion/
 - 每个新模块都需要对应 pytest 测试
 - smoke test 放在文件末尾的 __main__ 块里
 - 所有测试用 mock 数据，不依赖真实数据集
+- subprocess 测试（调用训练脚本）必须设置 `PYTHONPATH` 和 `cwd=project_root`，
+  否则子进程找不到 `uq_estimator` 包（参考 test_training.py / test_training_helpers.py 的 `_run_train` / `_run_smoke`）
+- generate_labels 的 fixture 需要将 token 缩放到经验范围 [13, 16]（max_mean），
+  否则 `_compute_max_mean_score` 的硬编码归一化会失效，导致测试分数偏高
 
 ## Git 规范
 - 开发分支：dev
