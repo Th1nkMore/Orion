@@ -50,6 +50,12 @@ def parse_args():
                    help='weight for collision margin loss (0 to disable)')
     p.add_argument('--col-margin', type=float, default=4.0,
                    help='safety margin in meters for collision loss')
+    p.add_argument('--lambda-film-reg', type=float, default=0.0,
+                   help='weight for low-UQ FiLM amplitude regularization')
+    p.add_argument('--lambda-progress', type=float, default=0.0,
+                   help='weight for under-progress penalty against GT trajectory')
+    p.add_argument('--lambda-comfort', type=float, default=0.0,
+                   help='weight for trajectory smoothness penalty (acc + jerk)')
     p.add_argument('--out', default='checkpoints/film/best.pt')
     p.add_argument('--seed', type=int, default=42)
     return p.parse_args()
@@ -152,7 +158,66 @@ def freeze_all_except_film(model):
     return [p for _, p in film_params]
 
 
-def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
+def compute_film_reg_loss(orion, uncertainty_score):
+    """Regularize FiLM to stay near identity on low-UQ samples."""
+    losses = []
+    sample_weight = None
+    if uncertainty_score is not None:
+        sample_weight = (1.0 - uncertainty_score.detach()).view(-1, 1)
+
+    def _weighted_identity(gamma_layer, beta_layer):
+        gamma_w = gamma_layer.weight
+        gamma_b = gamma_layer.bias - 1.0
+        beta_w = beta_layer.weight
+        beta_b = beta_layer.bias
+        base = gamma_w.pow(2).mean() + gamma_b.pow(2).mean()
+        base = base + beta_w.pow(2).mean() + beta_b.pow(2).mean()
+        if sample_weight is None:
+            return base
+        return sample_weight.mean() * base
+
+    transformer = orion.pts_bbox_head.transformer
+    if hasattr(transformer, 'film_gamma') and hasattr(transformer, 'film_beta'):
+        losses.append(_weighted_identity(transformer.film_gamma, transformer.film_beta))
+    if hasattr(orion, 'film_gamma_l2') and hasattr(orion, 'film_beta_l2'):
+        losses.append(_weighted_identity(orion.film_gamma_l2, orion.film_beta_l2))
+
+    if not losses:
+        return torch.tensor(0.0, device='cuda')
+    return sum(losses)
+
+
+def compute_progress_loss(ego_fut_preds, ego_fut_trajs, ego_fut_masks):
+    """Penalize predictions that lag behind GT forward progress."""
+    pred_abs = ego_fut_preds[:, 0].cumsum(dim=1)  # [B, 6, 2]
+    gt_abs = ego_fut_trajs[:, 0].cumsum(dim=1)    # [B, 6, 2]
+    valid = ego_fut_masks.float()                 # [B, 6]
+    pred_forward = pred_abs[..., 1]
+    gt_forward = gt_abs[..., 1]
+    under_progress = torch.relu(gt_forward - pred_forward)
+    denom = valid.sum().clamp_min(1.0)
+    return (under_progress * valid).sum() / denom
+
+
+def compute_comfort_loss(ego_fut_preds, ego_fut_masks):
+    """Smooth trajectory in offset space via acceleration and jerk penalties."""
+    pred_abs = ego_fut_preds[:, 0].cumsum(dim=1)  # [B, 6, 2]
+    vel = pred_abs[:, 1:] - pred_abs[:, :-1]      # [B, 5, 2]
+    acc = vel[:, 1:] - vel[:, :-1]                # [B, 4, 2]
+    jerk = acc[:, 1:] - acc[:, :-1]               # [B, 3, 2]
+
+    mask = ego_fut_masks.float()
+    acc_mask = (mask[:, 2:] * mask[:, 1:-1] * mask[:, :-2]).unsqueeze(-1)
+    jerk_mask = (mask[:, 3:] * mask[:, 2:-1] * mask[:, 1:-2] * mask[:, :-3]).unsqueeze(-1)
+
+    acc_loss = (acc.pow(2) * acc_mask).sum() / acc_mask.sum().clamp_min(1.0)
+    jerk_loss = (jerk.pow(2) * jerk_mask).sum() / jerk_mask.sum().clamp_min(1.0)
+    return acc_loss + jerk_loss
+
+
+def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
+                          lambda_film_reg=0.0, lambda_progress=0.0,
+                          lambda_comfort=0.0):
     """Custom forward for FiLM training with test-format data.
 
     Replicates ORION's inference path through QT-Former + FiLM, then
@@ -335,11 +400,36 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
                 margin=col_margin)
             total = total + lambda_col * col_loss_val
 
+        film_reg_val = torch.tensor(0.0, device='cuda')
+        if lambda_film_reg > 0:
+            film_reg_val = compute_film_reg_loss(orion, uncertainty_score)
+            total = total + lambda_film_reg * film_reg_val
+
+        progress_loss_val = torch.tensor(0.0, device='cuda')
+        if lambda_progress > 0:
+            progress_loss_val = compute_progress_loss(
+                ego_fut_preds,
+                ego_fut_trajs,
+                data['ego_fut_masks'][:, 0, 0],
+            )
+            total = total + lambda_progress * progress_loss_val
+
+        comfort_loss_val = torch.tensor(0.0, device='cuda')
+        if lambda_comfort > 0:
+            comfort_loss_val = compute_comfort_loss(
+                ego_fut_preds,
+                data['ego_fut_masks'][:, 0, 0],
+            )
+            total = total + lambda_comfort * comfort_loss_val
+
         log_vars = {
             'plan_reg': plan_loss.item(),
             'vae': loss_vae.item(),
             'vlm': vlm_loss_val.item() if torch.is_tensor(vlm_loss_val) else 0,
             'col': col_loss_val.item(),
+            'film_reg': film_reg_val.item(),
+            'progress': progress_loss_val.item(),
+            'comfort': comfort_loss_val.item(),
             'total': total.item(),
         }
         return {'loss': total, 'log_vars': log_vars}
@@ -470,7 +560,10 @@ def main():
                 outputs = forward_film_training(
                     model, data,
                     lambda_col=args.lambda_col,
-                    col_margin=args.col_margin)
+                    col_margin=args.col_margin,
+                    lambda_film_reg=args.lambda_film_reg,
+                    lambda_progress=args.lambda_progress,
+                    lambda_comfort=args.lambda_comfort)
             except Exception as e:
                 import traceback
                 tb = traceback.format_exc()
