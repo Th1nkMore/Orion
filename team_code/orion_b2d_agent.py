@@ -32,6 +32,60 @@ from scipy.optimize import fsolve
 SAVE_PATH = os.environ.get('SAVE_PATH', None)
 IS_BENCH2DRIVE = os.environ.get('IS_BENCH2DRIVE', None)
 
+
+def load_film_checkpoint(model, film_ckpt_path):
+    """Load optional FiLM weights on top of the base ORION checkpoint."""
+    if not film_ckpt_path:
+        return
+
+    if not os.path.exists(film_ckpt_path):
+        raise FileNotFoundError(f'FiLM checkpoint not found: {film_ckpt_path}')
+
+    film_ckpt = torch.load(film_ckpt_path, map_location='cpu')
+    transformer = model.pts_bbox_head.transformer
+
+    if hasattr(transformer, 'film_gamma') and 'film_gamma_weight' in film_ckpt:
+        transformer.film_gamma.weight.data.copy_(film_ckpt['film_gamma_weight'])
+        transformer.film_gamma.bias.data.copy_(film_ckpt['film_gamma_bias'])
+        transformer.film_beta.weight.data.copy_(film_ckpt['film_beta_weight'])
+        transformer.film_beta.bias.data.copy_(film_ckpt['film_beta_bias'])
+        print(f'[FiLM] Loaded L1 weights from {film_ckpt_path}')
+
+    if hasattr(model, 'film_gamma_l2') and 'film_gamma_l2_weight' in film_ckpt:
+        model.film_gamma_l2.weight.data.copy_(film_ckpt['film_gamma_l2_weight'])
+        model.film_gamma_l2.bias.data.copy_(film_ckpt['film_gamma_l2_bias'])
+        model.film_beta_l2.weight.data.copy_(film_ckpt['film_beta_l2_weight'])
+        model.film_beta_l2.bias.data.copy_(film_ckpt['film_beta_l2_bias'])
+        print(f'[FiLM] Loaded L2 weights from {film_ckpt_path}')
+
+
+def parse_team_config(path_to_conf_file):
+    """Parse TEAM_CONFIG payload.
+
+    Supported formats:
+    - config.py+base_ckpt.pth
+    - config.py+base_ckpt.pth+film_ckpt.pt
+    - config.py+base_ckpt.pth+save_name
+    - config.py+base_ckpt.pth+film_ckpt.pt+save_name
+    """
+    parts = path_to_conf_file.split('+')
+    if len(parts) < 2:
+        raise ValueError(f'Invalid TEAM_CONFIG payload: {path_to_conf_file}')
+
+    config_path = parts[0]
+    ckpt_path = parts[1]
+    film_ckpt_path = None
+    save_name = None
+
+    extras = parts[2:]
+    if extras and extras[0].endswith(('.pt', '.pth')):
+        film_ckpt_path = extras[0]
+        extras = extras[1:]
+    if extras:
+        save_name = extras[0]
+
+    return config_path, ckpt_path, film_ckpt_path, save_name
+
 def get_entry_point():
     return 'OrionAgent'
 
@@ -48,10 +102,10 @@ class OrionAgent(autonomous_agent.AutonomousAgent):
         self.last_moving_step = -1
         self.last_steers = 0
         self.pidcontroller = PIDController() 
-        self.config_path = path_to_conf_file.split('+')[0]
-        self.ckpt_path = path_to_conf_file.split('+')[1]
+        now = datetime.datetime.now()
+        self.config_path, self.ckpt_path, self.film_ckpt_path, save_name = parse_team_config(path_to_conf_file)
         if IS_BENCH2DRIVE:
-            self.save_name = path_to_conf_file.split('+')[-1]
+            self.save_name = save_name or pathlib.Path(self.ckpt_path).stem
         else:
             self.save_name = '_'.join(map(lambda x: '%02d' % x, (now.month, now.day, now.hour, now.minute, now.second)))
         self.step = -1
@@ -76,6 +130,7 @@ class OrionAgent(autonomous_agent.AutonomousAgent):
     
             self.model = build_model(cfg.model, train_cfg=cfg.get('train_cfg'), test_cfg=cfg.get('test_cfg'))
             checkpoint = load_checkpoint(self.model, self.ckpt_path, map_location='cpu')
+            load_film_checkpoint(self.model, self.film_ckpt_path)
             self.model.cuda()
             self.model.eval()
             self.inference_only_pipeline = []

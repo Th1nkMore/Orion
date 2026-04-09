@@ -27,6 +27,12 @@ From the upstream README:
   - use Bench2Drive evaluation tools plus CARLA
   - set `TEAM_CONFIG=adzoo/orion/configs/orion_stage3_agent.py+[CHECKPOINT_PATH]`
 
+Local extension kept close to upstream:
+
+- `TEAM_CONFIG=adzoo/orion/configs/orion_stage3_agent.py+[BASE_CHECKPOINT]+[FILM_CHECKPOINT]`
+- The extra FiLM checkpoint is optional and is loaded after the base ORION
+  checkpoint inside `team_code/orion_b2d_agent.py`.
+
 From the upstream Bench2Drive README:
 
 - Target CARLA version: `0.9.15`
@@ -104,6 +110,8 @@ must be implemented:
 2. merge `R2-A.pt` into a full ORION checkpoint before evaluation
 
 To stay close to upstream while minimizing friction, option 1 is preferred.
+
+This repo now implements option 1.
 
 ## Required Environment Pieces
 

@@ -24,6 +24,8 @@ development. Use it together with git history.
   upstream ORION repository.
 - Updated automation so that after `R2-A` finishes open-loop, `R2-B/C` are
   paused and the main priority shifts to official closed-loop alignment.
+- Extended `team_code/orion_b2d_agent.py` so official evaluation can optionally
+  load a separate FiLM checkpoint on top of the base ORION checkpoint.
 
 ### FiLM round-2 training support
 
