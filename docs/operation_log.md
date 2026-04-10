@@ -25,6 +25,16 @@ development. Use it together with git history.
   - keep code/docs on `dev`
   - preserve generated outputs on a dedicated artifact branch instead of
     polluting the main development branch
+- Exported reference snapshots from the live AutoDL server before release:
+  - `uq` conda env export
+  - `orion-cl` conda env export
+  - top-level storage layout plus selected disk-usage totals
+- Confirmed that the server still held additional non-repo artifacts worth
+  copying out before shutdown:
+  - `checkpoints/uq/best.pt`
+  - `checkpoints/film/best_l1l2_col_v4.pt`
+  - `checkpoints/film_round2/R2-A.pt`
+  - `results/openloop_official/baseline.log`
 
 ### Bench2Drive vs Bench2DriveZoo split correction
 
