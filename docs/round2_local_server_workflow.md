@@ -9,7 +9,8 @@ This document is the operational source of truth for round-2 work.
 
 ## Terminology
 
-- `Open-loop`: offline validation with `scripts/eval_openloop.py`. This is the current round-2 comparison gate.
+- `Round-2 open-loop`: offline validation with `scripts/eval_openloop.py`. This is the current internal FiLM/UQ comparison gate.
+- `Official open-loop`: upstream-style evaluation with `adzoo/orion/orion_dist_eval.sh`. This is the required gate before claiming direct horizontal comparison with the original ORION setup.
 - `Closed-loop`: reserved for the paper-aligned official CARLA evaluation only.
 - `Replay control check`: `scripts/eval_closedloop_replay.py` on Bench2Drive recordings. This is diagnostic only and must not be reported as the main closed-loop result.
 
@@ -179,13 +180,16 @@ Then refresh the local dashboard or downstream comparison scripts using the retu
 2. Run one server experiment bundle into `results/round2/<EXP_ID>/`.
 3. Sync back lightweight artifacts only.
 4. Compare the new open-loop outputs against the baseline dashboard.
-5. After `R2-A`, pause `R2-B/C` and switch the main priority to the official CARLA closed-loop alignment track documented in `docs/official_carla_closedloop_alignment.md`.
+5. After `R2-A`, pause `R2-B/C` and reproduce the upstream official open-loop baseline with `adzoo/orion/orion_dist_eval.sh`.
+6. Once the official open-loop baseline is confirmed, evaluate `R2-A` through the same official path.
+7. Only then switch the main priority to the official CARLA closed-loop alignment track documented in `docs/official_carla_closedloop_alignment.md`.
 
 ## Official Closed-Loop Track
 
 This is not part of the default round-2 bundle.
 
 - Goal: reproduce the paper-aligned CARLA closed-loop configuration for direct horizontal comparison.
+- Prerequisite: first reproduce the upstream official open-loop path on the same server/runtime.
 - Required environment: A100-class GPU plus CARLA runtime, route/scenario setup matching the original evaluation protocol.
 - Expected output target: a dedicated result file such as `results/closedloop_official_<tag>.json`, separate from `results/round2/`.
 - Rule: do not label replay outputs as `closed-loop` in summaries, dashboards, or decisions.

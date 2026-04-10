@@ -6,9 +6,10 @@ than offline replay metrics.
 
 ## Goal
 
-After `R2-A` finishes its training and open-loop evaluation, shift the main
-effort to making the official CARLA closed-loop path runnable and comparable to
-the original ORION setup.
+After `R2-A` finishes its training and open-loop evaluation, first reproduce
+the upstream-style official open-loop baseline, then shift the main effort to
+making the official CARLA closed-loop path runnable and comparable to the
+original ORION setup.
 
 ## Upstream Alignment Facts
 
@@ -48,6 +49,35 @@ From the upstream Bench2Drive README:
 - Expected benchmark route count for final metrics: `220`
 
 These upstream facts are the baseline for future environment alignment.
+
+## Stage 0 Gate: Official Open-Loop Reproduction
+
+Before calling any CARLA result paper-aligned, reproduce the upstream
+open-loop entry with the base ORION checkpoint:
+
+```bash
+./adzoo/orion/orion_dist_eval.sh adzoo/orion/configs/orion_stage3_infer.py ckpts/Orion.pth 1
+```
+
+This stage exists for one reason: the repo already has strong internal
+open-loop baselines from `scripts/eval_openloop.py`, but that custom script
+adds UQ hooks, weather splits, and internal diagnostics. Those results are
+useful for FiLM/UQ analysis, yet they are not the strict upstream evaluation
+entry used by the original ORION repo.
+
+Therefore the gating order is:
+
+1. reproduce the upstream official open-loop baseline
+2. verify the result is in the expected ballpark of the original ORION numbers
+3. wire `R2-A` into the same official open-loop path
+4. only then spend effort on official CARLA closed-loop environment alignment
+
+Accepted artifact names for this stage:
+
+- `results/openloop_official/baseline.log`
+- `results/openloop_official/baseline.pkl`
+- `results/openloop_official/r2a.log`
+- `results/openloop_official/r2a.pkl`
 
 ## Repo Anchors
 
@@ -128,22 +158,31 @@ The target machine must provide:
 
 ## Immediate Plan After R2-A
 
-1. Let `R2-A` finish training plus open-loop only.
+1. Let `R2-A` finish training plus custom open-loop only.
 2. Pause `R2-B` and `R2-C`.
-3. Align the server to the official closed-loop runtime:
+3. Reproduce the upstream official open-loop baseline with:
+   - `adzoo/orion/orion_dist_eval.sh`
+   - `adzoo/orion/configs/orion_stage3_infer.py`
+   - `ckpts/Orion.pth`
+4. Once the baseline is confirmed, run the same official open-loop path again
+   with the FiLM checkpoint injected through the existing local extension.
+5. Only after the official open-loop path is validated, align the server to the
+   official closed-loop runtime:
    - install/import `carla`
    - install/import `leaderboard`
    - install/import `scenario_runner`
    - place or clone `Bench2DriveZoo`
    - identify exact routes/scenarios used for comparison
-4. Run environment validation with:
+6. Run environment validation with:
    - `bash scripts/check_official_closedloop_env.sh`
-5. Once the environment check passes, write the concrete launch command for the
+7. Once the environment check passes, write the concrete launch command for the
    official evaluation and test it on the smallest possible route subset.
 
 ## Rules
 
 - Do not substitute replay metrics for official closed-loop.
+- Do not claim paper-level horizontal comparison until the upstream official
+  open-loop path has been reproduced on the current server/runtime.
 - Do not continue `R2-B` or `R2-C` until the official closed-loop path is at
   least environment-complete, unless priorities change explicitly.
 - Keep official closed-loop outputs separate from `results/round2/`.

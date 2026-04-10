@@ -13,6 +13,17 @@ development. Use it together with git history.
 
 ## 2026-04-10
 
+### Official open-loop reproduction gate
+
+- Recorded the decision that official CARLA closed-loop alignment must be
+  preceded by an upstream-style official open-loop reproduction step.
+- Locked the immediate comparison gate to the upstream
+  `adzoo/orion/orion_dist_eval.sh` entry, using the base ORION checkpoint
+  before introducing FiLM checkpoints.
+- Clarified that the existing `scripts/eval_openloop.py` results remain valid
+  for internal UQ / FiLM analysis, but are not the strict paper-aligned
+  horizontal-comparison protocol.
+
 ### Round-2 workflow reset and official closed-loop priority
 
 - Re-defined `closed-loop` to mean paper-aligned official CARLA evaluation only.
