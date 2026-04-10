@@ -34,7 +34,7 @@ Local extension kept close to upstream:
 - The extra FiLM checkpoint is optional and is loaded after the base ORION
   checkpoint inside `team_code/orion_b2d_agent.py`.
 
-From the upstream Bench2Drive README:
+From the upstream Bench2Drive / Bench2DriveZoo setup:
 
 - Target CARLA version: `0.9.15`
 - CARLA Python API must be visible in the active env
@@ -42,6 +42,8 @@ From the upstream Bench2Drive README:
   - `leaderboard/`
   - `scenario_runner/`
   - `tools/`
+- Model/helper repo layout includes:
+  - `Bench2DriveZoo/team_code/`
 - Debug command:
   - `bash leaderboard/scripts/run_evaluation_debug.sh`
 - Multi-process command:
@@ -89,8 +91,8 @@ The repo already contains the key code entry points for the official path:
 Important details from the code:
 
 - The agent implements `leaderboard.autoagents.autonomous_agent.AutonomousAgent`.
-- It imports `carla`, `leaderboard.autoagents`, and Bench2Drive helpers from
-  `Bench2DriveZoo.team_code`.
+- It imports `carla`, `leaderboard.autoagents`, evaluation tooling from
+  `Bench2Drive`, and helper code from `Bench2DriveZoo.team_code`.
 - It expects a config-plus-checkpoint string in `setup()` and uses the
   stage-3 agent config to build ORION for runtime inference.
 
@@ -114,20 +116,23 @@ Verified on `autodl`:
   - `/root/Orion/adzoo/orion/configs/orion_stage3_agent.py`
 - Newly prepared:
   - isolated conda env: `/root/autodl-tmp/conda/envs/orion-cl`
-  - Bench2Drive checkout: `/root/autodl-tmp/Bench2DriveZoo`
-  - project link: `/root/Orion/Bench2DriveZoo -> /root/autodl-tmp/Bench2DriveZoo`
+  - Bench2Drive checkout: `/root/autodl-tmp/Bench2Drive`
+  - Bench2DriveZoo checkout: `/root/autodl-tmp/Bench2DriveZoo`
+  - project links:
+    - `/root/Orion/Bench2Drive -> /root/autodl-tmp/Bench2Drive`
+    - `/root/Orion/Bench2DriveZoo -> /root/autodl-tmp/Bench2DriveZoo`
   - `carla==0.9.15` installed inside `orion-cl`
   - path injection for:
     - `/root/Orion`
-    - `/root/Orion/Bench2DriveZoo/leaderboard`
-    - `/root/Orion/Bench2DriveZoo/scenario_runner`
+    - `/root/Orion/Bench2Drive/leaderboard`
+    - `/root/Orion/Bench2Drive/scenario_runner`
   - background downloads started:
     - `/root/autodl-tmp/carla/CARLA_0.9.15.tar.gz`
     - `/root/autodl-tmp/carla/AdditionalMaps_0.9.15.tar.gz`
 - Still missing / unresolved:
-  - extracted CARLA runtime (`CarlaUE4.sh` not yet available)
-  - the `agents` package that comes from the extracted CARLA PythonAPI tree
-  - ORION runtime parity inside `orion-cl` (`torch` / `torchvision` / repo runtime layer)
+  - AdditionalMaps import completion under the extracted CARLA runtime
+  - final smoke-level ORION runtime parity inside `orion-cl`
+  - an environment-complete import chain for `team_code/orion_b2d_agent.py`
 
 This means the current blocker has moved from "missing external closed-loop
 assets" to "finishing the isolated runtime stack".
@@ -146,13 +151,23 @@ Observed on `autodl`:
   3.11, but not for 3.8.
 - The server currently has no `nvcc`, so a native CUDA rebuild for Python 3.8
   is not immediately available.
+- No binary `flash-attn` wheel was available from the current server mirror for
+  the isolated Python 3.8 env.
+- A smoke-level path now exists to build a Python-3.8 `mmcv._ext` locally by
+  hiding GPUs during build time and skipping the point-cloud CUDA extensions
+  that are not needed for import-chain validation.
 
 Implication:
 
 - Keep using `uq` for ongoing open-loop reproduction.
 - Use `orion-cl` for the official closed-loop compatibility layer.
-- Expect one more integration step before the official agent can run end to end
-  inside `orion-cl`.
+- Use a runtime fallback when `flash_attn` is absent so smoke-level import and
+  setup checks can proceed in `orion-cl`.
+- Build a Python-3.8 `mmcv._ext` before expecting `team_code/orion_b2d_agent.py`
+  to import cleanly inside `orion-cl`.
+- Treat the CPU-only `mmcv._ext` path as a smoke-test bridge; if the later
+  online evaluation still needs extra GPU-only ops, that becomes the next
+  explicit alignment task.
 
 ## Known Code-Level Gap For R2-A
 
@@ -180,9 +195,9 @@ The target machine must provide:
 
 - CARLA binary/runtime compatible with the original evaluation stack
 - Python API package `carla`
-- `leaderboard`
-- `scenario_runner`
-- `Bench2DriveZoo` checkout or equivalent runtime dependency tree
+- `leaderboard` from the Bench2Drive evaluation repo
+- `scenario_runner` from the Bench2Drive evaluation repo
+- `Bench2DriveZoo` checkout for model helper code
 - Route file(s) and scenario file(s) matching the original protocol
 - A working way to launch CARLA and then launch leaderboard evaluation against
   `team_code/orion_b2d_agent.py`
@@ -202,6 +217,7 @@ The target machine must provide:
    - install/import `carla`
    - install/import `leaderboard`
    - install/import `scenario_runner`
+   - place or clone `Bench2Drive`
    - place or clone `Bench2DriveZoo`
    - identify exact routes/scenarios used for comparison
 6. Run environment validation with:
@@ -236,8 +252,9 @@ With explicit locations:
 
 ```bash
 PROJECT_ROOT=/root/Orion \
-BENCH2DRIVE_ROOT=/root/Orion/Bench2DriveZoo \
-CARLA_ROOT=/root/autodl-tmp/carla/CARLA_0.9.15 \
+BENCH2DRIVE_ROOT=/root/Orion/Bench2Drive \
+BENCH2DRIVE_ZOO_ROOT=/root/Orion/Bench2DriveZoo \
+CARLA_ROOT=/root/autodl-tmp/carla \
 PYTHON_BIN=/root/autodl-tmp/conda/envs/orion-cl/bin/python \
 ROUTES_PATH=/path/to/routes.xml \
 SCENARIOS_PATH=/path/to/scenarios.json \
@@ -251,4 +268,23 @@ To reproduce the non-GPU bootstrap steps on a fresh server:
 ```bash
 PROJECT_ROOT=/root/Orion \
 bash scripts/setup_official_closedloop_assets.sh
+```
+
+## CARLA Extraction Command
+
+Once the archives finish downloading:
+
+```bash
+bash scripts/extract_official_carla_runtime.sh
+```
+
+## Py38 MMCV Build Command
+
+To build the smoke-level `mmcv._ext` needed by the isolated official
+closed-loop env:
+
+```bash
+PROJECT_ROOT=/root/Orion \
+PYTHON_BIN=/root/autodl-tmp/conda/envs/orion-cl/bin/python \
+bash scripts/build_closedloop_mmcv_ext.sh
 ```

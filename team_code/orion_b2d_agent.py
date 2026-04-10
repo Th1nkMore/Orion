@@ -18,8 +18,14 @@ import carla
 import numpy as np
 from PIL import Image
 from torchvision import transforms as T
-from Bench2DriveZoo.team_code.pid_controller import PIDController
-from Bench2DriveZoo.team_code.planner import RoutePlanner
+try:
+    from Bench2DriveZoo.team_code.pid_controller import PIDController
+    from Bench2DriveZoo.team_code.planner import RoutePlanner
+except ModuleNotFoundError:
+    # Keep the preferred upstream import path, but fall back to the vendored
+    # copies already tracked in this repo when Bench2DriveZoo is not present.
+    from team_code.pid_controller import PIDController
+    from team_code.planner import RoutePlanner
 from leaderboard.autoagents import autonomous_agent
 from mmcv import Config
 from mmcv.models import build_model 

@@ -9,6 +9,7 @@ from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtensio
 
 EXT_TYPE = 'pytorch'
 cmd_class = {'build_ext': BuildExtension}
+SKIP_POINTCLOUD_EXTS = os.getenv('ORION_SKIP_POINTCLOUD_EXTS', '0') == '1'
 
 def make_cuda_ext(name,
                   module,
@@ -178,6 +179,31 @@ def get_extensions():
 
     return extensions
 
+extra_ext_modules = get_extensions()
+if not SKIP_POINTCLOUD_EXTS:
+    extra_ext_modules += [
+        make_cuda_ext(
+            name='iou3d_cuda',
+            module='mmcv.ops.iou3d_det',
+            sources=[
+                'src/iou3d.cpp',
+                'src/iou3d_kernel.cu',
+            ]),
+        make_cuda_ext(
+            name='roiaware_pool3d_ext',
+            module='mmcv.ops.roiaware_pool3d',
+            sources=[
+                'src/roiaware_pool3d.cpp',
+                'src/points_in_boxes_cpu.cpp',
+            ],
+            sources_cuda=[
+                'src/roiaware_pool3d_kernel.cu',
+                'src/points_in_boxes_cuda.cu',
+            ]),
+    ]
+else:
+    print('Skipping point-cloud CUDA extensions because ORION_SKIP_POINTCLOUD_EXTS=1')
+
 setup(
     name='mmcv',
     version='0.0.1',
@@ -200,25 +226,6 @@ setup(
     author='MMCV Contributors',
     author_email='openmmlab@gmail.com',
     install_requires=parse_requirements(),
-    ext_modules= get_extensions() + [
-            make_cuda_ext(
-                name='iou3d_cuda',
-                module='mmcv.ops.iou3d_det',
-                sources=[
-                    'src/iou3d.cpp',
-                    'src/iou3d_kernel.cu',
-                ]),
-            make_cuda_ext(
-                name='roiaware_pool3d_ext',
-                module='mmcv.ops.roiaware_pool3d',
-                sources=[
-                    'src/roiaware_pool3d.cpp',
-                    'src/points_in_boxes_cpu.cpp',
-                ],
-                sources_cuda=[
-                    'src/roiaware_pool3d_kernel.cu',
-                    'src/points_in_boxes_cuda.cu',
-                ]),
-    ],
+    ext_modules=extra_ext_modules,
     cmdclass=cmd_class,
     zip_safe=False)

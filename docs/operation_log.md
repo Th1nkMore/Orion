@@ -13,6 +13,41 @@ development. Use it together with git history.
 
 ## 2026-04-10
 
+### Bench2Drive vs Bench2DriveZoo split correction
+
+- Corrected a repository-layout mistake in the closed-loop bootstrap flow:
+  Bench2Drive and Bench2DriveZoo must be treated as separate upstream repos.
+- Updated the bootstrap and validation scripts so:
+  - `Bench2Drive` provides `leaderboard/`, `scenario_runner/`, and route files
+  - `Bench2DriveZoo` provides the `team_code` utilities required by
+    `team_code/orion_b2d_agent.py`
+- Documented the new split explicitly in the official closed-loop runbook.
+- Added a local fallback in `team_code/orion_b2d_agent.py` so the official
+  agent can use vendored `team_code/pid_controller.py` and `team_code/planner.py`
+  when `Bench2DriveZoo.team_code` is not yet available.
+
+### Flash attention fallback and CARLA root correction
+
+- Added a runtime fallback in `mmcv/models/utils/attention.py` so the repo can
+  import and run smoke-level paths even when `flash_attn` is unavailable in the
+  isolated closed-loop env.
+- Kept the native flash-attention path when the package is installed; the
+  fallback only activates on missing dependency.
+- Added a dedicated CARLA extraction/import helper script and corrected the
+  documented `CARLA_ROOT` to the real extracted layout under
+  `/root/autodl-tmp/carla`.
+
+### Py3.8 mmcv smoke-build path
+
+- Added a controlled setup switch in `setup.py` so the isolated official
+  closed-loop env can build `mmcv._ext` without pulling in the point-cloud CUDA
+  extensions.
+- Added `scripts/build_closedloop_mmcv_ext.sh` to standardize that py3.8 build
+  step on the server.
+- Extended the environment check to attempt `team_code.orion_b2d_agent`
+  import directly, so the next closed-loop blocker is always surfaced by the
+  same validation command.
+
 ### Closed-loop environment bootstrap on `autodl`
 
 - Added a repeatable bootstrap path for the official closed-loop environment.
@@ -21,8 +56,9 @@ development. Use it together with git history.
     through pip on Python 3.11
   - a new `orion-cl` Python 3.8 env can install `carla==0.9.15`, but still
     needs the ORION runtime layer completed
-- Cloned Bench2Drive under `/root/autodl-tmp/Bench2DriveZoo` and linked it into
-  the project tree as `Bench2DriveZoo`.
+- Prepared separate upstream roots on the server:
+  - `Bench2Drive` for evaluation/runtime tooling
+  - `Bench2DriveZoo` for model helper code
 - Added automatic path injection for `leaderboard`, `scenario_runner`, and the
   project root in the isolated closed-loop env.
 - Tightened the environment check script so it validates the actual import

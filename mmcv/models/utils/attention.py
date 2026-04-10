@@ -7,6 +7,7 @@
 import math
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.nn.init import (
     xavier_uniform_,
     constant_,
@@ -16,11 +17,18 @@ from torch.nn.functional import linear
 
 from einops import rearrange
 from mmcv.utils import auto_fp16
-# for H20 flash-attn-2.7.0.post2 is ok
-from flash_attn.flash_attn_interface import flash_attn_varlen_kvpacked_func
-# for A800/A100
-# from flash_attn.flash_attn_interface import flash_attn_unpadded_kvpacked_func
-from flash_attn.bert_padding import unpad_input, pad_input, index_first_axis
+
+try:
+    # for H20 flash-attn-2.7.0.post2 is ok
+    from flash_attn.flash_attn_interface import flash_attn_varlen_kvpacked_func
+    # for A800/A100
+    # from flash_attn.flash_attn_interface import flash_attn_unpadded_kvpacked_func
+    from flash_attn.bert_padding import unpad_input, pad_input, index_first_axis
+    FLASH_ATTN_AVAILABLE = True
+except ImportError:
+    flash_attn_varlen_kvpacked_func = None
+    unpad_input = pad_input = index_first_axis = None
+    FLASH_ATTN_AVAILABLE = False
 
 
 def _in_projection_packed(q, k, v, w, b = None):
@@ -48,6 +56,31 @@ class FlashAttention(nn.Module):
         self.dropout_p = attention_dropout
         self.fp16_enabled = True
 
+    def _fallback_attention(self, q, kv, causal=False, key_padding_mask=None):
+        k = kv[:, :, 0]
+        v = kv[:, :, 1]
+        scale = self.softmax_scale or (q.shape[-1] ** -0.5)
+
+        # (B, S, H, D) -> (B, H, S, D)
+        q = q.permute(0, 2, 1, 3)
+        k = k.permute(0, 2, 1, 3)
+        v = v.permute(0, 2, 1, 3)
+
+        attn = torch.matmul(q, k.transpose(-1, -2)) * scale
+        if key_padding_mask is not None:
+            attn = attn.masked_fill(~key_padding_mask[:, None, None, :], float('-inf'))
+        if causal:
+            q_len, k_len = attn.shape[-2], attn.shape[-1]
+            causal_mask = torch.triu(
+                torch.ones(q_len, k_len, device=attn.device, dtype=torch.bool), diagonal=1)
+            attn = attn.masked_fill(causal_mask[None, None, :, :], float('-inf'))
+
+        attn = torch.softmax(attn, dim=-1)
+        if self.training and self.dropout_p > 0:
+            attn = F.dropout(attn, p=self.dropout_p)
+        output = torch.matmul(attn, v)
+        return output.permute(0, 2, 1, 3), None
+
     @auto_fp16(apply_to=('q', 'kv'), out_fp32=True)
     def forward(self, q, kv, 
                 causal=False, 
@@ -59,6 +92,9 @@ class FlashAttention(nn.Module):
             kv: The tensor containing the key, and value. (B, S, 2, H, D) 
             key_padding_mask: a bool tensor of shape (B, S)
         """
+        if not FLASH_ATTN_AVAILABLE:
+            return self._fallback_attention(q, kv, causal=causal, key_padding_mask=key_padding_mask)
+
         assert q.dtype in [torch.float16, torch.bfloat16] and kv.dtype in [torch.float16, torch.bfloat16]
         assert q.is_cuda and kv.is_cuda
         assert q.shape[0] == kv.shape[0] and q.shape[-2] == kv.shape[-2] and q.shape[-1] == kv.shape[-1]
