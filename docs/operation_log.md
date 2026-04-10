@@ -13,6 +13,21 @@ development. Use it together with git history.
 
 ## 2026-04-10
 
+### Closed-loop environment bootstrap on `autodl`
+
+- Added a repeatable bootstrap path for the official closed-loop environment.
+- Recorded the server-side compatibility split:
+  - the existing `uq` env can run ORION, but cannot install `carla==0.9.15`
+    through pip on Python 3.11
+  - a new `orion-cl` Python 3.8 env can install `carla==0.9.15`, but still
+    needs the ORION runtime layer completed
+- Cloned Bench2Drive under `/root/autodl-tmp/Bench2DriveZoo` and linked it into
+  the project tree as `Bench2DriveZoo`.
+- Added automatic path injection for `leaderboard`, `scenario_runner`, and the
+  project root in the isolated closed-loop env.
+- Tightened the environment check script so it validates the actual import
+  chain used by the official agent.
+
 ### Official open-loop reproduction gate
 
 - Recorded the decision that official CARLA closed-loop alignment must be

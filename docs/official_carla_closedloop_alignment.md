@@ -112,16 +112,47 @@ Verified on `autodl`:
 - Present:
   - `/root/Orion/team_code/orion_b2d_agent.py`
   - `/root/Orion/adzoo/orion/configs/orion_stage3_agent.py`
-- Missing from Python runtime:
-  - `carla`
-  - `leaderboard`
-  - `scenario_runner`
-- Not found on disk during quick scan:
-  - `Bench2DriveZoo`
-  - `CarlaUE4.sh`
+- Newly prepared:
+  - isolated conda env: `/root/autodl-tmp/conda/envs/orion-cl`
+  - Bench2Drive checkout: `/root/autodl-tmp/Bench2DriveZoo`
+  - project link: `/root/Orion/Bench2DriveZoo -> /root/autodl-tmp/Bench2DriveZoo`
+  - `carla==0.9.15` installed inside `orion-cl`
+  - path injection for:
+    - `/root/Orion`
+    - `/root/Orion/Bench2DriveZoo/leaderboard`
+    - `/root/Orion/Bench2DriveZoo/scenario_runner`
+  - background downloads started:
+    - `/root/autodl-tmp/carla/CARLA_0.9.15.tar.gz`
+    - `/root/autodl-tmp/carla/AdditionalMaps_0.9.15.tar.gz`
+- Still missing / unresolved:
+  - extracted CARLA runtime (`CarlaUE4.sh` not yet available)
+  - the `agents` package that comes from the extracted CARLA PythonAPI tree
+  - ORION runtime parity inside `orion-cl` (`torch` / `torchvision` / repo runtime layer)
 
-This means the current blocker is environment alignment, not missing ORION-side
-agent code.
+This means the current blocker has moved from "missing external closed-loop
+assets" to "finishing the isolated runtime stack".
+
+## Compatibility Notes From The Current Server
+
+Observed on `autodl`:
+
+- The working ORION env `uq` uses Python 3.11 and can run the repository's
+  current open-loop path.
+- However, pip on that env only exposes `carla` versions `0.9.16` and `0.9.5`;
+  `carla==0.9.15` is not available there.
+- The isolated Python 3.8 env `orion-cl` can install `carla==0.9.15`, which is
+  the version expected by Bench2Drive.
+- The repo already contains compiled `mmcv` extensions for CPython 3.10 and
+  3.11, but not for 3.8.
+- The server currently has no `nvcc`, so a native CUDA rebuild for Python 3.8
+  is not immediately available.
+
+Implication:
+
+- Keep using `uq` for ongoing open-loop reproduction.
+- Use `orion-cl` for the official closed-loop compatibility layer.
+- Expect one more integration step before the official agent can run end to end
+  inside `orion-cl`.
 
 ## Known Code-Level Gap For R2-A
 
@@ -205,9 +236,19 @@ With explicit locations:
 
 ```bash
 PROJECT_ROOT=/root/Orion \
-BENCH2DRIVE_ROOT=/root/Bench2DriveZoo \
-CARLA_ROOT=/root/CARLA_0.9.x \
+BENCH2DRIVE_ROOT=/root/Orion/Bench2DriveZoo \
+CARLA_ROOT=/root/autodl-tmp/carla/CARLA_0.9.15 \
+PYTHON_BIN=/root/autodl-tmp/conda/envs/orion-cl/bin/python \
 ROUTES_PATH=/path/to/routes.xml \
 SCENARIOS_PATH=/path/to/scenarios.json \
 bash scripts/check_official_closedloop_env.sh
+```
+
+## Bootstrap Command
+
+To reproduce the non-GPU bootstrap steps on a fresh server:
+
+```bash
+PROJECT_ROOT=/root/Orion \
+bash scripts/setup_official_closedloop_assets.sh
 ```
