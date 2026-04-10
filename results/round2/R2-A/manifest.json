@@ -1,0 +1,14 @@
+{
+  "exp_id": "R2-A",
+  "project_root": "/root/Orion",
+  "config_path": "adzoo/orion/configs/orion_stage3_infer.py",
+  "orion_ckpt": "ckpts/Orion.pth",
+  "ann_file": "data/infos/b2d_infos_val.pkl",
+  "train_out": "checkpoints/film_round2/R2-A.pt",
+  "open_out": "results/round2/R2-A/openloop.pt",
+  "closed_out": "results/round2/R2-A/closedloop.json",
+  "train_env_vars": "USE_FILM_L1L2=1",
+  "train_extra_args": "--epochs 3 --lr 1e-3 --max-samples 3000 --lambda-col 0.5 --col-margin 4.0",
+  "open_extra_args": "",
+  "closed_extra_args": "--max-scenarios 50"
+}
