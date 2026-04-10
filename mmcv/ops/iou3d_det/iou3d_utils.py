@@ -1,6 +1,12 @@
 import torch
 
-from . import iou3d_cuda
+try:
+    from . import iou3d_cuda
+except ImportError:
+    iou3d_cuda = None
+    from mmcv.ops.iou3d import (boxes_iou_bev as boxes_iou_bev_ext,
+                                nms_bev as nms_bev_ext,
+                                nms_normal_bev as nms_normal_bev_ext)
 
 
 def boxes_iou_bev(boxes_a, boxes_b):
@@ -13,12 +19,13 @@ def boxes_iou_bev(boxes_a, boxes_b):
     Returns:
         ans_iou (torch.Tensor): IoU result with shape (M, N).
     """
+    if iou3d_cuda is None:
+        return boxes_iou_bev_ext(boxes_a, boxes_b)
+
     ans_iou = boxes_a.new_zeros(
         torch.Size((boxes_a.shape[0], boxes_b.shape[0])))
-
     iou3d_cuda.boxes_iou_bev_gpu(boxes_a.contiguous(), boxes_b.contiguous(),
                                  ans_iou)
-
     return ans_iou
 
 
@@ -36,6 +43,14 @@ def nms_gpu(boxes, scores, thresh, pre_maxsize=None, post_max_size=None):
     Returns:
         torch.Tensor: Indexes after nms.
     """
+    if iou3d_cuda is None:
+        return nms_bev_ext(
+            boxes,
+            scores,
+            thresh,
+            pre_max_size=pre_maxsize,
+            post_max_size=post_max_size)
+
     order = scores.sort(0, descending=True)[1]
 
     if pre_maxsize is not None:
@@ -61,6 +76,9 @@ def nms_normal_gpu(boxes, scores, thresh):
     Returns:
         torch.Tensor: Remaining indices with scores in descending order.
     """
+    if iou3d_cuda is None:
+        return nms_normal_bev_ext(boxes, scores, thresh)
+
     order = scores.sort(0, descending=True)[1]
 
     boxes = boxes[order].contiguous()

@@ -34,7 +34,14 @@ fi
 ln -sfn "${CARLA_MAPS_ARCHIVE}" "${CARLA_DOWNLOAD_ROOT}/Import/AdditionalMaps_0.9.15.tar.gz"
 
 echo "[SETUP] import AdditionalMaps"
+set +o pipefail
 yes | bash "${CARLA_DOWNLOAD_ROOT}/ImportAssets.sh"
+import_status=$?
+set -o pipefail
+if [[ "${import_status}" -ne 0 && "${import_status}" -ne 141 ]]; then
+  echo "[FAIL] ImportAssets.sh exited with ${import_status}" >&2
+  exit "${import_status}"
+fi
 
 echo "== Result =="
 echo "CARLA_ROOT=${CARLA_DOWNLOAD_ROOT}"

@@ -137,6 +137,40 @@ Verified on `autodl`:
 This means the current blocker has moved from "missing external closed-loop
 assets" to "finishing the isolated runtime stack".
 
+## Current Runtime Blocker On `autodl`
+
+The Python/import side of the official closed-loop stack is now in place, but
+the actual CARLA runtime still cannot start on the current `autodl` container.
+
+Observed facts:
+
+- CARLA no longer fails on the old root-user restriction once it is launched as
+  the dedicated `carla` user.
+- `scripts/check_official_closedloop_env.sh` passes when it only checks imports
+  and filesystem layout.
+- `CarlaUE4-Linux-Shipping` still exits immediately before exposing the RPC
+  port, even after the expected `~/.config/Epic/CarlaUE4/...` directories are
+  created for the `carla` user.
+- `vulkaninfo --summary` currently reports only `llvmpipe` on this server.
+- Forcing the NVIDIA ICD directly still fails with:
+
+```text
+vkCreateInstance failed with ERROR_INCOMPATIBLE_DRIVER
+```
+
+- This failure persists even when newer NVIDIA user-space packages are unpacked
+  into an isolated prefix and forced via `LD_LIBRARY_PATH` plus
+  `VK_ICD_FILENAMES`.
+
+Interpretation:
+
+- The remaining blocker is no longer ORION code, Bench2Drive layout, or the
+  Python 3.8 env.
+- The blocker is the container-level NVIDIA Vulkan runtime exposed by the
+  current server image.
+- Until `vulkaninfo --summary` shows a real NVIDIA GPU instead of llvmpipe, the
+  official CARLA smoke path should be considered blocked on infrastructure.
+
 ## Compatibility Notes From The Current Server
 
 Observed on `autodl`:
@@ -261,6 +295,18 @@ SCENARIOS_PATH=/path/to/scenarios.json \
 bash scripts/check_official_closedloop_env.sh
 ```
 
+To include the CARLA runtime gate as part of the validation:
+
+```bash
+PROJECT_ROOT=/root/Orion \
+BENCH2DRIVE_ROOT=/root/Orion/Bench2Drive \
+BENCH2DRIVE_ZOO_ROOT=/root/Orion/Bench2DriveZoo \
+CARLA_ROOT=/root/autodl-tmp/carla \
+PYTHON_BIN=/root/autodl-tmp/conda/envs/orion-cl/bin/python \
+RUN_VULKAN_RUNTIME_CHECK=1 \
+bash scripts/check_official_closedloop_env.sh
+```
+
 ## Bootstrap Command
 
 To reproduce the non-GPU bootstrap steps on a fresh server:
@@ -288,3 +334,53 @@ PROJECT_ROOT=/root/Orion \
 PYTHON_BIN=/root/autodl-tmp/conda/envs/orion-cl/bin/python \
 bash scripts/build_closedloop_mmcv_ext.sh
 ```
+
+## Vulkan Runtime Check
+
+To validate the actual graphics/runtime layer before trying to start CARLA:
+
+```bash
+bash scripts/check_official_carla_vulkan.sh
+```
+
+If you unpack an alternate NVIDIA user-space prefix without touching `/usr`,
+use:
+
+```bash
+NVIDIA_RUNTIME_PREFIX=/root/autodl-tmp/nvidia580/root \
+bash scripts/check_official_carla_vulkan.sh
+```
+
+## One-Route Smoke Command
+
+Once the environment check passes and a CARLA server is already running on the
+matching port, launch a one-route official smoke evaluation with:
+
+```bash
+PROJECT_ROOT=/root/Orion \
+BENCH2DRIVE_ROOT=/root/Orion/Bench2Drive \
+BENCH2DRIVE_ZOO_ROOT=/root/Orion/Bench2DriveZoo \
+CARLA_ROOT=/root/autodl-tmp/carla \
+PYTHON_BIN=/root/autodl-tmp/conda/envs/orion-cl/bin/python \
+PORT=30000 \
+TM_PORT=50000 \
+GPU_RANK=0 \
+TASK_ID=0 \
+bash scripts/run_official_closedloop_smoke.sh
+```
+
+Notes:
+
+- The smoke launcher standardizes:
+  - absolute `TEAM_AGENT`
+  - absolute `TEAM_CONFIG`
+  - one-route XML splitting from `bench2drive220.xml`
+  - output placement under `results/closedloop_official_smoke/`
+- The smoke launcher calls `leaderboard_evaluator.py` directly instead of
+  forwarding through Bench2Drive's `run_evaluation.sh`, because that helper
+  hardcodes the `carla-0.9.15-py3.7` egg path while the isolated official env
+  here is Python 3.8 with `carla==0.9.15` installed from pip.
+- The smoke launcher now runs a Vulkan precheck by default and stops early if
+  the machine only exposes `llvmpipe` or cannot create a Vulkan instance from
+  the NVIDIA ICD.
+- It does not start `CarlaUE4.sh`; bring up CARLA separately first.

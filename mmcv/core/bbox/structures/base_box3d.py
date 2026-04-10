@@ -5,7 +5,22 @@ from abc import abstractmethod
 
 # from mmcv.ops.iou3d import iou3d_cuda
 from .utils import limit_period, xywhr2xyxyr
-from mmcv.ops.iou3d_det import iou3d_cuda
+try:
+    from mmcv.ops.iou3d_det import iou3d_cuda
+except ImportError:
+    from mmcv.utils import ext_loader
+
+    _iou3d_ext = ext_loader.load_ext(
+        '_ext', ['iou3d_boxes_overlap_bev_forward'])
+
+    class _IoU3dCudaAdapter:
+
+        @staticmethod
+        def boxes_overlap_bev_gpu(boxes_a, boxes_b, overlaps_bev):
+            _iou3d_ext.iou3d_boxes_overlap_bev_forward(
+                boxes_a.contiguous(), boxes_b.contiguous(), overlaps_bev)
+
+    iou3d_cuda = _IoU3dCudaAdapter()
 
 
 class BaseInstance3DBoxes(object):

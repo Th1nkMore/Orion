@@ -48,6 +48,47 @@ development. Use it together with git history.
   import directly, so the next closed-loop blocker is always surfaced by the
   same validation command.
 
+### Official one-route smoke launcher
+
+- Added `scripts/run_official_closedloop_smoke.sh` to lock down the first
+  paper-aligned online smoke command shape against Bench2Drive's
+  `leaderboard_evaluator.py`.
+- Standardized absolute `TEAM_AGENT` / `TEAM_CONFIG` wiring for ORION so the
+  smoke path does not depend on the current working directory.
+- Standardized one-route XML splitting from `bench2drive220.xml` and output
+  placement under `results/closedloop_official_smoke/`.
+- Avoided Bench2Drive's `run_evaluation.sh` helper for the smoke path because
+  it hardcodes the `carla-0.9.15-py3.7` egg, which conflicts with the isolated
+  Python 3.8 official env used on `autodl`.
+
+### Runtime import cleanup for the official path
+
+- Removed an unused `IPython` import from
+  `mmcv/datasets/samplers/group_sampler.py` so the official agent import path
+  does not depend on a debug-only package.
+- Added fallback bridges from legacy `iou3d_det` / `roiaware_pool3d` modules to
+  the py3.8 `mmcv._ext` build, which keeps the official smoke path moving
+  without rebuilding the old standalone point-cloud extensions.
+
+### Vulkan runtime gating for official CARLA smoke
+
+- Added `scripts/check_official_carla_vulkan.sh` to validate whether the
+  current machine exposes a usable GPU Vulkan runtime for CARLA instead of
+  silently falling back to Mesa llvmpipe.
+- Extended `scripts/check_official_closedloop_env.sh` with an opt-in
+  `RUN_VULKAN_RUNTIME_CHECK=1` gate so the import/layout check can also enforce
+  the graphics-runtime prerequisite.
+- Updated `scripts/run_official_closedloop_smoke.sh` to run the Vulkan gate
+  before launching `leaderboard_evaluator.py`, which prevents misleading smoke
+  failures when the server cannot create a valid NVIDIA Vulkan instance.
+- Recorded the current `autodl` blocker in the runbook:
+  - ORION imports and official agent wiring are ready
+  - CARLA still cannot start because the container only exposes llvmpipe and
+    the NVIDIA ICD returns `ERROR_INCOMPATIBLE_DRIVER`
+  - even an isolated unpacked NVIDIA user-space prefix does not change that
+    outcome, which points to an infrastructure/runtime issue rather than a repo
+    code issue
+
 ### Closed-loop environment bootstrap on `autodl`
 
 - Added a repeatable bootstrap path for the official closed-loop environment.

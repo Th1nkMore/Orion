@@ -3,7 +3,13 @@ import torch
 from torch import nn as nn
 from torch.autograd import Function
 
-from . import roiaware_pool3d_ext
+try:
+    from . import roiaware_pool3d_ext
+except ImportError:
+    roiaware_pool3d_ext = None
+    from mmcv.utils import ext_loader
+    ext_module = ext_loader.load_ext(
+        '_ext', ['roiaware_pool3d_forward', 'roiaware_pool3d_backward'])
 
 
 class RoIAwarePool3d(nn.Module):
@@ -80,8 +86,14 @@ class RoIAwarePool3dFunction(Function):
             (num_rois, out_x, out_y, out_z, max_pts_per_voxel),
             dtype=torch.int)
 
-        roiaware_pool3d_ext.forward(rois, pts, pts_feature, argmax,
-                                    pts_idx_of_voxels, pooled_features, mode)
+        if roiaware_pool3d_ext is None:
+            ext_module.roiaware_pool3d_forward(
+                rois, pts, pts_feature, argmax, pts_idx_of_voxels,
+                pooled_features, mode)
+        else:
+            roiaware_pool3d_ext.forward(rois, pts, pts_feature, argmax,
+                                        pts_idx_of_voxels, pooled_features,
+                                        mode)
 
         ctx.roiaware_pool3d_for_backward = (pts_idx_of_voxels, argmax, mode,
                                             num_pts, num_channels)
@@ -100,8 +112,13 @@ class RoIAwarePool3dFunction(Function):
         pts_idx_of_voxels, argmax, mode, num_pts, num_channels = ret
 
         grad_in = grad_out.new_zeros((num_pts, num_channels))
-        roiaware_pool3d_ext.backward(pts_idx_of_voxels, argmax,
-                                     grad_out.contiguous(), grad_in, mode)
+        if roiaware_pool3d_ext is None:
+            ext_module.roiaware_pool3d_backward(
+                pts_idx_of_voxels, argmax, grad_out.contiguous(), grad_in,
+                mode)
+        else:
+            roiaware_pool3d_ext.backward(pts_idx_of_voxels, argmax,
+                                         grad_out.contiguous(), grad_in, mode)
 
         return None, None, grad_in, None, None, None
 

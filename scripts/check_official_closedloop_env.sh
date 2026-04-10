@@ -16,6 +16,9 @@ ROUTES_PATH="${ROUTES_PATH:-}"
 SCENARIOS_PATH="${SCENARIOS_PATH:-}"
 PYTHON_BIN="${PYTHON_BIN:-python}"
 RUN_AGENT_IMPORT_CHECK="${RUN_AGENT_IMPORT_CHECK:-1}"
+RUN_VULKAN_RUNTIME_CHECK="${RUN_VULKAN_RUNTIME_CHECK:-0}"
+NVIDIA_RUNTIME_PREFIX="${NVIDIA_RUNTIME_PREFIX:-}"
+VULKANINFO_BIN="${VULKANINFO_BIN:-vulkaninfo}"
 
 status=0
 
@@ -39,13 +42,6 @@ build_pythonpath() {
   if [[ -n "${CARLA_ROOT}" ]]; then
     path_parts+=("${CARLA_ROOT}/PythonAPI")
     path_parts+=("${CARLA_ROOT}/PythonAPI/carla")
-    if [[ -d "${CARLA_ROOT}/PythonAPI/carla/dist" ]]; then
-      local egg_path
-      egg_path="$(find "${CARLA_ROOT}/PythonAPI/carla/dist" -maxdepth 1 -name 'carla-*.egg' | head -n 1)"
-      if [[ -n "${egg_path}" ]]; then
-        path_parts+=("${egg_path}")
-      fi
-    fi
   fi
 
   local joined=""
@@ -84,10 +80,14 @@ echo "CARLA_ROOT=${CARLA_ROOT:-<unset>}"
 echo "ROUTES_PATH=${ROUTES_PATH:-<unset>}"
 echo "SCENARIOS_PATH=${SCENARIOS_PATH:-<unset>}"
 echo "PYTHON_BIN=${PYTHON_BIN}"
+echo "RUN_VULKAN_RUNTIME_CHECK=${RUN_VULKAN_RUNTIME_CHECK}"
 
 check_path "project root" "${PROJECT_ROOT}"
 check_path "official agent" "${PROJECT_ROOT}/team_code/orion_b2d_agent.py"
 check_path "agent config" "${PROJECT_ROOT}/adzoo/orion/configs/orion_stage3_agent.py"
+if [[ "${RUN_VULKAN_RUNTIME_CHECK}" == "1" ]]; then
+  check_path "vulkan runtime checker" "${PROJECT_ROOT}/scripts/check_official_carla_vulkan.sh"
+fi
 
 check_python_snippet "carla" "import carla"
 check_python_snippet "leaderboard.autoagents.autonomous_agent" \
@@ -130,6 +130,18 @@ if [[ -n "${SCENARIOS_PATH}" ]]; then
   check_path "scenarios file" "${SCENARIOS_PATH}"
 else
   echo "[INFO] SCENARIOS_PATH unset: Bench2Drive route XML may be sufficient for smoke tests."
+fi
+
+if [[ "${RUN_VULKAN_RUNTIME_CHECK}" == "1" ]]; then
+  if NVIDIA_RUNTIME_PREFIX="${NVIDIA_RUNTIME_PREFIX}" \
+     VULKANINFO_BIN="${VULKANINFO_BIN}" \
+     "${PROJECT_ROOT}/scripts/check_official_carla_vulkan.sh" >/tmp/orion_vulkan_check.log 2>&1; then
+    printf '[OK] vulkan runtime: usable for CARLA\n'
+  else
+    printf '[MISS] vulkan runtime: unusable for CARLA\n'
+    sed -n '1,80p' /tmp/orion_vulkan_check.log
+    status=1
+  fi
 fi
 
 echo "== Result =="
