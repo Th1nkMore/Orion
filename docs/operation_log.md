@@ -13,6 +13,19 @@ development. Use it together with git history.
 
 ## 2026-04-10
 
+### Server release handover and artifact split
+
+- Added a dedicated shutdown/migration handover document for releasing the
+  current server instance.
+- Recorded the current reproducibility boundary:
+  - internal round-2 open-loop is reproducible locally from synced outputs
+  - upstream-style official open-loop was reproduced on the server
+  - official CARLA closed-loop remains blocked by provider runtime/Vulkan
+- Recorded the artifact policy split:
+  - keep code/docs on `dev`
+  - preserve generated outputs on a dedicated artifact branch instead of
+    polluting the main development branch
+
 ### Bench2Drive vs Bench2DriveZoo split correction
 
 - Corrected a repository-layout mistake in the closed-loop bootstrap flow:
