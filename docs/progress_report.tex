@@ -197,6 +197,15 @@ FiLM（Feature-wise Linear Modulation）通过 $\text{output} = \gamma \odot \te
 
 这两个缺陷相互叠加，导致现有 FiLM 方案的本质是``全局风格迁移''而非``空间感知的安全规划''。后续工作针对这两点分别设计修复方案（见第~\ref{sec:nextsteps}节）。
 
+\subsection{伪标签设计的自洽性}
+
+伪标签基于 patch token 统计特征（max\_mean/cosim/entropy）计算，UQEstimator 也以相同特征为输入，二者存在\textbf{部分特征重用}。但以下三点保证了结论的自洽性：
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{结构学习独立于规则}：UQEstimator 新增 2 层 TransformerDecoder（16 个 learnable queries，cross-attention），学到统计规则之外的空间结构信息；伪标签为手工加权组合，模型为学习映射，并非同一函数
+    \item \textbf{外部验证独立}：AUROC=0.954 使用 weather-based scene\_type 分类（天气 ID 0-3），该分类完全独立于伪标签生成中使用的统计权重——AUROC 是对天气感知能力的独立验证，而非循环验证
+    \item \textbf{迭代进步可追溯}：v1→v3 的 AUROC 迭代（0.621→0.601→0.954）中，v3 改进主要来源于 scene\_type 分类修正（19.4\% 样本重新对齐），而非统计特征过拟合
+\end{enumerate}
+
 \subsection{损失函数设计}
 
 \textbf{UQEstimator 训练}：
@@ -248,7 +257,7 @@ Stage 0 & 特征提取（EVAViT） & \textcolor{okgreen}{\textbf{完成}} & 12,8
 Stage 1a & 伪标签生成（v3） & \textcolor{okgreen}{\textbf{完成}} & AUROC 0.954 \\
 Stage 1b & UQEstimator 训练 & \textcolor{okgreen}{\textbf{完成}} & Spearman $\rho$=0.97 \\
 Stage 2a & 开环评估 + UQ hook & \textcolor{okgreen}{\textbf{完成}} & 12,806 样本全量 \\
-Stage 2b & FiLM L1/L2/L1+L2 训练 & \textcolor{okgreen}{\textbf{完成}} & 3 组权重 \\
+Stage 2b & FiLM L1/L2/L1+L2 训练 & \textcolor{okgreen}{\textbf{完成}} & Normal ADE +116\%，Score-Gated 代码完成待重训 \\
 Stage 3 & 碰撞感知 FiLM 训练 & \textcolor{okgreen}{\textbf{完成}} & Col$-$21\% \\
 Stage 4 & 50 场景闭环评估 & \textcolor{okgreen}{\textbf{完成}} & 含 Baseline 对照 \\
 可视化 & 5 张图 + 18 个 GIF & \textcolor{okgreen}{\textbf{完成}} & 论文级可视化 \\
@@ -305,6 +314,35 @@ Q5 & 16GB 能否仅加载 EVAViT + QT-Former？ & 本地无 checkpoint，两种�
 
 \subsection{实验结果}
 
+\subsubsection{天气分类判定依据}
+
+Normal / Adverse 的划分由 \texttt{eval\_openloop.py} 硬编码，规则为：Weather ID $\in \{0,1,2,3\}$ → Normal，其余 → Adverse。Weather ID 直接解析自 B2D 数据集的文件夹命名后缀（\texttt{\_WeatherN}）。
+
+\begin{table}[H]
+\centering
+\caption{B2D 验证集完整天气 ID 映射}
+\small
+\begin{tabular}{ccll}
+\toprule
+\textbf{类别} & \textbf{ID} & \textbf{天气名称} & \textbf{说明} \\
+\midrule
+\multirow{4}{*}{Normal} & 0 & ClearNoon & 晴天正午 \\
+ & 1 & ClearSunset & 晴天傍晚 \\
+ & 2 & CloudyNoon & 多云正午 \\
+ & 3 & CloudySunset & 多云傍晚 \\
+\midrule
+\multirow{4}{*}{Adverse} & 5--14 & Wet*/MidRain*/HardRain*/SoftRain* & 湿路面、中雨、暴雨、小雨（正午/傍晚各 5 种）\\
+ & 15 & ClearNight & \textbf{晴天夜间}（无降水，但低光照，UQ$\approx$0.235）\\
+ & 18--23 & Cloudy/Wet/MidRainy/HardRain/SoftRain Night & 多云至暴雨夜间 6 种 \\
+ & 25--26 & FoggyNoon / FoggySunset & 雾天正午/傍晚 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+验证集共 12,806 帧：Normal 2,709 帧（21.2\%），Adverse 10,097 帧（78.8\%），共 23 种天气（ID 4、16、17、24 在验证集中不存在）。
+
+\textbf{边界说明}：CloudyNoon / CloudySunset（ID 2/3）归为 Normal，因无任何降水/雾/夜间参数，视觉降质可忽略；ClearNight（ID 15）归为 Adverse，因低光照对感知质量有实质影响（UQ score 约 0.235，介于 Normal 和强降雨场景之间）。
+
 \subsubsection{UQ Score 分离度（v3，weather-based 分类）}
 
 \begin{table}[H]
@@ -344,9 +382,13 @@ MidRainSunset & Adverse & 0.997 & 极端退化 \\
 
 \subsubsection{闭环评估结果（50 场景，修复 init\_weights 后）}
 
+\begin{issuebox}[评估方式说明：回放式闭环（非真实 CARLA 仿真）]
+本节所有指标来自\textbf{回放式闭环评估}（Replay-Based）：从 B2D 预录数据中选 50 条路线，逐帧推理并与 GT 比对，\textbf{无真实仿真器反馈}。与真实 CARLA 仿真的主要区别：(1) 无反馈回路，模型行为不改变后续观测；(2) 始终用 GT ego pose，不累积位置漂移；(3) 碰撞基于 GT occupancy grid，不含 sensor 噪声；(4) 其他 agent 按录制回放，不响应 ego 行为。ADE/碰撞指标反映与 GT 的系统性偏差，不能直接等同于真实驾驶安全指标。
+\end{issuebox}
+
 \begin{table}[H]
 \centering
-\caption{闭环评估：Baseline vs FiLM v3（50 场景）}
+\caption{闭环评估：Baseline vs FiLM v3（50 场景，回放式）}
 \label{tab:closedloop}
 \begin{tabular}{lccr}
 \toprule
@@ -421,7 +463,19 @@ Col@3s & \textbf{0.01\%} & \textbf{1.61\%} & $\mathbf{161\times}$ \\
 \textbf{设计方案}：Score-Gated FiLM（见第~\ref{sec:nextsteps}节）。
 \end{issuebox}
 
-\subsection{问题 4：FiLM 的``保守捷径''现象}
+\subsection{问题 4b：评估体系约束}
+
+\begin{issuebox}[类型：范围约束 \quad 状态：\textcolor{warncolor}{需论文正面交代}]
+本报告所有闭环指标均来自\textbf{回放式闭环评估}（见第~\ref{sec:limitation}节说明）。主要约束：
+\begin{enumerate}[leftmargin=2em]
+    \item ADE/碰撞改善在真实 CARLA 仿真中的泛化性\textbf{未经验证}
+    \item 50 场景碰撞率均值受个别场景影响大（部分 0\%，少数高达 11.25\%）
+    \item Normal 场景 ADE 退化（+116\%）尚未修复，Score-Gated checkpoint 待重训
+\end{enumerate}
+这些约束应在论文中正面交代，并将真实 CARLA 闭环验证作为 Future Work 列出。
+\end{issuebox}
+
+\subsection{问题 5：FiLM 的``保守捷径''现象}
 
 \begin{issuebox}[严重性：中 \quad 状态：\textcolor{warncolor}{需第二轮训练解决}]
 \textbf{现象}：碰撞感知训练使模型全面趋于保守（Brake MAE +129\%，Throttle MAE +74\%），通过``更慢、更停、更让''降低碰撞率，而非更智能的避障。
@@ -706,5 +760,25 @@ UQ-ORION 项目第一阶段已完成核心验证：UQEstimator 在恶劣天气�
 Phase $-$1 可行性验证（5 项中 4 项已完成）发现并修正了若干关键计划假设：BEV query 为 600+300 个 learned embedding（非 $30 \times 30$ 网格），须用 k-NN 替代双线性采样；\texttt{poses\_cls} 为 sigmoid scores（非 softmax logits），须用乘法门控替代 logit 减法；同时确认了 plan anchor 空间多样性充分（88.9\% pair IoU $< 0.5$）、UQ score 高度双峰（Score-Gated FiLM 可行）、Flash Attention 有明确缓解方案。
 
 第二阶段以此为切入点，提出修正后的 BEV 不确定性热力图方案，将感知可靠性空间化，直接指导轨迹模式选择。该方案的核心计算链路（EVAViT + QT-Former + 图像统计量）不依赖 LLM，可在现有 16GB 本地设备上完整运行。消融实验扩展至 7 组（新增 G 组：Score-Gated FiLM + Global Penalty），以更严格地验证空间 BEV cost 的独立贡献。需申请 A100 资源的部分（FiLM 重训、大规模闭环评估）预计总 GPU 时间约 103 小时。预计 6--7 周内可完成论文初稿。
+
+\subsection*{结论可信度汇总}
+
+\begin{table}[H]
+\centering
+\caption{关键结论可信度评估}
+\begin{tabular}{p{6.5cm}p{4.5cm}c}
+\toprule
+\textbf{结论} & \textbf{证据} & \textbf{可信度} \\
+\midrule
+UQ score 能区分 Normal vs Adverse 天气 & AUROC=0.954，Gap=0.870 & \textcolor{okgreen}{\textbf{高}} \\
+恶劣天气碰撞率显著高于正常天气 & 161$\times$ 差距，50 场景回放对比 & \textcolor{okgreen}{\textbf{高}} \\
+FiLM 调制降低了回放碰撞率 21\% & 50 场景，Baseline vs FiLM v3 & \textcolor{warncolor}{\textbf{中}}（回放式，非真实闭环）\\
+FiLM 调制导致 ADE 退化 +80\% & 50 场景，含 Normal +116\% & \textcolor{okgreen}{\textbf{高}} \\
+Normal ADE 退化由 LayerNorm 引起 & 代码分析 + 理论推导 & \textcolor{warncolor}{\textbf{中}}（未实验验证）\\
+Score-Gated FiLM 能修复 Normal ADE & 理论推导（score=0 时恒等）& \textcolor{alertred}{\textbf{低}}（checkpoint 未重训）\\
+BEV IPM 能区分场景感知质量 & 2 场景，$\Delta=+0.139$ & \textcolor{warncolor}{\textbf{中}}（样本量小）\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \end{document}

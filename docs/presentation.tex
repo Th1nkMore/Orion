@@ -16,6 +16,7 @@
 \usepackage{tikz}
 \usepackage{appendixnumberbeamer}
 \usepackage{multicol}
+\usepackage{array}           % >{\bfseries}r column spec
 \usepackage[normalem]{ulem}  % \sout{} for strikethrough
 
 \usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
@@ -125,7 +126,8 @@ Col@3s & 0.01\% & 1.61\% & $161\times$ \\
 \end{alertblock}
 
 \vspace{0.3em}
-{\small \textcolor{gray}{数据来源：Bench2Drive 验证集，12,806 个样本}}
+{\small \textcolor{gray}{数据来源：Bench2Drive 验证集，12,806 个样本（开环评估）}}\\
+{\scriptsize \textcolor{gray}{\textbf{Adverse 判定}：Weather ID $\notin \{0,1,2,3\}$，即非 ClearNoon/ClearSunset/CloudyNoon/CloudySunset 的所有条件（含晴天夜间 ClearNight）均归为 Adverse（共 19 种，10,097 帧）。}}
 \end{frame}
 
 % ============================================================
@@ -400,7 +402,7 @@ Adverse ADE@3s & 2.37m & 4.00m & +69\% \\
 \end{tabular}
 \end{table}
 
-\vspace{0.3em}
+\vspace{0.2em}
 
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
@@ -415,10 +417,13 @@ Adverse ADE@3s & 2.37m & 4.00m & +69\% \\
 \begin{itemize}
     \item Normal ADE +116\%
     \item 根因：FiLM 未做 score 门控
-    \item 修复方案已设计
+    \item Score-Gated 代码完成，\textbf{待重训}
 \end{itemize}
 \end{column}
 \end{columns}
+
+\vspace{0.2em}
+{\scriptsize \textcolor{gray}{注：\textbf{回放式闭环}评估（Replay-Based），非真实 CARLA 仿真。模型行为不影响后续帧，始终使用 GT ego pose，碰撞基于 GT occupancy grid 计算。指标反映系统性偏差，不等于真实驾驶安全指标。}}
 \end{frame}
 
 % ============================================================
@@ -826,6 +831,11 @@ w/o calibration & 仅 MSE+rank \\
     \vspace{0.3em}
     \item \textbf{轻量侧信道注入}：参数增量 $<$ 0.5M，适用于任意冻结的端到端驾驶模型
 \end{enumerate}
+
+\vspace{0.3em}
+\begin{block}{评估范围说明}
+\small 闭环指标均来自\textbf{回放式闭环}（非真实 CARLA 仿真）。碰撞 $-$21\% 在真实仿真中的泛化性待验证。UQ 伪标签与模型输入存在部分特征重用，已通过独立 weather-based AUROC 验证（0.954）。
+\end{block}
 
 \end{frame}
 

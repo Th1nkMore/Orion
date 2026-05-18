@@ -257,6 +257,8 @@ python scripts/train_film.py --config ... --film-mode l1l2 --epochs 3 --lr 1e-3 
 
 **权重验证**：所有 checkpoint 的 gamma_bias ≈ 1, beta_bias ≈ 0（接近 identity），标准差 ~0.02（有效但保守的调制）。
 
+**当前状态**：代码完成，L1+L2+碰撞感知 checkpoint（`best_l1l2_col_v3.pt`）可用，但 Normal ADE 退化 +116%，根因已定位（embed_head LayerNorm 破坏 Score-Gate），Score-Gated FiLM 代码已完成，**checkpoint 未重训**，修复效果待实验验证。
+
 **初步开环评估（500 样本）**：
 - FiLM L1 vs Baseline: L2@3s 1.885m vs 1.916m（改善 1.6%）
 - UQ Spearman 相关性: -0.291 vs -0.276（提升）
@@ -306,14 +308,60 @@ python scripts/eval_closedloop_replay.py \
 
 ### 3.1 天气分类
 
-CARLA 场景按天气 ID 分为两类：
+#### 判定方式
 
-| 类别 | 天气 ID | 包含场景 | 样本数 |
-|------|---------|----------|--------|
-| Normal | 0-3 | ClearNoon, ClearSunset, CloudyNoon, CloudySunset | 2,709 |
-| Adverse | 5-26 | 雨、雾、夜间、湿路面及其组合 | 10,097 |
+Weather ID 直接来自 B2D 数据集的**文件夹命名**（后缀 `_WeatherN`），由 `eval_openloop.py` 的 `parse_weather_id()` 函数解析，规则硬编码为：
 
-**为什么这样划分**：Weather 0-3 是标准白天晴/多云场景，视觉条件良好；其余场景均包含不同程度的视觉降质（雨滴、雾气、低光照、路面反光）。
+```python
+NORMAL_WEATHER_IDS = {0, 1, 2, 3}   # eval_openloop.py:34
+def is_adverse(weather_id: int) -> bool:
+    return weather_id not in NORMAL_WEATHER_IDS
+```
+
+#### 完整 Weather ID 映射
+
+| 类别 | Weather ID | 天气名称 | 说明 |
+|------|-----------|---------|------|
+| **Normal** | 0 | ClearNoon | 晴天正午 |
+| **Normal** | 1 | ClearSunset | 晴天傍晚 |
+| **Normal** | 2 | CloudyNoon | 多云正午 |
+| **Normal** | 3 | CloudySunset | 多云傍晚 |
+| Adverse | 5 | WetNoon | 湿路面正午 |
+| Adverse | 6 | WetSunset | 湿路面傍晚 |
+| Adverse | 7 | MidRainyNoon | 中雨正午 |
+| Adverse | 8 | MidRainSunset | 中雨傍晚 |
+| Adverse | 9 | WetCloudyNoon | 湿路多云正午 |
+| Adverse | 10 | WetCloudySunset | 湿路多云傍晚 |
+| Adverse | 11 | HardRainNoon | 暴雨正午 |
+| Adverse | 12 | HardRainSunset | 暴雨傍晚 |
+| Adverse | 13 | SoftRainNoon | 小雨正午 |
+| Adverse | 14 | SoftRainSunset | 小雨傍晚 |
+| Adverse | 15 | ClearNight | **晴天夜间**（无降水，但低光照）|
+| Adverse | 18 | CloudyNight | 多云夜间 |
+| Adverse | 19 | WetNight | 湿路面夜间 |
+| Adverse | 20 | WetCloudyNight | 湿路多云夜间 |
+| Adverse | 21 | MidRainyNight | 中雨夜间 |
+| Adverse | 22 | HardRainNight | 暴雨夜间 |
+| Adverse | 23 | SoftRainNight | 小雨夜间 |
+| Adverse | 25 | FoggyNoon | 雾天正午 |
+| Adverse | 26 | FoggySunset | 雾天傍晚 |
+
+> Weather ID 4 和 16、17、24 在 B2D 验证集中不存在。
+
+**验证集样本分布**：
+
+| 类别 | 样本数 | 占比 |
+|------|--------|------|
+| Normal（ID 0-3） | 2,709 | 21.2% |
+| Adverse（其余 19 种） | 10,097 | 78.8% |
+| **合计** | **12,806** | 100% |
+
+#### 分类的设计依据与边界说明
+
+Weather 0-3 对应 CARLA 内置的 4 个"标准白天"预设，不含任何降水/雾气/夜间参数，是感知质量最稳定的基准条件。分类边界有两点值得注意：
+
+1. **ClearNight（ID 15）归为 Adverse**：无降水但低光照，EVAViT 的 patch token 激活统计量与白天有显著差异（UQ score 约 0.235，介于 Normal 和重度 Adverse 之间），归为 Adverse 是合理的工程选择。
+2. **CloudyNoon/CloudySunset（ID 2/3）归为 Normal**：多云但白天，无视觉降质（雾/雨/夜），L2 和碰撞率与 ClearNoon 相近，UQ score 在 v3 模型中也接近 0。
 
 ### 3.2 UQ Score 分离度
 
@@ -903,6 +951,16 @@ For each scenario (folder in data_infos):
 
 注意：model 输出的 `metric_results` 包含 `plan_L2_*` 和 `plan_obj_col_*`，即使 `fut_valid_flag=False` 也有值。评估脚本使用 `has_plan_metrics`（L2 > 0）而非 `fut_valid_flag` 来过滤。
 
+### 9.4 评估体系约束（重要）
+
+本报告的所有闭环指标均来自**回放式闭环评估**（详见附录 A.3），不是真实 CARLA 仿真。
+主要约束：
+1. ADE/碰撞改善在真实仿真中的泛化性**未经验证**
+2. 50 个场景的碰撞率均值受个别场景影响大（部分场景碰撞率为 0%，少数高达 11%）
+3. Normal 场景的 ADE 退化（+116%）尚未修复
+
+这些约束需要在论文中正面交代，并作为 Future Work（真实 CARLA 闭环验证）。
+
 ---
 
 ---
@@ -1032,3 +1090,126 @@ L2-loss FiLM（L1+L2）：碰撞率 1.17% → 1.22%，ADE 2.26m → 3.90m。优�
 
 *报告更新时间：2026-03-30（v2 伪标签重构后更新）*
 *Git 分支：dev*
+
+---
+
+## 附录 A：评估体系说明
+
+> 本附录旨在明确本报告的评估范围、数据来源、模块作用域及结论可信度边界，为汇报和论文撰写提供参考。
+
+### A.1 数据集：Bench2Drive (B2D)
+
+**什么是 B2D**：CARLA 模拟器生成的多天气、多场景驾驶数据集，专为端到端自动驾驶评估设计。
+
+| 属性 | 数值 |
+|------|------|
+| 验证集规模 | 12,806 帧 |
+| 摄像头视角 | 6（前/后/左前/右前/左后/右后）|
+| 天气类型 | 24 种（Weather ID 0-26）|
+| 城镇覆盖 | 24 个 CARLA 城镇 |
+| 样本格式 | patch tokens `[6, 1600, 1024]`（预提取，~235GB）|
+
+**Normal/Adverse 划分**：天气 ID 0-3（ClearNoon/ClearSunset/CloudyNoon/CloudySunset）为 Normal（2,709 帧），其余 20 种天气为 Adverse（10,097 帧）。此划分与 eval_openloop 评估脚本对齐（weather-based scene_type，v3 已修正）。
+
+---
+
+### A.2 开环评估（eval_openloop）
+
+**定义**：对 12,806 个独立帧逐帧推理，每帧预测未来 3s 轨迹，与同帧 GT 轨迹比较。
+
+**指标**：
+- L2@1s/2s/3s：预测轨迹与 GT 的欧氏距离（米）
+- 碰撞率：基于 GT occupancy grid 构建，判断预测轨迹是否与障碍物框重叠
+
+**局限**：帧间独立，不考虑历史状态，不捕捉时序累积误差。每帧独立推理意味着即使模型产生系统性偏差，也不会在帧间累积。
+
+**UQ score 的意义**：每帧独立计算，与 weather 分类强相关（AUROC=0.954）。AUROC 度量的是 UQ score 对 Normal/Adverse 天气分类的判别能力，而非对单帧 L2 误差的预测能力（Spearman ρ=0.139，弱相关）。
+
+---
+
+### A.3 回放式闭环评估（eval_closedloop_replay）——关键说明
+
+**本质**：从 B2D 预录数据中选 50 条路线，逐帧喂入模型推理，将预测轨迹与 GT 比对，**无真实仿真器反馈**。
+
+**与真实闭环的核心区别**：
+
+| 维度 | 本报告（回放式）| 真实闭环（CARLA 仿真）|
+|------|----------------|----------------------|
+| 反馈回路 | 无：模型行为不影响后续观测 | 有：agent 轨迹决定下一帧的场景状态 |
+| 位置漂移 | 无：始终用 GT ego pose | 有：规划误差逐帧累积，位置可能严重偏离 |
+| 碰撞计算 | GT 障碍物框 + occupancy grid，无 sensor 噪声 | 实时物理碰撞检测，含 sensor 噪声 |
+| 动态 agent | 按录制回放，不响应 ego 行为 | 实时响应（其他车辆有自己的 agent）|
+
+**为什么仍有价值**：
+
+1. **系统性偏差可见**：跨场景比较能捕捉模型在恶劣天气下的一致性失效模式，不依赖仿真器反馈
+2. **UQ 相关性验证**：UQ score 与 weather 分类的相关性（AUROC=0.954）完全独立于仿真反馈，结论稳健
+3. **快速迭代**：无需实时 CARLA，50 场景约 1h，适合消融实验和超参搜索
+
+**50 个场景来源**：从 B2D 验证集均衡采样，覆盖 24 种天气，每种 1-3 个代表路线，其中 Normal 11 个场景、Adverse 39 个场景。
+
+**ADE/碰撞指标含义**：与 GT 比对的偏差，反映模型行为的保守/激进程度，而非真实驾驶安全指标。碰撞率数值不能直接等同于真实道路碰撞概率。
+
+---
+
+### A.4 伪标签设计的自洽性说明
+
+**问题**：用 patch token 统计特征生成伪标签，再训练模型学习同类特征，是否存在循环论证？
+
+**分析**：
+
+| 层面 | 说明 |
+|------|------|
+| 特征重用 | 伪标签公式（加权的 max_mean/cosim/entropy）和 stat_features（5 维统计特征）均来源于 patch tokens，存在部分特征重用 |
+| 结构学习 | UQEstimator 新增了 Transformer decoder（16 个 learnable queries，cross-attention），能学到统计特征之外的空间结构信息 |
+| 外部验证 | AUROC=0.954 使用 weather-based scene_type 分类，该分类独立于伪标签生成中使用的统计权重；AUROC 是对 weather 分类的外部验证，而非对伪标签本身的循环验证 |
+| 迭代进步 | v1→v2→v3 的 AUROC 迭代（0.621→0.601→0.954）中，改进来源可追溯：v3 主要来自 scene_type 分类修正（19.4% 样本重新对齐），而非伪标签过拟合 |
+
+**结论**：存在部分特征重用（stat_features 同时出现在伪标签和模型输入中），但通过独立外部验证（weather-based AUROC），UQ score 的区分能力结论可信。伪标签是合理的工程设计——在无真实不确定性 ground truth 的情况下，从视觉特征本身提取区分信号是标准做法。
+
+---
+
+### A.5 新增模块的作用域边界
+
+**UQEstimator（已充分验证）**：
+
+| 能力 | 数值 | 说明 |
+|------|------|------|
+| 区分 Normal vs Adverse 天气 | AUROC = 0.954 | 强区分能力，可作为感知质量监测器 |
+| 输出连续分数 | [0, 1]，Gap = 0.870 | ClearNoon≈0，HardRainNight≈0.989 |
+| 预测单帧 L2 误差 | Spearman ρ = 0.139 | 弱相关，**不能用作规划误差预测器** |
+
+UQEstimator 是**感知质量监测器**，而非规划误差预测器。它回答的问题是"当前视觉条件有多差"，而非"当前规划会出多大错"。
+
+**FiLM（部分验证，存在已知缺陷）**：
+
+| 方面 | 说明 |
+|------|------|
+| 理论设计 | Score-Gate 机制：score=0 时严格 identity（Normal 场景无调制），score=1 时激活保守规划（Adverse 场景调制）|
+| 实际缺陷 | embed_head 的 LayerNorm 使 embedding L2 norm 恒定（≈√256≈16），Normal/Adverse 场景调制幅度相当，Score-Gate 失效 |
+| 测量效果 | 碰撞率 -21%（adverse -23%），ADE +80%（normal +116%）|
+| 根因 | LayerNorm 破坏 Score-Gate；移除 LayerNorm + 重训是预期修复路径 |
+| 当前状态 | Score-Gated FiLM 代码已完成，**checkpoint 未重训**，理论修复未实验验证 |
+
+**BEV IPM（独立验证）**：
+
+| 方面 | 说明 |
+|------|------|
+| 方法 | 纯几何 IPM（逆透视映射），不依赖模型 attention 或 checkpoint |
+| 验证范围 | B2D 2 个场景（Normal Weather3 + Adverse Weather13）|
+| 验证结果 | Normal 0.583 vs Adverse 0.722，Δ=+0.139 |
+| 局限 | 样本量小（2 场景），结论待更大规模验证 |
+
+---
+
+### A.6 可信结论汇总表
+
+| 结论 | 证据 | 可信度 |
+|------|------|--------|
+| UQ score 能区分 Normal vs Adverse 天气 | AUROC=0.954，gap=0.870，逐天气排序正确 | **高** |
+| 恶劣天气下碰撞率显著高于正常天气 | baseline: 0.05% vs 0.83%（50 场景回放）| **高** |
+| FiLM 调制降低了回放碰撞率 21% | 50 场景对比，Adverse: 0.83%→0.64% | **中**（回放式，非真实闭环）|
+| FiLM 调制导致 ADE 退化 +80% | 50 场景对比，Normal: +116%，Adverse: +69% | **高** |
+| Normal ADE 退化由 embed_head LayerNorm 引起 | 代码分析 + 理论推导（embedding norm 恒定） | **中**（未实验验证）|
+| Score-Gated FiLM 能修复 Normal ADE | 理论推导（score=0 → gamma=1, beta=0） | **低**（无实验数据，checkpoint 未重训）|
+| BEV IPM 能区分场景感知质量 | 2 场景定量验证，Δ=+0.139 | **中**（样本量小）|
