@@ -140,36 +140,24 @@ def plot_score_distribution(records, plt, out_path):
 # ── Figure 2: AUROC Curve ──────────────────────────────────────────────
 def plot_auroc(records, plt, out_path):
     """ROC curve for UQ score as adverse weather detector."""
-    scores = [r['uq_score'] for r in records if 'uq_score' in r]
-    labels = [1 if r['is_adverse'] else 0 for r in records if 'uq_score' in r]
+    from uq_estimator.roc_plot import plot_auroc_curve, records_to_arrays
+
+    try:
+        scores, labels = records_to_arrays(records)
+    except KeyError:
+        print('  Skipping AUROC: no uq_score in records')
+        return
 
     if len(set(labels)) < 2:
         print('  Skipping AUROC: only one class present')
         return
 
     try:
-        from sklearn.metrics import roc_curve, auc
+        roc_auc = plot_auroc_curve(scores, labels, out_path)
     except ImportError:
-        print('  Skipping AUROC: sklearn not available')
+        print('  Skipping AUROC: scikit-learn not available')
         return
 
-    fpr, tpr, _ = roc_curve(labels, scores)
-    roc_auc = auc(fpr, tpr)
-
-    fig, ax = plt.subplots(1, 1, figsize=(5, 5))
-    ax.plot(fpr, tpr, color='#E65100', linewidth=2,
-            label=f'UQ Score (AUC = {roc_auc:.3f})')
-    ax.plot([0, 1], [0, 1], 'k--', linewidth=0.8, alpha=0.5)
-    ax.set_xlabel('False Positive Rate')
-    ax.set_ylabel('True Positive Rate')
-    ax.set_title('ROC: UQ Score as Adverse Detector')
-    ax.legend(loc='lower right')
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_aspect('equal')
-
-    fig.savefig(out_path)
-    plt.close(fig)
     print(f'  Saved: {out_path} (AUROC={roc_auc:.4f})')
 
 
