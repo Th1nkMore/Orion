@@ -93,12 +93,53 @@ Required metrics:
 Minimum condition for proceeding:
 
 ```text
-G3 clearly outperforms G0, G1, and G2 on calibration routes.
+G3 clearly outperforms G0, G1, and G2 on calibration routes in correlation,
+and does not lose to G0 in held-out MAE.
 ```
 
 If shuffled UQ performs similarly to correct UQ, full training remains blocked.
 
+### Pilot Results
+
+Independent correct/zero/shuffled/no-token training was inconclusive because
+the grounding head could predict uncertainty from the image itself. A
+counterfactual score-only run was therefore added: each image is trained with
+both its correct score and another sample's shuffled score.
+
+The 100-step result on 50 calibration frames was:
+
+| Intervention | MAE | Pearson | Spearman |
+| --- | ---: | ---: | ---: |
+| none | 0.1158 | 0.4135 | 0.4479 |
+| zero | 0.1318 | 0.4048 | 0.4734 |
+| shuffled | 0.2742 | -0.0055 | 0.1052 |
+| correct | 0.1501 | 0.7531 | 0.6414 |
+
+Interpretation:
+
+- The collapse from correct to shuffled proves sample-level token use.
+- Correct UQ substantially improves correlation over no-token and zero-token.
+- Correct-UQ MAE remains worse than no-token, so the absolute calibration gate
+  has not passed.
+- Full Stage 2D planning adaptation remains paused.
+
+The follow-up 300-step run on 200 calibration frames passed the full gate:
+
+| Intervention | MAE | Pearson | Spearman |
+| --- | ---: | ---: | ---: |
+| none | 0.1087 | -0.6553 | -0.5898 |
+| zero | 0.1129 | -0.6810 | -0.6208 |
+| shuffled | 0.2940 | -0.0517 | -0.0372 |
+| correct | **0.0406** | **0.8611** | **0.7253** |
+
+The correct score is now both recoverable and better calibrated than all
+controls. This validates the token interface and auxiliary objective, not the
+grounding-only checkpoint as a planning model.
+
 ## Stage 2D: Planning Adaptation
+
+Formal Stage 2D starts from base ORION and trains planning plus counterfactual
+grounding jointly. Do not initialize from the grounding-only checkpoint.
 
 Initial hyperparameters:
 
@@ -124,6 +165,45 @@ early_stopping_patience: 2
 ```
 
 These values are starting points, not fixed conclusions.
+
+First joint pilot overrides:
+
+```yaml
+max_steps: 100
+gradient_accumulation: 4
+learning_rate_projector: 5.0e-5
+learning_rate_lora: 5.0e-6
+lambda_ground: 1.0
+lambda_consistency: 0.1
+counterfactual_grounding: true
+token_input: score_only
+```
+
+The 100-sample pilot performed only 25 optimizer updates. Its 400-sample
+follow-up lowered `lambda_ground` to `0.2`, but correct-token ADE/FDE worsened
+further. This training design is rejected; do not continue to the full split.
+
+### Joint Pilot Result
+
+Fixed-noise metrics on the same 35 valid calibration frames:
+
+| Checkpoint / mode | ADE | FDE |
+| --- | ---: | ---: |
+| Base ORION / none | **0.0803** | **0.0745** |
+| Joint 100 / correct | 0.0941 | 0.1070 |
+| Joint 400 / none | 0.0818 | 0.0839 |
+| Joint 400 / shuffled | 0.1874 | 0.2665 |
+| Joint 400 / correct | 0.1046 | 0.1162 |
+
+Joint 400 grounding remained strongly score-sensitive:
+
+```text
+correct Pearson: 0.879
+shuffled Pearson: 0.089
+```
+
+The token is causally active, but the learned planning response is harmful.
+The next experiment must move grounding to a separate LLM UQ readout token.
 
 The VLM weight was reduced from the inherited `0.01` to `0.001` after a
 diagnostic run showed that weighted language loss dominated the planning loss.
@@ -230,5 +310,8 @@ The primary model should satisfy all of:
   scientific narrative and should be reported as such.
 - Grounding succeeds but planning does not: the LLM receives UQ, but the current
   planning objective or downstream decoder does not use it effectively.
+- Grounding-only planning collapses while joint training recovers: score
+  semantics are learnable, but they must be constrained by the trajectory
+  decoder during acquisition.
 - Planning improves without grounding: treat the result as inconclusive because
   the gain may come from latent capacity rather than uncertainty.

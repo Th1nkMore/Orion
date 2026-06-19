@@ -9,16 +9,19 @@ u_dir:   [B, 16]  unit whitened residual direction
 u_score: [B, 1]   calibrated normal-density tail position
 ```
 
-The input to the UQ projector is:
+The full input to the UQ projector is:
 
 ```text
 u = concat(u_dir, u_score)  # [B, 17]
 ```
 
-The projector produces continuous tokens in the LLM embedding space:
+The implemented projector separates score magnitude from degradation
+direction:
 
 ```text
-UQProjector(u) -> uq_tokens [B, K, 4096]
+uq_token =
+    null_token
+    + score * (score_basis + direction_projector(direction))
 ```
 
 These tokens are concatenated with ORION's projected visual tokens before the
@@ -31,7 +34,10 @@ llm_visual_tokens = concat(vision_tokens, uq_tokens)
 The LLM then produces the waypoint-token hidden state in the original way. No
 post-LLM modulation is applied in the primary method.
 
-## Initial Projector Configuration
+This explicit score basis is important for grounding: score information has a
+direct path into the token and does not have to emerge from an entangled MLP.
+
+## Current Projector Configuration
 
 Start with one uncertainty token:
 
@@ -41,10 +47,12 @@ hidden_dim: 512
 token_count: 1
 llm_dim: 4096
 
-Linear(17, 512)
-GELU
-LayerNorm(512)
-Linear(512, 4096)
+score_basis: [1, 1, 4096]
+direction_projector:
+  Linear(16, 512)
+  GELU
+  LayerNorm(512)
+  Linear(512, 4096)
 ```
 
 Approximate parameter count: 2.1M.
@@ -65,9 +73,11 @@ The projector receives both:
 - Score expresses how far the sample is from the normal feature distribution.
 - Direction expresses how the sample differs in the whitened density subspace.
 
-A score-only token cannot distinguish different degradation directions. A
-direction-only token discards calibrated severity. Both are required in the
-main configuration.
+A score-only token cannot distinguish different degradation directions, but it
+is the cleanest first grounding target. Current experiments therefore ground
+the score-only token first. The 16-D direction will be added only after score
+grounding and calibration pass, then tested as an ablation rather than assumed
+to help.
 
 ## Identity Behavior
 
@@ -164,12 +174,12 @@ the density token.
 Direction reconstruction is a possible later extension, but score prediction is
 the first grounding task because it is simpler and easier to interpret.
 
-## Revised Training Stages
+## Revised Training Strategy
 
-### Stage A: Grounding
+### Diagnostic Grounding
 
-Train projector, LoRA, and grounding head so the waypoint representation can
-recover the fixed density score:
+Grounding-only training is used to test whether the LLM representation can
+recover the supplied density score:
 
 ```text
 L_stage_a = lambda_vlm * L_vlm
@@ -177,21 +187,74 @@ L_stage_a = lambda_vlm * L_vlm
           + lambda_consistency * L_consistency
 ```
 
-### Stage B: Planning Adaptation
-
-Continue from the grounded checkpoint:
+The current grounding pilot additionally uses a counterfactual pair for every
+image. The same image is forwarded once with its correct score and once with a
+deterministically shuffled score, and each representation must recover the
+score actually supplied:
 
 ```text
-L_stage_b = lambda_plan * L_plan
+L_counterfactual =
+    0.5 * L_ground(image, correct_score)
+  + 0.5 * L_ground(image, shuffled_score)
+```
+
+This blocks the grounding head from solving the task from visual content alone.
+
+The resulting checkpoint is diagnostic only. It must not initialize formal
+planning training: the representation can encode score in a direction that is
+incompatible with the frozen trajectory decoder.
+
+### Joint Grounding and Planning Diagnostic
+
+Formal adaptation starts from base ORION, not from the grounding-only
+checkpoint. The correct-token branch receives both planning and grounding
+supervision. A same-image shuffled-token branch receives grounding supervision
+only:
+
+```text
+L_joint = lambda_plan * L_plan(correct_uq)
           + lambda_vae * L_vae
           + lambda_vlm * L_vlm
-          + lambda_ground * L_ground
+          + lambda_ground * 0.5 * (
+                L_ground(correct_uq, correct_score)
+              + L_ground(shuffled_uq, shuffled_score)
+            )
           + lambda_consistency * L_consistency
           + lambda_collision * L_collision
 ```
 
-The grounding term remains active so planning optimization cannot silently
-discard the uncertainty information.
+This forces the LLM to retain score semantics while the planning target
+constrains how that information is written into the trajectory-relevant
+representation.
+
+The diagnostic failed: stronger score recoverability coincided with worse
+correct-token ADE/FDE. The grounding head should therefore not read directly
+from the waypoint hidden state in the next architecture.
+
+### Next Architecture: Separate UQ Readout Token
+
+Add a dedicated textual special token such as `<uq_state>` to the LLM sequence:
+
+```text
+projected visual tokens + continuous UQ input token
+  -> LLM
+  -> uq_state hidden representation -> grounding head
+  -> waypoint hidden representation -> trajectory decoder
+```
+
+The UQ readout token is trained to recover the supplied score under same-image
+correct/shuffled interventions. The waypoint token is supervised only by
+planning, VLM, collision, and low-UQ behavior-preservation losses.
+
+This separation provides two properties:
+
+1. score semantics are learned inside the LLM without forcing the trajectory
+   decoder's input to be linearly predictive of score;
+2. whether planning uses the information is tested separately by
+   correct/zero/shuffled trajectory interventions.
+
+The existing waypoint-grounding head remains a diagnostic baseline and must
+not be used as the primary method.
 
 ## Losses
 
@@ -257,6 +320,12 @@ The experimental design must answer:
 8. Does planning respond to counterfactual UQ-token changes with fixed vision?
 
 ## Evidence Required for the Main Claim
+
+The current pilot establishes causal score use because correct-score
+correlation is high and correlation collapses under shuffled-score
+intervention. It also passes the absolute calibration condition: correct-token
+MAE is lower than no-token, zero-token, and shuffled-token controls on 200
+held-out calibration frames.
 
 1. Correct UQ grounding outperforms no-token, zero-token, and shuffled-token
    controls.

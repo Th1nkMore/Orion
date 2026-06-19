@@ -4,7 +4,7 @@ import torch
 from uq_estimator.token_projector import UQTokenProjector
 
 
-def test_projector_output_shape_and_initial_null_behavior():
+def test_projector_output_shape_and_initial_score_channel():
     model = UQTokenProjector(
         active_dim=16,
         hidden_dim=32,
@@ -15,7 +15,8 @@ def test_projector_output_shape_and_initial_null_behavior():
     score = torch.tensor([[0.0], [0.5], [1.0]])
     output = model(active, score)
     assert output.shape == (3, 1, 64)
-    torch.testing.assert_close(output, torch.zeros_like(output))
+    torch.testing.assert_close(output[0], model.null_token[0])
+    assert torch.linalg.vector_norm(output[2]) > torch.linalg.vector_norm(output[1])
 
 
 def test_score_gates_uncertainty_delta():
@@ -26,8 +27,8 @@ def test_score_gates_uncertainty_delta():
         token_count=1,
     )
     with torch.no_grad():
-        model.projector[-1].weight.fill_(0.1)
-        model.projector[-1].bias.fill_(0.2)
+        model.direction_projector[-1].weight.fill_(0.1)
+        model.direction_projector[-1].bias.fill_(0.2)
         model.null_token.fill_(0.3)
 
     active = torch.tensor([[1.0, -1.0], [1.0, -1.0]])

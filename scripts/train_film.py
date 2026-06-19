@@ -32,6 +32,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from mmcv.utils import Config, load_checkpoint, set_random_seed, ProgressBar
 from mmcv.models import build_model
 from mmcv.datasets import build_dataset, build_dataloader
+from uq_estimator.grounding import grounding_loss
 from uq_estimator.training import low_uq_consistency_loss
 
 
@@ -219,7 +220,11 @@ def compute_comfort_loss(ego_fut_preds, ego_fut_masks):
 def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
                           lambda_film_reg=0.0, lambda_progress=0.0,
                           lambda_comfort=0.0, lambda_uq_consistency=0.0,
-                          lambda_plan=1.0, lambda_vae=0.1, lambda_vlm=0.01):
+                          lambda_plan=1.0, lambda_vae=0.1, lambda_vlm=0.01,
+                          lambda_ground=0.0, uq_mode="correct",
+                          shuffled_uq=None, grounding_only=False,
+                          counterfactual_grounding=False,
+                          token_input="score_direction"):
     """Custom forward for FiLM training with test-format data.
 
     Replicates ORION's inference path through QT-Former + FiLM, then
@@ -269,7 +274,7 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
 
     # Skip samples without valid future trajectory
     ego_fut_masks = data['ego_fut_masks']  # [1, 1, 1, 6] after unpacking
-    if ego_fut_masks.sum() == 0:
+    if not grounding_only and ego_fut_masks.sum() == 0:
         return None
 
     # ─── Step 2: extract features ───
@@ -286,6 +291,13 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
 
     # ─── Step 4: detection + UQ + FiLM L1 ───
     outs_bbox, det_query, uncertainty_emb, uncertainty_score = orion.pts_bbox_head(img_metas_list, pos_embed, **data)
+    target_uncertainty_score = uncertainty_score.detach()
+    uq_output = getattr(orion.pts_bbox_head, 'uq_output', None)
+    active_embedding = getattr(uq_output, 'active_embedding', None)
+    if token_input == "score_only":
+        active_embedding = torch.zeros_like(active_embedding)
+    elif token_input != "score_direction":
+        raise ValueError(f"Unknown token_input mode: {token_input}")
     vision_embeded_obj = det_query.clone()
 
     # ─── Step 5: map head ───
@@ -298,9 +310,34 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
         return None
     vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1)
     baseline_vision_embeded = vision_embeded
-    vision_embeded = orion._append_uq_tokens(
-        vision_embeded, uncertainty_emb, uncertainty_score
-    )
+    if uq_mode == "correct":
+        vision_embeded = orion._append_uq_tokens(
+            vision_embeded,
+            uncertainty_emb,
+            uncertainty_score,
+            active_embedding=active_embedding,
+        )
+    elif uq_mode == "zero":
+        vision_embeded = orion._append_uq_tokens(
+            vision_embeded,
+            torch.zeros_like(uncertainty_emb),
+            torch.zeros_like(uncertainty_score),
+            active_embedding=torch.zeros_like(active_embedding),
+        )
+    elif uq_mode == "shuffled":
+        if shuffled_uq is None:
+            raise ValueError("shuffled mode requires shuffled_uq")
+        shuffled_active, shuffled_score = shuffled_uq
+        if token_input == "score_only":
+            shuffled_active = torch.zeros_like(shuffled_active)
+        vision_embeded = orion._append_uq_tokens(
+            vision_embeded,
+            uncertainty_emb,
+            shuffled_score,
+            active_embedding=shuffled_active,
+        )
+    elif uq_mode != "none":
+        raise ValueError(f"Unknown UQ token mode: {uq_mode}")
 
     if orion.tokenizer is None:
         return None
@@ -339,6 +376,72 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
             baseline_ego_feature,
             uncertainty_score,
         )
+
+    predicted_grounding_score = orion.uq_grounding_head(ego_feature)
+    grounding_loss_val = grounding_loss(
+        predicted_grounding_score,
+        target_uncertainty_score,
+    )
+    counterfactual_loss_val = torch.tensor(0.0, device=ego_feature.device)
+    if counterfactual_grounding:
+        if shuffled_uq is None:
+            raise ValueError(
+                "counterfactual grounding requires shuffled_uq"
+            )
+        shuffled_active, shuffled_score = shuffled_uq
+        if token_input == "score_only":
+            shuffled_active = torch.zeros_like(shuffled_active)
+        counterfactual_vision = orion._append_uq_tokens(
+            baseline_vision_embeded,
+            uncertainty_emb,
+            shuffled_score,
+            active_embedding=shuffled_active,
+        )
+        _, counterfactual_feature = orion.lm_head(
+            input_ids=input_ids,
+            attention_mask=vlm_attn_mask,
+            labels=None,
+            images=counterfactual_vision,
+            use_cache=False,
+            return_ego_feature=True,
+        )
+        counterfactual_prediction = orion.uq_grounding_head(
+            counterfactual_feature
+        )
+        counterfactual_loss_val = grounding_loss(
+            counterfactual_prediction,
+            shuffled_score,
+        )
+        grounding_loss_val = 0.5 * (
+            grounding_loss_val + counterfactual_loss_val
+        )
+
+    if grounding_only:
+        total = lambda_vlm * vlm_loss + lambda_ground * grounding_loss_val
+        total = total + lambda_uq_consistency * consistency_loss_val
+        return {
+            'loss': total,
+            'predicted_score': predicted_grounding_score.detach(),
+            'target_score': target_uncertainty_score.detach(),
+            'log_vars': {
+                'vlm': float(vlm_loss.detach()),
+                'uq_ground': float(grounding_loss_val.detach()),
+                'uq_ground_counterfactual': float(
+                    counterfactual_loss_val.detach()
+                ),
+                'uq_consistency': float(consistency_loss_val.detach()),
+                'weighted_vlm': float((lambda_vlm * vlm_loss).detach()),
+                'weighted_ground': float(
+                    (lambda_ground * grounding_loss_val).detach()
+                ),
+                'weighted_consistency': float(
+                    (lambda_uq_consistency * consistency_loss_val).detach()
+                ),
+                'total': float(total.detach()),
+                'target_score': float(target_uncertainty_score.mean()),
+                'predicted_score': float(predicted_grounding_score.mean()),
+            },
+        }
 
     # Handle mixed QA training
     if orion.mix_qa_training:
@@ -411,6 +514,7 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
             + lambda_vlm * vlm_loss_val
         )
         total = total + lambda_uq_consistency * consistency_loss_val
+        total = total + lambda_ground * grounding_loss_val
 
         # Collision margin loss (Plan C)
         col_loss_val = torch.tensor(0.0, device='cuda')
@@ -459,15 +563,31 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
             'progress': progress_loss_val.item(),
             'comfort': comfort_loss_val.item(),
             'uq_consistency': consistency_loss_val.item(),
+            'uq_ground': grounding_loss_val.item(),
             'weighted_plan': (lambda_plan * plan_loss).item(),
             'weighted_vae': (lambda_vae * loss_vae).item(),
             'weighted_vlm': (lambda_vlm * vlm_loss_val).item(),
             'weighted_consistency': (
                 lambda_uq_consistency * consistency_loss_val
             ).item(),
+            'weighted_ground': (lambda_ground * grounding_loss_val).item(),
             'total': total.item(),
         }
-        return {'loss': total, 'log_vars': log_vars}
+        ego_command = data['ego_fut_cmd'][:, 0, 0].to(
+            dtype=ego_fut_preds.dtype
+        )
+        active_ego_fut_preds = (
+            ego_fut_preds * ego_command[..., None, None]
+        ).sum(dim=1)
+        return {
+            'loss': total,
+            'log_vars': log_vars,
+            'predicted_score': predicted_grounding_score.detach(),
+            'target_score': target_uncertainty_score.detach(),
+            'planning_prediction': active_ego_fut_preds.detach(),
+            'planning_target': ego_fut_trajs[:, 0].detach(),
+            'planning_mask': data['ego_fut_masks'][:, 0, 0].detach(),
+        }
 
     return None
 

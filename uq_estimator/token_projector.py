@@ -24,8 +24,8 @@ class UQTokenProjector(nn.Module):
         self.hidden_dim = int(hidden_dim)
         self.llm_dim = int(llm_dim)
         self.token_count = int(token_count)
-        self.projector = nn.Sequential(
-            nn.Linear(self.active_dim + 1, self.hidden_dim),
+        self.direction_projector = nn.Sequential(
+            nn.Linear(self.active_dim, self.hidden_dim),
             nn.GELU(),
             nn.LayerNorm(self.hidden_dim),
             nn.Linear(self.hidden_dim, self.token_count * self.llm_dim),
@@ -33,9 +33,13 @@ class UQTokenProjector(nn.Module):
         self.null_token = nn.Parameter(
             torch.zeros(1, self.token_count, self.llm_dim)
         )
+        self.score_basis = nn.Parameter(
+            torch.empty(1, self.token_count, self.llm_dim)
+        )
 
-        nn.init.zeros_(self.projector[-1].weight)
-        nn.init.zeros_(self.projector[-1].bias)
+        nn.init.normal_(self.score_basis, mean=0.0, std=0.02)
+        nn.init.zeros_(self.direction_projector[-1].weight)
+        nn.init.zeros_(self.direction_projector[-1].bias)
 
     def forward(
         self,
@@ -56,11 +60,14 @@ class UQTokenProjector(nn.Module):
         if score.shape[0] != active_embedding.shape[0]:
             raise ValueError("active_embedding and score batch sizes must match")
 
-        parameter_dtype = self.projector[0].weight.dtype
+        parameter_dtype = self.direction_projector[0].weight.dtype
         active_embedding = active_embedding.to(dtype=parameter_dtype)
         score = score.to(dtype=parameter_dtype).clamp(0.0, 1.0)
-        projector_input = torch.cat((active_embedding, score), dim=-1)
-        delta = self.projector(projector_input).reshape(
+        direction_delta = self.direction_projector(active_embedding).reshape(
             active_embedding.shape[0], self.token_count, self.llm_dim
         )
-        return self.null_token.to(dtype=delta.dtype) + score.unsqueeze(-1) * delta
+        score_content = self.score_basis + direction_delta
+        return (
+            self.null_token.to(dtype=score_content.dtype)
+            + score.unsqueeze(-1) * score_content
+        )

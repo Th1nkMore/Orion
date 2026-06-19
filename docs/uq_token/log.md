@@ -259,6 +259,336 @@ Decision:
   controls;
 - add fixed-image counterfactual token interventions.
 
+---
+
+## 2026-06-20: Grounding Implementation and Pilot Sequence
+
+Git commit:
+
+```text
+working tree after 43f88ed
+```
+
+Machine:
+
+```text
+AutoDL RTX 4090
+root@connect.weste.seetacloud.com:39408
+```
+
+Implemented:
+
+- score grounding head on the 4096-D waypoint representation;
+- detached SmoothL1 density-score target;
+- deterministic correct, zero, shuffled, and no-token controls;
+- calibration-route MAE, Pearson, and Spearman;
+- explicit `score_basis` in the UQ token projector;
+- same-image correct/shuffled counterfactual grounding;
+- score-only and score+direction input modes.
+
+Initial independent 30-step runs, 50 calibration frames:
+
+| Mode | MAE | Pearson | Spearman |
+| --- | ---: | ---: | ---: |
+| none | 0.1287 | 0.3773 | 0.3649 |
+| zero | 0.1220 | 0.3424 | 0.3766 |
+| shuffled | 0.1305 | 0.4103 | 0.4163 |
+| correct | 0.1227 | 0.4203 | 0.3663 |
+
+Interpretation:
+
+Independent training did not isolate token use. The LLM and grounding head
+could infer uncertainty from the image.
+
+Score+direction counterfactual run, 100 steps:
+
+```text
+correct:  MAE 0.2698, Pearson 0.8699, Spearman 0.7556
+shuffled: MAE 0.3004, Pearson 0.1697, Spearman 0.2414
+none:     MAE 0.0588, Pearson 0.6875, Spearman 0.7212
+```
+
+This established intervention sensitivity but showed poor absolute calibration.
+
+Score-only counterfactual command:
+
+```bash
+python scripts/train_uq_token.py \
+  --config adzoo/orion/configs/orion_stage3_infer.py \
+  --checkpoint ckpts/Orion.pth \
+  --density-checkpoint checkpoints/density_uq/best.pt \
+  --descriptor-cache data/density_uq/descriptors.pt \
+  --ann-file data/infos/b2d_infos_val.pkl \
+  --split train \
+  --grounding-only \
+  --counterfactual-grounding \
+  --token-input score_only \
+  --uq-mode correct \
+  --epochs 1 \
+  --max-samples 750 \
+  --max-steps 100 \
+  --eval-max-samples 50 \
+  --workers 2 \
+  --grad-accum 1 \
+  --lambda-vlm 0 \
+  --lambda-ground 1 \
+  --lambda-consistency 0 \
+  --seed 42 \
+  --intervention-eval-after-train \
+  --out /root/autodl-tmp/orion_assets/checkpoints/uq_token/grounding_counterfactual_score_only100.pt
+```
+
+Result:
+
+| Intervention | MAE | Pearson | Spearman |
+| --- | ---: | ---: | ---: |
+| none | 0.1158 | 0.4135 | 0.4479 |
+| zero | 0.1318 | 0.4048 | 0.4734 |
+| shuffled | 0.2742 | -0.0055 | 0.1052 |
+| correct | 0.1501 | 0.7531 | 0.6414 |
+
+Artifact:
+
+```text
+/root/autodl-tmp/orion_assets/checkpoints/uq_token/grounding_counterfactual_score_only100.pt
+size: 217 MiB
+```
+
+Conclusion:
+
+The correct-to-shuffled correlation collapse is evidence that the LLM
+representation uses the injected score. Absolute calibration is not yet good
+enough: correct-token MAE remains worse than the no-token visual shortcut.
+
+Next action:
+
+Run a 300-step score-only counterfactual pilot and evaluate 200 calibration
+frames. Do not start full planning adaptation unless both causal and MAE gates
+pass.
+
+---
+
+## 2026-06-20: Score-Only Grounding Gate Passed
+
+Machine:
+
+```text
+AutoDL RTX 4090
+root@connect.weste.seetacloud.com:39408
+```
+
+Configuration:
+
+```text
+Training candidates: 1,500
+Effective optimization steps: 300
+Calibration frames: 200
+Token input: score only
+Objective: same-image correct/shuffled counterfactual grounding
+lambda_vlm: 0
+lambda_ground: 1
+lambda_consistency: 0
+```
+
+Result:
+
+| Intervention | MAE | Pearson | Spearman |
+| --- | ---: | ---: | ---: |
+| none | 0.1087 | -0.6553 | -0.5898 |
+| zero | 0.1129 | -0.6810 | -0.6208 |
+| shuffled | 0.2940 | -0.0517 | -0.0372 |
+| correct | **0.0406** | **0.8611** | **0.7253** |
+
+Training summary:
+
+```text
+Mean grounding loss: 0.013720
+Final reported token norm: 13.830158
+OOM/NaN: none
+```
+
+Artifact:
+
+```text
+/root/autodl-tmp/orion_assets/checkpoints/uq_token/grounding_counterfactual_score_only300.pt
+size: approximately 217 MiB
+```
+
+Interpretation:
+
+- correct UQ is substantially better than no-token and zero-token controls;
+- shuffled UQ destroys correlation and triples-to-septuples MAE;
+- the waypoint representation therefore retains and uses the supplied
+  sample-level score;
+- the 100-step calibration failure was primarily insufficient optimization,
+  not evidence against the score-token method.
+
+Next action:
+
+Run a limited planning diagnostic, then verify whether the grounding-only
+weights preserve base-ORION trajectory behavior.
+
+---
+
+## 2026-06-20: Grounding-Only Initializer Rejected
+
+Stage 2D 50-step diagnostic:
+
+```text
+Initialization: grounding_counterfactual_score_only300.pt
+Loss: plan + 0.1 VAE + 0.001 VLM + 0.1 grounding + 0.05 consistency
+Effective steps: 50
+Collision loss: disabled
+```
+
+Grounding intervention on 50 calibration frames:
+
+| Mode | MAE | Pearson | Spearman |
+| --- | ---: | ---: | ---: |
+| none | 0.0806 | 0.4716 | 0.6342 |
+| zero | 0.0983 | 0.4820 | 0.6018 |
+| shuffled | 0.1483 | 0.1417 | 0.2320 |
+| correct | **0.0449** | **0.6631** | **0.6284** |
+
+Fixed-noise trajectory metrics on 35 valid calibration frames:
+
+| Checkpoint / mode | ADE | FDE |
+| --- | ---: | ---: |
+| Base ORION / none | **0.0803** | **0.0745** |
+| Stage 2D pilot / none | 0.0854 | 0.0923 |
+| Stage 2D pilot / shuffled | 0.0904 | 0.0890 |
+| Stage 2D pilot / correct | 0.0894 | 0.0856 |
+
+The Stage 2D pilot retained score grounding but remained worse than base ORION.
+
+Root-cause evaluation of the grounding-only checkpoint:
+
+| Mode | ADE | FDE | Grounding MAE | Grounding Pearson |
+| --- | ---: | ---: | ---: | ---: |
+| none | 0.0815 | 0.0804 | 0.2505 | 0.5187 |
+| correct | 1.8923 | 2.2267 | 0.0303 | 0.9522 |
+
+Conclusion:
+
+The grounding-only model learned a highly decodable score representation that
+was incompatible with the unchanged trajectory decoder. Planning training
+could mostly recover trajectory quality in 50 steps, but the grounded
+checkpoint is not a defensible or stable initializer.
+
+Next action:
+
+Start from base ORION and jointly optimize correct-token planning,
+correct-token grounding, same-image shuffled-token grounding, and low-UQ
+consistency. Use lower LoRA/projector learning rates and gradient accumulation.
+
+---
+
+## 2026-06-20: Joint Grounding and Planning Pilot, 100 Samples
+
+Configuration:
+
+```text
+Initialization: base ORION
+Effective samples: 100
+Optimizer updates: 25
+Gradient accumulation: 4
+Projector LR: 5e-5
+LoRA LR: 5e-6
+lambda_plan: 1
+lambda_vlm: 0.001
+lambda_ground: 1
+lambda_consistency: 0.1
+Counterfactual grounding: enabled
+```
+
+Grounding on 50 calibration frames:
+
+| Mode | MAE | Pearson | Spearman |
+| --- | ---: | ---: | ---: |
+| none | 0.0404 | 0.7403 | 0.7640 |
+| zero | 0.0432 | 0.7320 | 0.7726 |
+| shuffled | 0.1750 | 0.3020 | 0.4403 |
+| correct | 0.1041 | **0.8682** | **0.8096** |
+
+Fixed-noise trajectory metrics on 35 valid frames:
+
+| Mode | ADE | FDE |
+| --- | ---: | ---: |
+| Base ORION / none | **0.0803** | **0.0745** |
+| Joint checkpoint / none | 0.0803 | 0.0804 |
+| Joint checkpoint / zero | 0.0923 | 0.0930 |
+| Joint checkpoint / shuffled | 0.1375 | 0.1708 |
+| Joint checkpoint / correct | 0.0941 | 0.1070 |
+
+Interpretation:
+
+- the correct token carries recoverable score information;
+- shuffled UQ strongly changes and worsens the trajectory, proving the token
+  affects planning;
+- correct UQ is still worse than base ORION, so the planning gate fails;
+- grounding frequently dominates the weighted per-step objective;
+- 25 optimizer updates are insufficient to learn a beneficial behavioral use.
+
+Next action:
+
+Resume to 400 effective samples with `lambda_ground=0.2`. Keep the same
+counterfactual objective and lower learning rates. If correct-UQ ADE/FDE remain
+worse than baseline, stop scaling and redesign behavioral supervision.
+
+---
+
+## 2026-06-20: Joint 400 Pilot Failed Planning Gate
+
+Continuation:
+
+```text
+Resume: joint_pilot100.pt
+Effective samples: 400 total
+Gradient accumulation: 4
+lambda_ground: 0.2
+Other learning rates and losses unchanged
+```
+
+Grounding:
+
+| Mode | MAE | Pearson | Spearman |
+| --- | ---: | ---: | ---: |
+| none | 0.0461 | 0.6942 | 0.7135 |
+| zero | 0.0545 | 0.6704 | 0.7018 |
+| shuffled | 0.2018 | 0.2128 | 0.3114 |
+| correct | 0.1157 | **0.8833** | **0.8228** |
+
+Fixed-noise trajectory metrics on 35 valid frames:
+
+| Mode | ADE | FDE |
+| --- | ---: | ---: |
+| Base ORION / none | **0.0803** | **0.0745** |
+| Joint 400 / none | 0.0818 | 0.0839 |
+| Joint 400 / zero | 0.0973 | 0.1002 |
+| Joint 400 / shuffled | 0.1874 | 0.2665 |
+| Joint 400 / correct | 0.1046 | 0.1162 |
+
+Artifacts:
+
+```text
+/root/autodl-tmp/orion_assets/checkpoints/uq_token/joint_pilot100.pt
+/root/autodl-tmp/orion_assets/checkpoints/uq_token/joint_pilot400.pt
+```
+
+Conclusion:
+
+- the UQ token is read and causally affects both grounding and trajectory;
+- the current waypoint-state grounding objective causes harmful planning use;
+- more samples and a lower grounding weight did not reverse the degradation;
+- full training is stopped.
+
+Next action:
+
+Add a dedicated LLM `<uq_state>` readout token. Ground score from that token,
+not from the waypoint hidden state. Preserve the current counterfactual controls
+and evaluate whether the waypoint trajectory uses UQ beneficially without
+being forced to reconstruct it.
+
 Current status:
 
 ```text

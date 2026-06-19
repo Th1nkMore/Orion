@@ -217,6 +217,10 @@ class Orion(MVXTwoStageDetector):
                 llm_dim=self.lm_head.config.hidden_size,
                 token_count=uq_token_count,
             )
+            from uq_estimator.grounding import UQGroundingHead
+            self.uq_grounding_head = UQGroundingHead(
+                input_dim=self.lm_head.config.hidden_size
+            )
         if use_gen_token:
             add_special_token([EGO_WAYPOINT_TOKEN], tokenizer = self.tokenizer, model = self.lm_head)
             self.lm_head.config.waypoint_token_idx = self.tokenizer(EGO_WAYPOINT_TOKEN, add_special_tokens=False).input_ids[0]
@@ -541,6 +545,7 @@ class Orion(MVXTwoStageDetector):
         vision_tokens,
         uncertainty_embedding,
         uncertainty_score,
+        active_embedding=None,
     ):
         """Append explicit density uncertainty tokens to the LLM visual input."""
         if not self.use_uq_token:
@@ -549,10 +554,11 @@ class Orion(MVXTwoStageDetector):
             raise RuntimeError("UQ token conditioning requires density UQ outputs")
 
         uq_output = getattr(self.pts_bbox_head, 'uq_output', None)
-        active_embedding = (
-            getattr(uq_output, 'active_embedding', None)
-            if uq_output is not None else None
-        )
+        if active_embedding is None:
+            active_embedding = (
+                getattr(uq_output, 'active_embedding', None)
+                if uq_output is not None else None
+            )
         if active_embedding is None:
             active_embedding = uncertainty_embedding[:, :self.uq_active_dim]
 

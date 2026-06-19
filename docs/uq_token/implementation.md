@@ -61,10 +61,10 @@ Implemented:
 
 ```text
 uq_estimator/token_projector.py
-17 -> 512 -> 4096
+score_basis + 16 -> 512 -> 4096 direction branch
 K=1
 learned-null score gating
-2,115,584 parameters
+2,119,168 parameters
 ```
 
 Status: complete.
@@ -184,14 +184,24 @@ Current features:
 - hard freeze audit;
 - first-backward gradient audit;
 - resumable optimizer and scheduler state;
+- adaptation-only initialization with a fresh optimizer for Stage 2D;
 - smoke-run sample and step limits.
+- calibration-route grounding evaluation;
+- deterministic shuffled-score lookup;
+- correct, zero, shuffled, and no-token intervention modes;
+- score-only and score+direction token inputs;
+- same-image counterfactual grounding;
+- post-training intervention evaluation.
+- fixed-noise correct/zero/shuffled/no-token trajectory evaluation;
+- cumulative-trajectory ADE and FDE aggregation with validity masks.
 
 Still required:
 
-- calibration-route evaluation and early stopping;
-- richer diagnostics and periodic checkpoints.
+- route-bootstrap confidence intervals;
+- periodic checkpoints and early stopping on calibration metrics;
+- planning-metric evaluation.
 
-Status: initial training entry complete.
+Status: grounding training entry complete.
 
 Low-UQ consistency is implemented as a second, no-gradient LLM forward without
 the uncertainty token. Its waypoint representation is compared with the
@@ -232,7 +242,16 @@ Requirements:
 - save/load with projector and LoRA weights;
 - support correct, zero, shuffled, and no-token modes.
 
-Status: designed, not implemented.
+Implemented:
+
+- `LayerNorm(4096) -> Linear(4096, 1) -> sigmoid`;
+- detached density-score target and SmoothL1 loss;
+- checkpoint save/load with projector and LoRA;
+- MAE, Pearson, and Spearman evaluation;
+- correct, zero, shuffled, and no-token modes;
+- same-image correct/shuffled counterfactual training.
+
+Status: complete for pilot use.
 
 ## Existing Completed Components
 
@@ -254,10 +273,12 @@ Status: designed, not implemented.
 - [x] No gradient reaches frozen model parameters.
 - [x] Teacher-forced and inference paths use identical token construction.
 - [x] Checkpoint save/reload equivalence.
-- [ ] Shuffled-UQ mode is deterministic.
+- [x] Shuffled-UQ mode is deterministic.
 - [ ] Baseline mode is bitwise or numerically equivalent to pre-token ORION.
 - [x] Full ORION one-batch forward succeeds.
 - [x] Full ORION construction and real density-feature token append succeed.
+- [x] Grounding head gradients are audited.
+- [x] Correct/shuffled same-image counterfactual grounding succeeds.
 - [x] One valid real-data backward step succeeds.
 - [x] Low-UQ consistency loss and gradient-isolation tests.
 - [x] Multi-step training diagnostics are stored in checkpoints.

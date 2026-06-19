@@ -1,6 +1,7 @@
 from uq_estimator.model import UQEstimator, UQOutput
 from uq_estimator.density import DensityUQEstimator, compute_view_moments
 from uq_estimator.token_projector import UQTokenProjector
+from uq_estimator.grounding import UQGroundingHead, grounding_loss
 from uq_estimator.losses import CombinedUQLoss
 from uq_estimator.dataset import UQFeatureDataset
 from uq_estimator.bev_uncertainty import (
@@ -16,6 +17,7 @@ from uq_estimator.bev_uncertainty import (
 __all__ = [
     "UQEstimator", "UQOutput", "DensityUQEstimator", "compute_view_moments",
     "UQTokenProjector",
+    "UQGroundingHead", "grounding_loss",
     "CombinedUQLoss", "UQFeatureDataset",
     "compute_patch_quality", "compute_bev_uncertainty",
     "compute_bev_uncertainty_ipm", "make_b2d_calibration",
