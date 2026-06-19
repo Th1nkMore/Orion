@@ -125,7 +125,12 @@ class DensityUQEstimator(nn.Module):
         score = ranks.to(distance.dtype) / max(
             int(calibration_distances.numel()), 1
         )
-        return embedding, score.reshape(distance.shape).unsqueeze(-1), distance
+        return (
+            embedding,
+            score.reshape(distance.shape).unsqueeze(-1),
+            distance,
+            active_embedding,
+        )
 
     def forward(
         self,
@@ -134,8 +139,12 @@ class DensityUQEstimator(nn.Module):
     ) -> UQOutput:
         del stat_features
         descriptor = compute_view_moments(patch_tokens)
-        embedding, score, _ = self.encode_descriptor(descriptor)
-        return UQOutput(embedding=embedding, score=score)
+        embedding, score, _, active_embedding = self.encode_descriptor(descriptor)
+        return UQOutput(
+            embedding=embedding,
+            score=score,
+            active_embedding=active_embedding,
+        )
 
 
 def get_uq_state_dict(checkpoint: dict[str, Any]) -> dict[str, torch.Tensor]:

@@ -32,6 +32,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from mmcv.utils import Config, load_checkpoint, set_random_seed, ProgressBar
 from mmcv.models import build_model
 from mmcv.datasets import build_dataset, build_dataloader
+from uq_estimator.training import low_uq_consistency_loss
 
 
 def parse_args():
@@ -217,7 +218,8 @@ def compute_comfort_loss(ego_fut_preds, ego_fut_masks):
 
 def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
                           lambda_film_reg=0.0, lambda_progress=0.0,
-                          lambda_comfort=0.0):
+                          lambda_comfort=0.0, lambda_uq_consistency=0.0,
+                          lambda_plan=1.0, lambda_vae=0.1, lambda_vlm=0.01):
     """Custom forward for FiLM training with test-format data.
 
     Replicates ORION's inference path through QT-Former + FiLM, then
@@ -295,6 +297,10 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
     if not (orion.with_lm_head and orion.use_gen_token):
         return None
     vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1)
+    baseline_vision_embeded = vision_embeded
+    vision_embeded = orion._append_uq_tokens(
+        vision_embeded, uncertainty_emb, uncertainty_score
+    )
 
     if orion.tokenizer is None:
         return None
@@ -316,6 +322,23 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
         vlm_loss = vlm_output[0]
     else:
         vlm_loss = vlm_output
+
+    consistency_loss_val = torch.tensor(0.0, device=ego_feature.device)
+    if lambda_uq_consistency > 0:
+        with torch.no_grad():
+            _, baseline_ego_feature = orion.lm_head(
+                input_ids=input_ids,
+                attention_mask=vlm_attn_mask,
+                labels=None,
+                images=baseline_vision_embeded,
+                use_cache=False,
+                return_ego_feature=True,
+            )
+        consistency_loss_val = low_uq_consistency_loss(
+            ego_feature,
+            baseline_ego_feature,
+            uncertainty_score,
+        )
 
     # Handle mixed QA training
     if orion.mix_qa_training:
@@ -382,7 +405,12 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
         # Combine losses
         plan_loss = loss_planning.get('loss_plan_reg', torch.tensor(0.0, device='cuda'))
         vlm_loss_val = vlm_loss if torch.is_tensor(vlm_loss) else torch.tensor(0.0, device='cuda')
-        total = plan_loss + 0.1 * loss_vae + 0.01 * vlm_loss_val
+        total = (
+            lambda_plan * plan_loss
+            + lambda_vae * loss_vae
+            + lambda_vlm * vlm_loss_val
+        )
+        total = total + lambda_uq_consistency * consistency_loss_val
 
         # Collision margin loss (Plan C)
         col_loss_val = torch.tensor(0.0, device='cuda')
@@ -430,6 +458,13 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
             'film_reg': film_reg_val.item(),
             'progress': progress_loss_val.item(),
             'comfort': comfort_loss_val.item(),
+            'uq_consistency': consistency_loss_val.item(),
+            'weighted_plan': (lambda_plan * plan_loss).item(),
+            'weighted_vae': (lambda_vae * loss_vae).item(),
+            'weighted_vlm': (lambda_vlm * vlm_loss_val).item(),
+            'weighted_consistency': (
+                lambda_uq_consistency * consistency_loss_val
+            ).item(),
             'total': total.item(),
         }
         return {'loss': total, 'log_vars': log_vars}

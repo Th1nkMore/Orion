@@ -122,6 +122,11 @@ class Orion(MVXTwoStageDetector):
                  loss_vae_gen=dict(type='ProbabilisticLoss', loss_weight=1.0),
                  plan_cls_loss_smooth = False,
                  use_uncertainty_l2 = False,  # [UQ] FiLM L2 at VAE level
+                 use_uq_token = False,  # [UQ] explicit density token for LLM
+                 uq_token_checkpoint = '',
+                 uq_token_count = 1,
+                 uq_token_hidden_dim = 512,
+                 uq_active_dim = 16,
                  use_bev_uncertainty = False,  # [UQ] spatial uncertainty cost
                  bev_lambda = 0.5,
                  ):
@@ -199,6 +204,19 @@ class Orion(MVXTwoStageDetector):
         if lm_head is not None:
             lm_kwargs = dict(use_gen_token=use_gen_token,use_critical_qa=use_critical_qa)
             self.lm_head = load_model(lm_head, use_lora, frozen, lm_kwargs, fp16_infer)
+        self.use_uq_token = use_uq_token
+        self.uq_token_checkpoint = uq_token_checkpoint
+        self.uq_active_dim = uq_active_dim
+        if self.use_uq_token:
+            if lm_head is None:
+                raise ValueError("use_uq_token requires lm_head")
+            from uq_estimator.token_projector import UQTokenProjector
+            self.uq_token_projector = UQTokenProjector(
+                active_dim=uq_active_dim,
+                hidden_dim=uq_token_hidden_dim,
+                llm_dim=self.lm_head.config.hidden_size,
+                token_count=uq_token_count,
+            )
         if use_gen_token:
             add_special_token([EGO_WAYPOINT_TOKEN], tokenizer = self.tokenizer, model = self.lm_head)
             self.lm_head.config.waypoint_token_idx = self.tokenizer(EGO_WAYPOINT_TOKEN, add_special_tokens=False).input_ids[0]
@@ -518,6 +536,35 @@ class Orion(MVXTwoStageDetector):
 
         return losses
 
+    def _append_uq_tokens(
+        self,
+        vision_tokens,
+        uncertainty_embedding,
+        uncertainty_score,
+    ):
+        """Append explicit density uncertainty tokens to the LLM visual input."""
+        if not self.use_uq_token:
+            return vision_tokens
+        if uncertainty_embedding is None or uncertainty_score is None:
+            raise RuntimeError("UQ token conditioning requires density UQ outputs")
+
+        uq_output = getattr(self.pts_bbox_head, 'uq_output', None)
+        active_embedding = (
+            getattr(uq_output, 'active_embedding', None)
+            if uq_output is not None else None
+        )
+        if active_embedding is None:
+            active_embedding = uncertainty_embedding[:, :self.uq_active_dim]
+
+        uq_tokens = self.uq_token_projector(
+            active_embedding,
+            uncertainty_score,
+        ).to(device=vision_tokens.device, dtype=vision_tokens.dtype)
+        self.uq_token_norm = torch.linalg.vector_norm(
+            uq_tokens.detach().float(), dim=-1
+        ).mean()
+        return torch.cat((vision_tokens, uq_tokens), dim=1)
+
 
     def forward_pts_train(self,
                           gt_bboxes_3d,
@@ -581,6 +628,9 @@ class Orion(MVXTwoStageDetector):
         if self.with_lm_head:
             if self.use_gen_token:
                 vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1) # (1, 513, 4096)
+                vision_embeded = self._append_uq_tokens(
+                    vision_embeded, _uncertainty_emb, _uncertainty_score
+                )
                 vlm_loss, ego_feature = self.lm_head(input_ids=input_ids, attention_mask=vlm_attn_mask, labels=vlm_labels, images=vision_embeded, use_cache=False, return_ego_feature=True)
                 if self.mix_qa_training:
                     dummy_ego_feature = self.lm_head.get_model().embed_tokens(torch.tensor([[self.lm_head.config.waypoint_token_idx] for _ in range(B)]).cuda())
@@ -713,6 +763,9 @@ class Orion(MVXTwoStageDetector):
             else:
                 waypoint = None
                 vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1) # (1, 513, 4096)
+                vision_embeded = self._append_uq_tokens(
+                    vision_embeded, _uncertainty_emb, _uncertainty_score
+                )
                 vlm_loss= self.lm_head(input_ids=input_ids, attention_mask=vlm_attn_mask, labels=vlm_labels, images=vision_embeded, use_cache=False)
                 losses.update(vlm_loss=vlm_loss[0])
         return losses
@@ -796,6 +849,9 @@ class Orion(MVXTwoStageDetector):
         if self.with_lm_head:
             history_input_output_id = []
             vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1) # (1, 513, 4096)
+            vision_embeded = self._append_uq_tokens(
+                vision_embeded, uncertainty_emb, _uncertainty_score
+            )
             for i, input_ids in enumerate(data['input_ids'][0]):
                 input_ids = input_ids.unsqueeze(0)
                 special_token_inputs = False

@@ -193,9 +193,12 @@ def main() -> None:
 
     runtime = DensityUQEstimator.from_checkpoint(checkpoint)
     with torch.no_grad():
-        runtime_embedding, runtime_score, runtime_distance = runtime.encode_descriptor(
-            torch.from_numpy(descriptors[test_mask])
-        )
+        (
+            runtime_embedding,
+            runtime_score,
+            runtime_distance,
+            _,
+        ) = runtime.encode_descriptor(torch.from_numpy(descriptors[test_mask]))
     np.testing.assert_allclose(
         runtime_embedding[:, :active_dim].numpy(),
         test_embeddings,

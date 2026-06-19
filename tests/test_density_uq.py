@@ -51,6 +51,7 @@ def test_density_estimator_output_contract():
     output = model(tokens)
     assert output.embedding.shape == (2, embedding_dim + 2)
     assert output.score.shape == (2, 1)
+    assert output.active_embedding.shape == (2, embedding_dim)
     assert torch.all((output.score >= 0) & (output.score <= 1))
     torch.testing.assert_close(
         torch.linalg.vector_norm(output.embedding[:, :embedding_dim], dim=-1),

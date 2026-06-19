@@ -196,6 +196,16 @@ def main():
                 get_uq_state_dict(uq_ckpt), strict=False)
             print(f'[UQ] Reloaded UQEstimator from {uq_ckpt_path} after Orion checkpoint')
 
+    # [UQ Token] Reload projector + LLM LoRA adaptation after base ORION.
+    uq_token_path = os.environ.get(
+        'UQ_TOKEN_CHECKPOINT', cfg.model.get('uq_token_checkpoint', ''))
+    if cfg.model.get('use_uq_token') and uq_token_path:
+        if not os.path.exists(uq_token_path):
+            raise FileNotFoundError(f'UQ token checkpoint not found: {uq_token_path}')
+        from uq_estimator.training import load_uq_token_weights
+        loaded = load_uq_token_weights(model, uq_token_path)
+        print(f'[UQ Token] Loaded {loaded} adaptation tensors from {uq_token_path}')
+
     # [UQ] Load trained FiLM weights if available (L1 + L2)
     film_ckpt_path = os.environ.get('UQ_FILM_CHECKPOINT', '')
     if film_ckpt_path and os.path.exists(film_ckpt_path):

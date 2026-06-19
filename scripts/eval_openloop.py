@@ -380,6 +380,15 @@ def main():
                 get_uq_state_dict(uq_ckpt), strict=False)
             print(f'[UQ] Reloaded UQEstimator from {uq_ckpt_path}')
 
+    uq_token_path = os.environ.get(
+        'UQ_TOKEN_CHECKPOINT', cfg.model.get('uq_token_checkpoint', ''))
+    if cfg.model.get('use_uq_token') and uq_token_path:
+        if not os.path.exists(uq_token_path):
+            raise FileNotFoundError(f'UQ token checkpoint not found: {uq_token_path}')
+        from uq_estimator.training import load_uq_token_weights
+        loaded = load_uq_token_weights(model, uq_token_path)
+        print(f'[UQ Token] Loaded {loaded} adaptation tensors from {uq_token_path}')
+
     # Load trained FiLM weights if provided
     if args.film_checkpoint and os.path.exists(args.film_checkpoint):
         film_ckpt = torch.load(args.film_checkpoint, map_location='cpu', weights_only=False)
