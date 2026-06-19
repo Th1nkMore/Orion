@@ -375,8 +375,9 @@ def main():
         uq_ckpt_path = pts_cfg['uq_checkpoint']
         if os.path.exists(uq_ckpt_path):
             uq_ckpt = torch.load(uq_ckpt_path, map_location='cpu', weights_only=False)
+            from uq_estimator.density import get_uq_state_dict
             model.pts_bbox_head.uq_estimator.load_state_dict(
-                uq_ckpt['model_state_dict'], strict=False)
+                get_uq_state_dict(uq_ckpt), strict=False)
             print(f'[UQ] Reloaded UQEstimator from {uq_ckpt_path}')
 
     # Load trained FiLM weights if provided

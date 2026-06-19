@@ -122,6 +122,8 @@ class Orion(MVXTwoStageDetector):
                  loss_vae_gen=dict(type='ProbabilisticLoss', loss_weight=1.0),
                  plan_cls_loss_smooth = False,
                  use_uncertainty_l2 = False,  # [UQ] FiLM L2 at VAE level
+                 use_bev_uncertainty = False,  # [UQ] spatial uncertainty cost
+                 bev_lambda = 0.5,
                  ):
         super(Orion, self).__init__(pts_voxel_layer, pts_voxel_encoder,
                              pts_middle_encoder, pts_fusion_layer,
@@ -134,6 +136,8 @@ class Orion(MVXTwoStageDetector):
         self.use_grid_mask = use_grid_mask
         self.stride = stride
         self.use_col_loss = use_col_loss
+        self.use_bev_uncertainty = use_bev_uncertainty
+        self.bev_lambda = bev_lambda
         self.position_level = position_level
         self.aux_2d_only = aux_2d_only
         self.query_pos = nn.Sequential(

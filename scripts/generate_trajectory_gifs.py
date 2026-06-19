@@ -111,7 +111,7 @@ def collate_single(dataset, idx):
 def build_orion_model(cfg, checkpoint_path, film_checkpoint=None):
     """Build ORION model with UQ + optional FiLM weights."""
     cfg.model.pts_bbox_head.transformer.use_uncertainty = True
-    cfg.model.pts_bbox_head.uq_checkpoint = 'checkpoints/uq/best.pt'
+    cfg.model.pts_bbox_head.uq_checkpoint = 'checkpoints/density_uq/best.pt'
 
     if film_checkpoint and os.path.exists(film_checkpoint):
         ckpt_peek = torch.load(film_checkpoint, map_location='cpu', weights_only=False)
@@ -131,8 +131,9 @@ def build_orion_model(cfg, checkpoint_path, film_checkpoint=None):
     uq_path = cfg.model.pts_bbox_head.get('uq_checkpoint', '')
     if uq_path and os.path.exists(uq_path):
         uq_ckpt = torch.load(uq_path, map_location='cpu', weights_only=False)
+        from uq_estimator.density import get_uq_state_dict
         model.pts_bbox_head.uq_estimator.load_state_dict(
-            uq_ckpt['model_state_dict'], strict=False)
+            get_uq_state_dict(uq_ckpt), strict=False)
         print(f'[UQ] Reloaded UQEstimator from {uq_path}')
 
     # Load FiLM weights
@@ -609,7 +610,7 @@ def main():
         # ── Build model and dataset ──
         cfg = Config.fromfile(args.config)
         cfg.model.pts_bbox_head.transformer.use_uncertainty = True
-        cfg.model.pts_bbox_head.uq_checkpoint = 'checkpoints/uq/best.pt'
+        cfg.model.pts_bbox_head.uq_checkpoint = 'checkpoints/density_uq/best.pt'
         if args.ann_file:
             cfg.data.test.ann_file = args.ann_file
 

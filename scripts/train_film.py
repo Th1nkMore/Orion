@@ -446,7 +446,7 @@ def main():
     # (individual frames in the small val set may lack sequential neighbors)
     cfg = Config.fromfile(args.config)
     cfg.model.pts_bbox_head.use_uncertainty = True
-    cfg.model.pts_bbox_head.uq_checkpoint = 'checkpoints/uq/best.pt'
+    cfg.model.pts_bbox_head.uq_checkpoint = 'checkpoints/density_uq/best.pt'
 
     # Training mode selection via env vars (used by run_ablation.sh)
     l2_only = os.environ.get('USE_FILM_L2_ONLY', '0') == '1'
@@ -510,8 +510,9 @@ def main():
         uq_ckpt_path = pts_cfg['uq_checkpoint']
         if os.path.exists(uq_ckpt_path):
             uq_ckpt = torch.load(uq_ckpt_path, map_location='cpu', weights_only=False)
+            from uq_estimator.density import get_uq_state_dict
             model.pts_bbox_head.uq_estimator.load_state_dict(
-                uq_ckpt['model_state_dict'], strict=False)
+                get_uq_state_dict(uq_ckpt), strict=False)
             print(f'[UQ] Reloaded UQEstimator from {uq_ckpt_path}')
 
     if 'CLASSES' in checkpoint.get('meta', {}):

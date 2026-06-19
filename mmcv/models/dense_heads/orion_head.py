@@ -298,18 +298,27 @@ class OrionHead(AnchorFreeHead):
         # [UQ] Initialize UQ Estimator if enabled
         self.use_uncertainty = use_uncertainty
         if self.use_uncertainty:
-            from uq_estimator.model import UQEstimator
-            import yaml
-            with open('configs/uq_train.yaml') as f:
-                uq_cfg = yaml.safe_load(f)
-            self.uq_estimator = UQEstimator(uq_cfg['model'])
             if uq_checkpoint:
                 ckpt = torch.load(uq_checkpoint, map_location='cpu', weights_only=False)
-                self.uq_estimator.load_state_dict(ckpt['model_state_dict'])
-                print(f'[UQ] Loaded UQEstimator from {uq_checkpoint}')
+            else:
+                ckpt = None
+            from uq_estimator.density import is_density_checkpoint
+            if ckpt is not None and is_density_checkpoint(ckpt):
+                from uq_estimator.density import DensityUQEstimator
+                self.uq_estimator = DensityUQEstimator.from_checkpoint(ckpt)
+                self.uq_uses_stat_features = False
+                print(f'[UQ] Loaded DensityUQEstimator from {uq_checkpoint}')
+            else:
+                from uq_estimator.model import UQEstimator
+                import yaml
+                with open('configs/uq_train.yaml') as f:
+                    uq_cfg = yaml.safe_load(f)
+                self.uq_estimator = UQEstimator(uq_cfg['model'])
+                self.uq_uses_stat_features = True
+                if ckpt is not None:
+                    self.uq_estimator.load_state_dict(ckpt['model_state_dict'])
+                    print(f'[UQ] Loaded UQEstimator from {uq_checkpoint}')
             self.uq_estimator.eval()
-            # [UQ] Import compute_stat_features for on-the-fly statistics
-            from uq_estimator.dataset import compute_stat_features
 
         self.code_weights = nn.Parameter(torch.tensor(
             self.code_weights), requires_grad=False)
@@ -764,9 +773,11 @@ class OrionHead(AnchorFreeHead):
             # Reshape to [B, N_views, H*W, C] for patch token format
             B_v, N_v, C_v, H_v, W_v = x.shape
             patch_tokens = x.permute(0, 1, 3, 4, 2).reshape(B_v, N_v, H_v * W_v, C_v)  # [B, N_views, N_patches, C]
-            # Compute 5-dim stat features from image tokens (no pre-computed cache in inference)
-            from uq_estimator.dataset import compute_stat_features
-            stat_feat = compute_stat_features(patch_tokens)  # [B, 5]
+            stat_feat = None
+            if self.uq_uses_stat_features:
+                # Legacy learned estimator requires its five hand-crafted inputs.
+                from uq_estimator.dataset import compute_stat_features
+                stat_feat = compute_stat_features(patch_tokens)  # [B, 5]
             uq_out = self.uq_estimator(patch_tokens, stat_feat)
             uncertainty_emb = uq_out.embedding  # [B, 256]
             uncertainty_score = uq_out.score  # [UQ] [B, 1] for Score-Gated FiLM

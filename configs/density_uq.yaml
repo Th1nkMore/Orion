@@ -1,0 +1,13 @@
+model:
+  n_components: 16
+  output_dim: 256
+  pca_batch_size: 512
+
+data:
+  descriptor_cache: ./data/density_uq/descriptors.pt
+  output_dir: ./reports/density_uq
+  seed: 42
+  split_ratios: [0.6, 0.2, 0.2]
+
+evaluation:
+  bootstrap_iterations: 1000

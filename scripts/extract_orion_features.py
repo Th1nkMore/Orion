@@ -22,12 +22,11 @@ from mmcv.models.backbones.eva_vit import EVAViT
 
 
 # B2D uses CARLA weather preset IDs (WeatherN in route folder names).
-# Mapping based on CARLA 0.9.x standard presets:
-#   0=ClearNoon, 7=ClearSunset → normal (clear visibility)
-#   all others (cloudy/wet/rain/night/storm) → adverse
-NORMAL_WEATHER_IDS = {0, 7}   # ClearNoon, ClearSunset
-ADVERSE_WEATHER_IDS = {1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15,
-                       16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26}
+# Keep this split aligned with eval_openloop.py and the report protocol:
+# Weather 0-3 are clear/cloudy daytime conditions; all other presets are
+# treated as adverse, including clear night.
+NORMAL_WEATHER_IDS = {0, 1, 2, 3}
+ADVERSE_WEATHER_IDS = set(range(27)) - NORMAL_WEATHER_IDS
 
 
 def classify_scene(route_folder: str) -> str:
