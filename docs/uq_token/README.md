@@ -47,6 +47,7 @@ because it changes the planning feature after LLM reasoning.
 | [implementation.md](implementation.md) | Code plan, interfaces, checkpoints, and implementation status |
 | [decisions.md](decisions.md) | Dated architectural decisions and rejected alternatives |
 | [log.md](log.md) | Chronological code changes, server runs, failures, and results |
+| [next_stage.md](next_stage.md) | Next architecture, supervision plan, gates, fallbacks, and stop rules |
 
 ## Update Rules
 
