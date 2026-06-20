@@ -589,6 +589,80 @@ not from the waypoint hidden state. Preserve the current counterfactual controls
 and evaluate whether the waypoint trajectory uses UQ beneficially without
 being forced to reconstruct it.
 
+---
+
+## 2026-06-20: Explicit Reliability QA Pre-Experiment
+
+Implemented:
+
+- structured and natural Risk QA target generation;
+- Bench2Drive category normalization and nearest critical-object selection;
+- correct/zero/shuffled/no-token generation interventions;
+- counterfactual teacher-forced Risk QA alignment;
+- level-only reliability QA for multi-round decomposition.
+
+R0 target audit, 50 calibration frames:
+
+```text
+Parse success: 100%
+Critical-object coverage: 100%
+Mean target length: 162.8 tokens
+Maximum target length: 167 tokens
+```
+
+R1 with the previous planning adaptation:
+
+```text
+All modes generated the original ORION scene/planning response.
+Structured Risk QA parse rate: 0%.
+```
+
+R2 structured and R2b combined natural-language targets both failed free
+generation after 300 effective frames. Training/generation token prefixes were
+verified identical. The failure was attributed to simultaneously retraining
+reliability semantics and detailed scene description.
+
+R2c separated the existing critical-object QA from a new reliability-only
+round:
+
+```text
+Target: Visual reliability is LEVEL.
+Levels: very low, low, moderate, high, very high
+Training frames: 200
+Optimizer updates: 50
+```
+
+Fifty-frame result:
+
+```text
+Correct parse rate: 1.00
+Correct level accuracy: 0.88
+Correct ordinal MAE: 0.12
+
+Shuffled parse rate: 0.86
+Shuffled level accuracy: 0.68
+Shuffled ordinal MAE: 0.21
+Shuffled level Spearman: 0.953
+
+Different-target intervention frames: 33
+Generated level changed: 31
+Intervention response: 93.9%
+```
+
+Artifacts:
+
+```text
+/root/autodl-tmp/orion_assets/checkpoints/risk_qa/r2c_level200.pt
+/root/autodl-tmp/orion_assets/reports/risk_qa/r2c_eval50.json
+```
+
+Conclusion:
+
+The language model can explicitly verbalize the continuous UQ token as a
+calibrated reliability level. The remaining error is concentrated in the
+very-high-reliability tail and should be addressed by balanced level sampling,
+not by changing the token interface.
+
 Current status:
 
 ```text

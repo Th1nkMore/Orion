@@ -48,6 +48,7 @@ because it changes the planning feature after LLM reasoning.
 | [decisions.md](decisions.md) | Dated architectural decisions and rejected alternatives |
 | [log.md](log.md) | Chronological code changes, server runs, failures, and results |
 | [next_stage.md](next_stage.md) | Next architecture, supervision plan, gates, fallbacks, and stop rules |
+| [risk_qa_plan.md](risk_qa_plan.md) | Explicit language-risk interface and pre-experiment protocol |
 
 ## Update Rules
 
