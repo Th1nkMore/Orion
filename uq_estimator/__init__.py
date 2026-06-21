@@ -13,6 +13,7 @@ from uq_estimator.risk_qa import (
     render_natural_risk_qa_answer,
     render_reliability_answer,
     render_risk_qa_answer,
+    select_balanced_sample_ids,
     select_critical_objects,
 )
 from uq_estimator.losses import CombinedUQLoss
@@ -36,6 +37,7 @@ __all__ = [
     "parse_risk_qa_answer", "render_risk_qa_answer",
     "parse_natural_risk_qa_answer", "render_natural_risk_qa_answer",
     "parse_reliability_answer", "render_reliability_answer",
+    "select_balanced_sample_ids",
     "select_critical_objects",
     "CombinedUQLoss", "UQFeatureDataset",
     "compute_patch_quality", "compute_bev_uncertainty",

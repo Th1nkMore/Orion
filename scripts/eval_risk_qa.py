@@ -10,6 +10,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from scipy.stats import spearmanr
 
 from mmcv.datasets import build_dataloader, build_dataset
 from mmcv.models import build_model
@@ -25,6 +26,7 @@ from scripts.train_uq_token import (
     sample_id_from_batch,
 )
 from uq_estimator.density import get_uq_state_dict
+from uq_estimator.density import DensityUQEstimator
 from uq_estimator.risk_qa import (
     RISK_QA_QUESTION,
     RELIABILITY_QA_QUESTION,
@@ -35,6 +37,9 @@ from uq_estimator.risk_qa import (
     render_natural_risk_qa_answer,
     render_reliability_answer,
     render_risk_qa_answer,
+    reliability_level,
+    reliability_percentile,
+    select_balanced_sample_ids,
     select_critical_objects,
 )
 from uq_estimator.training import load_uq_token_weights
@@ -59,6 +64,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--ann-file", default="data/infos/b2d_infos_val.pkl")
     parser.add_argument("--split", default="calibration")
     parser.add_argument("--max-samples", type=int, default=5)
+    parser.add_argument("--balanced-per-level", type=int, default=None)
     parser.add_argument("--workers", type=int, default=2)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
@@ -182,6 +188,99 @@ def info_sample_id(info: dict) -> str:
     )
 
 
+def build_density_score_lookup(
+    descriptor_cache: str,
+    density_checkpoint,
+    allowed_sample_ids: set[str],
+) -> dict[str, float]:
+    cache = torch.load(
+        descriptor_cache, map_location="cpu", weights_only=True
+    )
+    density = DensityUQEstimator.from_checkpoint(density_checkpoint).eval()
+    selected = [
+        index for index, filename in enumerate(cache["filenames"])
+        if filename in allowed_sample_ids
+    ]
+    score_lookup = {}
+    with torch.no_grad():
+        for start in range(0, len(selected), 512):
+            indices = selected[start:start + 512]
+            _, scores, _, _ = density.encode_descriptor(
+                cache["descriptors"][indices].float()
+            )
+            for index, score in zip(indices, scores.flatten().tolist()):
+                score_lookup[cache["filenames"][index]] = float(score)
+    return score_lookup
+
+
+def summarize_level_outputs(records: list[dict]) -> dict:
+    level_order = ("very low", "low", "moderate", "high", "very high")
+    level_index = {level: index for index, level in enumerate(level_order)}
+    summary = {}
+    for mode, score_key in (
+        ("correct", "correct_uq_score"),
+        ("shuffled", "shuffled_uq_score"),
+    ):
+        if not records or mode not in records[0]["outputs"]:
+            continue
+        predictions = []
+        targets = []
+        for record in records:
+            prediction = record["outputs"][mode]["parsed_level"]
+            target = reliability_level(
+                reliability_percentile(record[score_key])
+            )
+            if prediction in level_index:
+                predictions.append(level_index[prediction])
+                targets.append(level_index[target])
+        count = len(records)
+        parsed = len(predictions)
+        summary[mode] = {
+            "count": count,
+            "parse_rate": parsed / count if count else 0.0,
+            "accuracy": (
+                sum(pred == target for pred, target in zip(
+                    predictions, targets
+                )) / count
+                if count else 0.0
+            ),
+            "ordinal_mae": (
+                float(np.mean(np.abs(
+                    np.asarray(predictions) - np.asarray(targets)
+                )))
+                if parsed else float("nan")
+            ),
+            "spearman": (
+                float(spearmanr(predictions, targets).statistic)
+                if parsed >= 2 else float("nan")
+            ),
+        }
+
+    if all(mode in summary for mode in ("correct", "shuffled")):
+        eligible = 0
+        changed = 0
+        for record in records:
+            correct_target = reliability_level(
+                reliability_percentile(record["correct_uq_score"])
+            )
+            shuffled_target = reliability_level(
+                reliability_percentile(record["shuffled_uq_score"])
+            )
+            if correct_target == shuffled_target:
+                continue
+            eligible += 1
+            changed += (
+                record["outputs"]["correct"]["parsed_level"]
+                != record["outputs"]["shuffled"]["parsed_level"]
+            )
+        summary["intervention"] = {
+            "eligible": eligible,
+            "changed": changed,
+            "response_rate": changed / eligible if eligible else float("nan"),
+        }
+    return summary
+
+
 def main() -> None:
     args = parse_args()
     set_random_seed(args.seed, deterministic=True)
@@ -212,7 +311,24 @@ def main() -> None:
 
     dataset = build_dataset(cfg.data.test)
     filter_dataset_by_split(dataset, assignment, args.split)
-    dataset.data_infos = dataset.data_infos[:args.max_samples]
+    if args.balanced_per_level is not None:
+        info_by_name = {
+            info_sample_id(info): info for info in dataset.data_infos
+        }
+        score_lookup = build_density_score_lookup(
+            args.descriptor_cache,
+            density_payload,
+            set(info_by_name),
+        )
+        selected_ids, level_counts = select_balanced_sample_ids(
+            score_lookup,
+            args.balanced_per_level,
+            args.seed,
+        )
+        dataset.data_infos = [info_by_name[name] for name in selected_ids]
+        print(f"[RiskQA] balanced levels: {json.dumps(level_counts)}")
+    else:
+        dataset.data_infos = dataset.data_infos[:args.max_samples]
     dataset.flag = np.zeros(len(dataset), dtype=np.uint8)
     loader = build_dataloader(
         dataset,
@@ -356,7 +472,13 @@ def main() -> None:
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
-        json.dumps({"records": records}, indent=2),
+        json.dumps(
+            {
+                "summary": summarize_level_outputs(records),
+                "records": records,
+            },
+            indent=2,
+        ),
         encoding="utf-8",
     )
     print(f"[RiskQA] saved {output}")

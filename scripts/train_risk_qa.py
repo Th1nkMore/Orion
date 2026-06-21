@@ -29,6 +29,7 @@ from scripts.train_uq_token import (
     sample_id_from_batch,
 )
 from uq_estimator.density import get_uq_state_dict
+from uq_estimator.density import DensityUQEstimator
 from uq_estimator.risk_qa import (
     RISK_QA_QUESTION,
     RELIABILITY_QA_QUESTION,
@@ -36,6 +37,7 @@ from uq_estimator.risk_qa import (
     render_natural_risk_qa_answer,
     render_reliability_answer,
     render_risk_qa_answer,
+    select_balanced_sample_ids,
     select_critical_objects,
 )
 from uq_estimator.training import load_uq_token_weights
@@ -58,6 +60,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--split", default="train")
     parser.add_argument("--epochs", type=int, default=1)
     parser.add_argument("--max-samples", type=int, default=300)
+    parser.add_argument("--balanced-per-level", type=int, default=None)
     parser.add_argument("--max-steps", type=int, default=300)
     parser.add_argument("--workers", type=int, default=2)
     parser.add_argument("--grad-accum", type=int, default=4)
@@ -148,6 +151,31 @@ def save_checkpoint(path, model, optimizer, args, step, history):
     )
 
 
+def build_density_score_lookup(
+    descriptor_cache: str,
+    density_checkpoint,
+    allowed_sample_ids: set[str],
+) -> dict[str, float]:
+    cache = torch.load(
+        descriptor_cache, map_location="cpu", weights_only=True
+    )
+    density = DensityUQEstimator.from_checkpoint(density_checkpoint).eval()
+    selected = [
+        index for index, filename in enumerate(cache["filenames"])
+        if filename in allowed_sample_ids
+    ]
+    score_lookup = {}
+    with torch.no_grad():
+        for start in range(0, len(selected), 512):
+            indices = selected[start:start + 512]
+            _, scores, _, _ = density.encode_descriptor(
+                cache["descriptors"][indices].float()
+            )
+            for index, score in zip(indices, scores.flatten().tolist()):
+                score_lookup[cache["filenames"][index]] = float(score)
+    return score_lookup
+
+
 def main() -> None:
     args = parse_args()
     set_random_seed(args.seed, deterministic=True)
@@ -173,7 +201,24 @@ def main() -> None:
 
     dataset = build_dataset(cfg.data.test)
     matched = filter_dataset_by_split(dataset, assignment, args.split)
-    dataset.data_infos = dataset.data_infos[:args.max_samples]
+    if args.balanced_per_level is not None:
+        info_by_name = {
+            info_sample_id(info): info for info in dataset.data_infos
+        }
+        score_lookup = build_density_score_lookup(
+            args.descriptor_cache,
+            density_payload,
+            set(info_by_name),
+        )
+        selected_ids, level_counts = select_balanced_sample_ids(
+            score_lookup,
+            args.balanced_per_level,
+            args.seed,
+        )
+        dataset.data_infos = [info_by_name[name] for name in selected_ids]
+        print(f"[RiskQA] balanced levels: {json.dumps(level_counts)}")
+    else:
+        dataset.data_infos = dataset.data_infos[:args.max_samples]
     dataset.flag = np.zeros(len(dataset), dtype=np.uint8)
     loader = build_dataloader(
         dataset,

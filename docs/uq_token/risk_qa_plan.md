@@ -316,6 +316,53 @@ R2d acceptance:
 Only after R2d passes should Risk QA text be inserted into the planning
 conversation history.
 
+### R2d Result
+
+R2d used the R2c checkpoint as initialization and continued with 300
+route-split training frames, exactly 60 per reliability level.
+
+Balanced 100-frame calibration evaluation:
+
+| Intervention | Parse rate | Accuracy | Ordinal MAE | Spearman |
+| --- | ---: | ---: | ---: | ---: |
+| correct | **0.97** | **0.90** | **0.072** | **0.981** |
+| shuffled | **0.99** | **0.96** | **0.030** | **0.985** |
+
+For 78 samples whose correct and shuffled targets belonged to different
+levels, 73 generated statements changed:
+
+```text
+intervention response rate: 93.6%
+```
+
+Twenty-frame controls produced no parseable reliability statements:
+
+```text
+none: 0/20
+zero: 0/20
+```
+
+R2d passes all predefined gates. This is sufficient for the midterm claim that
+the language model reads the continuous UQ token and assigns it an explicit,
+calibrated reliability meaning.
+
+Representative counterfactual examples:
+
+| Correct score / output | Shuffled score / output |
+| --- | --- |
+| 0.979 / `very low` | 0.143 / `high` |
+| 0.603 / `low` | 0.334 / `moderate` |
+| 0.397 / `moderate` | 0.153 / `high` |
+| 0.125 / `high` | 0.265 / `moderate` |
+| 0.035 / `very high` | 0.077 / `very high` |
+
+Report-ready artifacts:
+
+```text
+reports/risk_qa/r2d_results.md
+reports/risk_qa/r2d_summary.png
+```
+
 ### R3: Risk QA to Planning Interface
 
 Run only after R2 passes.

@@ -264,3 +264,37 @@ def parse_reliability_answer(text: str) -> str:
     if level_match is None:
         raise ValueError("Reliability answer does not contain a valid level")
     return level_match.group(1).lower()
+
+
+def select_balanced_sample_ids(
+    score_by_sample_id: dict[str, float],
+    per_level: int,
+    seed: int,
+) -> tuple[list[str], dict[str, int]]:
+    if per_level <= 0:
+        raise ValueError("per_level must be positive")
+    buckets: dict[str, list[str]] = {
+        level: []
+        for level in ("very low", "low", "moderate", "high", "very high")
+    }
+    for sample_id, score in score_by_sample_id.items():
+        level = reliability_level(reliability_percentile(score))
+        buckets[level].append(sample_id)
+
+    generator = np.random.default_rng(seed)
+    selected = []
+    counts = {}
+    for level, sample_ids in buckets.items():
+        if len(sample_ids) < per_level:
+            raise ValueError(
+                f"Reliability level {level!r} has only {len(sample_ids)} "
+                f"samples, fewer than requested {per_level}"
+            )
+        indices = generator.choice(
+            len(sample_ids), size=per_level, replace=False
+        )
+        chosen = [sample_ids[int(index)] for index in indices]
+        selected.extend(chosen)
+        counts[level] = len(chosen)
+    generator.shuffle(selected)
+    return selected, counts

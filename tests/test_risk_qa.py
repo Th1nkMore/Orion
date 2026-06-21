@@ -10,6 +10,7 @@ from uq_estimator.risk_qa import (
     render_natural_risk_qa_answer,
     render_reliability_answer,
     render_risk_qa_answer,
+    select_balanced_sample_ids,
     select_critical_objects,
 )
 
@@ -63,3 +64,14 @@ def test_risk_qa_round_trip():
     assert parse_reliability_answer(
         render_reliability_answer(answer)
     ) == answer.reliability_level
+
+
+def test_balanced_sample_selection():
+    scores = {}
+    representative_scores = (0.95, 0.6, 0.4, 0.15, 0.02)
+    for level_index, score in enumerate(representative_scores):
+        for sample_index in range(3):
+            scores[f"{level_index}-{sample_index}"] = score
+    selected, counts = select_balanced_sample_ids(scores, 2, seed=42)
+    assert len(selected) == 10
+    assert set(counts.values()) == {2}

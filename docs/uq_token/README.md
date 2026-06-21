@@ -7,11 +7,9 @@
 
 Current gate:
 
-> Counterfactual score-only grounding passed both causal-use and held-out
-> calibration gates, but the grounding-only checkpoint is not a valid planning
-> initializer. Joint waypoint-grounding also failed the planning gate because
-> it forces the trajectory representation itself to encode score. Further
-> scaling is stopped pending a separate LLM UQ readout token.
+> Balanced Reliability QA passed. The LLM verbalizes continuous UQ tokens as
+> calibrated reliability levels under correct and shuffled interventions.
+> The next gate is multi-round risk synthesis before any planning fine-tuning.
 
 This directory is the source of truth for the Density UQ + LLM uncertainty
 token stage of UQ-ORION. New design decisions, implementation notes, experiment
@@ -77,5 +75,7 @@ because it changes the planning feature after LLM reasoning.
 | Counterfactual score-only grounding | Complete; causal and MAE gates passed |
 | Grounding-only checkpoint as planning initializer | Rejected |
 | Joint grounding + planning pilot | Failed planning gate; stopped |
-| Separate LLM UQ readout token | Next architecture revision |
-| Baseline and ablation evaluation | In progress |
+| Explicit Reliability QA | Complete; R2d passed |
+| No-token and zero-token controls | Complete |
+| Multi-round risk synthesis | Next |
+| Planning effect evaluation | Deferred until risk synthesis passes |

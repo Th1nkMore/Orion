@@ -663,6 +663,68 @@ calibrated reliability level. The remaining error is concentrated in the
 very-high-reliability tail and should be addressed by balanced level sampling,
 not by changing the token interface.
 
+---
+
+## 2026-06-21: Balanced Reliability QA Passed
+
+Machine:
+
+```text
+AutoDL RTX 4090
+root@connect.weste.seetacloud.com:39408
+```
+
+Training:
+
+```text
+Initialization: r2c_level200.pt
+Training frames: 300
+Frames per level: 60
+Effective steps: 300
+Gradient accumulation: 4
+Projector LR: 3e-5
+LoRA LR: 3e-6
+```
+
+Balanced 100-frame route-disjoint calibration evaluation:
+
+| Intervention | Parse rate | Accuracy | Ordinal MAE | Spearman |
+| --- | ---: | ---: | ---: | ---: |
+| correct | 0.97 | 0.90 | 0.072 | 0.981 |
+| shuffled | 0.99 | 0.96 | 0.030 | 0.985 |
+
+Counterfactual intervention:
+
+```text
+Different target levels: 78
+Generated output changed: 73
+Response rate: 93.6%
+```
+
+Controls:
+
+```text
+No UQ token parse rate: 0/20
+Zero UQ token parse rate: 0/20
+```
+
+Artifacts:
+
+```text
+/root/autodl-tmp/orion_assets/checkpoints/risk_qa/r2d_balanced300.pt
+/root/autodl-tmp/orion_assets/reports/risk_qa/r2d_eval100.json
+/root/autodl-tmp/orion_assets/reports/risk_qa/r2d_controls20.json
+reports/risk_qa/r2d_summary.png
+reports/risk_qa/r2d_results.md
+```
+
+Conclusion:
+
+The explicit reliability-language stage passes. For the midterm report, the
+claim should remain limited to uncertainty-aware scene reliability
+understanding. Multi-round risk synthesis and planning effects remain future
+work.
+
 Current status:
 
 ```text
