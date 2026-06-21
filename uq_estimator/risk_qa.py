@@ -8,6 +8,7 @@ import re
 from typing import Iterable, Sequence
 
 import numpy as np
+import torch
 
 
 RISK_QA_QUESTION = (
@@ -187,6 +188,49 @@ def render_reliability_answer(answer: RiskQAAnswer) -> str:
     return f"Visual reliability is {answer.reliability_level}."
 
 
+def render_critical_object_context(
+    critical_objects: Iterable[CriticalObject],
+) -> str:
+    objects = tuple(critical_objects)
+    if not objects:
+        return "Critical objects observed: none."
+    rendered = "; ".join(
+        f"{item.category.replace('_', ' ')} in the {item.position}"
+        for item in objects
+    )
+    return f"Critical objects observed: {rendered}."
+
+
+def render_risk_synthesis_answer(answer: RiskQAAnswer) -> str:
+    if answer.critical_objects:
+        objects = "; ".join(
+            f"{item.category.replace('_', ' ')} in the {item.position}"
+            for item in answer.critical_objects
+        )
+    else:
+        objects = "no listed critical objects"
+    return (
+        f"Risk summary: visual reliability is {answer.reliability_level}; "
+        f"treat {objects} with {answer.reliability_level} evidence confidence "
+        "and verify uncertain observations before planning."
+    )
+
+
+def mask_to_final_supervised_span(
+    labels: torch.Tensor,
+    ignore_index: int = -100,
+) -> torch.Tensor:
+    """Keep supervision only for the final assistant turn."""
+    labels = labels.clone()
+    supervised = torch.where(labels.ne(ignore_index))[0]
+    if supervised.numel() == 0:
+        raise ValueError("Expected at least one supervised token")
+    gaps = torch.where(supervised[1:] - supervised[:-1] > 1)[0]
+    final_start = supervised[gaps[-1] + 1] if gaps.numel() else supervised[0]
+    labels[:final_start] = ignore_index
+    return labels
+
+
 _PERCENTILE_RE = re.compile(r"VISUAL_RELIABILITY_PERCENTILE:\s*(\d{1,3})")
 _LEVEL_RE = re.compile(r"RELIABILITY_LEVEL:\s*([^\n]+)")
 _OBJECTS_RE = re.compile(r"CRITICAL_OBJECTS:\s*([^\n]+)")
@@ -264,6 +308,26 @@ def parse_reliability_answer(text: str) -> str:
     if level_match is None:
         raise ValueError("Reliability answer does not contain a valid level")
     return level_match.group(1).lower()
+
+
+_SYNTHESIS_OBJECTS_RE = re.compile(
+    r"treat (.*?) with "
+    r"(very low|low|moderate|high|very high) evidence confidence",
+    re.IGNORECASE,
+)
+
+
+def parse_risk_synthesis_answer(text: str) -> tuple[str, tuple[str, ...]]:
+    level = parse_reliability_answer(text)
+    objects_match = _SYNTHESIS_OBJECTS_RE.search(text)
+    if objects_match is None:
+        raise ValueError("Risk synthesis answer is missing object evidence")
+    object_text = objects_match.group(1).strip()
+    if object_text == "no listed critical objects":
+        return level, ()
+    return level, tuple(
+        item.strip() for item in object_text.split(";") if item.strip()
+    )
 
 
 def select_balanced_sample_ids(

@@ -34,8 +34,11 @@ from uq_estimator.risk_qa import (
     RISK_QA_QUESTION,
     RELIABILITY_QA_QUESTION,
     build_risk_qa_answer,
+    mask_to_final_supervised_span,
     render_natural_risk_qa_answer,
+    render_critical_object_context,
     render_reliability_answer,
+    render_risk_synthesis_answer,
     render_risk_qa_answer,
     select_balanced_sample_ids,
     select_critical_objects,
@@ -72,14 +75,47 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--answer-style",
-        choices=("structured", "natural", "level_only"),
+        choices=("structured", "natural", "level_only", "synthesis"),
         default="level_only",
     )
     parser.add_argument("--out", required=True)
     return parser.parse_args()
 
 
-def risk_qa_tokens(tokenizer, answer: str, answer_style: str):
+def risk_qa_tokens(
+    tokenizer,
+    answer: str,
+    answer_style: str,
+    critical_objects=(),
+    reliability_answer: str | None = None,
+):
+    if answer_style == "synthesis":
+        sources = [[
+            {
+                "from": "human",
+                "value": (
+                    f"{DEFAULT_IMAGE_TOKEN}\nYou are driving a car. "
+                    "Identify the critical objects in the scene."
+                ),
+            },
+            {
+                "from": "gpt",
+                "value": render_critical_object_context(critical_objects),
+            },
+            {"from": "human", "value": RELIABILITY_QA_QUESTION},
+            {"from": "gpt", "value": reliability_answer},
+            {
+                "from": "human",
+                "value": (
+                    "Combine the critical-object facts and visual reliability "
+                    "into one concise risk summary. Do not add new objects."
+                ),
+            },
+            {"from": "gpt", "value": answer},
+        ]]
+        converted = preprocess(sources, tokenizer, has_image=True)
+        labels = mask_to_final_supervised_span(converted["labels"][0])
+        return converted["input_ids"][0], labels
     if answer_style == "level_only":
         task = RELIABILITY_QA_QUESTION
     else:
@@ -116,8 +152,22 @@ def freeze_for_risk_qa(model):
     return groups
 
 
-def language_loss(model, vision, tokenizer, answer, answer_style):
-    input_ids, labels = risk_qa_tokens(tokenizer, answer, answer_style)
+def language_loss(
+    model,
+    vision,
+    tokenizer,
+    answer,
+    answer_style,
+    critical_objects=(),
+    reliability_answer=None,
+):
+    input_ids, labels = risk_qa_tokens(
+        tokenizer,
+        answer,
+        answer_style,
+        critical_objects=critical_objects,
+        reliability_answer=reliability_answer,
+    )
     input_ids = input_ids.unsqueeze(0).cuda()
     labels = labels.unsqueeze(0).cuda()
     attention_mask = input_ids.ne(tokenizer.pad_token_id or 0)
@@ -312,26 +362,34 @@ def main() -> None:
                 shuffled_uq=shuffled_uq,
             )
             render_answer = (
-                render_reliability_answer
-                if args.answer_style == "level_only"
+                render_risk_synthesis_answer
+                if args.answer_style == "synthesis"
                 else (
-                    render_natural_risk_qa_answer
-                    if args.answer_style == "natural"
-                    else render_risk_qa_answer
+                    render_reliability_answer
+                    if args.answer_style == "level_only"
+                    else (
+                        render_natural_risk_qa_answer
+                        if args.answer_style == "natural"
+                        else render_risk_qa_answer
+                    )
                 )
             )
-            correct_answer = render_answer(
-                build_risk_qa_answer(float(context[2].item()), objects)
+            correct_risk = build_risk_qa_answer(
+                float(context[2].item()), objects
             )
-            shuffled_answer = render_answer(
-                build_risk_qa_answer(float(shuffled_score.item()), objects)
+            shuffled_risk = build_risk_qa_answer(
+                float(shuffled_score.item()), objects
             )
+            correct_answer = render_answer(correct_risk)
+            shuffled_answer = render_answer(shuffled_risk)
             correct_loss = language_loss(
                 model,
                 correct_vision,
                 model.tokenizer,
                 correct_answer,
                 args.answer_style,
+                critical_objects=objects,
+                reliability_answer=render_reliability_answer(correct_risk),
             )
             shuffled_loss = language_loss(
                 model,
@@ -339,6 +397,8 @@ def main() -> None:
                 model.tokenizer,
                 shuffled_answer,
                 args.answer_style,
+                critical_objects=objects,
+                reliability_answer=render_reliability_answer(shuffled_risk),
             )
             loss = 0.5 * (correct_loss + shuffled_loss)
             (loss / args.grad_accum).backward()

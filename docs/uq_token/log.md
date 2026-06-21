@@ -89,6 +89,52 @@ visual token sequence.
 
 ---
 
+## 2026-06-21: Reliability Language and Planning Sensitivity
+
+Completed:
+
+- balanced R2d reliability alignment;
+- 100-frame correct/shuffled calibration evaluation;
+- none/zero controls;
+- two minimal free risk-synthesis pilots;
+- fixed-noise reliability-history planning sensitivity pilot.
+
+R2d result:
+
+```text
+correct parse / accuracy: 0.97 / 0.90
+shuffled parse / accuracy: 0.99 / 0.96
+intervention response: 0.936
+none and zero controls: 0/20 parseable
+```
+
+Planning pilot:
+
+```text
+valid frames: 10
+correct-text ADE: 0.2362 m
+shuffled-text ADE: 0.2367 m
+correct-vs-shuffled hidden L2: 0.4301
+correct-vs-shuffled trajectory displacement: 0.00283 m
+```
+
+Conclusion:
+
+The LLM reads and verbalizes the continuous UQ token, but the frozen planning
+path does not naturally convert reliability meaning into behavior. Free-form
+risk synthesis also failed at this data scale. The next stage requires
+planning supervision rather than additional prompt-only tuning.
+
+Artifacts:
+
+```text
+reports/risk_qa/r2d_results.md
+reports/risk_qa/r2d_summary.png
+reports/risk_qa/risk_planning_pilot.md
+```
+
+---
+
 ## 2026-06-20: Primary Conditioning Strategy Changed
 
 Decision:

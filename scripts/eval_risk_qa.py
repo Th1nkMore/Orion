@@ -33,9 +33,12 @@ from uq_estimator.risk_qa import (
     build_risk_qa_answer,
     parse_natural_risk_qa_answer,
     parse_reliability_answer,
+    parse_risk_synthesis_answer,
     parse_risk_qa_answer,
     render_natural_risk_qa_answer,
+    render_critical_object_context,
     render_reliability_answer,
+    render_risk_synthesis_answer,
     render_risk_qa_answer,
     reliability_level,
     reliability_percentile,
@@ -73,15 +76,51 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-new-tokens", type=int, default=160)
     parser.add_argument(
         "--answer-style",
-        choices=("structured", "natural", "level_only"),
+        choices=("structured", "natural", "level_only", "synthesis"),
         default="level_only",
     )
     parser.add_argument("--output", required=True)
     return parser.parse_args()
 
 
-def build_generation_prompt(tokenizer, answer_style="natural") -> torch.Tensor:
+def build_generation_prompt(
+    tokenizer,
+    answer_style="natural",
+    critical_objects=(),
+    reliability_answer=None,
+) -> torch.Tensor:
     conversation = conversation_lib.default_conversation.copy()
+    if answer_style == "synthesis":
+        conversation.append_message(
+            conversation.roles[0],
+            (
+                f"{DEFAULT_IMAGE_TOKEN}\nYou are driving a car. "
+                "Identify the critical objects in the scene."
+            ),
+        )
+        conversation.append_message(
+            conversation.roles[1],
+            render_critical_object_context(critical_objects),
+        )
+        conversation.append_message(
+            conversation.roles[0], RELIABILITY_QA_QUESTION
+        )
+        conversation.append_message(
+            conversation.roles[1], reliability_answer
+        )
+        conversation.append_message(
+            conversation.roles[0],
+            (
+                "Combine the critical-object facts and visual reliability "
+                "into one concise risk summary. Do not add new objects."
+            ),
+        )
+        conversation.append_message(conversation.roles[1], None)
+        return tokenizer_image_token(
+            conversation.get_prompt(),
+            tokenizer,
+            return_tensors="pt",
+        ).unsqueeze(0)
     if answer_style == "level_only":
         task = RELIABILITY_QA_QUESTION
     else:
@@ -362,9 +401,6 @@ def main() -> None:
     model.pts_bbox_head.with_dn = False
     model.pts_bbox_head.uq_estimator.eval()
 
-    prompt_ids = build_generation_prompt(
-        model.tokenizer, args.answer_style
-    ).cuda()
     records = []
     with torch.no_grad():
         for batch in loader:
@@ -382,12 +418,16 @@ def main() -> None:
                 shuffled_score.unsqueeze(0).cuda(),
             )
             render_answer = (
-                render_reliability_answer
-                if args.answer_style == "level_only"
+                render_risk_synthesis_answer
+                if args.answer_style == "synthesis"
                 else (
-                    render_natural_risk_qa_answer
-                    if args.answer_style == "natural"
-                    else render_risk_qa_answer
+                    render_reliability_answer
+                    if args.answer_style == "level_only"
+                    else (
+                        render_natural_risk_qa_answer
+                        if args.answer_style == "natural"
+                        else render_risk_qa_answer
+                    )
                 )
             )
             target_by_mode = {
@@ -403,6 +443,19 @@ def main() -> None:
             }
             outputs = {}
             for mode in modes:
+                if mode == "shuffled":
+                    mode_score = float(shuffled_score.item())
+                elif mode == "correct":
+                    mode_score = correct_score
+                else:
+                    mode_score = 0.0
+                mode_risk = build_risk_qa_answer(mode_score, objects)
+                prompt_ids = build_generation_prompt(
+                    model.tokenizer,
+                    args.answer_style,
+                    critical_objects=objects,
+                    reliability_answer=render_reliability_answer(mode_risk),
+                ).cuda()
                 vision = apply_uq_mode(
                     model,
                     *context,
@@ -421,7 +474,12 @@ def main() -> None:
                     output_ids, skip_special_tokens=True
                 )[0]
                 try:
-                    if args.answer_style == "level_only":
+                    if args.answer_style == "synthesis":
+                        parsed_level, parsed_objects = (
+                            parse_risk_synthesis_answer(text)
+                        )
+                        parsed_percentile = None
+                    elif args.answer_style == "level_only":
                         parsed_level = parse_reliability_answer(text)
                         parsed_objects = ()
                         parsed_percentile = None

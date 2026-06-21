@@ -363,6 +363,40 @@ reports/risk_qa/r2d_results.md
 reports/risk_qa/r2d_summary.png
 ```
 
+### R2e: Reliability-to-Planning Pilot
+
+A free-form risk-synthesis LoRA was tested before modifying planning:
+
+```text
+initial synthesis: 200 frames, 0/20 parseable generations
+final-turn-only synthesis: 200 frames, 0/10 parseable generations
+```
+
+The synthesis target is too broad for the current small pilot and is stopped.
+R2d's one-sentence reliability output remains the validated interface.
+
+The R2d reliability sentence was then inserted into planning history on ten
+valid calibration frames. Correct and shuffled reliability text used the same
+image, visual tokens, and decoder random seed:
+
+| Metric | Result |
+| --- | ---: |
+| correct-text ADE | 0.2362 m |
+| shuffled-text ADE | 0.2367 m |
+| correct-vs-shuffled waypoint hidden L2 | 0.4301 |
+| correct-vs-shuffled trajectory displacement | 0.00283 m |
+
+The reliability wording reaches the waypoint hidden state, but the frozen
+planner's trajectory is effectively invariant to its meaning. A large
+baseline-to-multi-round prompt difference was also observed, but it is
+confounded by prompt structure and is not evidence of UQ use.
+
+Decision:
+
+- retain R2d as the midterm semantic-grounding result;
+- do not claim reliability-aware planning from prompt injection alone;
+- require explicit planning supervision for the next stage.
+
 ### R3: Risk QA to Planning Interface
 
 Run only after R2 passes.

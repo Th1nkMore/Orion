@@ -1,14 +1,19 @@
 import numpy as np
+import torch
 
 from uq_estimator.risk_qa import (
     build_risk_qa_answer,
+    mask_to_final_supervised_span,
     parse_natural_risk_qa_answer,
     parse_reliability_answer,
+    parse_risk_synthesis_answer,
     parse_risk_qa_answer,
     reliability_level,
     reliability_percentile,
     render_natural_risk_qa_answer,
+    render_critical_object_context,
     render_reliability_answer,
+    render_risk_synthesis_answer,
     render_risk_qa_answer,
     select_balanced_sample_ids,
     select_critical_objects,
@@ -64,6 +69,13 @@ def test_risk_qa_round_trip():
     assert parse_reliability_answer(
         render_reliability_answer(answer)
     ) == answer.reliability_level
+    synthesis = render_risk_synthesis_answer(answer)
+    synthesis_level, synthesis_objects = parse_risk_synthesis_answer(synthesis)
+    assert synthesis_level == answer.reliability_level
+    assert synthesis_objects == ("bicycle in the front-left",)
+    assert render_critical_object_context(objects).startswith(
+        "Critical objects observed:"
+    )
 
 
 def test_balanced_sample_selection():
@@ -75,3 +87,9 @@ def test_balanced_sample_selection():
     selected, counts = select_balanced_sample_ids(scores, 2, seed=42)
     assert len(selected) == 10
     assert set(counts.values()) == {2}
+
+
+def test_mask_to_final_supervised_span():
+    labels = torch.tensor([-100, 1, 2, -100, -100, 3, 4, 5])
+    masked = mask_to_final_supervised_span(labels)
+    assert masked.tolist() == [-100, -100, -100, -100, -100, 3, 4, 5]
