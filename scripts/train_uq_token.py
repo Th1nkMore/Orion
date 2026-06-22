@@ -83,6 +83,28 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--eval-max-samples", type=int, default=200)
     parser.add_argument("--eval-offset", type=int, default=0)
+    parser.add_argument(
+        "--eval-route-balanced",
+        action="store_true",
+        help="evaluate an equal number of calibration samples from each route",
+    )
+    parser.add_argument(
+        "--eval-route-samples",
+        type=int,
+        default=50,
+        help="samples per route for --eval-route-balanced",
+    )
+    parser.add_argument(
+        "--eval-route-limit",
+        type=int,
+        default=None,
+        help="maximum number of calibration routes for route-balanced eval",
+    )
+    parser.add_argument(
+        "--eval-output",
+        default=None,
+        help="optional path to save intervention evaluation JSON",
+    )
     parser.add_argument("--max-samples", type=int, default=None)
     parser.add_argument("--max-steps", type=int, default=None)
     parser.add_argument("--log-interval", type=int, default=10)
@@ -130,6 +152,51 @@ def filter_dataset_by_split(dataset, assignment: dict[str, str], split: str) -> 
     dataset.data_infos = selected
     dataset.flag = np.zeros(len(selected), dtype=np.uint8)
     return len(selected)
+
+
+def select_route_balanced_samples(
+    dataset,
+    samples_per_route: int,
+    route_limit: int | None = None,
+) -> dict[str, int]:
+    route_samples: dict[str, list[dict]] = {}
+    for info in dataset.data_infos:
+        route = route_from_info(info)
+        if route not in route_samples:
+            if route_limit is not None and len(route_samples) >= route_limit:
+                continue
+            route_samples[route] = []
+        if len(route_samples[route]) < samples_per_route:
+            route_samples[route].append(info)
+
+    selected = [
+        info
+        for route in route_samples
+        for info in route_samples[route]
+    ]
+    if not selected:
+        raise RuntimeError("No samples selected for route-balanced evaluation")
+    dataset.data_infos = selected
+    dataset.flag = np.zeros(len(selected), dtype=np.uint8)
+    return {route: len(items) for route, items in route_samples.items()}
+
+
+def add_route_mean_planning(results: dict[str, dict]) -> dict[str, dict]:
+    for mode, result in results.items():
+        by_route = result.get("planning_by_route", {})
+        valid = [
+            metrics for metrics in by_route.values()
+            if metrics.get("count", 0) > 0
+        ]
+        if not valid:
+            continue
+        result["route_mean_planning"] = {
+            "routes": len(valid),
+            "count": int(sum(metrics.get("count", 0) for metrics in valid)),
+            "ade": float(np.mean([metrics["ade"] for metrics in valid])),
+            "fde": float(np.mean([metrics["fde"] for metrics in valid])),
+        }
+    return results
 
 
 def sample_id_from_batch(data: dict) -> str:
@@ -270,7 +337,11 @@ def evaluate_grounding(
     targets: list[float] = []
     with torch.no_grad():
         for index, data in enumerate(data_loader):
-            if args.eval_max_samples is not None and index >= args.eval_max_samples:
+            if (
+                not args.eval_route_balanced
+                and args.eval_max_samples is not None
+                and index >= args.eval_max_samples
+            ):
                 break
             shuffled_uq = get_shuffled_uq(data, shuffled_lookup)
             output = forward_film_training(
@@ -311,7 +382,11 @@ def evaluate_planning(
     route_records: dict[str, dict[str, list[torch.Tensor]]] = {}
     with torch.no_grad():
         for index, data in enumerate(data_loader):
-            if args.eval_max_samples is not None and index >= args.eval_max_samples:
+            if (
+                not args.eval_route_balanced
+                and args.eval_max_samples is not None
+                and index >= args.eval_max_samples
+            ):
                 break
             route = sample_id_from_batch(data).split("__", 1)[0]
             torch.manual_seed(args.seed + index)
@@ -458,10 +533,17 @@ def main() -> None:
     )
     eval_dataset = build_dataset(cfg.data.test)
     eval_size = filter_dataset_by_split(eval_dataset, assignment, "calibration")
-    if args.eval_offset:
+    route_balanced_counts = None
+    if args.eval_route_balanced:
+        route_balanced_counts = select_route_balanced_samples(
+            eval_dataset,
+            args.eval_route_samples,
+            args.eval_route_limit,
+        )
+    elif args.eval_offset:
         eval_dataset.data_infos = eval_dataset.data_infos[args.eval_offset:]
         eval_dataset.flag = np.zeros(len(eval_dataset), dtype=np.uint8)
-    if args.eval_max_samples is not None:
+    if args.eval_max_samples is not None and not args.eval_route_balanced:
         eval_dataset.data_infos = eval_dataset.data_infos[:args.eval_max_samples]
         eval_dataset.flag = np.zeros(len(eval_dataset), dtype=np.uint8)
     eval_loader = build_dataloader(
@@ -480,6 +562,11 @@ def main() -> None:
         f"[UQToken] calibration matched={eval_size}, "
         f"evaluation_samples={len(eval_dataset)}"
     )
+    if route_balanced_counts is not None:
+        print(
+            f"[UQToken] route-balanced eval: "
+            f"{json.dumps(route_balanced_counts)}"
+        )
 
     train_shuffled_lookup = None
     eval_shuffled_lookup = None
@@ -607,8 +694,24 @@ def main() -> None:
                     shuffled_lookup=mode_lookup,
                     uq_mode=mode,
                 )
+        if args.eval_planning:
+            results = add_route_mean_planning(results)
         label = "planning and grounding" if args.eval_planning else "grounding"
+        payload = {
+            "label": label,
+            "eval_route_balanced": bool(args.eval_route_balanced),
+            "route_balanced_counts": route_balanced_counts,
+            "results": results,
+        }
         print(f"[UQToken] intervention {label}: {json.dumps(results)}")
+        if args.eval_output:
+            output_path = Path(args.eval_output)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(
+                json.dumps(payload, indent=2, sort_keys=True),
+                encoding="utf-8",
+            )
+            print(f"[UQToken] wrote evaluation results to {output_path}")
         return
 
     optimizer.zero_grad(set_to_none=True)
