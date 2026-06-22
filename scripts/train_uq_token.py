@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
+import random
 from pathlib import Path
 
 import numpy as np
@@ -19,6 +21,7 @@ from mmcv.utils import Config, ProgressBar, load_checkpoint, set_random_seed
 from scripts.train_film import custom_wrap_fp16_model, forward_film_training
 from uq_estimator.density import get_uq_state_dict
 from uq_estimator.density import DensityUQEstimator
+from uq_estimator.corruptions import corrupt_batch_images
 from uq_estimator.training import (
     count_parameter_groups,
     freeze_for_uq_token_training,
@@ -49,6 +52,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--lambda-vae", type=float, default=0.1)
     parser.add_argument("--lambda-vlm", type=float, default=0.001)
     parser.add_argument("--lambda-ground", type=float, default=1.0)
+    parser.add_argument("--lambda-pair", type=float, default=0.1)
+    parser.add_argument("--lambda-pair-rank", type=float, default=0.1)
+    parser.add_argument("--pair-rank-margin", type=float, default=0.01)
+    parser.add_argument("--paired-corruption", action="store_true")
+    parser.add_argument("--counterfactual-pair", action="store_true")
+    parser.add_argument(
+        "--corruption",
+        choices=("blur", "dark", "camera_dropout"),
+        default="blur",
+    )
+    parser.add_argument("--corruption-severity", type=int, default=2)
+    parser.add_argument("--eval-corruption", action="store_true")
     parser.add_argument(
         "--uq-mode",
         choices=("correct", "zero", "shuffled", "none"),
@@ -61,7 +76,13 @@ def parse_args() -> argparse.Namespace:
         choices=("score_direction", "score_only"),
         default="score_direction",
     )
+    parser.add_argument(
+        "--conditioning",
+        choices=("token", "vision_adapter"),
+        default="token",
+    )
     parser.add_argument("--eval-max-samples", type=int, default=200)
+    parser.add_argument("--eval-offset", type=int, default=0)
     parser.add_argument("--max-samples", type=int, default=None)
     parser.add_argument("--max-steps", type=int, default=None)
     parser.add_argument("--log-interval", type=int, default=10)
@@ -178,6 +199,13 @@ def get_shuffled_uq(
     return active.unsqueeze(0).cuda(), score.unsqueeze(0).cuda()
 
 
+def set_pair_forward_seed(seed: int) -> None:
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+
+
 def grounding_metrics(
     predictions: list[float],
     targets: list[float],
@@ -257,6 +285,7 @@ def evaluate_grounding(
                 shuffled_uq=shuffled_uq,
                 grounding_only=True,
                 token_input=args.token_input,
+                conditioning=args.conditioning,
             )
             if output is None:
                 continue
@@ -279,12 +308,18 @@ def evaluate_planning(
     masks: list[torch.Tensor] = []
     grounding_predictions: list[float] = []
     grounding_targets: list[float] = []
+    route_records: dict[str, dict[str, list[torch.Tensor]]] = {}
     with torch.no_grad():
         for index, data in enumerate(data_loader):
             if args.eval_max_samples is not None and index >= args.eval_max_samples:
                 break
+            route = sample_id_from_batch(data).split("__", 1)[0]
             torch.manual_seed(args.seed + index)
             torch.cuda.manual_seed_all(args.seed + index)
+            if args.eval_corruption:
+                data = corrupt_batch_images(
+                    data, args.corruption, args.corruption_severity
+                )
             output = forward_film_training(
                 model,
                 data,
@@ -298,12 +333,21 @@ def evaluate_planning(
                 shuffled_uq=get_shuffled_uq(data, shuffled_lookup),
                 grounding_only=False,
                 token_input=args.token_input,
+                conditioning=args.conditioning,
             )
             if output is None:
                 continue
             predictions.append(output["planning_prediction"].cpu())
             targets.append(output["planning_target"].cpu())
             masks.append(output["planning_mask"].cpu())
+            route_entry = route_records.setdefault(
+                route, {"predictions": [], "targets": [], "masks": []}
+            )
+            route_entry["predictions"].append(
+                output["planning_prediction"].cpu()
+            )
+            route_entry["targets"].append(output["planning_target"].cpu())
+            route_entry["masks"].append(output["planning_mask"].cpu())
             grounding_predictions.extend(
                 output["predicted_score"].cpu().flatten().tolist()
             )
@@ -311,13 +355,22 @@ def evaluate_planning(
                 output["target_score"].cpu().flatten().tolist()
             )
     model.train()
-    return {
+    result = {
         "planning": trajectory_metrics(predictions, targets, masks),
         "grounding": grounding_metrics(
             grounding_predictions,
             grounding_targets,
         ),
     }
+    result["planning_by_route"] = {
+        route: trajectory_metrics(
+            values["predictions"],
+            values["targets"],
+            values["masks"],
+        )
+        for route, values in route_records.items()
+    }
+    return result
 
 
 def save_checkpoint(
@@ -335,6 +388,7 @@ def save_checkpoint(
         name: tensor.detach().cpu()
         for name, tensor in model.state_dict().items()
         if name.startswith("uq_token_projector.")
+        or name.startswith("uq_vision_adapter.")
         or name.startswith("uq_grounding_head.")
         or "lora_" in name
     }
@@ -379,6 +433,9 @@ def main() -> None:
     cfg.model.frozen = True
     cfg.model.use_lora = True
     cfg.model.use_uq_token = True
+    cfg.model.use_uq_vision_adapter = (
+        args.conditioning == "vision_adapter"
+    )
     cfg.model.use_uncertainty_l2 = False
     cfg.model.use_bev_uncertainty = False
     cfg.model.pts_bbox_head.use_uncertainty = True
@@ -401,6 +458,9 @@ def main() -> None:
     )
     eval_dataset = build_dataset(cfg.data.test)
     eval_size = filter_dataset_by_split(eval_dataset, assignment, "calibration")
+    if args.eval_offset:
+        eval_dataset.data_infos = eval_dataset.data_infos[args.eval_offset:]
+        eval_dataset.flag = np.zeros(len(eval_dataset), dtype=np.uint8)
     if args.eval_max_samples is not None:
         eval_dataset.data_infos = eval_dataset.data_infos[:args.eval_max_samples]
         eval_dataset.flag = np.zeros(len(eval_dataset), dtype=np.uint8)
@@ -423,7 +483,11 @@ def main() -> None:
 
     train_shuffled_lookup = None
     eval_shuffled_lookup = None
-    if args.uq_mode == "shuffled" or args.counterfactual_grounding:
+    if (
+        args.uq_mode == "shuffled"
+        or args.counterfactual_grounding
+        or args.counterfactual_pair
+    ):
         train_shuffled_lookup = build_shuffled_uq_lookup(
             args.descriptor_cache,
             args.density_checkpoint,
@@ -475,7 +539,13 @@ def main() -> None:
     optimizer = torch.optim.AdamW(
         [
             {
-                "params": [parameter for _, parameter in groups["projector"]],
+                "params": [
+                    parameter
+                    for _, parameter in (
+                        groups.get("projector", [])
+                        + groups.get("vision_adapter", [])
+                    )
+                ],
                 "lr": args.lr_projector,
             },
             {
@@ -549,26 +619,156 @@ def main() -> None:
         for step, data in enumerate(data_loader):
             if args.max_steps is not None and global_step >= args.max_steps:
                 break
-            output = forward_film_training(
-                model,
-                data,
-                lambda_col=args.lambda_col,
-                col_margin=args.col_margin,
-                lambda_uq_consistency=args.lambda_consistency,
-                lambda_plan=args.lambda_plan,
-                lambda_vae=args.lambda_vae,
-                lambda_vlm=args.lambda_vlm,
-                lambda_ground=args.lambda_ground,
-                uq_mode=args.uq_mode,
-                shuffled_uq=get_shuffled_uq(data, train_shuffled_lookup),
-                grounding_only=args.grounding_only,
-                counterfactual_grounding=args.counterfactual_grounding,
-                token_input=args.token_input,
-            )
-            if output is None:
-                progress.update()
-                continue
-            loss = output["loss"]
+            paired_log = {}
+            if args.paired_corruption:
+                pair_seed = args.seed + global_step
+                set_pair_forward_seed(pair_seed)
+                clean_output = forward_film_training(
+                    model,
+                    copy.deepcopy(data),
+                    lambda_col=0.0,
+                    lambda_uq_consistency=0.0,
+                    lambda_plan=0.0,
+                    lambda_vae=0.0,
+                    lambda_vlm=0.0,
+                    lambda_ground=0.0,
+                    uq_mode=args.uq_mode,
+                    shuffled_uq=get_shuffled_uq(
+                        data, train_shuffled_lookup
+                    ),
+                    grounding_only=args.grounding_only,
+                    token_input=args.token_input,
+                    conditioning=args.conditioning,
+                )
+                if clean_output is None:
+                    progress.update()
+                    continue
+                clean_reference_feature = clean_output[
+                    "planning_feature_raw"
+                ].detach()
+                clean_reference_loss = clean_output["loss"].detach()
+                clean_reference_score = clean_output[
+                    "target_score"
+                ].detach()
+                del clean_output
+
+                shuffled_reference_feature = None
+                if args.counterfactual_pair and not args.grounding_only:
+                    set_pair_forward_seed(pair_seed)
+                    shuffled_output = forward_film_training(
+                        model,
+                        corrupt_batch_images(
+                            data,
+                            args.corruption,
+                            args.corruption_severity,
+                        ),
+                        lambda_col=0.0,
+                        lambda_uq_consistency=0.0,
+                        lambda_plan=0.0,
+                        lambda_vae=0.0,
+                        lambda_vlm=0.0,
+                        lambda_ground=0.0,
+                        uq_mode="shuffled",
+                        shuffled_uq=get_shuffled_uq(
+                            data, train_shuffled_lookup
+                        ),
+                        grounding_only=False,
+                        token_input=args.token_input,
+                        conditioning=args.conditioning,
+                    )
+                    shuffled_reference_feature = shuffled_output[
+                        "planning_feature_raw"
+                    ].detach()
+                    del shuffled_output
+
+                corrupted_data = corrupt_batch_images(
+                    data, args.corruption, args.corruption_severity
+                )
+                set_pair_forward_seed(pair_seed)
+                output = forward_film_training(
+                    model,
+                    corrupted_data,
+                    lambda_col=args.lambda_col,
+                    col_margin=args.col_margin,
+                    lambda_uq_consistency=args.lambda_consistency,
+                    lambda_plan=args.lambda_plan,
+                    lambda_vae=args.lambda_vae,
+                    lambda_vlm=args.lambda_vlm,
+                    lambda_ground=args.lambda_ground,
+                    uq_mode=args.uq_mode,
+                    shuffled_uq=get_shuffled_uq(
+                        data, train_shuffled_lookup
+                    ),
+                    grounding_only=args.grounding_only,
+                    counterfactual_grounding=args.counterfactual_grounding,
+                    token_input=args.token_input,
+                    conditioning=args.conditioning,
+                )
+                if output is None:
+                    progress.update()
+                    continue
+                if args.grounding_only:
+                    pair_loss = output["loss"].new_zeros(())
+                    pair_rank_loss = output["loss"].new_zeros(())
+                else:
+                    correct_difference = (
+                        output["planning_feature_raw"]
+                        - clean_reference_feature
+                    ).float().pow(2).mean()
+                    pair_loss = correct_difference
+                    pair_rank_loss = output["loss"].new_zeros(())
+                    if args.counterfactual_pair:
+                        shuffled_difference = (
+                            shuffled_reference_feature
+                            - clean_reference_feature
+                        ).float().pow(2).mean()
+                        shuffled_distance = shuffled_difference
+                        pair_rank_loss = torch.relu(
+                            pair_loss
+                            - shuffled_distance.detach()
+                            + args.pair_rank_margin
+                        )
+                loss = (
+                    output["loss"]
+                    + args.lambda_pair * pair_loss
+                    + args.lambda_pair_rank * pair_rank_loss
+                )
+                paired_log = {
+                    "clean_reference": float(clean_reference_loss),
+                    "corrupted_total": float(output["loss"].detach()),
+                    "pair_consistency": float(pair_loss.detach()),
+                    "pair_rank": float(pair_rank_loss.detach()),
+                    "clean_uq_score": float(
+                        clean_reference_score.mean()
+                    ),
+                    "corrupted_uq_score": float(
+                        output["target_score"].mean()
+                    ),
+                }
+            else:
+                output = forward_film_training(
+                    model,
+                    copy.deepcopy(data),
+                    lambda_col=args.lambda_col,
+                    col_margin=args.col_margin,
+                    lambda_uq_consistency=args.lambda_consistency,
+                    lambda_plan=args.lambda_plan,
+                    lambda_vae=args.lambda_vae,
+                    lambda_vlm=args.lambda_vlm,
+                    lambda_ground=args.lambda_ground,
+                    uq_mode=args.uq_mode,
+                    shuffled_uq=get_shuffled_uq(
+                        data, train_shuffled_lookup
+                    ),
+                    grounding_only=args.grounding_only,
+                    counterfactual_grounding=args.counterfactual_grounding,
+                    token_input=args.token_input,
+                    conditioning=args.conditioning,
+                )
+                if output is None:
+                    progress.update()
+                    continue
+                loss = output["loss"]
             (loss / args.grad_accum).backward()
             losses.append(float(loss.detach()))
             step_record = {
@@ -578,6 +778,7 @@ def main() -> None:
                     key: float(value)
                     for key, value in output.get("log_vars", {}).items()
                 },
+                **paired_log,
                 "token_norm": float(getattr(model, "uq_token_norm", 0.0)),
                 "lr_projector": optimizer.param_groups[0]["lr"],
                 "lr_lora": optimizer.param_groups[1]["lr"],
@@ -590,11 +791,15 @@ def main() -> None:
                 print(f"\n[UQToken] step {global_step + 1}: {json.dumps(step_record)}")
 
             if not gradient_audited:
+                conditioning_parameters = (
+                    groups.get("projector", [])
+                    + groups.get("vision_adapter", [])
+                )
                 projector_has_grad = any(
                     parameter.grad is not None
                     and torch.isfinite(parameter.grad).all()
                     and parameter.grad.abs().sum() > 0
-                    for _, parameter in groups["projector"]
+                    for _, parameter in conditioning_parameters
                 )
                 lora_has_grad = any(
                     parameter.grad is not None
@@ -614,10 +819,11 @@ def main() -> None:
                     if not parameter.requires_grad
                 )
                 projector_required = args.uq_mode != "none"
+                grounding_required = args.lambda_ground > 0
                 if (
                     (projector_required and not projector_has_grad)
                     or not lora_has_grad
-                    or not grounding_has_grad
+                    or (grounding_required and not grounding_has_grad)
                     or frozen_has_grad
                 ):
                     raise RuntimeError(

@@ -1,7 +1,12 @@
 from uq_estimator.model import UQEstimator, UQOutput
 from uq_estimator.density import DensityUQEstimator, compute_view_moments
 from uq_estimator.token_projector import UQTokenProjector
+from uq_estimator.vision_adapter import UQVisionAdapter
 from uq_estimator.grounding import UQGroundingHead, grounding_loss
+from uq_estimator.corruptions import (
+    corrupt_batch_images,
+    corrupt_multiview_images,
+)
 from uq_estimator.risk_qa import (
     RISK_QA_QUESTION,
     RELIABILITY_QA_QUESTION,
@@ -35,7 +40,9 @@ from uq_estimator.bev_uncertainty import (
 __all__ = [
     "UQEstimator", "UQOutput", "DensityUQEstimator", "compute_view_moments",
     "UQTokenProjector",
+    "UQVisionAdapter",
     "UQGroundingHead", "grounding_loss",
+    "corrupt_batch_images", "corrupt_multiview_images",
     "RISK_QA_QUESTION", "RELIABILITY_QA_QUESTION", "RiskQAAnswer",
     "build_risk_qa_answer",
     "mask_to_final_supervised_span",

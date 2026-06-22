@@ -127,6 +127,8 @@ class Orion(MVXTwoStageDetector):
                  uq_token_count = 1,
                  uq_token_hidden_dim = 512,
                  uq_active_dim = 16,
+                 use_uq_vision_adapter = False,
+                 uq_vision_adapter_dim = 256,
                  use_bev_uncertainty = False,  # [UQ] spatial uncertainty cost
                  bev_lambda = 0.5,
                  ):
@@ -207,6 +209,15 @@ class Orion(MVXTwoStageDetector):
         self.use_uq_token = use_uq_token
         self.uq_token_checkpoint = uq_token_checkpoint
         self.uq_active_dim = uq_active_dim
+        self.use_uq_vision_adapter = use_uq_vision_adapter
+        if self.use_uq_vision_adapter:
+            if lm_head is None:
+                raise ValueError("use_uq_vision_adapter requires lm_head")
+            from uq_estimator.vision_adapter import UQVisionAdapter
+            self.uq_vision_adapter = UQVisionAdapter(
+                llm_dim=self.lm_head.config.hidden_size,
+                bottleneck_dim=uq_vision_adapter_dim,
+            )
         if self.use_uq_token:
             if lm_head is None:
                 raise ValueError("use_uq_token requires lm_head")
@@ -571,6 +582,20 @@ class Orion(MVXTwoStageDetector):
         ).mean()
         return torch.cat((vision_tokens, uq_tokens), dim=1)
 
+    def _adapt_vision_tokens(self, vision_tokens, uncertainty_score):
+        """Condition pre-LLM visual queries without changing sequence length."""
+        if not self.use_uq_vision_adapter:
+            return vision_tokens
+        if uncertainty_score is None:
+            raise RuntimeError("Vision adapter requires density UQ scores")
+        adapted = self.uq_vision_adapter(
+            vision_tokens, uncertainty_score
+        )
+        self.uq_vision_adapter_delta = torch.linalg.vector_norm(
+            (adapted - vision_tokens).detach().float(), dim=-1
+        ).mean()
+        return adapted
+
 
     def forward_pts_train(self,
                           gt_bboxes_3d,
@@ -634,6 +659,9 @@ class Orion(MVXTwoStageDetector):
         if self.with_lm_head:
             if self.use_gen_token:
                 vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1) # (1, 513, 4096)
+                vision_embeded = self._adapt_vision_tokens(
+                    vision_embeded, _uncertainty_score
+                )
                 vision_embeded = self._append_uq_tokens(
                     vision_embeded, _uncertainty_emb, _uncertainty_score
                 )
@@ -769,6 +797,9 @@ class Orion(MVXTwoStageDetector):
             else:
                 waypoint = None
                 vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1) # (1, 513, 4096)
+                vision_embeded = self._adapt_vision_tokens(
+                    vision_embeded, _uncertainty_score
+                )
                 vision_embeded = self._append_uq_tokens(
                     vision_embeded, _uncertainty_emb, _uncertainty_score
                 )
@@ -855,6 +886,9 @@ class Orion(MVXTwoStageDetector):
         if self.with_lm_head:
             history_input_output_id = []
             vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1) # (1, 513, 4096)
+            vision_embeded = self._adapt_vision_tokens(
+                vision_embeded, _uncertainty_score
+            )
             vision_embeded = self._append_uq_tokens(
                 vision_embeded, uncertainty_emb, _uncertainty_score
             )

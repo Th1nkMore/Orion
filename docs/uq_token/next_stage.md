@@ -191,6 +191,33 @@ Then run one textual-prompt pilot and one pre-LLM adapter pilot. If neither
 passes, use monitoring-only UQ as the final method and report the negative
 conditioning result.
 
+## 2026-06-21 Update
+
+The explicit-token route reached the stop condition:
+
+1. consistency-only paired training made correct UQ worse than none and
+   shuffled on one-camera-dropout views;
+2. correct-versus-shuffled ranking was active during training but correct UQ
+   still produced the worst corrupted-view ADE.
+
+Do not launch a larger explicit-token planning run. The immediate behavioral
+experiment is now Fallback B: a small score-conditioned adapter before the
+LLM, initialized as identity and trained with clean/corrupted trajectory
+preservation. R2d remains the separate interpretability result.
+
+### Adapter Pilot Outcome
+
+The 100-step adapter-only pilot passes the minimum gate on the first 50 frames
+of Route1115 and on an independent Route504 segment:
+
+- correct UQ outperforms shuffled and none under camera dropout;
+- clean ADE does not degrade;
+- Route504 clean ADE and FDE both improve.
+
+The harder later section of Route1115 does not improve. The next run must use
+route-balanced sampling across all calibration routes instead of the first N
+sequential frames.
+
 ## Immediate Tasks
 
 1. Implement `<uq_state>` token extraction and unit tests.
@@ -198,4 +225,3 @@ conditioning result.
 3. Audit Density UQ score changes for each corruption and severity.
 4. Run P1 on 100-300 samples.
 5. Run P2 only if P1 passes.
-

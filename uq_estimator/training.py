@@ -21,6 +21,8 @@ def freeze_for_uq_token_training(
     for name, parameter in model.named_parameters():
         if name.startswith("uq_token_projector."):
             group = "projector"
+        elif name.startswith("uq_vision_adapter."):
+            group = "vision_adapter"
         elif name.startswith("uq_grounding_head."):
             group = "grounding"
         elif "lora_" in name:
@@ -30,8 +32,8 @@ def freeze_for_uq_token_training(
         parameter.requires_grad = True
         groups[group].append((name, parameter))
 
-    if not groups["projector"]:
-        raise RuntimeError("No UQ token projector parameters were found")
+    if not groups["projector"] and not groups["vision_adapter"]:
+        raise RuntimeError("No UQ conditioning parameters were found")
     if not groups["lora"]:
         raise RuntimeError("No LLM LoRA parameters were found")
     if not groups["grounding"]:
@@ -41,6 +43,7 @@ def freeze_for_uq_token_training(
         name for name, parameter in model.named_parameters()
         if parameter.requires_grad
         and not name.startswith("uq_token_projector.")
+        and not name.startswith("uq_vision_adapter.")
         and not name.startswith("uq_grounding_head.")
         and "lora_" not in name
     ]
@@ -72,6 +75,7 @@ def load_uq_token_weights(
         name: tensor
         for name, tensor in state.items()
         if name.startswith("uq_token_projector.")
+        or name.startswith("uq_vision_adapter.")
         or name.startswith("uq_grounding_head.")
         or "lora_" in name
     }
@@ -81,6 +85,7 @@ def load_uq_token_weights(
     unexpected_adaptation = [
         name for name in unexpected
         if name.startswith("uq_token_projector.")
+        or name.startswith("uq_vision_adapter.")
         or name.startswith("uq_grounding_head.")
         or "lora_" in name
     ]

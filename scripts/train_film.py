@@ -224,7 +224,8 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
                           lambda_ground=0.0, uq_mode="correct",
                           shuffled_uq=None, grounding_only=False,
                           counterfactual_grounding=False,
-                          token_input="score_direction"):
+                          token_input="score_direction",
+                          conditioning="token"):
     """Custom forward for FiLM training with test-format data.
 
     Replicates ORION's inference path through QT-Former + FiLM, then
@@ -310,7 +311,26 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
         return None
     vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1)
     baseline_vision_embeded = vision_embeded
-    if uq_mode == "correct":
+    if conditioning == "vision_adapter":
+        if uq_mode == "correct":
+            adapter_score = uncertainty_score
+        elif uq_mode == "zero":
+            adapter_score = torch.zeros_like(uncertainty_score)
+        elif uq_mode == "shuffled":
+            if shuffled_uq is None:
+                raise ValueError("shuffled mode requires shuffled_uq")
+            _, adapter_score = shuffled_uq
+        elif uq_mode == "none":
+            adapter_score = None
+        else:
+            raise ValueError(f"Unknown UQ mode: {uq_mode}")
+        if adapter_score is not None:
+            vision_embeded = orion._adapt_vision_tokens(
+                vision_embeded, adapter_score
+            )
+    elif conditioning != "token":
+        raise ValueError(f"Unknown conditioning mode: {conditioning}")
+    elif uq_mode == "correct":
         vision_embeded = orion._append_uq_tokens(
             vision_embeded,
             uncertainty_emb,
@@ -585,6 +605,8 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
             'predicted_score': predicted_grounding_score.detach(),
             'target_score': target_uncertainty_score.detach(),
             'planning_prediction': active_ego_fut_preds.detach(),
+            'planning_prediction_raw': active_ego_fut_preds,
+            'planning_feature_raw': ego_feature,
             'planning_target': ego_fut_trajs[:, 0].detach(),
             'planning_mask': data['ego_fut_masks'][:, 0, 0].detach(),
         }

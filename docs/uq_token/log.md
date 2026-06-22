@@ -135,6 +135,86 @@ reports/risk_qa/risk_planning_pilot.md
 
 ---
 
+## 2026-06-21: Paired Corruption Planning Pilot
+
+Implemented deterministic blur, exposure reduction, and camera-dropout
+corruptions, a Density UQ response audit, paired planning supervision, and
+corrupted-view intervention evaluation.
+
+The UQ audit selected one-camera dropout:
+
+```text
+mean UQ increase: +0.0895
+increase rate: 10/10
+```
+
+Blur and exposure reduction were rejected because the current Density UQ
+estimator did not respond consistently.
+
+The 50-frame paired pilot failed:
+
+```text
+corrupted ADE: none 0.1910, shuffled 0.2147, correct 0.2447
+clean ADE: none 0.0808, correct 0.1031
+```
+
+The next pilot adds correct-versus-shuffled ranking relative to the clean
+trajectory reference. Scaling the original consistency-only configuration is
+blocked.
+
+Counterfactual ranking was subsequently active on 14/20 pilot frames, but it
+also failed:
+
+```text
+corrupted ADE:
+  none     0.1964
+  shuffled 0.3054
+  correct  0.3159
+```
+
+Decision:
+
+The explicit-token planning route has now failed two controlled paired
+architecture pilots. Stop scaling it. Preserve R2d as the semantic grounding
+result and move behavioral adaptation to a pre-LLM uncertainty adapter.
+
+---
+
+## 2026-06-21: Pre-LLM Vision Adapter Pilot
+
+Implemented an identity-initialized low-rank residual adapter on the 513
+visual queries before the LLM. The final 100-step pilot freezes LoRA updates
+and trains only the adapter.
+
+```text
+Route1115 first 50 corrupted:
+  none 0.1991, shuffled 0.1583, correct 0.1520 ADE
+
+Route504 first 50 corrupted:
+  none 0.7284, shuffled 0.6144, correct 0.5547 ADE
+
+Route504 clean:
+  none 0.5039, correct 0.4650 ADE
+```
+
+The harder later section of Route1115 does not improve:
+
+```text
+first 100 frames:
+  none 2.7355, shuffled 2.7740, correct 2.7726 ADE
+```
+
+Retain the adapter as the behavioral candidate, but require route-balanced
+training and evaluation before making a general claim.
+
+Artifact:
+
+```text
+reports/uq_token/vision_adapter_pilot.md
+```
+
+---
+
 ## 2026-06-20: Primary Conditioning Strategy Changed
 
 Decision:
