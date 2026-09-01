@@ -1,6 +1,6 @@
 # UQ-ORION current state
 
-Last audited: 2026-09-01 (Asia/Shanghai)
+Last audited: 2026-09-02 (Asia/Shanghai)
 
 This is the canonical human-readable status document. It separates completed
 evidence from planned claims and points to the machine-readable protocols that
@@ -307,6 +307,57 @@ route or automatic retry is authorized. The frozen batch and submission record
 are under
 `results/scenario_factory/batches/vertical_slice_route211_20260901_v1/`.
 
+### 3.4 Direct-U/R ORION capacity comparison is terminal
+
+The historical `TaskRiskLanguageBridge` is no longer part of the active
+Stage2-L path. In v13.1, ORION receives the 600 frozen Stage-1 U tokens and 150
+pooled, U-independent R hidden tokens directly alongside its 529 native visual
+tokens. `K=U*R` is computed only for post-hoc audit and never conditions the
+model. A detached leaf at the concatenated conditioning tensor exists solely
+because ORION uses re-entrant gradient checkpointing; it restores LoRA/base
+decoder gradients while terminating gradients before Stage 1 and the U/R
+producers.
+
+The first v13 Job `1125288` is an invalid zero-step runtime result. Its direct
+forward completed, but checkpointing saw no gradient-requiring input and
+dropped the LoRA graph. The corrected v13.1 runtime probe moved before the
+expensive baseline evaluation and independently verified the actual gradient
+groups: 256 LoRA tensors, 14 R-query tensors and 8 R-head tensors; the partial
+arm additionally reached 36 base-decoder parameter tensors. Both probes saw
+zero U-tokenizer gradients and took no optimizer step.
+
+Jobs `1125300` (LoRA) and `1125510` (LoRA plus decoder layers 28–31) then each
+completed 200 finite steps with zero exit code. Independent terminal validation
+loads both checkpoints, verifies every tensor is finite, checks complete logs,
+and reproduces protocol/preflight/launch/attestation hashes. This is a hard
+runtime/integrity pass and a soft semantic failure:
+
+| Metric | LoRA | LoRA + last 4 layers |
+|---|---:|---:|
+| Train target NLL, before → after | 13.8595 → 3.6266 | 13.8595 → 0.3394 |
+| Dev target NLL, before → after | 14.3769 → 3.9626 | 14.3769 → 0.3850 |
+| Dev full-minus-no-U preference | 0.0625 | 0.0625 |
+| Dev on-path target preference | 0.0 | 0.0 |
+| Dev zero-U target preference | 0.25 | 0.25 |
+| Trainable parameters | 20.24 M | 829.78 M |
+
+The partial arm lowers held-out NLL to `9.72%` of the LoRA value and improves
+all four process-step NLLs, yet its entire dev preference profile is bitwise
+identical to LoRA. Added capacity therefore learns the answer surface more
+strongly without learning the intended counterfactual dependence on U. The
+current bottleneck is not demonstrated LoRA under-capacity; it is that the
+process-QA objective/data still permit route/template likelihood fitting while
+ignoring direct U tokens. No post-training spatial R metric was emitted, so
+finite factorized-R training loss cannot be promoted to held-out R evidence.
+
+The next repair is to make U use identifiable in supervision and evaluation:
+matched samples must prevent the same route/template prior from explaining
+zero/on/off/shuffled answers, and the held-out diagnostic must directly test
+whether changing U changes the correct process fields. Extra epochs, another
+capacity arm, formal Stage2-L, Stage2-P, learned-U closed loop and locked test
+remain unauthorized. The terminal record is
+`configs/scenario_factory/amendments/20260902_stage2l_v13_1_direct_u_r_capacity_terminal_v1.json`.
+
 ## 4. Formal Stage-2L data readiness
 
 The frozen formal target is 24 independent events with a 16 train / 4 dev / 4
@@ -395,13 +446,31 @@ evidence, not promoted to primary perception-dependence cases.
 
 ## 6. Stage-2P and closed-loop method status
 
-Stage-2P has not started. Current Stage-2L runs use zero trajectory and control
-loss. No current-mainline checkpoint has closed-loop authority, and no learned
-UQ-aware ORION result establishes collision, TTC, traffic-rule, or route-
-completion improvement. Conditional diffusion remains a later decoder
-ablation; changing the decoder cannot repair the missing semantic bridge.
+Formal Stage-2P has not started. The completed controlled-K Stage2-P and
+Route147 CARLA runs in Section 3.3 are engineering-interface diagnostics only.
+Current Stage-2L runs use zero trajectory and control loss. No current-mainline
+checkpoint has closed-loop authority, and no learned UQ-aware ORION result
+establishes collision, TTC, traffic-rule, or route-completion improvement.
+Conditional diffusion remains a later decoder ablation; changing the decoder
+cannot repair the missing U-identifiability failure.
 
 ## 7. Next executable vertical slice
+
+**Current decision (2026-09-02):** the direct-U/R v13.1 capacity comparison in
+Section 3.4 supersedes the older bridge-oriented execution notes below. Do not
+run more epochs or another capacity arm. The next bounded repair must make U
+counterfactuals identifiable to ORION: matched prompts and answer candidates
+must prevent route/event/template priors from producing the same likelihood
+ranking when U is removed or moved off path. The repair must retain direct
+frozen U tokens, U-independent R, zero Stage-1 gradients, all four structured
+process steps, no bridge and no K model input. It should first be tested on the
+existing train/dev bank with exact no-U and matched spatial counterfactuals;
+only an integrity-valid result that materially improves held-out on-path and
+zero-U preference justifies a later formal-data run. Formal Stage2-L, Stage2-P,
+closed loop, locked test, extra epochs and a new GPU job are currently locked.
+
+The remainder of this section records the earlier vertical-slice contract and
+is retained as historical lineage; it is not current launch authority.
 
 The next bounded engineering experiment must combine the two previously
 separated interfaces without collapsing U and R into one predictor:

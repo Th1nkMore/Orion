@@ -1,0 +1,106 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-02T03:26:00+08:00",
+  "status": "hard_valid_capacity_smoke_soft_quality_failed",
+  "scope": "Stage2-L v13.1 direct Stage1-U/R-token structured-process QA capacity comparison",
+  "jobs": {
+    "lora": {
+      "job_id": "1125300",
+      "job_name": "s2l_v131_lora",
+      "node": "gpu4",
+      "state": "COMPLETED",
+      "elapsed": "01:31:21",
+      "exit_code": "0:0",
+      "maximum_rss": "8268868K"
+    },
+    "partial_unfreeze": {
+      "job_id": "1125510",
+      "job_name": "s2l_v131_p4",
+      "node": "gpu5",
+      "state": "COMPLETED",
+      "elapsed": "01:31:39",
+      "exit_code": "0:0",
+      "maximum_rss": "20842116K"
+    }
+  },
+  "hard_validation": {
+    "passed": true,
+    "validator": "scripts/validate_stage2l_v13_1_capacity_reports.py",
+    "validator_sha256": "e9990eecc3815a99a0fab972e4ace9d115259e2140b5da6fc3e628fc2961101d",
+    "terminal_validation_remote": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v13_1_process_qa_capacity_comparison_v1/terminal_validation.json",
+    "terminal_validation_local": "artifacts/stage2l_v13_1_process_qa_terminal/terminal_validation.json",
+    "terminal_validation_sha256": "f249941a25cb62bfc698793985645b8833eec680acf837ac35a4c5a856d32f51",
+    "checks": {
+      "both_jobs_completed_zero_exit": true,
+      "both_histories_have_200_finite_steps": true,
+      "direct_stage1_u_tokens_enter_orion": true,
+      "direct_r_hidden_tokens_enter_orion": true,
+      "task_risk_language_bridge_present": false,
+      "k_used_as_model_input": false,
+      "stage1_and_u_tokenizer_frozen": true,
+      "u_tokenizer_gradient_parameter_count": 0,
+      "process_dataset_groups": 80,
+      "structured_process_chains": 320,
+      "structured_process_step_targets": 1280,
+      "complete_logs_have_no_fail_closed_error": true,
+      "checkpoint_tensors_finite": true,
+      "protocol_preflight_launch_attestation_hashes_match": true
+    }
+  },
+  "capacity_arms": {
+    "lora": {
+      "total_trainable_parameters": 20242178,
+      "train_target_nll_before": 13.859473833670982,
+      "train_target_nll_after": 3.626576217321249,
+      "dev_target_nll_before": 14.376946032047272,
+      "dev_target_nll_after": 3.9625718891620636,
+      "dev_full_minus_no_u_preference_fraction": 0.0625,
+      "dev_on_path_preference_fraction": 0.0,
+      "dev_zero_u_preference_fraction": 0.25,
+      "quality_diagnostics_passed": false,
+      "checkpoint_sha256": "a2b7459a4f556b29a23812796ae6e78bef639fe286e5c5dfa0505448f2bc3de4",
+      "report_sha256": "bfc6f32e308310d8278f0d9b40a582eb11c146b12bea753647b2760d29741d5f",
+      "complete_log_sha256": "16cce3dbc7e05fdc7cd98dcac2995f496d36e196c26a17a9321f2d6c27a2f174"
+    },
+    "partial_unfreeze": {
+      "decoder_layers": [28, 29, 30, 31],
+      "total_trainable_parameters": 829775618,
+      "train_target_nll_before": 13.859473833670982,
+      "train_target_nll_after": 0.3394327779801992,
+      "dev_target_nll_before": 14.376946032047272,
+      "dev_target_nll_after": 0.385000741109252,
+      "dev_full_minus_no_u_preference_fraction": 0.0625,
+      "dev_on_path_preference_fraction": 0.0,
+      "dev_zero_u_preference_fraction": 0.25,
+      "quality_diagnostics_passed": false,
+      "checkpoint_sha256": "d0e1f2553b2ea880de9bc5113bbc389b274b4139d95203ad0b76c63dae6b2f27",
+      "report_sha256": "e76f68db43e5186b3e047f30c890420a1a2acb032b3c5df4d0a3381981da5f74",
+      "complete_log_sha256": "2a65ea48c0d0bfd375ca00d0f669d3f6bf4ba6780082b14381f3c20267707de2"
+    }
+  },
+  "comparison": {
+    "before_metrics_identical": true,
+    "partial_dev_target_nll_ratio_to_lora": 0.09715930761086213,
+    "partial_dev_step_nll_lower_for_all_four_process_steps": true,
+    "dev_preference_diagnostics_identical": true,
+    "decision": "capacity_increases_likelihood_fit_but_not_counterfactual_u_semantics"
+  },
+  "interpretation": [
+    "The direct-token architecture and gradient path are operational: ORION receives frozen Stage1 U tokens and detached R hidden tokens without a TaskRiskLanguageBridge.",
+    "Both capacity arms learn the supervised answer surface, and unfreezing four decoder layers reduces held-out NLL much more than LoRA alone.",
+    "Added capacity does not improve the causal diagnostic: both arms retain exactly the same dev preference profile, with on-path preference 0.0 and full-minus-no-U only 0.0625.",
+    "The bottleneck is therefore not demonstrated to be insufficient LoRA capacity. The present process-QA objective/data still permit answer-likelihood fitting without using counterfactual U semantics.",
+    "No post-training spatial R metric was emitted by v13.1; finite factorized-R training loss is retained as an optimization diagnostic and cannot be called held-out R improvement."
+  ],
+  "disposition": {
+    "extra_epochs_authorized": false,
+    "automatic_retry_authorized": false,
+    "new_capacity_arm_authorized": false,
+    "formal_stage2l_unlocked": false,
+    "stage2p_unlocked": false,
+    "closed_loop_unlocked": false,
+    "locked_test_unlocked": false,
+    "next_repair": "Strengthen U-identifiable supervision/evaluation so matched answers cannot be fit from route/template priors while ignoring direct U tokens; do not respond by adding capacity alone."
+  },
+  "claim_boundary": "This is a bounded controlled-U capacity diagnostic. It is not learned-U generalization, a formal Stage2-L pass, planning evidence, closed-loop evidence, or a safety result."
+}
