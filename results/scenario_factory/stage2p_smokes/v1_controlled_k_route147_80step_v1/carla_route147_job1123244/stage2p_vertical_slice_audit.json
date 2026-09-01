@@ -1,0 +1,89 @@
+{
+  "claim_boundary": "Terminal audit of one controlled-K CARLA engineering vertical slice; route and safety outcomes remain soft and non-claim.",
+  "environment_checks": {
+    "orion_closedloop_corruption": true,
+    "orion_closedloop_risk_mode": true,
+    "orion_effective_conditioning": true,
+    "orion_enable_legacy_density_uq": true,
+    "orion_observation_uq_checkpoint": true,
+    "orion_planning_response_mode": true,
+    "orion_stage1_spatial_uq_checkpoint": true,
+    "orion_stage2_engineering_smoke": true,
+    "orion_stage2_external_k_camera": true,
+    "orion_stage2_external_k_duration_seconds": true,
+    "orion_stage2_external_k_grid_size": true,
+    "orion_stage2_external_k_region": true,
+    "orion_stage2_external_k_start_progress": true,
+    "orion_stage2_external_k_strength": true,
+    "orion_stage2_spatial_uq_source": true,
+    "orion_stage2_task_checkpoint_sha256": true,
+    "pilot_condition": true,
+    "pilot_route_index": true,
+    "pilot_variant": true,
+    "route_sha256": true
+  },
+  "hard_checks": {
+    "manifest_environment": true,
+    "manifest_implementation_hashes": true,
+    "preregistration_status": true,
+    "submission_exhausted": true,
+    "submission_job": true,
+    "trace_contract": true
+  },
+  "hard_checks_passed": true,
+  "implementation_checks": {
+    "agent_config": true,
+    "carla_agent": true,
+    "closed_loop_runner": true,
+    "orion_detector": true,
+    "orion_head": true,
+    "stage2p_module": true
+  },
+  "interpretation": {
+    "not_supported": "This external K is an engineering oracle. One route cannot establish learned-U quality, task-relevance generalization, closed-loop benefit or safety.",
+    "supported": "The hash-bound controlled K reached the live Stage2-P checkpoint, produced a finite bounded trajectory residual that was applied before PID control, and returned to exact zero-K identity after the window."
+  },
+  "locks": {
+    "automatic_retry": false,
+    "closed_loop_safety_ready": false,
+    "extra_training": false,
+    "formal_stage2p_ready": false,
+    "locked_test_read": false
+  },
+  "runtime": {
+    "active_first_step": 196,
+    "active_last_step": 255,
+    "active_records": 60,
+    "control_trace_sha256": "b758e5846e27f49ad72f116f39996c464c47849badea38d892adea32151dac2d",
+    "job_id": "1123244",
+    "manifest_sha256": "981334740d8d32e9c74bfd549f31a2a55ceed56c8a317d76dda73da283fcb067",
+    "maximum_absolute_lateral_residual_m": 0.40189868211746216,
+    "maximum_absolute_longitudinal_residual_m": 18.771713256835938,
+    "minimum_recorded_obb_ttc_seconds": 1.3513089667422513,
+    "official_evaluation_sha256": "3c647bff7ec1e9622d66a5ef2e1502b53e6b8dd9cc83659a2376c8fa6be5e0f1",
+    "trace_records": 614
+  },
+  "schema": "orion.stage2p_v1_route147_carla_interface_audit.v1",
+  "soft_outcomes": {
+    "collision_count": 0,
+    "composed_score": 100.0,
+    "min_speed_infraction_count": 20,
+    "official_status": "Completed",
+    "route_completion_percent": 100
+  },
+  "status": "vertical_slice_carla_interface_completed",
+  "trace_checks": {
+    "active_gate_matches_unit_k": true,
+    "active_response_nonzero": true,
+    "active_window_60_frames": true,
+    "active_window_contiguous": true,
+    "active_window_present": true,
+    "all_inactive_responses_exact_zero": true,
+    "lateral_bound_2m": true,
+    "longitudinal_bound_24m": true,
+    "post_window_identity_present": true,
+    "pre_window_identity_present": true,
+    "step_sequence_contiguous": true,
+    "trace_has_records": true
+  }
+}

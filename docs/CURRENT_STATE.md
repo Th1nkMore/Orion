@@ -246,6 +246,54 @@ behavior, keep privileged route/actor/TTC/outcome labels out of its forward
 path, and train only the trajectory-response interface. The terminal record is
 `configs/scenario_factory/amendments/20260901_stage2l_v122_vertical_slice_semantic_terminal_v1.json`.
 
+### 3.3 First engineering vertical slice is complete
+
+The downstream interfaces have now been exercised without repairing the
+upstream soft failures. Controlled-K Stage2-P Job `1123187` completed all 80
+finite optimizer steps after Job `1123186` was invalidated as a zero-step
+launch-field error. Its forward path contains only frozen ORION planning
+context and already task-relevant K; raw U and privileged route, actor, TTC and
+outcome context do not enter. The trained checkpoint preserves the native
+planning context and exact zero-K trajectory identity. All four positive
+targets produce nonzero response and their MAE is `0.101049 m`.
+
+This is not a Stage2-P quality pass. The mean hard-negative response is only
+`0.031567 m`, but the maximum irrelevant-K and view-shuffled-K responses are
+`0.371179 / 0.397581 m`, above the frozen `0.2 m` soft specificity bound. The
+checkpoint is explicitly `engineering_smoke_only`, `formal_stage2p_ready=false`
+and `closed_loop_eligible=false`. Its terminal record is
+`configs/scenario_factory/amendments/20260901_stage2p_v1_controlled_k_interface_terminal_v1.json`.
+
+One explicit engineering override then loaded that exact checkpoint in live
+ORION/CARLA. Job `1123244` ran Route147 (`Town02`,
+`DynamicObjectCrossing_1`) to terminal completion. Across 614 contiguous
+control frames, the clean visual input, disabled legacy Density UQ, disabled
+Stage-1 sidecar, disabled scalar governor and disabled privileged planning
+response all matched the preregistration. An external oracle K occupied the
+frozen front-view on-path region for exactly 60 frames. It produced gate
+`0.80000001` and finite residuals with maxima `0.401899 m` lateral and
+`18.771713 m` longitudinal. Every frame before and after that window had an
+exact zero residual; after slowing to near zero during the window, the car
+recovered above `2 m/s` by step 269 and ended at `4.9247 m/s`.
+
+Official soft outcomes were `100%` route completion, zero collisions, zero
+red-light/route-deviation/blocked infractions, composed score `100`, and
+minimum recorded OBB TTC `1.351309 s`. The leaderboard route banner still
+reported `FAILURE` because MinSpeedTest recorded 20 entries (`78.79%` display),
+which must not be hidden or interpreted as a safety improvement. The external K
+is an engineering oracle, not learned U. Therefore this run establishes only
+that K can reach the Stage2-P checkpoint, modify live trajectory control for a
+bounded window, and restore native behavior afterward.
+
+The first vertical slice is thus an engineering pass with two upstream soft
+failures: Stage2-L counterfactual U semantics and Stage2-P low-K specificity.
+The next repair order is (1) make held-out QA preference depend on U while R is
+fixed, (2) add irrelevant/view-shuffled hard negatives to Stage2-P, and (3)
+rerun this same bounded slice with learned U-to-K. Formal Stage2-L, formal
+Stage2-P, learned-U closed loop, locked test and benchmark expansion remain
+locked. The combined terminal record is
+`configs/scenario_factory/amendments/20260901_vertical_slice_u_r_k_qa_trajectory_carla_terminal_v1.json`.
+
 Route expansion is proceeding independently without widening the first model
 smoke. At `2026-09-01T16:23:59+08:00`, the scheduler had no immediately usable
 CARLA A800: the only physically unallocated card was on gpu5, which remains

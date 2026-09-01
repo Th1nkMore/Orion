@@ -1,0 +1,132 @@
+{
+  "schema": "orion.vertical_slice_u_r_k_qa_trajectory_carla_terminal.v1",
+  "created_at": "2026-09-01T21:03:03+08:00",
+  "status": "vertical_slice_engineering_pass_with_upstream_soft_failures",
+  "scope": "controlled U to factorized R to K to structured QA to bounded trajectory response to one Route147 CARLA run",
+  "stage2l": {
+    "job_id": "1122494",
+    "terminal_status": "terminal_integrity_valid_soft_semantic_failure",
+    "hard_integrity_passed": true,
+    "semantic_result": "U-insensitive language bridge",
+    "dev_full_u_target_preference": 0.25,
+    "dev_no_u_target_preference": 0.25,
+    "formal_stage2l_ready": false,
+    "terminal_amendment": "configs/scenario_factory/amendments/20260901_stage2l_v122_vertical_slice_semantic_terminal_v1.json"
+  },
+  "stage2p": {
+    "invalid_preoptimization_job": "1123186",
+    "terminal_job": "1123187",
+    "slurm_state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed": "00:01:46",
+    "optimizer_steps": 80,
+    "hard_integrity_passed": true,
+    "zero_k_trajectory_exact_identity": true,
+    "native_context_exact_identity": true,
+    "positive_nonzero_response_fraction": 1.0,
+    "positive_target_mae_m": 0.10104887373745441,
+    "soft_specificity_failures": {
+      "irrelevant_k_max_response_m": 0.37117940187454224,
+      "view_shuffled_k_max_response_m": 0.39758121967315674,
+      "soft_bound_m": 0.2
+    },
+    "checkpoint_sha256": "4a27db9104208341e04756d7dffe6f57b6b0d4d4a61a1ec4ae4c50737da890e6",
+    "formal_stage2p_ready": false,
+    "terminal_amendment": "configs/scenario_factory/amendments/20260901_stage2p_v1_controlled_k_interface_terminal_v1.json"
+  },
+  "carla": {
+    "job": {
+      "job_id": "1123244",
+      "job_name": "uqcl_147_stage2p_controlled_k_smoke",
+      "partition": "Nvidia_A800",
+      "node": "gpu4",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "submitted_at": "2026-09-01T20:31:31+08:00",
+      "started_at": "2026-09-01T20:32:14+08:00",
+      "ended_at": "2026-09-01T21:00:21+08:00",
+      "elapsed": "00:28:07",
+      "batch_max_rss": "58666148K",
+      "cpus_per_task": 2,
+      "memory": "192G",
+      "gpus": 1
+    },
+    "route": {
+      "index": "147",
+      "variant": "hazard",
+      "town": "Town02",
+      "scenario": "DynamicObjectCrossing_1",
+      "trace_records": 614,
+      "official_status": "Completed",
+      "route_completion_percent": 100,
+      "composed_score": 100.0,
+      "collision_count": 0,
+      "minimum_recorded_obb_ttc_seconds": 1.3513089667422513,
+      "red_light_infractions": 0,
+      "route_deviations": 0,
+      "vehicle_blocked_infractions": 0
+    },
+    "live_interface": {
+      "external_k_source": "engineering oracle",
+      "camera": "CAM_FRONT",
+      "active_first_step": 196,
+      "active_last_step": 255,
+      "active_records": 60,
+      "active_duration_seconds": 3.0,
+      "global_gate": 0.800000011920929,
+      "maximum_absolute_lateral_residual_m": 0.40189868211746216,
+      "maximum_absolute_longitudinal_residual_m": 18.771713256835938,
+      "pre_and_post_window_residual_exact_zero": true,
+      "active_minimum_speed_mps": -0.008002825388567187,
+      "post_window_first_speed_at_least_2_mps_step": 269,
+      "final_speed_mps": 4.924699800825623,
+      "final_route_progress": 1.0
+    },
+    "soft_outcome_caveat": {
+      "leaderboard_route_banner": "FAILURE",
+      "reason": "MinSpeedTest only",
+      "min_speed_infraction_count": 20,
+      "displayed_min_speed_result_percent": 78.79,
+      "disposition": "The route still completed at 100 percent with zero collision and zero other hard traffic violations. Min-speed is reported as a soft outcome and is not interpreted as safety improvement."
+    },
+    "preregistration": {
+      "path": "configs/scenario_factory/stage2p_v1_route147_vertical_slice_carla_smoke_v1.json",
+      "sha256": "2464d35d1454b6a051728c3866893e96b5bec0101f410c2277b9cd7386203512"
+    },
+    "submission": {
+      "path": "configs/scenario_factory/amendments/20260901_stage2p_v1_route147_vertical_slice_carla_submission_v1.json",
+      "sha256": "b697aa2d40072e90c477aa90db09deb4301b3adfcd4a1179f1c2e6531b8f816d"
+    }
+  },
+  "authoritative_artifacts": {
+    "root": "results/scenario_factory/stage2p_smokes/v1_controlled_k_route147_80step_v1/carla_route147_job1123244",
+    "manifest_sha256": "981334740d8d32e9c74bfd549f31a2a55ceed56c8a317d76dda73da283fcb067",
+    "control_trace_sha256": "b758e5846e27f49ad72f116f39996c464c47849badea38d892adea32151dac2d",
+    "official_evaluation_sha256": "3c647bff7ec1e9622d66a5ef2e1502b53e6b8dd9cc83659a2376c8fa6be5e0f1",
+    "interface_audit_sha256": "272e9bbf7063d1b61b002f44f12f59e487c95c5e8836650d011f7e0596f8c553",
+    "slurm_log_sha256": "d9c7f65ac2aff3ded6a3c5cee7deb40f1d40a43e3e904a8664896d2d39233d9a",
+    "audit_script_used_remotely_sha256": "856a92468c3670764aa9536eb312365dc14436ada9efaf44b8b87822692d9ec0",
+    "audit_script_current_local_sha256": "63b300fc20a3ff484e96c79bc8292606d9dd02d9fe921f46e60cf2f8be6c49d8",
+    "audit_script_difference": "The current local script adds only a fallback for the flattened local control_trace.jsonl sync path; local and remote audits are byte-identical."
+  },
+  "conclusion": {
+    "supported": "The entire engineering path now executes: controlled U and factorized R produce K and structured QA artifacts; controlled K reaches a responsibility-safe Stage2-P response; the hash-bound checkpoint loads inside ORION; a finite bounded residual changes the live trajectory only during the K window; exact zero-K behavior returns after the window; CARLA completes the route.",
+    "not_supported": "The Stage2-L bridge does not yet understand U on held-out events, Stage2-P has low-K specificity outliers, the CARLA K input is an oracle rather than learned U, and one successful route cannot establish generalization, closed-loop benefit or safety."
+  },
+  "next_repair_order": [
+    "repair counterfactual U dependence in the Stage2-L semantic bridge",
+    "add hard-negative supervision for Stage2-P irrelevant and view-shuffled low K",
+    "rerun the same bounded slice with learned U to task-relevant K before any route matrix"
+  ],
+  "locks": {
+    "formal_stage2l_ready": false,
+    "formal_stage2p_ready": false,
+    "learned_u_closed_loop_ready": false,
+    "closed_loop_safety_ready": false,
+    "benchmark_ready": false,
+    "locked_test_read": false,
+    "automatic_retry": false,
+    "extra_training": false
+  },
+  "claim_boundary": "The first engineering vertical slice is complete. This is a pipeline and interface result, not evidence that learned uncertainty is semantically correct or improves safety."
+}
