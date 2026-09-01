@@ -391,7 +391,8 @@ The preregistered outcome-blind fallback is Route167 in Town03,
 approaches from behind. A new `train_coverage_repair` batch split requires no
 published/model outcome, maps its event package to `qa_train_candidate`, and is
 permanently ineligible as held-out evidence. Exactly one Route167 `clean_off`
-collection is prepared with 2 CPU, 192 GB host memory and one A800; all UQ,
+collection was submitted as Job `1121242` and started on gpu4 at
+`2026-09-01T13:45:09+08:00` with 2 CPU, 192 GB host memory and one A800; all UQ,
 Stage2, governor, planning-response and corruption paths remain disabled. The
 run must still pass runtime/sensor integrity, actor grounding, at least three
 back-right-positive geometry frames, human review, and separate Stage1/QA
@@ -412,6 +413,7 @@ Authoritative v11.1 results:
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_objective_and_train_coverage_preflight_v1.json`.
 - `configs/scenario_factory/stage2l_v12_train_coverage_repair_protocol_v1.json`;
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_coverage_collection_launch_v1.json`.
+- `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_coverage_collection_submission_v1.json`.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.

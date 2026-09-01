@@ -1,0 +1,71 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T13:45:12+08:00",
+  "status": "route167_train_coverage_collection_submitted_running",
+  "title": "Route167 outcome-blind train-coverage collection submitted as Job 1121242",
+  "scope": "scheduler attestation for the single authorized Route167 clean-off collection",
+  "authorization": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v12_route167_coverage_collection_launch_v1.json",
+    "sha256": "adde30588bbb84b0022c99a01875fe818441a72578a919dcb4157f66c86ec874"
+  },
+  "batch": {
+    "path": "results/scenario_factory/batches/stage2l_v12_coverage_repair_route167_v1/batch_manifest.json",
+    "sha256": "1046c66b76f50a324a81de325a60cc1633f4fac62f204e66148efe295350197f",
+    "run_id": "stage2l_v12_coverage_repair_route167_v1",
+    "split": "train_coverage_repair"
+  },
+  "job": {
+    "job_id": 1121242,
+    "job_name": "uqcl_167_clean_off",
+    "route_index": 167,
+    "condition": "clean_off",
+    "variant": "hazard",
+    "partition": "Nvidia_A800",
+    "state_at_attestation": "RUNNING",
+    "reason_at_attestation": null,
+    "node": "gpu4",
+    "submit_time": "2026-09-01T13:45:03+08:00",
+    "start_time": "2026-09-01T13:45:09+08:00",
+    "time_limit": "02:00:00",
+    "resources": {
+      "nodes": 1,
+      "cpus": 2,
+      "memory": "192G",
+      "gpus": 1
+    },
+    "excluded_nodes": ["gpu2", "gpu5"],
+    "requeue": false,
+    "restarts": 0
+  },
+  "submission": {
+    "maximum_authorized_jobs": 1,
+    "jobs_submitted": 1,
+    "additional_jobs_submitted": false,
+    "automatic_retry_allowed": false
+  },
+  "runtime_locks": {
+    "observation_uq": false,
+    "stage1_control_influence": false,
+    "stage2_spatial_uq": false,
+    "stage2_task_checkpoint": false,
+    "legacy_density_uq": false,
+    "risk_governor": false,
+    "planning_response": false,
+    "corruption": false
+  },
+  "pending_post_run_gates": [
+    "Slurm terminal state and exit code",
+    "runtime and six-camera/meta integrity",
+    "actor-grounded event package",
+    "at least three CAM_BACK_RIGHT-positive geometry frames",
+    "human visual/geometry review",
+    "separate Stage1 extraction and QA construction"
+  ],
+  "result": {
+    "terminal": false,
+    "event_package_built": false,
+    "back_right_coverage_known": false,
+    "training_started": false
+  },
+  "claim_boundary": "Submission/resource attestation only. Job 1121242 is a train-only raw-data collection and cannot be held-out evidence or unlock R/U/language/planning training before every post-run gate passes."
+}
