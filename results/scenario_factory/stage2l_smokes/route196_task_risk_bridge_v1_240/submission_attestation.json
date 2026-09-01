@@ -1,0 +1,30 @@
+{
+  "schema": "orion.stage2l_submission_attestation.v1",
+  "submitted_at": "2026-08-29T20:40:33+08:00",
+  "status_at_submission": "pending_priority",
+  "job_id": 1094688,
+  "job_name": "s2l_r196_bridge",
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpu": 1,
+    "cpus": 2,
+    "host_memory": "192G",
+    "time_limit": "03:00:00",
+    "excluded_nodes": ["gpu5"]
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_task_risk_bridge_v1_240/training",
+  "stdout": "/public/share/lidachuan/orion_assets/logs/stage2l_route196_task_risk_bridge_v1_240/train-1094688.out",
+  "authorization": {
+    "path": "configs/scenario_factory/amendments/20260829_stage2l_route196_task_risk_bridge_launch_v4.json",
+    "sha256": "fd443f73037820601040be3869813977e41b73ac5bf5cb958379565f4872d90f",
+    "maximum_submissions": 1,
+    "pilot_remains_locked": true,
+    "stage2p_remains_locked": true
+  },
+  "training_protocol": {
+    "path": "configs/scenario_factory/stage2l_training_v4_task_risk_bridge.json",
+    "sha256": "693a89707008a95958e683e420e56abd781203b1b2cf84469b0e14e94e5089b1"
+  },
+  "submit_wrapper_sha256": "bf94fd04162eccaa7a8ef46aca2d426a26a3ec7807a286de23c884daec2fa18e",
+  "rerun_policy": "No automatic rerun or step extension."
+}

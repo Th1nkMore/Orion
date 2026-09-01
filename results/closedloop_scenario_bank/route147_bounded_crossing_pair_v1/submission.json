@@ -1,0 +1,28 @@
+{
+  "schema": "orion.route147_bounded_crossing_pair_submission.v1",
+  "submitted_at": "2026-08-29T05:46:00+08:00",
+  "preregistration": "configs/closedloop_scenario_bank/route147_bounded_crossing_pair_v1.json",
+  "offline_gate": "results/closedloop_scenario_bank/route147_clean_v2_1082515/route147_bounded_crossing_offline_gate.json",
+  "jobs": {
+    "clean": {
+      "job_id": "1087790",
+      "run_id": "closedloop_route147_bounded_crossing_clean_v1",
+      "condition": "clean_off"
+    },
+    "oracle": {
+      "job_id": "1087791",
+      "run_id": "closedloop_route147_bounded_crossing_oracle_v1",
+      "condition": "native_bounded_crossing_oracle"
+    }
+  },
+  "resources_per_job": {
+    "node": "gpu4",
+    "gpu": "1 x A800",
+    "cpu_cores": 2,
+    "host_memory": "192G",
+    "wall_time": "02:00:00"
+  },
+  "queue_state_at_submission": "PENDING (Priority)",
+  "density_contract": "Legacy Density UQ hard-disabled; both new traces must contain zero non-null density_uq_score frames.",
+  "adapter_contract": "New spatial adapter intentionally absent from this planning-mechanism pair; it enters only after primary_success=true unlocks Stage2."
+}

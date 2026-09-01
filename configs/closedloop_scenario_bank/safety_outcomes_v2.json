@@ -1,0 +1,145 @@
+{
+  "schema": "orion.closedloop_safety_outcomes.v2",
+  "created_at": "2026-08-28T15:45:00+08:00",
+  "status": "measurement_protocol_active_matrix_paused",
+  "purpose": "Separate hard closed-loop safety facts, actor-grounded near-miss evidence, and utility costs while the uncertainty-aware policy is developed.",
+  "evidence_hierarchy": {
+    "hard_endpoints": [
+      "pedestrian, vehicle, and layout collision count and rate",
+      "red-light, stop-sign, route-deviation, and outside-lane infractions",
+      "eligible terminal route completion and composed score"
+    ],
+    "actor_grounded_safety_margin": [
+      "minimum constant-velocity fixed-orientation OBB-TTC",
+      "time exposed below OBB-TTC thresholds of 1, 2, 3, and 5 seconds",
+      "minimum OBB separating-axis gap",
+      "hazard response latency and braking onset",
+      "post-encroachment time when a conflict-zone trajectory supports it"
+    ],
+    "utility_and_false_positive_cost": [
+      "route duration and completion",
+      "time-weighted mean speed",
+      "time below 0.25 m/s and below 1 m/s",
+      "unnecessary stopping outside genuine conflict intervals",
+      "matched off-path and no-hazard behavior"
+    ]
+  },
+  "metric_validity_rules": [
+    "TTC and clearance must come from per-frame actor geometry, not image-plane distance or speed response alone.",
+    "The primary TTC uses fixed-orientation oriented bounding boxes; circumscribed-disc TTC is a conservative diagnostic only.",
+    "Record raw ego and actor position, velocity, yaw, and planar extent so every derived safety metric can be recomputed offline.",
+    "Require safety telemetry on every real control frame used in an official paired comparison.",
+    "Report low-TTC exposure together with completion and unnecessary-stop costs; an always-slow policy is not a selective safety improvement.",
+    "Surrogate safety-margin metrics can support overall distributional improvement but cannot replace all hard collision or serious-infraction cases."
+  ],
+  "hard_case_target": {
+    "development_goal": "Obtain at least three independent route-scenario cases in which a valid clean baseline is safe, a held-out observation degradation produces an official collision or serious violation, and an uncertainty-aware response reduces the hard failure without invalid completion or indiscriminate stopping.",
+    "expansion_rule": "Establish the clean/degraded/oracle mechanism on one case at a time before adding seeds or routes; only then estimate rates across repeated seeds.",
+    "independence_preference": "Prefer different towns and scenario families over several variants of the same route or corruption."
+  },
+  "existing_evidence_register": [
+    {
+      "route_index": 146,
+      "town": "Town01",
+      "scenario": "DynamicObjectCrossing",
+      "evidence_tier": "legacy hard mechanism case",
+      "facts": [
+        {
+          "condition": "clean_off",
+          "job_id": 1057222,
+          "eligible": true,
+          "route_completion_percent": 100,
+          "pedestrian_collisions": 0
+        },
+        {
+          "condition": "front_corrupt_transient_off",
+          "job_id": 1057306,
+          "eligible": true,
+          "route_completion_percent": 100,
+          "pedestrian_collisions": 1,
+          "score_penalty": 0.5
+        },
+        {
+          "condition": "front_corrupt_transient_oracle_stop",
+          "job_id": 1057566,
+          "eligible": true,
+          "route_completion_percent": 100,
+          "pedestrian_collisions": 0,
+          "score_penalty": 1.0
+        },
+        {
+          "condition": "front_corrupt_transient_pairwise_stop",
+          "job_id": 1077521,
+          "eligible": true,
+          "route_completion_percent": 100,
+          "pedestrian_collisions": 0,
+          "score_penalty": 1.0
+        }
+      ],
+      "limitations": [
+        "The intervention is transient full-front camera dropout and therefore belongs to the pipeline/mechanism tier, not the final external-validity tier.",
+        "The safe responses use an external bounded governor; they do not show that fine-tuned ORION learned task relevance.",
+        "The legacy runs predate the current Epic-quality and actor-telemetry protocol and must not be pooled numerically with new formal runs without an explicit compatibility rerun."
+      ]
+    },
+    {
+      "route_index": 151,
+      "town": "Town02",
+      "scenario": "ParkingCrossingPedestrian",
+      "evidence_tier": "localized near-miss candidate",
+      "facts": [
+        {
+          "condition": "clean_off",
+          "job_id": 1082398,
+          "eligible": true,
+          "route_completion_percent": 100,
+          "collisions": 0
+        },
+        {
+          "condition": "local_glare_transient_off",
+          "job_id": 1082420,
+          "eligible": true,
+          "route_completion_percent": 100,
+          "collisions": 0,
+          "observed_low_speed_onset_delay_seconds": 0.4
+        }
+      ],
+      "limitations": [
+        "The 0.4-second response difference is not an exact TTC measurement.",
+        "This event becomes safety-margin evidence only if the actor-instrumented rerun shows worse OBB-TTC, low-TTC exposure, clearance, or conflict timing.",
+        "No governor, learned-UQ, off-path, or no-hazard conclusion is authorized yet."
+      ]
+    }
+  ],
+  "next_hard_case_shortlist": [
+    {
+      "priority": 1,
+      "route_index": 147,
+      "town": "Town02",
+      "scenario": "DynamicObjectCrossing",
+      "reason": "Held-out transfer of the Route146 crossing mechanism with a compact blocker-mediated actor region."
+    },
+    {
+      "priority": 2,
+      "route_index": 194,
+      "town": "Town04",
+      "scenario": "OppositeVehicleRunningRedLight",
+      "reason": "A moving vehicle crosses the ego conflict zone and can yield a vehicle-collision hard endpoint."
+    },
+    {
+      "priority": 3,
+      "route_index": 157,
+      "town": "Town05",
+      "scenario": "ParkingCutIn",
+      "reason": "The Epic runtime and clean completion are already validated; a moving cut-in vehicle provides a second collision family."
+    },
+    {
+      "priority": 4,
+      "route_index": 168,
+      "town": "Town05",
+      "scenario": "HazardAtSideLane",
+      "reason": "Higher-speed bicycle encroachment is likely to produce measurable TTC degradation under a short localized observation loss."
+    }
+  ],
+  "claim_boundary": "Before Stage-2 policy training succeeds, describe oracle and learned-signal governor results as operational risk-response evidence. Do not claim that ORION or the VLM understands uncertainty or task relevance."
+}

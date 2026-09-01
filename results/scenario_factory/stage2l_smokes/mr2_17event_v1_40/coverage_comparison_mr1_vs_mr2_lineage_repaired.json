@@ -1,0 +1,534 @@
+{
+  "claim_boundary": "Post-hoc, lineage-repaired engineering interpretation using an admission-only source diff and replay evidence that predates MR2. The preregistered exact-hash comparison remains invalid. This does not support formal generalization, VLM understanding, planning, closed-loop, or safety claims.",
+  "lineage_repair": {
+    "expanded_base_trainer_sha256": "dbf03178d1d748c8b2004d82e91cedd4976bd57bd1e0b82822332229e89227d6",
+    "preexisting_replay_evidence": {
+      "all_stable_inputs_match": true,
+      "audit_predates_mr2_result": true,
+      "before_metrics_match": true,
+      "controlled_comparison_valid": true,
+      "direct_shared_history_fields_exact_for_first_40_steps": true,
+      "duration_reference_is_same_mr1_report": true,
+      "duration_run_uses_expanded_base_trainer": true,
+      "first_40_step_replay_matches_within_1e_6": true,
+      "reported_first_40_deltas_are_zero": true
+    },
+    "reconstructed_reference_trainer_sha256": "d3eb2c6b8995c6ba29c6f26321221234e26eb0b2241a9700ca1ed3e38b3271c0",
+    "reference_trainer_sha256": "d3eb2c6b8995c6ba29c6f26321221234e26eb0b2241a9700ca1ed3e38b3271c0",
+    "source_equivalence": {
+      "admission_guard_reconstruction_matches_reference_protocol": true,
+      "both_compared_runs_use_40_steps": true,
+      "current_trainer_matches_expanded_protocol": true,
+      "only_added_constant": "ALLOWED_BOUNDED_OPTIMIZER_STEPS = (40, 80)",
+      "only_replaced_guard": {
+        "expanded": "if args.max_optimizer_steps not in ALLOWED_BOUNDED_OPTIMIZER_STEPS:\n        raise ValueError(\"MR1 bounded diagnostics allow exactly 40 or 80 optimizer steps\")",
+        "reference": "if args.max_optimizer_steps != 40:\n        raise ValueError(\"MR1 is frozen at exactly 40 optimizer steps\")"
+      },
+      "training_or_evaluation_body_changed": false
+    },
+    "valid_for_secondary_engineering_interpretation": true
+  },
+  "locks": {
+    "additional_mr_training": false,
+    "automatic_retry_or_extension": false,
+    "closed_loop_matrix_allowed": false,
+    "formal_stage2l_training_allowed": false,
+    "locked_test_evaluation_allowed": false,
+    "stage2p_allowed": false
+  },
+  "primary_preregistered_comparison": {
+    "must_not_be_overwritten": true,
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr2_17event_v1_40/coverage_comparison_mr1_vs_mr2.json",
+    "reason": "exact base-trainer source hash mismatch",
+    "remains_invalid": true,
+    "sha256": "a6757fb949a0f65ae394eab5dc6516c1ce1f5745628cdf9c6eab7317e7b13c60"
+  },
+  "schema": "orion.stage2l_mr2_coverage_lineage_repair.v1",
+  "secondary_interpretation": {
+    "common_event_metric_changes": {
+      "dev": {
+        "route147_step223": {
+          "background_false_positive_rate": {
+            "direction": "regressed",
+            "mr1_8event_40step": 0.23555909097194672,
+            "mr2_17event_40step": 0.3451438844203949,
+            "raw_delta": 0.10958479344844818,
+            "signed_improvement": -0.10958479344844818
+          },
+          "foreground_recall": {
+            "direction": "improved",
+            "mr1_8event_40step": 0.9333333969116211,
+            "mr2_17event_40step": 0.9523809552192688,
+            "raw_delta": 0.019047558307647705,
+            "signed_improvement": 0.019047558307647705
+          },
+          "minimum_attained_fraction": {
+            "direction": "improved",
+            "mr1_8event_40step": -0.007287451531738043,
+            "mr2_17event_40step": 0.045063238590955734,
+            "raw_delta": 0.05235069012269378,
+            "signed_improvement": 0.05235069012269378
+          },
+          "positive_order_fraction": {
+            "direction": "improved",
+            "mr1_8event_40step": 0.8,
+            "mr2_17event_40step": 1.0,
+            "raw_delta": 0.19999999999999996,
+            "signed_improvement": 0.19999999999999996
+          }
+        },
+        "route195_step230": {
+          "background_false_positive_rate": {
+            "direction": "regressed",
+            "mr1_8event_40step": 0.20039935410022736,
+            "mr2_17event_40step": 0.28613176941871643,
+            "raw_delta": 0.08573241531848907,
+            "signed_improvement": -0.08573241531848907
+          },
+          "foreground_recall": {
+            "direction": "regressed",
+            "mr1_8event_40step": 0.7647876143455505,
+            "mr2_17event_40step": 0.5536764860153198,
+            "raw_delta": -0.2111111283302307,
+            "signed_improvement": -0.2111111283302307
+          },
+          "minimum_attained_fraction": {
+            "direction": "improved",
+            "mr1_8event_40step": -0.1767026036977768,
+            "mr2_17event_40step": -0.07698392868041992,
+            "raw_delta": 0.09971867501735687,
+            "signed_improvement": 0.09971867501735687
+          },
+          "positive_order_fraction": {
+            "direction": "unchanged",
+            "mr1_8event_40step": 0.6,
+            "mr2_17event_40step": 0.6,
+            "raw_delta": 0.0,
+            "signed_improvement": 0.0
+          }
+        }
+      },
+      "train": {
+        "route151_step218": {
+          "background_false_positive_rate": {
+            "direction": "regressed",
+            "mr1_8event_40step": 0.27725860476493835,
+            "mr2_17event_40step": 0.3675229251384735,
+            "raw_delta": 0.09026432037353516,
+            "signed_improvement": -0.09026432037353516
+          },
+          "foreground_recall": {
+            "direction": "unchanged",
+            "mr1_8event_40step": 1.0,
+            "mr2_17event_40step": 1.0,
+            "raw_delta": 0.0,
+            "signed_improvement": 0.0
+          },
+          "minimum_attained_fraction": {
+            "direction": "improved",
+            "mr1_8event_40step": 0.4554154872894287,
+            "mr2_17event_40step": 0.7028017044067383,
+            "raw_delta": 0.24738621711730957,
+            "signed_improvement": 0.24738621711730957
+          },
+          "positive_order_fraction": {
+            "direction": "unchanged",
+            "mr1_8event_40step": 1.0,
+            "mr2_17event_40step": 1.0,
+            "raw_delta": 0.0,
+            "signed_improvement": 0.0
+          }
+        },
+        "route157_step193": {
+          "background_false_positive_rate": {
+            "direction": "regressed",
+            "mr1_8event_40step": 0.1492515355348587,
+            "mr2_17event_40step": 0.2542632222175598,
+            "raw_delta": 0.10501168668270111,
+            "signed_improvement": -0.10501168668270111
+          },
+          "foreground_recall": {
+            "direction": "regressed",
+            "mr1_8event_40step": 0.8457247018814087,
+            "mr2_17event_40step": 0.7712065577507019,
+            "raw_delta": -0.07451814413070679,
+            "signed_improvement": -0.07451814413070679
+          },
+          "minimum_attained_fraction": {
+            "direction": "regressed",
+            "mr1_8event_40step": 0.22613315284252167,
+            "mr2_17event_40step": 0.072313591837883,
+            "raw_delta": -0.15381956100463867,
+            "signed_improvement": -0.15381956100463867
+          },
+          "positive_order_fraction": {
+            "direction": "unchanged",
+            "mr1_8event_40step": 1.0,
+            "mr2_17event_40step": 1.0,
+            "raw_delta": 0.0,
+            "signed_improvement": 0.0
+          }
+        },
+        "route158_step154": {
+          "background_false_positive_rate": {
+            "direction": "regressed",
+            "mr1_8event_40step": 0.23098783195018768,
+            "mr2_17event_40step": 0.339173287153244,
+            "raw_delta": 0.10818545520305634,
+            "signed_improvement": -0.10818545520305634
+          },
+          "foreground_recall": {
+            "direction": "unchanged",
+            "mr1_8event_40step": 1.0,
+            "mr2_17event_40step": 1.0,
+            "raw_delta": 0.0,
+            "signed_improvement": 0.0
+          },
+          "minimum_attained_fraction": {
+            "direction": "improved",
+            "mr1_8event_40step": 0.46879518032073975,
+            "mr2_17event_40step": 0.7930107116699219,
+            "raw_delta": 0.32421553134918213,
+            "signed_improvement": 0.32421553134918213
+          },
+          "positive_order_fraction": {
+            "direction": "unchanged",
+            "mr1_8event_40step": 1.0,
+            "mr2_17event_40step": 1.0,
+            "raw_delta": 0.0,
+            "signed_improvement": 0.0
+          }
+        },
+        "route164_step522": {
+          "background_false_positive_rate": {
+            "direction": "regressed",
+            "mr1_8event_40step": 0.09874041378498077,
+            "mr2_17event_40step": 0.22680874168872833,
+            "raw_delta": 0.12806832790374756,
+            "signed_improvement": -0.12806832790374756
+          },
+          "foreground_recall": {
+            "direction": "improved",
+            "mr1_8event_40step": 0.42218518257141113,
+            "mr2_17event_40step": 0.6855555772781372,
+            "raw_delta": 0.2633703947067261,
+            "signed_improvement": 0.2633703947067261
+          },
+          "minimum_attained_fraction": {
+            "direction": "regressed",
+            "mr1_8event_40step": -0.01252270769327879,
+            "mr2_17event_40step": -0.11869710683822632,
+            "raw_delta": -0.10617439914494753,
+            "signed_improvement": -0.10617439914494753
+          },
+          "positive_order_fraction": {
+            "direction": "unchanged",
+            "mr1_8event_40step": 0.6,
+            "mr2_17event_40step": 0.6,
+            "raw_delta": 0.0,
+            "signed_improvement": 0.0
+          }
+        },
+        "route168_step482": {
+          "background_false_positive_rate": {
+            "direction": "regressed",
+            "mr1_8event_40step": 0.19181500375270844,
+            "mr2_17event_40step": 0.2716805040836334,
+            "raw_delta": 0.07986550033092499,
+            "signed_improvement": -0.07986550033092499
+          },
+          "foreground_recall": {
+            "direction": "unchanged",
+            "mr1_8event_40step": 0.9285714626312256,
+            "mr2_17event_40step": 0.9285714626312256,
+            "raw_delta": 0.0,
+            "signed_improvement": 0.0
+          },
+          "minimum_attained_fraction": {
+            "direction": "improved",
+            "mr1_8event_40step": 0.4234893321990967,
+            "mr2_17event_40step": 0.5700271725654602,
+            "raw_delta": 0.14653784036636353,
+            "signed_improvement": 0.14653784036636353
+          },
+          "positive_order_fraction": {
+            "direction": "unchanged",
+            "mr1_8event_40step": 1.0,
+            "mr2_17event_40step": 1.0,
+            "raw_delta": 0.0,
+            "signed_improvement": 0.0
+          }
+        },
+        "route180_step696": {
+          "background_false_positive_rate": {
+            "direction": "regressed",
+            "mr1_8event_40step": 0.21686449646949768,
+            "mr2_17event_40step": 0.3239511549472809,
+            "raw_delta": 0.1070866584777832,
+            "signed_improvement": -0.1070866584777832
+          },
+          "foreground_recall": {
+            "direction": "unchanged",
+            "mr1_8event_40step": 1.0,
+            "mr2_17event_40step": 1.0,
+            "raw_delta": 0.0,
+            "signed_improvement": 0.0
+          },
+          "minimum_attained_fraction": {
+            "direction": "improved",
+            "mr1_8event_40step": 0.6104387044906616,
+            "mr2_17event_40step": 0.9850349426269531,
+            "raw_delta": 0.3745962381362915,
+            "signed_improvement": 0.3745962381362915
+          },
+          "positive_order_fraction": {
+            "direction": "unchanged",
+            "mr1_8event_40step": 1.0,
+            "mr2_17event_40step": 1.0,
+            "raw_delta": 0.0,
+            "signed_improvement": 0.0
+          }
+        }
+      }
+    },
+    "decision": "expanded_coverage_not_sufficient_revise_objective",
+    "gate_count_change": {
+      "dev": -2,
+      "train": 0
+    },
+    "gate_summary": {
+      "mr1": {
+        "dev": {
+          "all_passed": false,
+          "failed": [
+            "dev_all_groups_attain_margin",
+            "dev_all_groups_positive_order",
+            "dev_relevance_background_fpr",
+            "dev_supported_class_macro_recall",
+            "dev_task_field_accuracy"
+          ],
+          "passed": 4,
+          "total": 9
+        },
+        "train": {
+          "all_passed": false,
+          "failed": [
+            "train_all_groups_attain_margin",
+            "train_all_groups_positive_order",
+            "train_relevance_background_fpr",
+            "train_relevance_foreground_recall",
+            "train_task_field_accuracy"
+          ],
+          "passed": 0,
+          "total": 5
+        }
+      },
+      "mr2": {
+        "dev": {
+          "all_passed": false,
+          "failed": [
+            "dev_all_groups_attain_margin",
+            "dev_all_groups_positive_order",
+            "dev_relevance_background_fpr",
+            "dev_relevance_foreground_recall",
+            "dev_stance_accuracy",
+            "dev_supported_class_macro_recall",
+            "dev_task_field_accuracy"
+          ],
+          "passed": 2,
+          "total": 9
+        },
+        "train": {
+          "all_passed": false,
+          "failed": [
+            "train_all_groups_attain_margin",
+            "train_all_groups_positive_order",
+            "train_relevance_background_fpr",
+            "train_relevance_foreground_recall",
+            "train_task_field_accuracy"
+          ],
+          "passed": 0,
+          "total": 5
+        }
+      }
+    },
+    "next_action": "Stop route or step scaling and revise the relevance or structured-field objective.",
+    "split_distribution_metric_changes": {
+      "dev": {
+        "background_false_positive_rate": {
+          "direction": "regressed",
+          "mr1_8event_40step": 0.21797923743724823,
+          "mr2_17event_40step": 0.27255383133888245,
+          "raw_delta": 0.054574593901634216,
+          "signed_improvement": -0.054574593901634216
+        },
+        "foreground_recall": {
+          "direction": "regressed",
+          "mr1_8event_40step": 0.8490604758262634,
+          "mr2_17event_40step": 0.7560567855834961,
+          "raw_delta": -0.09300369024276733,
+          "signed_improvement": -0.09300369024276733
+        },
+        "minimum_attained_fraction": {
+          "direction": "regressed",
+          "mr1_8event_40step": -0.1767026036977768,
+          "mr2_17event_40step": -1.6892935037612915,
+          "raw_delta": -1.5125909000635147,
+          "signed_improvement": -1.5125909000635147
+        },
+        "positive_order_fraction": {
+          "direction": "unchanged",
+          "mr1_8event_40step": 0.7,
+          "mr2_17event_40step": 0.7,
+          "raw_delta": 0.0,
+          "signed_improvement": 0.0
+        },
+        "semantic_answer_exact_match": {
+          "direction": "improved",
+          "mr1_8event_40step": 0.8166666666666667,
+          "mr2_17event_40step": 0.8375,
+          "raw_delta": 0.02083333333333337,
+          "signed_improvement": 0.02083333333333337
+        },
+        "semantic_field_accuracy": {
+          "direction": "improved",
+          "mr1_8event_40step": 0.90625,
+          "mr2_17event_40step": 0.9104166666666667,
+          "raw_delta": 0.004166666666666652,
+          "signed_improvement": 0.004166666666666652
+        },
+        "stance_accuracy": {
+          "direction": "regressed",
+          "mr1_8event_40step": 0.8,
+          "mr2_17event_40step": 0.7666666666666667,
+          "raw_delta": -0.033333333333333326,
+          "signed_improvement": -0.033333333333333326
+        },
+        "supported_class_macro_recall": {
+          "direction": "improved",
+          "mr1_8event_40step": 0.4470704272643331,
+          "mr2_17event_40step": 0.46473501252979366,
+          "raw_delta": 0.017664585265460553,
+          "signed_improvement": 0.017664585265460553
+        },
+        "task_field_accuracy": {
+          "direction": "improved",
+          "mr1_8event_40step": 0.6391304347826087,
+          "mr2_17event_40step": 0.6413043478260869,
+          "raw_delta": 0.0021739130434782483,
+          "signed_improvement": 0.0021739130434782483
+        },
+        "zero_uq_complete_field_accuracy": {
+          "direction": "unchanged",
+          "mr1_8event_40step": 1.0,
+          "mr2_17event_40step": 1.0,
+          "raw_delta": 0.0,
+          "signed_improvement": 0.0
+        }
+      },
+      "train": {
+        "background_false_positive_rate": {
+          "direction": "regressed",
+          "mr1_8event_40step": 0.19151106476783752,
+          "mr2_17event_40step": 0.3003162145614624,
+          "raw_delta": 0.10880514979362488,
+          "signed_improvement": -0.10880514979362488
+        },
+        "foreground_recall": {
+          "direction": "improved",
+          "mr1_8event_40step": 0.8538458347320557,
+          "mr2_17event_40step": 0.8937393426895142,
+          "raw_delta": 0.039893507957458496,
+          "signed_improvement": 0.039893507957458496
+        },
+        "minimum_attained_fraction": {
+          "direction": "regressed",
+          "mr1_8event_40step": -0.01252270769327879,
+          "mr2_17event_40step": -0.11869710683822632,
+          "raw_delta": -0.10617439914494753,
+          "signed_improvement": -0.10617439914494753
+        },
+        "positive_order_fraction": {
+          "direction": "improved",
+          "mr1_8event_40step": 0.9259259259259259,
+          "mr2_17event_40step": 0.95,
+          "raw_delta": 0.024074074074074026,
+          "signed_improvement": 0.024074074074074026
+        },
+        "semantic_answer_exact_match": {
+          "direction": "regressed",
+          "mr1_8event_40step": 0.9197530864197531,
+          "mr2_17event_40step": 0.9,
+          "raw_delta": -0.01975308641975304,
+          "signed_improvement": -0.01975308641975304
+        },
+        "semantic_field_accuracy": {
+          "direction": "regressed",
+          "mr1_8event_40step": 0.9598765432098766,
+          "mr2_17event_40step": 0.9597222222222223,
+          "raw_delta": -0.00015432098765433278,
+          "signed_improvement": -0.00015432098765433278
+        },
+        "stance_accuracy": {
+          "direction": "regressed",
+          "mr1_8event_40step": 0.9012345679012346,
+          "mr2_17event_40step": 0.8944444444444445,
+          "raw_delta": -0.006790123456790087,
+          "signed_improvement": -0.006790123456790087
+        },
+        "supported_class_macro_recall": {
+          "direction": "regressed",
+          "mr1_8event_40step": 0.7497905142979633,
+          "mr2_17event_40step": 0.700026307871212,
+          "raw_delta": -0.04976420642675128,
+          "signed_improvement": -0.04976420642675128
+        },
+        "task_field_accuracy": {
+          "direction": "improved",
+          "mr1_8event_40step": 0.7874396135265701,
+          "mr2_17event_40step": 0.7876811594202898,
+          "raw_delta": 0.00024154589371971902,
+          "signed_improvement": 0.00024154589371971902
+        },
+        "zero_uq_complete_field_accuracy": {
+          "direction": "unchanged",
+          "mr1_8event_40step": 1.0,
+          "mr2_17event_40step": 1.0,
+          "raw_delta": 0.0,
+          "signed_improvement": 0.0
+        }
+      }
+    }
+  },
+  "sources": {
+    "current_base_trainer": {
+      "path": "/public/home/lidachuan/project/Orion/scripts/train_stage2l_mr1_smoke.py",
+      "sha256": "dbf03178d1d748c8b2004d82e91cedd4976bd57bd1e0b82822332229e89227d6"
+    },
+    "duration_comparison": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr1e_8event_v1_80/duration_comparison_40_vs_80.json",
+      "sha256": "f615847385e42a570631d4829f4e4d5c1288198ece82147cce1abb5eeefb28e4"
+    },
+    "duration_report": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr1e_8event_v1_80/training/report.json",
+      "sha256": "133a9afe6c40b9a71dd5807d580f404369768aeef6eab674ee139aa358e00df9"
+    },
+    "expanded_report": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr2_17event_v1_40/training/report.recovered.json",
+      "sha256": "3dd10e2dd7a842db30de360bd486dd10041e73f19af1cf00454d0ff55772ed87"
+    },
+    "frozen_plan": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260831_stage2l_mr2_frozen_comparison_plan_v1.json",
+      "sha256": "b6ae623a05c44c7c6d42ffeb0ac6f8e57390239f6920b8ad0603187d9948836b"
+    },
+    "lineage_amendment": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260831_stage2l_mr2_lineage_repair_v1.json",
+      "sha256": "66c09bcb040b127b6d8c646733ac3d2685a7df5e300754398785faff73b1bb79"
+    },
+    "reference_report": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr1_8event_v1_40/training/report.json",
+      "sha256": "b4399676e4f5853c98fb0419a4185e211ebdbdb89aa39c9c440a9afac33887ca"
+    }
+  },
+  "status": "secondary_engineering_interpretation_completed_no_training_launched"
+}

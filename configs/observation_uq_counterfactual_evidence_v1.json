@@ -1,0 +1,123 @@
+{
+  "schema_version": "orion.observation-uq-counterfactual-evidence/v1",
+  "frozen_at": "2026-08-26T23:31:10+08:00",
+  "purpose": "Bounded Stage-1 learnability protocol for generic spatial observation evidence loss, after density, local conditional prediction, temporal-only, and clean-manifold candidates failed persistent Epic fog.",
+  "claim_boundary": {
+    "adapter_quantity": "spatial observation evidence-loss proxy with persistent appearance and transient temporal components",
+    "task_relevance_is_adapter_output": false,
+    "path_risk_is_adapter_output": false,
+    "counterfactual_target_is_unique_uncertainty_truth": false,
+    "counterfactual_target_role": "primary controlled-intervention supervision and operational proxy",
+    "corruption_mask_is_primary_target": false,
+    "actual_orion_failure_is_primary_target": false,
+    "actual_orion_failure_role": "independent task-degradation diagnostic or later low-weight auxiliary",
+    "model_independence_claimed": false,
+    "closed_loop_safety_claim_supported_by_stage1": false
+  },
+  "reference_data": {
+    "source": "frozen B2D route-disjoint observation feature selection",
+    "historical_name": "clean",
+    "corrected_name": "unintervened mixed-weather reference",
+    "train_routes": 35,
+    "frames_per_route": 16,
+    "train_frames": 560,
+    "normal_weather_routes_0_to_3": 8,
+    "adverse_weather_routes_4_plus": 27,
+    "reference_feature_sha256": "ab8d16ce9ffe67aba192ae331b102bcda8ccf917b4bbe491e86e452367b5beac"
+  },
+  "target": {
+    "persistent_direction": "1 - cosine(observed_patch_feature_t, paired_reference_patch_feature_t)",
+    "persistent_magnitude": "absolute log ratio of observed/reference patch feature RMS",
+    "transient": "absolute difference between observed and reference consecutive-frame cosine residuals",
+    "first_frame_transient_valid": false,
+    "target_component_scaling": "separate robust q95 fitted on train targets only; frozen before validation",
+    "reference_input_target": [0.0, 0.0, 0.0],
+    "mask_optimizer_weight": 0.0,
+    "severity_rank_activation": "only patches whose measured higher-severity target exceeds the lower-severity target",
+    "actual_target_optimizer_weight_in_bounded_pilot": 0.0
+  },
+  "adapter": {
+    "inputs": [
+      "current frozen EVAViT patch feature",
+      "previous frozen EVAViT patch feature when valid",
+      "current/previous cosine change",
+      "explicit log feature RMS",
+      "camera-view embedding",
+      "normalized 2D patch coordinates"
+    ],
+    "forbidden_inputs": [
+      "route identifier",
+      "planned path",
+      "hazard label",
+      "corruption family",
+      "corruption severity",
+      "corruption mask",
+      "paired reference at inference"
+    ],
+    "outputs": [
+      "persistent_direction_evidence_loss",
+      "persistent_magnitude_evidence_loss",
+      "transient_observation_inconsistency"
+    ],
+    "total_map_role": "visualization and later VLM input only; no fixed governor is authorized by this protocol"
+  },
+  "intervention_split": {
+    "optimizer_families": ["local_blur", "local_dark"],
+    "optimizer_severities": [1, 3],
+    "optimizer_views": "deterministic hash-balanced single camera over all six ORION views",
+    "optimizer_region": "deterministic sample-specific local region",
+    "route_validation": "same optimizer families on five disjoint B2D validation routes",
+    "heldout_family_development": "local_glare on validation and held-out B2D routes",
+    "native_development": "existing exact-pose Epic fog on Town01/Route146 and Town04/Route203",
+    "untouched_confirmation": [
+      "new CARLA-native rain or low-sun condition generated only after adapter code and gate freeze",
+      "new finite-window sensor event family not used by optimizer or architecture development"
+    ]
+  },
+  "optimization": {
+    "initial_epochs": 24,
+    "checkpoint_selection": "route-disjoint validation target loss only",
+    "loss": [
+      "per-component log1p smooth-L1 regression",
+      "measured-target-conditioned severity ranking",
+      "explicit zero-target reference false-positive loss"
+    ],
+    "no_validation_family_for_checkpoint_selection": true,
+    "no_native_condition_for_checkpoint_selection": true
+  },
+  "bounded_pilot_gate": {
+    "all_groups_required": true,
+    "route_validation": [
+      "each persistent component target-prediction patch Spearman >= 0.30",
+      "combined target top-20-percent patch AUROC >= 0.70",
+      "median per-route AUROC >= 0.65",
+      "reference false-positive p95 <= 0.20 after train-only scaling"
+    ],
+    "heldout_family_development": [
+      "positive score uplift at both severities",
+      "higher-severity score mean > lower-severity score mean",
+      "target-prediction patch Spearman >= 0.20",
+      "target top-20-percent patch AUROC >= 0.65"
+    ],
+    "native_development": [
+      "fog_light > clear and fog_heavy > fog_light independently on both routes",
+      "sample severity Spearman >= 0.10",
+      "paired-delta patch Spearman >= 0.10 at both fog levels",
+      "paired-delta top-20-percent patch AUROC >= 0.60 at both fog levels"
+    ]
+  },
+  "decision": {
+    "route_validation_fails": "Fix target scaling or adapter learnability before any external validation; do not add families.",
+    "route_passes_but_heldout_family_fails": "The adapter is intervention-specific; change supervision diversity or architecture, not the gate.",
+    "heldout_family_passes_but_native_fails": "Synthetic transfer is insufficient; add physically grounded supervision before any ORION integration.",
+    "native_development_passes": "Freeze model and run untouched native/sensor confirmation; adapter and Stage-2 remain separate decisions.",
+    "untouched_confirmation_passes": "Only then authorize a separately preregistered ORION/VLM Stage-2 pilot."
+  },
+  "explicitly_not_authorized": [
+    "actual-target primary training",
+    "ORION/VLM fine-tuning",
+    "closed-loop Stage B matrix",
+    "constant/shuffled/learned governor expansion",
+    "diffusion decoder replacement"
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "automatic_scope_locks": {
+    "corruption_submission": false,
+    "formal_200_route_evaluation": false,
+    "heldout_confirmation": false,
+    "q2_submission": false,
+    "stage2p": false
+  },
+  "checks": {
+    "condition_clean_off": true,
+    "conditioning_none": true,
+    "evaluator_entry_finished": true,
+    "legacy_density_disabled": true,
+    "liveness_at_most_8s": true,
+    "planning_response_off": true,
+    "risk_mode_off": true,
+    "route_completion_100": true,
+    "route_index_matches": true,
+    "safety_telemetry_complete": true,
+    "stage2_source_disabled": true,
+    "terminal_completed": true,
+    "trace_steps_contiguous": true,
+    "trace_times_strictly_monotonic": true,
+    "uq_mode_none": true,
+    "zero_hard_infractions": false
+  },
+  "claim_boundary": "One clean qualification replicate only. Passing Q1 permits a separately frozen Q2 clean repeat, not a corruption or method claim.",
+  "failed_checks": [
+    "zero_hard_infractions"
+  ],
+  "hard_infraction_counts": {
+    "collisions_layout": 0,
+    "collisions_pedestrian": 0,
+    "collisions_vehicle": 1,
+    "outside_route_lanes": 0,
+    "red_light": 0,
+    "route_dev": 0,
+    "route_timeout": 0,
+    "scenario_timeouts": 0,
+    "stop_infraction": 0,
+    "vehicle_blocked": 0
+  },
+  "longest_low_speed_interval": {
+    "duration_seconds": 0.20000000000000284,
+    "end_progress": 0.7981608489474145,
+    "end_step": 551,
+    "end_time_seconds": 27.55,
+    "start_progress": 0.7981118225961314,
+    "start_step": 548,
+    "start_time_seconds": 27.4
+  },
+  "phase": "q1",
+  "protocol": {
+    "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/corruption_hardcase_wave1_clean_qualification_v1.json",
+    "sha256": "428549620d1393c2b9200263e038e5bbbbcca6c8ef0042fd00ad980156e72aa1"
+  },
+  "qualified_for_next_clean_repeat": false,
+  "route_completion_percent": 100.0,
+  "route_index": 164,
+  "run_dir": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/route164_hazard_clean_off-1117562",
+  "schema": "orion.corruption_hardcase_clean_qualification.v1",
+  "source_files": {
+    "control_trace": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/route164_hazard_clean_off-1117562/records_orion_traj_0/RouteScenario_25300_rep0_Town04_HazardAtSideLane_1_26_09_01_04_32_56/control_trace.jsonl",
+    "evaluator": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/route164_hazard_clean_off-1117562/eval_orion_traj_0.json",
+    "manifest": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/route164_hazard_clean_off-1117562/manifest.json"
+  },
+  "status": "clean_rejected",
+  "trace_frames": 689
+}

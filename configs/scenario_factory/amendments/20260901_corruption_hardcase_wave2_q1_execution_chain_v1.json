@@ -1,0 +1,123 @@
+{
+  "schema": "orion.corruption_hardcase_wave2_q1_execution_chain_amendment.v1",
+  "created_at": "2026-09-01T08:20:00+08:00",
+  "status": "prepared_fail_closed_pending_explicit_user_resume",
+  "lineage": {
+    "clean_qualification_prereg": {
+      "path": "configs/scenario_factory/corruption_hardcase_wave2_clean_qualification_prereg_v1.json",
+      "sha256": "024e3cc6d4db4d77e7f8f88565163bb1283eda90fc3771e3c4eb0f34d1820f2c"
+    },
+    "exact_frame_speedometer_runtime_repair": {
+      "path": "configs/scenario_factory/amendments/20260901_exact_frame_speedometer_runtime_repair_v1.json",
+      "sha256": "5d6857c2ec36a7fce4ae3499c93cf0167294bb2e2bd6e59b04f068c7fde96a7d"
+    },
+    "clean_candidate_plan_amendment": {
+      "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave2_clean_candidate_plan_v1.json",
+      "sha256": "6bb7fcba45b15b569782ddef9a64d684de3ac6e4552f332cfc610364cf703726"
+    },
+    "clean_candidate_plan": {
+      "path": "results/scenario_factory/corruption_hardcase_wave2_clean_candidate_plan_v1.json",
+      "sha256": "ce7b85b19067e5792341f44ef7086415ce4cecdc503502dc0ad1cdb58c4a0fb6"
+    }
+  },
+  "frozen_q1_scope": {
+    "route_order": [
+      160,
+      165,
+      161
+    ],
+    "condition": "clean_off",
+    "runs_per_route": 1,
+    "current_authority": false,
+    "activation_requirement": "Create a separate actual activation record only after an explicit user instruction to resume Q1. The template itself is never submission authority."
+  },
+  "implementation": {
+    "submitter": {
+      "path": "scripts/submit_corruption_hardcase_wave2_clean_q1.py",
+      "sha256": "601096b8487158d70aeaf4fce6638a2ce85409a0db89c58fc5c35783c2d30713"
+    },
+    "evaluator": {
+      "path": "scripts/evaluate_corruption_hardcase_clean_qualification.py",
+      "sha256": "176185366b5f002fbf7378e179fa04fab60123ae49f236d283f3c7cfad957361"
+    },
+    "collector": {
+      "path": "scripts/collect_corruption_hardcase_clean_qualifications.py",
+      "sha256": "7cfe8417ddfece43531ade38063c9e36304f3034de9d70495cf7766b75b92d6c"
+    },
+    "activation_template": {
+      "path": "configs/scenario_factory/corruption_hardcase_wave2_clean_q1_activation_template_v1.json",
+      "sha256": "6083694f67b4bf7c04cea3e778b9acd5bfebbd75037af3aaa203db19d6b91ff8",
+      "schema": "orion.corruption_hardcase_wave2_clean_q1_activation_template.v1",
+      "status": "template_not_authorized"
+    },
+    "tests": [
+      {
+        "path": "tests/test_submit_corruption_hardcase_wave2_clean_q1.py",
+        "sha256": "f81bb346c56dee593c96b81066447817d9c8f82e9e1b0654fa391f9d94575392"
+      },
+      {
+        "path": "tests/test_evaluate_corruption_hardcase_clean_qualification.py",
+        "sha256": "5d751426d0b20f710aaed0a68ba13c29c99a3aa6ff38b46812412887494c5c03"
+      },
+      {
+        "path": "tests/test_collect_corruption_hardcase_clean_qualifications.py",
+        "sha256": "db23990d5167b2a92576fdc75c3843d7c68da140c715b2f1cb6eacf68f0953f5"
+      },
+      {
+        "path": "tests/test_closedloop_sensor_diagnostics.py",
+        "sha256": "0c621153ad1b277744906a9813f25ff774ae4a176a98a3e58da3cc061d4d11ab"
+      }
+    ]
+  },
+  "verification": {
+    "local_relevant_suite": {
+      "passed": 21,
+      "failed": 0
+    },
+    "remote_relevant_suite": {
+      "passed": 21,
+      "failed": 0,
+      "elapsed_seconds": 6.67
+    },
+    "remote_unauthorized_template_check": {
+      "result": "WAVE2_TEMPLATE_REJECTED_NO_OUTPUT_NO_JOBS=1",
+      "job_ids_created": [],
+      "output_directories_created": [],
+      "queue_empty_after_check": true
+    },
+    "remote_preflight": {
+      "result": "WAVE2_PREREG_REMOTE_PREFLIGHT_OK=1 routes=160,165,161 submitted=0",
+      "prereg_hash_match": true,
+      "candidate_plan_hash_match": true
+    }
+  },
+  "fail_close_contract": {
+    "base_prereg_is_submission_authority": false,
+    "activation_template_is_submission_authority": false,
+    "requires_actual_activation_schema": true,
+    "requires_status_authorized_after_user_resume": true,
+    "requires_user_resume_recorded": true,
+    "requires_q1_clean_submission_true": true,
+    "requires_exact_prereg_hash_binding": true,
+    "requires_exact_route_order_and_run_ids": true,
+    "corruption_submission": false,
+    "q2_submission": false,
+    "heldout_confirmation": false,
+    "learned_uq_or_governor": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "runtime_contract": {
+    "orion_exact_frame_speedometer": "1",
+    "orion_sensor_queue_diagnostics": "1",
+    "sensor_bundle_barrier_weakened": false,
+    "stale_speed_reuse_allowed": false,
+    "live_carla_validation_completed": false,
+    "live_validation_plan": "The first future Q1 clean route is the bounded live validation of the exact-frame speedometer repair."
+  },
+  "monitoring_policy_after_future_resume": {
+    "long_pending_wait_allowed": true,
+    "polling_policy": "Use a long bounded wait after submission rather than frequent queue polling, while preserving normal concise user updates."
+  },
+  "claim_boundary": "Engineering preparation and fail-close validation only. No Wave2 job was submitted, no live CARLA validation was performed, and no scientific result is claimed."
+}

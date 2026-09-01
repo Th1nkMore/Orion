@@ -1,11 +1,18 @@
 # UQ-ORION
 
-Uncertainty-aware extension for [ORION](https://github.com/xiaomi-mlab/Orion) end-to-end autonomous driving. Improves safety in adverse weather (rain, fog, night) through lightweight uncertainty quantification — zero backbone fine-tuning, <5M new parameters.
+Research extension for [ORION](https://github.com/xiaomi-mlab/Orion) that studies whether spatial observation uncertainty can be grounded by the VLM and used by the planning stack. Closed-loop safety improvement is the target claim, not an established result.
+
+> **Current-state authority (2026-09-01):** [docs/CURRENT_STATE.md](./docs/CURRENT_STATE.md) records the active architecture, exact completed gates, failed gates, open blockers, and next executable milestone. Machine-readable experiment authority remains in `configs/scenario_factory/` and hash-bound result records in `results/scenario_factory/`.
+>
+> The original FiLM, scalar Density-UQ, explicit scalar-token, and hard-governor paths are retained for historical comparison only. They are not the current mainline.
 
 ## Documentation map
 
 | Document | What it is |
 |----------|------------|
+| **[docs/CURRENT_STATE.md](./docs/CURRENT_STATE.md)** | Canonical current status and execution order. Read this first. |
+| **[docs/spatial_uq_two_stage_v2.md](./docs/spatial_uq_two_stage_v2.md)** | Active Stage-1/Stage-2 responsibility contract. |
+| **[configs/scenario_factory/protocol_v1.json](./configs/scenario_factory/protocol_v1.json)** | Machine-readable architecture and scenario-factory contract. |
 | **[REPORT.md](./REPORT.md)** | Full project report: pseudo-label v1→v3, UQ/FiLM results, closed-loop metrics, collision-aware training, known bugs (init_weights, LayerNorm), Score-Gated FiLM rationale. |
 | **[docs/plan_v2.md](./docs/plan_v2.md)** | Research plan (IPM BEV, ablations, risks). |
 | **[docs_learning/](./docs_learning/)** | In-repo learning notes (architecture walkthroughs; not necessarily git-tracked). |
@@ -13,7 +20,40 @@ Uncertainty-aware extension for [ORION](https://github.com/xiaomi-mlab/Orion) en
 
 ---
 
-## Architecture
+## Current architecture
+
+```text
+multi-view observations + temporal context
+                    |
+                    v
+ frozen Stage-1 observation-UQ adapter
+ U: view × position × component × time
+                    |
+                    v
+ frozen task-agnostic U-tokenizer
+                    |
+                    v
+ ORION visual evidence + navigation + ego state
+                    |
+                    v
+ Stage-2L ORION/VLM: task relevance R + structured QA
+                    |
+                    v
+ Stage-2P planner: risk-aware trajectory response
+```
+
+- Stage 1 may estimate only observation evidence loss. It must not receive route, actor, TTC, collision, corruption-family, or action labels.
+- Stage 2L owns task relevance and interpretable uncertainty semantics.
+- Stage 2P owns trajectory response and remains locked until Stage 2L passes held-out semantic and false-conservatism gates.
+- Legacy Density UQ, scalar UQ tokens, FiLM, and scalar speed governors remain disabled in the current mainline.
+
+The largest unresolved gap is a held-out-generalizing Stage-1-U → Stage-2L-relevance bridge: no checkpoint yet combines the frozen U-tokenizer with explicit same-view ORION visual evidence and route/ego context, then passes independent-event relevance gates. The current evidence does not yet separate interface/supervision faults from insufficient independent-event coverage. See [docs/CURRENT_STATE.md](./docs/CURRENT_STATE.md).
+
+---
+
+## Historical baseline architecture (superseded)
+
+The remainder of this README documents the original UQEstimator/FiLM baseline and is kept to make earlier experiments reproducible. Do not use it as current execution guidance.
 
 ```
 Vision Encoder (EVAViT, frozen)

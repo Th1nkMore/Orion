@@ -1,0 +1,60 @@
+{
+  "schema": "orion.stage2l_v10_phase_a_replay_visual_review.v1",
+  "created_at": "2026-08-31T18:05:00+08:00",
+  "status": "frozen_manual_review_of_hash_bound_replay_maps",
+  "review_scope": "Four prospectively selected held-out representative maps from the evaluation-only v10 Phase-A checkpoint replay.",
+  "view_order_used_for_review": [
+    "CAM_FRONT",
+    "CAM_FRONT_LEFT",
+    "CAM_FRONT_RIGHT",
+    "CAM_BACK",
+    "CAM_BACK_LEFT",
+    "CAM_BACK_RIGHT"
+  ],
+  "rows": [
+    {
+      "group_id": "route147_step223_saved_0022",
+      "event_id": "route147_step223",
+      "map_sha256": "2b4ece4d9e4dbe7ebfc4b7941b5eedc5ec7ea9ba78456a6faf69478d0b3de769",
+      "target_support_views": ["CAM_FRONT", "CAM_FRONT_RIGHT"],
+      "salient_prediction_views": ["CAM_FRONT"],
+      "finding": "partial_localization_with_front_right_undercoverage"
+    },
+    {
+      "group_id": "route152_step125_saved_0012",
+      "event_id": "route152_step125",
+      "map_sha256": "365fb84568505d54e6c2d7c86713af807c6ea24af6734da6c1a7235c05ca4251",
+      "target_support_views": [
+        "CAM_FRONT",
+        "CAM_FRONT_LEFT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT"
+      ],
+      "salient_prediction_views": ["CAM_FRONT"],
+      "finding": "multi_view_support_collapsed_to_front"
+    },
+    {
+      "group_id": "route162_step277_saved_0028",
+      "event_id": "route162_step277",
+      "map_sha256": "2e5c674ec787f98ed1a36229cff5793f7c26d4ae88c07adc691f005cb840cbc6",
+      "target_support_views": ["CAM_FRONT"],
+      "salient_prediction_views": ["CAM_FRONT"],
+      "finding": "correct_view_partial_overlap_with_spatial_undercoverage"
+    },
+    {
+      "group_id": "route195_step230_saved_0023",
+      "event_id": "route195_step230",
+      "map_sha256": "4a998fafd057d172f141287aa8c47c79251e1a53a734cf81b7a59bca738f6fb6",
+      "target_support_views": ["CAM_FRONT_RIGHT"],
+      "salient_prediction_views": ["CAM_FRONT"],
+      "finding": "wrong_camera_view_selection"
+    }
+  ],
+  "interpretation_boundary": {
+    "view_selection_mismatch_observed": true,
+    "systematic_view_order_bug_proven": false,
+    "architecture_or_conditioning_failure_proven": false,
+    "requires_code_and_data_lineage_audit_before_more_training": true
+  },
+  "claim_boundary": "Manual review is diagnostic evidence only. It does not revise the failed v10 gate, establish formal generalization, or support a planning, closed-loop, or safety claim."
+}

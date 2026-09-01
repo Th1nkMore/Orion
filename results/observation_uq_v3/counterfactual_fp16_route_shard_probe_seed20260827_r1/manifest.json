@@ -1,0 +1,43 @@
+{
+  "schema_version": "orion.counterfactual-fp16-route-dataset/v1",
+  "shards": [
+    {
+      "clean_count": 16,
+      "file": "route-0000.pt",
+      "lossless_fp16_feature_sha256": "da1446b5a7ceb11c68248e14d027e1ddcb0ad6560df42ac158ece2309c5aca11",
+      "observed_count": 64,
+      "route_ids": [
+        "v1/AccidentTwoWays_Town12_Route1115_Weather23"
+      ],
+      "sha256": "02b1b56fdb8fa8012f86555469fb28de46e9c0d8d4ef906663168c336408c0bd",
+      "size_bytes": 1583352674,
+      "source_fp16_features_bitwise_preserved": true,
+      "source_fp16_target_sha256": "afc4ca88a17c437ab467bc1e5588407568981122605587046a63fe9752631ece",
+      "split": "train"
+    }
+  ],
+  "source": {
+    "clean_count": 720,
+    "feature_shape": [
+      6,
+      40,
+      40,
+      1024
+    ],
+    "feature_shard_sha256": "d53ab9b7acc91b89cb061ce1ec880d05b390675f29c515337bcffceda3143499",
+    "observed_count": 2880,
+    "route_count": 45
+  },
+  "status": "partial_probe_not_for_training",
+  "storage_contract": {
+    "corruption_mask_is_optimizer_target": false,
+    "feature_dtype": "float16",
+    "lossless_copy_from_source_features": true,
+    "target_dtype": "float32",
+    "targets_computed_from_source_fp16": true,
+    "whole_routes_per_shard": true
+  },
+  "written_clean_count": 16,
+  "written_observed_count": 64,
+  "written_route_count": 1
+}

@@ -85,7 +85,10 @@ class RoutePlanner(object):
         self.debug.clear()
 
         if len(self.route) == 1:
-            return self.route[0]
+            # Keep the return shape identical to the normal case below.  The
+            # leaderboard may downsample a short route to a single waypoint;
+            # callers still expect both a current and a near waypoint.
+            return self.route[0], self.route[0]
 
         to_pop = 0
         farthest_in_range = -np.inf

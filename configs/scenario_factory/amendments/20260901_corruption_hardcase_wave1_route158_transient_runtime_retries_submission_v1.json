@@ -1,0 +1,38 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_route158_transient_runtime_retries_submission_amendment.v1",
+  "created_at": "2026-09-01T07:12:04+08:00",
+  "status": "two_single_exact_runtime_replacements_submitted",
+  "preregistration": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_route158_transient_runtime_retries_prereg_v1.json",
+    "sha256": "127901ce37e77c396523c45ee152d8cf771c3b16e06e2e11c161b42cfd07303b"
+  },
+  "replacements": [
+    {
+      "invalid_job_id": 1118150,
+      "replacement_job_id": 1118496,
+      "condition": "front_stale_transient_off",
+      "initial_state": "RUNNING",
+      "initial_node": "gpu1",
+      "node_exclusions": ["gpu2", "gpu4", "gpu5"],
+      "submission_sha256": "30ebd5359bcc66892656c2284a3dd11486f568b30a72fd2800e3b22517f1fa5e"
+    },
+    {
+      "invalid_job_id": 1118151,
+      "replacement_job_id": 1118497,
+      "condition": "lens_waterdrop_paired_template_transient_off",
+      "initial_state": "RUNNING",
+      "initial_node": "gpu4",
+      "node_exclusions": ["gpu1", "gpu2", "gpu5"],
+      "submission_sha256": "07a6ad462cd091ac50721e78969b77ad368cbc9f1a83d3fe298c5cb0bb516a04"
+    }
+  ],
+  "automatic_scope_locks": {
+    "further_runtime_replacement": false,
+    "additional_condition_or_severity": false,
+    "learned_uq_or_governor": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Submission record only. Each replacement must independently reach a valid terminal result before pair evaluation."
+}

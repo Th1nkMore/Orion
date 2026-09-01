@@ -1,0 +1,69 @@
+{
+  "schema": "orion.stage2l_uq_language_grounding_protocol.v1",
+  "created_at": "2026-08-29T11:20:00+08:00",
+  "status": "implementation_smoke_allowed_formal_training_locked",
+  "objective": "Teach ORION/VLM to interpret frozen task-agnostic spatial observation UQ, predict an explicit task-relevance map, and produce map-consistent QA explanations before any trajectory optimization.",
+  "frozen": [
+    "Stage-1 observation uncertainty adapter",
+    "Stage-1 normalization policy",
+    "ORION trajectory decoder during Stage2-L"
+  ],
+  "trainable": [
+    "UQ component tokenizer",
+    "task-relevance map head",
+    "ORION/VLM LoRA adapters",
+    "new UQ/relevance special-token embeddings"
+  ],
+  "uq_tokenizer": {
+    "input": "normalized U_components[B,T,6,H,W,3]",
+    "components": [
+      "persistent_direction",
+      "persistent_magnitude",
+      "transient_inconsistency"
+    ],
+    "temporal_statistics": ["latest", "mean", "latest_minus_first"],
+    "output_grid": [6, 10, 10],
+    "token_count": 600,
+    "preserves": ["view", "2D position", "component", "magnitude", "temporal change"],
+    "forbidden_inputs": ["route", "TTC", "collision", "scenario name", "corruption family", "corruption severity"]
+  },
+  "task_relevance": {
+    "target_shape": "R[B,6,10,10]",
+    "prediction_source": "VLM-fused hidden states at UQ token positions",
+    "task_risk": "K = mean_components(U_latest) * sigmoid(R_logits)",
+    "dense_map_is_authoritative": true,
+    "qa_text_is_summary": true
+  },
+  "losses": {
+    "qa_causal_language_modeling": 1.0,
+    "dense_soft_relevance_bce": 1.0,
+    "matched_onpath_offpath_risk_ranking": 0.25,
+    "trajectory": 0.0,
+    "yield_state": 0.0,
+    "direct_control": 0.0
+  },
+  "data_gates": {
+    "interface_smoke": "one development event; no scientific claim",
+    "pilot_semantic_gate": {
+      "minimum_independent_events": 8,
+      "minimum_towns": 3,
+      "minimum_scenario_families": 4
+    },
+    "formal_training_target": {
+      "minimum_independent_events": 24,
+      "minimum_towns": 5,
+      "minimum_scenario_families": 8,
+      "minimum_matched_counterfactual_groups": 12,
+      "route_event_split": {"train": 16, "dev": 4, "test": 4}
+    }
+  },
+  "evaluation_gates": [
+    "held-out route/event dense relevance BCE and ranking",
+    "on-path UQ must increase K more than equal-strength off-path UQ",
+    "zero-UQ and irrelevant-UQ hard negatives must not produce conservative language by default",
+    "structured QA answer must agree with dense R and K sidecars",
+    "unseen Town and unseen scenario-family slices are reported separately"
+  ],
+  "stage2p_entry": "Only after Stage2-L semantic, counterfactual and leakage gates pass. Stage2-P first freezes VLM/relevance and trains the trajectory decoder, then permits a constrained low-learning-rate joint phase if necessary.",
+  "retired_initialization": "The old standalone spatial_task_fusion/Stage2A checkpoint is diagnostic only and must not initialize this path."
+}

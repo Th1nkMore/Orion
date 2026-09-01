@@ -1,0 +1,93 @@
+{
+  "schema": "orion.lens_waterdrop_paired_template_visual_bakeoff_protocol.v1",
+  "created_at": "2026-08-31T21:43:00+08:00",
+  "status": "rendered_pending_human_visual_review_no_orion",
+  "predecessors": {
+    "lens_waterdrop_v1": "failed visual prototype",
+    "direct_silhouette_v2": "failed visual prototype",
+    "direct_silhouette_failure_amendment": "configs/scenario_factory/amendments/20260831_lens_waterdrop_v2_direct_silhouette_visual_failure_v1.json"
+  },
+  "route": {
+    "route_id": 151,
+    "town": "Town02",
+    "role": "renderer development only; not a model or safety result"
+  },
+  "clean_source": {
+    "profile": "none",
+    "capture_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_clean_render_diagnostic_v1/captures/none",
+    "source_resolution": [1600, 900],
+    "required_gate": "configs/scenario_factory/corruption_hardcase_clean_render_artifact_gate_v1.json",
+    "required_gate_outcome": "0 suspicious frames before rendering"
+  },
+  "template_source": {
+    "bank": "assets/waterdrop_patterns/icra2023_paired_template_v1",
+    "metadata": "assets/waterdrop_patterns/icra2023_paired_template_v1/metadata.json",
+    "metadata_sha256": "a5aa16e9682b820c88ccd0dde7339378cae6b3b6fb37d6c1b2cdcb3f8d5a996f",
+    "paired_source_kind": "published synthetic clean/rainy pair from ICRA 2023 dataset",
+    "paired_clean": "test__syn__clean_vid__0003__000075.png",
+    "paired_rainy": "test__syn__rainy_vid__0003__000075.png",
+    "real_visual_references": [
+      "test__real__6__40.png",
+      "test__real__6__120.png",
+      "test__real__6__200.png"
+    ],
+    "real_references_composited_into_carla": false,
+    "selection_reason": "moderate distributed small drops; selected using source/CARLA appearance only and without ORION, route outcome, TTC, collision, actor boxes, or semantics"
+  },
+  "renderer": {
+    "implementation": "uq_estimator/lens_waterdrop_paired_template.py",
+    "implementation_sha256_at_preregistration": "48195389c69dc5b3a047dd7c09d4b27cbaf798f7d43dc6a24b28fb4bdef7375f",
+    "retained_fields": [
+      "binary support",
+      "scalar alpha",
+      "two-channel displacement",
+      "per-component balanced scalar luminance residual"
+    ],
+    "forbidden_retained_fields": [
+      "source RGB",
+      "source chromatic residual",
+      "real reference RGB in CARLA",
+      "actor boxes",
+      "semantic labels",
+      "task outcome"
+    ],
+    "application_resolution": [1600, 900],
+    "profiles": ["light", "medium", "heavy"],
+    "fixed_lens_coordinates": true,
+    "temporal_policy": "constant template across the captured event window"
+  },
+  "review": {
+    "maximum_frames": 34,
+    "output_fps": 10,
+    "contact_frame_index": 17,
+    "review_size": [800, 450],
+    "required_outputs": [
+      "clean artifact audit",
+      "published source clean/rainy pair",
+      "source-pair reconstruction",
+      "real driving waterdrop reference contact sheet",
+      "alpha, displacement, and scalar luminance fields",
+      "full-resolution clean and profile GIFs",
+      "clean/profile comparison GIF",
+      "high-resolution crops",
+      "clean BEV context GIF",
+      "hashed result manifest"
+    ],
+    "human_checks": [
+      "no black-block clean contamination",
+      "droplets read as lens/windshield water rather than white stickers",
+      "no source road texture is visible inside CARLA droplets",
+      "drop edges and highlights resemble the separate real driving references",
+      "no rectangular or polygon pasted boundary",
+      "field remains stable in lens coordinates over time"
+    ]
+  },
+  "locks": {
+    "orion_loading": false,
+    "orion_screen": false,
+    "closed_loop": false,
+    "severity_freeze": false,
+    "safety_claim": false
+  },
+  "claim_boundary": "Independent published synthetic-template visual development with separate real-frame morphology references. It is not proof of real-world fidelity, uncertainty correctness, or safety benefit."
+}

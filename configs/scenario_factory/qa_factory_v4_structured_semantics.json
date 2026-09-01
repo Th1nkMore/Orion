@@ -1,0 +1,61 @@
+{
+  "schema": "orion.uq_relevance_qa_factory_config.v4",
+  "created_at": "2026-08-30T18:15:00+08:00",
+  "status": "gradient_routed_semantic_fields_prepared_training_locked",
+  "supersedes_for_future_training_only": "configs/scenario_factory/qa_factory_v3_calibrated_semantics.json",
+  "architecture_boundary": {
+    "stage1_adapter": "frozen task-agnostic spatial observation uncertainty U",
+    "stage2_l": "ORION/VLM predicts task relevance R, task risk K=U*R, QA semantic fields and planning stance",
+    "trajectory_or_control_training": false,
+    "legacy_density_uq": false,
+    "hard_governor": false
+  },
+  "response_contract": {
+    "kind": "common_vocabulary_key_value_semantic_fields",
+    "custom_angle_bracket_tags": false,
+    "deterministic_format_is_release_evidence": false,
+    "field_prefixes": {
+      "observation_semantics": "Observation uncertainty:",
+      "epistemic_limitation": "Epistemic limitation:",
+      "task_relevance": "Task relevance map:",
+      "driving_implication": "Planning stance:"
+    }
+  },
+  "supervision_policy": {
+    "hard_stance_variants": ["zero_uq", "off_path_uq", "on_path_uq"],
+    "hard_language_exclusions": [
+      {"variant": "observed", "question_family": "driving_implication"},
+      {"variant": "view_shuffled_uq", "question_family": "driving_implication"}
+    ],
+    "answer_preference": {
+      "kind": "same_family_unique_structured_semantic_answer",
+      "cross_family_answers_are_negatives": false,
+      "exact_duplicate_answers_are_negatives": false,
+      "margin": 0.2
+    }
+  },
+  "generation_gates": {
+    "semantic_parse_rate": 1.0,
+    "semantic_field_accuracy": 1.0,
+    "semantic_answer_exact_match": 1.0,
+    "nonrepeating_text_fraction": 1.0,
+    "format_prefix_accuracy_is_diagnostic_only": true
+  },
+  "task_relevance_gates": {
+    "minimum_foreground_recall": 0.95,
+    "maximum_background_false_positive_rate": 0.05,
+    "minimum_oracle_gap_fraction": 0.8,
+    "require_positive_on_off_order_for_every_group": true
+  },
+  "stance_gates": {
+    "minimum_per_variant_accuracy": 1.0,
+    "minimum_per_target_class_recall": 1.0,
+    "minimum_target_probability": 0.5
+  },
+  "launch_locks": {
+    "real_orion_smoke_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "QA contract preparation only; no understanding, held-out, planning, closed-loop, generalization or safety evidence."
+}

@@ -1,0 +1,135 @@
+{
+  "schema": "orion.scenario_event_technical_review.v1",
+  "created_at": "2026-08-31T23:20:00+08:00",
+  "scope": "Machine-assisted technical pre-review of locked-test Route206 and Route212. This artifact does not make or modify the human accept/reject decision.",
+  "claim_boundary": "A technically valid event is only an input-data integrity judgment. It does not validate Stage-1 observation UQ, Stage2-L task relevance, a planning policy, or closed-loop safety benefit.",
+  "human_acceptance_required": true,
+  "formal_training_authorized": false,
+  "review_contract": {
+    "locked_test_rejection_must_be_technical_only": true,
+    "prohibited_rejection_basis": [
+      "learned UQ behavior",
+      "Stage2 behavior",
+      "whether ORION succeeded or failed"
+    ],
+    "checked": [
+      "visual_stream_integrity",
+      "actor_event_semantics",
+      "front_bev_temporal_alignment",
+      "no_actor_disappearance_or_spawn_artifact",
+      "runtime_and_source_lineage"
+    ]
+  },
+  "events": [
+    {
+      "event_id": "route206_step396",
+      "route_index": 206,
+      "split": "locked_test",
+      "town": "Town01",
+      "scenario_family": "T_Junction",
+      "machine_recommendation": "recommend_human_accept",
+      "recommendation_basis": "The same Chevrolet Impala is continuously visible crossing right-to-left through the ego corridor in both front and BEV streams. The conflict is actor-grounded, temporally aligned, and has no visible spawn/disappearance artifact.",
+      "technical_checks": {
+        "runtime_valid": true,
+        "source_lineage_valid": true,
+        "front_bev_temporal_alignment": true,
+        "actor_event_semantics_clear": true,
+        "no_actor_disappearance_or_spawn_artifact": true,
+        "single_actor_reference_clarity": "high"
+      },
+      "selected_actor": {
+        "actor_id": 220,
+        "type_id": "vehicle.chevrolet.impala",
+        "critical_step": 396,
+        "critical_time_seconds": 19.8,
+        "critical_route_progress": 0.6842542164470946
+      },
+      "continuous_safety": {
+        "min_obb_ttc_seconds": 1.4000093241659552,
+        "min_obb_separating_axis_gap_m": 2.0641453690373877,
+        "low_ttc_exposure_below_2_seconds": 0.5500000000000007
+      },
+      "endpoint_context_not_used_for_selection": {
+        "collision_count": 0,
+        "route_score": 100,
+        "composed_score": 70.0,
+        "serious_infraction": "red_light",
+        "red_light_message": "Agent ran a red light 34 at (x=106.12, y=324.08, z=0.103)"
+      },
+      "artifacts": {
+        "event_package": {
+          "path": "artifacts/scenario_factory/stage2l_formal24_test_wave0_20260829/route206/event_package.json",
+          "sha256": "38200469a989209d9e613f0a5cd471ea8d2848421aac0d8f6fb6066ab0ac3d80"
+        },
+        "visualization_manifest": {
+          "path": "artifacts/scenario_factory/stage2l_formal24_test_wave0_20260829/route206/visuals/visualization_manifest.json",
+          "sha256": "8e07e777be9885a1c76a96453d32ac6cadb13ab4a83ca9e00ef35a85c7d4db7c"
+        },
+        "model_input_front_gif": {
+          "path": "artifacts/scenario_factory/stage2l_formal24_test_wave0_20260829/route206/visuals/model_input_front.gif",
+          "sha256": "ee5ee05fd79e7d43ff9fdf608658bd1c786732843a9654177cebad07a7e49109"
+        },
+        "bev_gif": {
+          "path": "artifacts/scenario_factory/stage2l_formal24_test_wave0_20260829/route206/visuals/bev.gif",
+          "sha256": "af91f34201c7faddecd9cfedcfebf0a999d334e8bda3ed77ea009a5f78d647fd"
+        }
+      }
+    },
+    {
+      "event_id": "route212_step304",
+      "route_index": 212,
+      "split": "locked_test",
+      "town": "Town10HD",
+      "scenario_family": "T_Junction",
+      "machine_recommendation": "recommend_human_semantic_confirmation",
+      "recommendation_basis": "The streams are intact and the close traffic interaction is real, but several nearby vehicles occupy the front scene. The telemetry-selected Lincoln is consistent with the near-forward conflict, yet the human reviewer should confirm that the intended actor remains unambiguous enough for actor-specific QA supervision.",
+      "technical_checks": {
+        "runtime_valid": true,
+        "source_lineage_valid": true,
+        "front_bev_temporal_alignment": true,
+        "actor_event_semantics_clear": "requires_human_confirmation",
+        "no_actor_disappearance_or_spawn_artifact": true,
+        "single_actor_reference_clarity": "medium"
+      },
+      "selected_actor": {
+        "actor_id": 58,
+        "type_id": "vehicle.lincoln.mkz_2017",
+        "critical_step": 304,
+        "critical_time_seconds": 15.2,
+        "critical_route_progress": 0.34863753439305517,
+        "relative_longitudinal_m": 9.302049804287483,
+        "relative_lateral_m": -1.217479375165688
+      },
+      "continuous_safety": {
+        "min_obb_ttc_seconds": 1.0133340222279517,
+        "min_obb_separating_axis_gap_m": 0.2512014175535968,
+        "low_ttc_exposure_below_2_seconds": 1.3500000000000014
+      },
+      "endpoint_context_not_used_for_selection": {
+        "collision_count": 0,
+        "route_score": 100,
+        "composed_score": 100.0,
+        "serious_infraction": null
+      },
+      "artifacts": {
+        "event_package": {
+          "path": "artifacts/scenario_factory/stage2l_formal24_test_wave1_20260829/route212/event_package.json",
+          "sha256": "0333002317196765a8dc63ff98620fb9b075b90e75506016483c97de64c969a0"
+        },
+        "visualization_manifest": {
+          "path": "artifacts/scenario_factory/stage2l_formal24_test_wave1_20260829/route212/visuals/visualization_manifest.json",
+          "sha256": "dc73563e9542e9ff68c3044bb6995e3ee5a7c7a7a554d96d06c512f1cf2c0a6c"
+        },
+        "model_input_front_gif": {
+          "path": "artifacts/scenario_factory/stage2l_formal24_test_wave1_20260829/route212/visuals/model_input_front.gif",
+          "sha256": "217d2df07f609cfb93827b37fd844ff4616481263169b7991706712844f3deb4"
+        },
+        "bev_gif": {
+          "path": "artifacts/scenario_factory/stage2l_formal24_test_wave1_20260829/route212/visuals/bev.gif",
+          "sha256": "d6c04a6358494a9a7667a8119e3556d8511245a131ccfe3740de16d075e0e6b4"
+        }
+      }
+    }
+  ],
+  "next_gate": "A human reviewer must record immutable decisions. Formal Stage2-L remains locked until the exact 24-event 16/4/4 bank, full v5 QA geometry review, and a launch amendment are complete."
+}

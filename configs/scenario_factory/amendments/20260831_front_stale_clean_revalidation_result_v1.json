@@ -1,0 +1,39 @@
+{
+  "schema": "orion.front_stale_clean_revalidation_result_amendment.v1",
+  "timestamp": "2026-08-31T22:04:00+08:00",
+  "status": "timestamp_verified_clean_visual_rendered_pending_human_review",
+  "protocol": "configs/scenario_factory/corruption_hardcase_front_stale_revalidation_route151_v1.json",
+  "execution": {
+    "slurm_job_submitted": false,
+    "orion_loaded": false,
+    "source_frames": 34,
+    "warmup_frames_excluded_prospectively": 8,
+    "displayed_frames": 26,
+    "source_resolution": [1600, 900],
+    "source_cadence_hz": 20.0,
+    "clean_artifact_gate": "passed; 0/34 suspicious frames",
+    "result": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_front_stale_clean_revalidation_v1/result.json",
+    "result_sha256": "06a2c5cbbc5de8c2e4f6c82fe00bf2a9de7f82c99f198f1a7d2bd1f221c78696",
+    "renderer_sha256": "f0ccb4205a06295bc3a8133364c21bae21eb008d007ba00d66f3f9bb7e302476"
+  },
+  "timing_verification": {
+    "100ms": {"minimum": 100.00000149011612, "maximum": 100.00000149011612},
+    "200ms": {"minimum": 200.00000298023224, "maximum": 200.00000298023224},
+    "400ms": {"minimum": 400.0000059604645, "maximum": 400.0000059604645},
+    "selection_rule": "newest source timestamp <= target timestamp - delay",
+    "interpolation": false,
+    "contact_route_progress": 0.3995055568705645,
+    "event_reference_progress": 0.39881549704622504
+  },
+  "artifacts": {
+    "contact_sha256": "83fa5d85e30007e3d5a87b694f066aed796e98d42facf79882012dfa8815b89d",
+    "comparison_gif_sha256": "641ac964bea0a2eb4fac598126fe29cdc9ea96973c1ac3db0c6b16322af536e3",
+    "bev_gif_sha256": "6c1431cc28110bca0676799fea29c9733c8a7cb12907adca4d22efaffd227d63"
+  },
+  "decision": {
+    "implementation_status": "timestamp and clean-source preconditions passed",
+    "profile_freeze": "not performed; human visual review and later ORION failure-induction evidence remain required",
+    "orion_screen": "locked"
+  },
+  "claim_boundary": "This proves exact offline temporal offsets on artifact-free frames, not model degradation or safety relevance."
+}

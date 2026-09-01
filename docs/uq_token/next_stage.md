@@ -1,5 +1,7 @@
 # Next-Stage Plan
 
+> **Historical document (superseded 2026-08-29).** This plan describes the earlier scalar Density-UQ / explicit-token / pre-LLM adapter line. It is retained as experiment history, not current execution authority. The active status is [../CURRENT_STATE.md](../CURRENT_STATE.md), and the active architecture contract is [../spatial_uq_two_stage_v2.md](../spatial_uq_two_stage_v2.md).
+
 ## Current Diagnosis
 
 The experiments establish three facts:
@@ -217,6 +219,91 @@ of Route1115 and on an independent Route504 segment:
 The harder later section of Route1115 does not improve. The next run must use
 route-balanced sampling across all calibration routes instead of the first N
 sequential frames.
+
+## 2026-06-24 Mid-Report Note
+
+For the mid-report evidence chain, the newest controlled localization pilot is
+recorded in:
+
+```text
+reports/risk_qa/embedding_localization_pilot.md
+/Users/th1nkmore/th1nkmore_ws/sustech-master-thesis/docs/progress/mid_report_writing_plan.md
+```
+
+The result should be treated as a positive semantic-alignment pilot rather than
+a completed planning result. Active UQ embedding reaches 61.0% three-column
+front-camera localization accuracy on a 100-sample held-out split, above the
+45.0% majority baseline, and correct-versus-shuffled UQ changes the answer on
+69.4% of eligible samples. Cross-split calibration remains unstable, so the
+next claim should focus on local UQ readability and controllability, not final
+planning safety.
+
+### 2026-06-23 Route-balanced Update
+
+The route-balanced evaluation has now been run on 10 calibration routes with
+50 candidate frames per route and 350 valid planning frames under one-camera
+dropout severity 1.
+
+Aggregate corrupted-view planning:
+
+```text
+none     ADE 1.4429, FDE 2.5210
+zero     ADE 1.4429, FDE 2.5210
+shuffled ADE 1.2286, FDE 2.1969
+correct  ADE 1.1641, FDE 2.0955
+```
+
+This supports the adapter route:
+
+- correct improves over none by 19.3% ADE;
+- correct improves over shuffled by 5.3% ADE;
+- correct improves over none on 9/10 routes;
+- correct improves over shuffled on 8/10 routes.
+
+However, the high/low UQ split did not pass the earlier "high-UQ benefit is
+larger" expectation:
+
+```text
+high-UQ correct vs none:     +10.2%
+high-UQ correct vs shuffled: +1.6%
+low-UQ correct vs none:      +16.7%
+low-UQ correct vs shuffled:  +3.4%
+```
+
+Interpretation:
+
+The score is useful as a conditioning signal, but scalar score magnitude is not
+yet calibrated as a monotonic predictor of planning benefit. The immediate
+research question shifts from "does the adapter work at all?" to "how do we
+make UQ semantics and planning benefit better aligned?"
+
+Clean safety has also been checked:
+
+```text
+clean none     ADE 0.8884, FDE 1.3707
+clean shuffled ADE 0.9008, FDE 1.4265
+clean correct  ADE 0.8971, FDE 1.4248
+```
+
+Clean ADE degradation is about 1.0%, which passes the 3% gate. Clean FDE
+degradation is about 3.9%, slightly above the strict gate. This is not a stop
+condition for the adapter route, but it means the next run must include an
+explicit clean preservation term.
+
+Updated next steps:
+
+1. Route-balanced training: train 500-1,000 paired samples sampled across
+   routes, not sequential first-N frames.
+2. Add clean preservation: keep clean correct/none ADE and FDE within 3% via
+   identity regularization or clean consistency loss.
+3. Richer conditioning: evaluate score + active density embedding in the
+   vision adapter, because score alone may be too coarse to capture which
+   visual evidence is degraded.
+4. Stratified diagnostics: split by route type and weather, not only by scalar
+   UQ median. The current high/low split mixes routes with very different
+   baseline difficulty.
+5. Keep explicit-token planning stopped. R2d remains the interpretability
+   result; planning claims should use the pre-LLM adapter route.
 
 ## Immediate Tasks
 

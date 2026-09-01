@@ -1,0 +1,27 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "timestamp": "2026-08-29T10:05:00+08:00",
+  "batch_run_id": "scenario_factory_clean_wave0_20260829",
+  "reason": "Route 158 job 1090225 reached ORION checkpoint loading on a Vulkan-valid gpu1 allocation but the official evaluator terminated setup after 90 seconds while concurrent shared-filesystem checkpoint reads were still in progress.",
+  "classification": "infrastructure_agent_setup_timeout_not_model_result",
+  "change": {
+    "orion_carla_rpc_timeout_seconds_before": 90,
+    "orion_carla_rpc_timeout_seconds_after": 300,
+    "scope": "Bench2Drive CARLA RPC and agent-setup timeout used by closed-loop runner",
+    "unchanged": [
+      "route XML",
+      "ORION checkpoint",
+      "clean_off condition",
+      "camera inputs",
+      "control path",
+      "evaluation metrics"
+    ]
+  },
+  "failed_attempt": {
+    "route_index": 158,
+    "job_id": 1090225,
+    "node": "gpu1",
+    "must_not_count_as_model_outcome": true
+  },
+  "retry_policy": "Preserve the failed attempt and submit one same-condition retry after the timeout fix."
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "orion.stage2l_mr2_lineage_repair_amendment.v1",
+  "created_at": "2026-08-31T10:55:00+08:00",
+  "status": "post_result_secondary_engineering_audit_authorized_primary_comparison_unchanged",
+  "title": "MR2 trainer-lineage repair using admission-only source diff and pre-existing replay evidence",
+  "trigger": {
+    "primary_comparison_decision": "invalid_coverage_comparison",
+    "only_failed_integrity_check": "same_base_trainer",
+    "primary_comparison_must_remain_invalid": true,
+    "primary_comparison_must_not_be_overwritten": true
+  },
+  "lineage_finding": {
+    "reference_trainer_sha256": "d3eb2c6b8995c6ba29c6f26321221234e26eb0b2241a9700ca1ed3e38b3271c0",
+    "expanded_base_trainer_sha256": "dbf03178d1d748c8b2004d82e91cedd4976bd57bd1e0b82822332229e89227d6",
+    "only_source_change": "Add ALLOWED_BOUNDED_OPTIMIZER_STEPS=(40,80) and replace the exactly-40 admission check with membership in that tuple.",
+    "training_evaluation_or_loss_code_changed": false,
+    "both_compared_runs_use_40_steps": true,
+    "preexisting_replay_evidence": "The earlier MR1 40-vs-80 duration audit found identical before metrics and zero maximum absolute delta for every logged field in the first 40 optimizer steps."
+  },
+  "authorized_audit": {
+    "maximum_runs": 1,
+    "gpu_required": false,
+    "optimizer_steps": 0,
+    "may_modify_reports": false,
+    "may_overwrite_primary_comparison": false,
+    "output": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr2_17event_v1_40/coverage_comparison_mr1_vs_mr2_lineage_repaired.json"
+  },
+  "validated_inputs": {
+    "lineage_auditor_sha256": "5dcb28cb84f479d00b44e2b9a7be22d1c03d26be7d3cb8ec60911ee193101ff0",
+    "frozen_comparison_plan_sha256": "b6ae623a05c44c7c6d42ffeb0ac6f8e57390239f6920b8ad0603187d9948836b",
+    "primary_invalid_comparison_sha256": "a6757fb949a0f65ae394eab5dc6516c1ce1f5745628cdf9c6eab7317e7b13c60",
+    "mr1_40_report_sha256": "b4399676e4f5853c98fb0419a4185e211ebdbdb89aa39c9c440a9afac33887ca",
+    "mr2_recovered_report_sha256": "3dd10e2dd7a842db30de360bd486dd10041e73f19af1cf00454d0ff55772ed87",
+    "preexisting_duration_comparison_sha256": "f615847385e42a570631d4829f4e4d5c1288198ece82147cce1abb5eeefb28e4",
+    "duration_80_report_sha256": "133a9afe6c40b9a71dd5807d580f404369768aeef6eab674ee139aa358e00df9"
+  },
+  "locks": {
+    "automatic_retry_or_extension": false,
+    "additional_mr_training": false,
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false,
+    "route203_glare_allowed": false,
+    "locked_test_evaluation_allowed": false,
+    "closed_loop_matrix_allowed": false
+  },
+  "claim_boundary": "A post-hoc secondary engineering interpretation only. The preregistered exact-source-hash comparison remains invalid. This audit cannot support formal generalization, VLM understanding, planning, closed-loop, or safety claims."
+}

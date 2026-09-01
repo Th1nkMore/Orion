@@ -1,0 +1,50 @@
+{
+  "schema": "orion.corruption_hardcase_prototype_amendment.v1",
+  "timestamp": "2026-08-31T18:44:00+08:00",
+  "status": "front_stale_implemented_and_unit_verified_other_prototypes_pending",
+  "reason": "Native glare did not induce a meaningful Route151 safety degradation, so the hard-case factory is expanded to temporal sensor failure, lens contamination, and motion-related optical degradation.",
+  "scientific_scope": {
+    "front_stale": "Controlled temporal observation intervention; not uncertainty ground truth.",
+    "native_motion_blur": "CARLA-rendered optical degradation candidate; visual severity remains to be frozen.",
+    "lens_waterdrop": "Lens-space synthetic prototype; must use actor-independent frozen masks/seeds and held-out validation.",
+    "native_glare": "Retained as a completed negative failure-induction result and renderer regression condition, not the main hard-case source."
+  },
+  "front_stale_contract": {
+    "severity_to_delay_ms": {
+      "1": 100,
+      "2": 200,
+      "3": 400
+    },
+    "camera": "CAM_FRONT",
+    "selection_policy": "newest_source_at_or_before_target_simulation_time",
+    "history_primed_outside_active_window": true,
+    "warmup_pass_through_disclosed": true,
+    "per_frame_recorded_fields": [
+      "requested_delay_ms",
+      "source_timestamp_seconds",
+      "effective_delay_ms",
+      "history_warm",
+      "applied"
+    ]
+  },
+  "artifacts": {
+    "uq_estimator/temporal_corruptions.py": "5d2f7b2b2579e4bd0e4af68d7316b04bf0c56ae9dcc487e41e860feacf0109bb",
+    "tests/test_temporal_corruptions.py": "8ae237f0d5b4e066f09703b25c20c971c6d2e7762c57986d0ceb1cddcf839b47",
+    "team_code/orion_b2d_agent.py": "9c3255d9bb2aea29f98e7a8e0b492e987a99955587fd2939db21a9e42b69bcd2",
+    "scripts/run_closedloop_uq_pilot.sh": "4c3c50408695f0fc8742be699454c5205acf841152c4a59177d7fcd25188b59b"
+  },
+  "verification": {
+    "environment": "/public/share/lidachuan/orion_assets/envs/orion-cl-centos7/bin/python",
+    "command": "python -m pytest -q tests/test_temporal_corruptions.py tests/test_corruption_schedule.py tests/test_counterfactual_regions.py",
+    "exit_code": 0,
+    "runner_bash_syntax_exit_code": 0,
+    "local_remote_increment_diff_audited": true
+  },
+  "launch_state": {
+    "closed_loop_job_submitted": false,
+    "route203_job_submitted": false,
+    "visual_bakeoff_required_before_closed_loop": true,
+    "formal_stage2l_unlocked": false,
+    "stage2p_unlocked": false
+  }
+}

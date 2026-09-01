@@ -1,0 +1,28 @@
+{
+  "schema_version": "orion-route214-qa-evidence/v1",
+  "qa_kind": "selected_motion_mode_check",
+  "production_hook_id": "route214-selected-mode-persistent-evidence/v1",
+  "plan_id": "a6fe644a136c309f42fa6b1f17ba5e6bd906434185dc4168e05f192fa235eab1",
+  "checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+  "config_sha256": "5d106c4669620efbe6d48d9ab304f9e117646f9910aff673dbe7092525b745fb",
+  "route_folder": "v1/OppositeVehicleTakingPriority_Town04_Route214_Weather6",
+  "passed": true,
+  "checks": {
+    "selected_mode_is_argmax_of_retained_motion_scores": true,
+    "selected_deltas_are_integrated_before_rasterization": true,
+    "planningmetric_axis_and_grid_are_pixel_exact": true,
+    "gt_and_predicted_rasterizer_ids_remain_distinct": true,
+    "deterministic_bev_regression_passed": true
+  },
+  "generated_by": "Codex deterministic selected-motion and BEV parity regression review, 2026-08-26; artifacts are the exact synchronized production implementation and test source",
+  "artifacts": [
+    {
+      "path": "/public/home/lidachuan/project/Orion/uq_estimator/bev_target_rasterizer.py",
+      "sha256": "b496c46077909a9446a173501be729299602bd9a3bdb42cba9f690063177f675"
+    },
+    {
+      "path": "/public/home/lidachuan/project/Orion/tests/test_bev_target_rasterizer.py",
+      "sha256": "48876feede5c9cdf57a9e857fa42d9d649eed42b29879eb00952b68a793c1e58"
+    }
+  ]
+}

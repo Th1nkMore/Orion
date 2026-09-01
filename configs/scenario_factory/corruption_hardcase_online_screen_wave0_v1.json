@@ -1,0 +1,155 @@
+{
+  "schema": "orion.corruption_hardcase_online_screen_wave.v1",
+  "created_at": "2026-08-31T23:50:00+08:00",
+  "status": "preregistered_dry_run_only_pending_exact_visual_approval",
+  "parent_amendment": "configs/scenario_factory/amendments/20260831_corruption_hardcase_o1_replay_readiness_and_screen_revision_v1.json",
+  "purpose": "Small prospective native-runtime screen replacing infeasible replay from 2Hz diagnostic event packages.",
+  "selection": {
+    "basis": "frozen clean-valid route status, scenario-family/actor diversity and town diversity only",
+    "corruption_conditioned_outputs_read": false,
+    "routes": [151, 180, 194],
+    "towns": ["Town02", "Town05", "Town04"],
+    "scenario_families": [
+      "ParkingCrossingPedestrian",
+      "HazardAtSideLaneTwoWays",
+      "OppositeVehicleRunningRedLight"
+    ],
+    "heldout_routes_included": false,
+    "route168_negative_control_included": false,
+    "route203_included": false
+  },
+  "routes": [
+    {
+      "route_index": 151,
+      "town": "Town02",
+      "scenario_family": "ParkingCrossingPedestrian",
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave0/route_151_hazard.xml",
+        "sha256": "ecb0fd699b3f2533e460e265f8d1137f6899ab117c32c468514e73ad3bc0d740"
+      },
+      "corruption_window": {
+        "start_progress": 0.32162320371253544,
+        "duration_seconds": 5.0,
+        "clean_anchor_progress": 0.46461600000599634
+      },
+      "historical_clean_job": {
+        "job_id": 1094362,
+        "elapsed": "00:17:49",
+        "use": "resource estimate and fast-screen reference only; not an accepted same-code pair"
+      }
+    },
+    {
+      "route_index": 180,
+      "town": "Town05",
+      "scenario_family": "HazardAtSideLaneTwoWays",
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave2/route_180_hazard.xml",
+        "sha256": "24fd51397cd20525eebfb825281374829244ad3244aad5840452fe9b3b3b9ca0"
+      },
+      "corruption_window": {
+        "start_progress": 0.8652563711843793,
+        "duration_seconds": 5.0,
+        "clean_anchor_progress": 0.9285632233192601
+      },
+      "historical_clean_job": {
+        "job_id": 1096208,
+        "elapsed": "00:23:36",
+        "use": "resource estimate and fast-screen reference only; not an accepted same-code pair"
+      }
+    },
+    {
+      "route_index": 194,
+      "town": "Town04",
+      "scenario_family": "OppositeVehicleRunningRedLight",
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave2/route_194_hazard.xml",
+        "sha256": "e45f742233671568e57a5a0144a7fc42fcfb1d87aa66ebf54620f1db9f9e769a"
+      },
+      "corruption_window": {
+        "start_progress": 0.3660182774316598,
+        "duration_seconds": 5.0,
+        "clean_anchor_progress": 0.3838388189349919
+      },
+      "historical_clean_job": {
+        "job_id": 1096209,
+        "elapsed": "00:36:59",
+        "use": "resource estimate and fast-screen reference only; not an accepted same-code pair"
+      }
+    }
+  ],
+  "condition_templates": {
+    "clean_off": {
+      "pilot_condition": "clean_off",
+      "runtime": "same agent/config/checkpoint as corrupt pair",
+      "approval_required": false
+    },
+    "front_stale": {
+      "pilot_condition": "front_stale_transient_off",
+      "candidate_exact_conditions": ["delay_ms:200", "delay_ms:400"],
+      "primary_exact_condition": null,
+      "max_primary_conditions_in_wave": 1,
+      "approval_required": true
+    },
+    "lens_waterdrop_paired_template": {
+      "pilot_condition": "lens_waterdrop_paired_template_transient_off",
+      "candidate_exact_conditions": ["profile:light", "profile:medium", "profile:heavy"],
+      "primary_exact_condition": null,
+      "max_primary_conditions_in_wave": 1,
+      "approval_required": true,
+      "template_bank": {
+        "path": "/public/home/lidachuan/project/Orion/assets/waterdrop_patterns/icra2023_paired_template_v1",
+        "files": {
+          "test__syn__clean_vid__0003__000075.png": "48be6a6a92638af8eeed85cc88323f2ca6940a975f31263cfef228e1ea149869",
+          "test__syn__rainy_vid__0003__000075.png": "abd55a91481ba4d14b45c66d1b690dbb348a245031587b5bbdfc9b24851e765d",
+          "metadata.json": "a5aa16e9682b820c88ccd0dde7339378cae6b3b6fb37d6c1b2cdcb3f8d5a996f"
+        }
+      }
+    },
+    "native_motion_blur": {
+      "pilot_condition": "native_motion_blur_off",
+      "candidate_exact_conditions": ["profile:medium"],
+      "primary_exact_condition": null,
+      "max_primary_conditions_in_wave": 1,
+      "approval_required": true,
+      "scope_note": "whole-route CARLA sensor condition; do not claim temporal alignment"
+    }
+  },
+  "prospective_matrix": {
+    "same_code_clean_jobs": 3,
+    "maximum_approved_corruption_families": 3,
+    "maximum_corrupt_jobs": 9,
+    "maximum_total_jobs": 12,
+    "launch_now": 0,
+    "positive_case_acceptance_requires_same_code_clean_pair": true
+  },
+  "architecture_locks": {
+    "ORION_CLOSEDLOOP_UQ_MODE": "none",
+    "ORION_CLOSEDLOOP_CONDITIONING": "none",
+    "ORION_CLOSEDLOOP_RISK_MODE": "off",
+    "ORION_PLANNING_RESPONSE_MODE": "off",
+    "legacy_density_uq": false,
+    "learned_uq_control": false,
+    "stage2_control": false
+  },
+  "resources": {
+    "per_job": {
+      "gpu": "1x A800",
+      "cpus": 2,
+      "memory": "192G",
+      "time_limit": "02:00:00"
+    },
+    "historical_clean_elapsed_range": ["00:17:49", "00:36:59"],
+    "maximum_gpu_hours_if_all_12_jobs_match_slowest_historical_clean": 7.4,
+    "expected_wall_clock_after_start_with_three_parallel_jobs": "about 1.5-3 hours including startup variance, excluding queue time"
+  },
+  "execution_locks": {
+    "visual_gate": "configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json",
+    "exact_condition_selected": false,
+    "slurm_submission": false,
+    "orion_screen": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Prospective development-screen preregistration only. Historical clean runs are not same-code pairs, and no corruption-conditioned result exists yet."
+}

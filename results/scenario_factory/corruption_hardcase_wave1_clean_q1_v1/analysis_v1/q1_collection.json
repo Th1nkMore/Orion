@@ -1,0 +1,131 @@
+{
+  "all_reports_present": true,
+  "analysis_root": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/analysis_v1",
+  "claim_boundary": "Q1 clean reproducibility screen only. Passers require an independent Q2 clean repeat before any corruption-conditioned job.",
+  "expected_routes": [
+    158,
+    164,
+    185,
+    207
+  ],
+  "next_stage": {
+    "corruption_automatically_authorized": false,
+    "q2_automatically_authorized": false,
+    "q2_candidate_routes": [
+      158,
+      185
+    ],
+    "required_before_q2": "Freeze a result amendment binding this collection and one exact Q2 clean-repeat submission plan."
+  },
+  "observed_reports": 4,
+  "protocol": {
+    "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/corruption_hardcase_wave1_clean_qualification_v1.json",
+    "sha256": "428549620d1393c2b9200263e038e5bbbbcca6c8ef0042fd00ad980156e72aa1"
+  },
+  "q1_pass_count": 2,
+  "q1_pass_routes": [
+    158,
+    185
+  ],
+  "q1_rejected_count": 2,
+  "q1_rejected_routes": [
+    164,
+    207
+  ],
+  "routes": [
+    {
+      "failed_checks": [],
+      "hard_infraction_counts": {
+        "collisions_layout": 0,
+        "collisions_pedestrian": 0,
+        "collisions_vehicle": 0,
+        "outside_route_lanes": 0,
+        "red_light": 0,
+        "route_dev": 0,
+        "route_timeout": 0,
+        "scenario_timeouts": 0,
+        "stop_infraction": 0,
+        "vehicle_blocked": 0
+      },
+      "longest_low_speed_interval_seconds": 5.1,
+      "path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/analysis_v1/route158_clean_q1_qualification.json",
+      "qualified_for_next_clean_repeat": true,
+      "route_completion_percent": 100.0,
+      "route_index": 158,
+      "sha256": "ce6fbbd74fc3ae3d9fae5f6433a6eedc2fe82f9f1ea8958c205d00a5f903086b",
+      "status": "clean_qualified"
+    },
+    {
+      "failed_checks": [
+        "zero_hard_infractions"
+      ],
+      "hard_infraction_counts": {
+        "collisions_layout": 0,
+        "collisions_pedestrian": 0,
+        "collisions_vehicle": 1,
+        "outside_route_lanes": 0,
+        "red_light": 0,
+        "route_dev": 0,
+        "route_timeout": 0,
+        "scenario_timeouts": 0,
+        "stop_infraction": 0,
+        "vehicle_blocked": 0
+      },
+      "longest_low_speed_interval_seconds": 0.20000000000000284,
+      "path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/analysis_v1/route164_clean_q1_qualification.json",
+      "qualified_for_next_clean_repeat": false,
+      "route_completion_percent": 100.0,
+      "route_index": 164,
+      "sha256": "4c1f9290f0da1f4ef227ac783144f023536b50f432a5e1f1e3a71573f287fceb",
+      "status": "clean_rejected"
+    },
+    {
+      "failed_checks": [],
+      "hard_infraction_counts": {
+        "collisions_layout": 0,
+        "collisions_pedestrian": 0,
+        "collisions_vehicle": 0,
+        "outside_route_lanes": 0,
+        "red_light": 0,
+        "route_dev": 0,
+        "route_timeout": 0,
+        "scenario_timeouts": 0,
+        "stop_infraction": 0,
+        "vehicle_blocked": 0
+      },
+      "longest_low_speed_interval_seconds": 0.15000000000000036,
+      "path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/analysis_v1/route185_clean_q1_qualification.json",
+      "qualified_for_next_clean_repeat": true,
+      "route_completion_percent": 100.0,
+      "route_index": 185,
+      "sha256": "88a73c3c5d1eeb215cd094115dbdc88a8152dc9fd05b349c466829e6fac0b53f",
+      "status": "clean_qualified"
+    },
+    {
+      "failed_checks": [
+        "liveness_at_most_8s"
+      ],
+      "hard_infraction_counts": {
+        "collisions_layout": null,
+        "collisions_pedestrian": null,
+        "collisions_vehicle": null,
+        "outside_route_lanes": null,
+        "red_light": null,
+        "route_dev": null,
+        "route_timeout": null,
+        "scenario_timeouts": null,
+        "stop_infraction": null,
+        "vehicle_blocked": null
+      },
+      "longest_low_speed_interval_seconds": 9.75,
+      "path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/analysis_v1/route207_clean_q1_qualification.json",
+      "qualified_for_next_clean_repeat": false,
+      "route_completion_percent": null,
+      "route_index": 207,
+      "sha256": "ac5880abba924a97805ea0c2f96ccb8df508f12dd6be26a49ee576a954c76dd4",
+      "status": "clean_rejected"
+    }
+  ],
+  "schema": "orion.corruption_hardcase_clean_qualification_collection.v1",
+  "status": "q1_collection_complete"
+}

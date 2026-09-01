@@ -1,0 +1,23 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "timestamp": "2026-08-29T10:35:00+08:00",
+  "batch_run_id": "scenario_factory_clean_wave0_20260829",
+  "reason": "Route 160 retry job 1090417 had already captured ORION_CARLA_RPC_TIMEOUT_SECONDS=90 in its Slurm environment before the 300-second setup-timeout repair was deployed. It reached model.cuda() on Vulkan-valid gpu4 and was terminated by the same 90-second evaluator setup timer.",
+  "classification": "pre_fix_infrastructure_agent_setup_timeout_not_model_result",
+  "failed_attempt": {
+    "route_index": 160,
+    "job_id": 1090417,
+    "node": "gpu4",
+    "effective_timeout_seconds": 90,
+    "must_not_count_as_model_outcome": true
+  },
+  "retry_policy": "Submit one same-condition route-160 retry with ORION_CARLA_RPC_TIMEOUT_SECONDS=300 and include that retry in the replacement finalizer dependency.",
+  "unchanged": [
+    "route XML",
+    "ORION checkpoint",
+    "clean_off condition",
+    "camera inputs",
+    "control path",
+    "evaluation metrics"
+  ]
+}

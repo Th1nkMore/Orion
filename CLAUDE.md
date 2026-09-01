@@ -1,5 +1,15 @@
 # UQ-ORION 项目上下文
 
+> **Historical baseline context (superseded).** The UQEstimator/FiLM/scalar
+> score architecture described below is retained for reproducibility and code
+> archaeology. It is not the current research mainline. Read
+> [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md) for current checkpoints,
+> completed/failed gates, and execution order, and
+> [`docs/spatial_uq_two_stage_v2.md`](docs/spatial_uq_two_stage_v2.md) for the
+> active Stage-1/Stage-2 responsibility boundary. The environment and general
+> repository conventions in this file remain useful where they agree with the
+> current code and tests.
+
 ## 项目背景
 基于小米 ORION 框架的 uncertainty-aware 自动驾驶安全扩展。
 目标：在极端场景（低能见度、雨雪雾）下通过不确定性感知提升安全性。

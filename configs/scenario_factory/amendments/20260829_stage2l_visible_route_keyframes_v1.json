@@ -1,0 +1,42 @@
+{
+  "schema": "orion.stage2_l.schedule_amendment.v1",
+  "created_at": "2026-08-29T15:58:00+08:00",
+  "status": "active_before_stage2l_pilot_training",
+  "base_stage2l_schedule": {
+    "path": "configs/scenario_factory/stage2l_schedule_v1.json",
+    "sha256": "6346548de8c3a1868d5f599a1a1201bcec52603601ffb0d3319c1099582737dc"
+  },
+  "trigger": {
+    "event_id": "route162_step277",
+    "observed_failure": "A fixed-offset keyframe had no visible projection of the unmodified ORION route in any of the six cameras.",
+    "discovered_before_stage2l_pilot_training": true
+  },
+  "keyframe_geometry_eligibility": {
+    "policy_id": "fixed_offsets_visible_orion_route_support_v1",
+    "candidate_offsets_seconds_unchanged": [
+      -2.0,
+      -1.0,
+      0.0,
+      1.0,
+      2.0
+    ],
+    "exclusion_rule": "Exclude a candidate keyframe only when the unmodified ORION route has zero visible support across all six camera projections.",
+    "minimum_retained_keyframes_per_event": 3,
+    "maximum_retained_keyframes_per_event": 5,
+    "replacement_or_offset_search_allowed": false,
+    "uses_observation_uq": false,
+    "uses_actor_or_outcome_selection": false,
+    "uses_stage2_outputs": false,
+    "uses_qa_answers": false
+  },
+  "effect_on_frozen_pilot": {
+    "event_membership_unchanged": true,
+    "train_dev_split_unchanged": true,
+    "expected_qa_range_unchanged": [
+      480,
+      800
+    ],
+    "formal_training_ready": false
+  },
+  "claim_boundary": "This is a technical camera-projection eligibility rule for fixed candidate frames, not outcome-based sample selection and not evidence that Stage1 UQ or Stage2-L is correct."
+}

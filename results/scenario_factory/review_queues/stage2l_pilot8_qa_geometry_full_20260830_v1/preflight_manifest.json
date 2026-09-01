@@ -1,0 +1,66 @@
+{
+  "schema": "orion.stage2l_pilot8_preflight_manifest.v1",
+  "created_at": "2026-08-30T13:00:00+08:00",
+  "status": "machine_audit_passed_human_qa_geometry_review_pending_training_locked",
+  "event_bank": {
+    "path": "../../event_banks/stage2l_pilot8_frozen_6_2_20260830_v3.json",
+    "sha256": "5e27111e2feacdef91fed85ac2bd9dda7e4e73a205a9651c24cdc8dffb8cdfb2"
+  },
+  "coverage": {
+    "events": 8,
+    "train_events": 6,
+    "dev_events": 2,
+    "towns": 5,
+    "scenario_families": 7,
+    "keyframes": 37,
+    "qa_records": 740
+  },
+  "v6_matched_contract": {
+    "matched_groups": 37,
+    "records_per_group": 20,
+    "optimizer_steps_per_epoch": 37,
+    "optimizer_steps_inside_group": 0,
+    "hard_language_records": 666,
+    "hard_stance_records": 111,
+    "diagnostic_only_driving_records": 74,
+    "cross_family_pairwise_comparisons": 1998,
+    "machine_audit": {
+      "path": "machine_preflight/v6_aggregate_machine_audit.json",
+      "sha256": "c23a05629071d5292af3c25d03d143c3df4d18190c4de9cec927805d052eb9ce"
+    },
+    "combined_records": {
+      "path": "machine_preflight/combined_records.jsonl",
+      "sha256": "f30a8b165ae8ded28d24c18b8c00546f77268da0917ed1f937c6911501f42fa8"
+    }
+  },
+  "human_review": {
+    "status": "pending",
+    "queue": {
+      "path": "qa_geometry_review_queue.json",
+      "sha256": "e23cde9aea7c5a180c19e3b03131030729e9756b89c51d570b9256b47804f6f5"
+    },
+    "decisions_template": {
+      "path": "qa_geometry_review_decisions.template.json",
+      "sha256": "3eff9c7a21cc9b1e43d4cacd0cf30e59d071c048aa98181dc4684ca2f6f3f505"
+    },
+    "local_contact_sheets": {
+      "count": 185,
+      "missing": 0,
+      "hash_mismatches": 0
+    },
+    "local_gallery": {
+      "path": "review_gallery.html",
+      "sha256": "a2ad4b44ab464d388c23dc84fe6a2d34fc0915970a081eef6cbb25ee80ee0148"
+    }
+  },
+  "launch_locks": {
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "unlock_requirements": [
+    "The Route151 v6 bounded smoke must complete and pass its frozen semantic gates.",
+    "All eight events must receive explicit human QA geometry review decisions.",
+    "A separate immutable pilot launch amendment and explicit user authorization are required."
+  ],
+  "claim_boundary": "Dataset and local-review preparation only; no held-out generalization, trajectory, closed-loop, or safety evidence."
+}

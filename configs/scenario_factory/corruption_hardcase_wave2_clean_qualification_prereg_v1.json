@@ -1,0 +1,135 @@
+{
+  "schema": "orion.corruption_hardcase_wave2_clean_qualification_preregistration.v1",
+  "created_at": "2026-09-01T08:10:29+08:00",
+  "status": "prepared_paused_no_submission_authority",
+  "purpose": "Prospectively qualify the three automatically selected current-runtime clean candidates before any additional corruption-conditioned route is considered.",
+  "lineage": {
+    "wave1_result": {
+      "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_route158_result_v1.json",
+      "sha256": "d920a2897b8e8c33b208ba3b10d3853299e47c674cacbf0531e0eb60999d60e5"
+    },
+    "candidate_plan_amendment": {
+      "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave2_clean_candidate_plan_v1.json",
+      "sha256": "6bb7fcba45b15b569782ddef9a64d684de3ac6e4552f332cfc610364cf703726"
+    },
+    "candidate_plan": {
+      "path": "results/scenario_factory/corruption_hardcase_wave2_clean_candidate_plan_v1.json",
+      "sha256": "ce7b85b19067e5792341f44ef7086415ce4cecdc503502dc0ad1cdb58c4a0fb6"
+    },
+    "speedometer_repair": {
+      "path": "configs/scenario_factory/amendments/20260901_exact_frame_speedometer_runtime_repair_v1.json",
+      "sha256": "5d6857c2ec36a7fce4ae3499c93cf0167294bb2e2bd6e59b04f068c7fde96a7d"
+    }
+  },
+  "selection": {
+    "routes": [160, 165, 161],
+    "order_is_frozen": true,
+    "basis": "Current reviewed clean evidence only: complete collision-free endpoint, total stopped exposure at most 8 s, and a closing vehicle with positive finite OBB TTC.",
+    "corruption_conditioned_outputs_used": false,
+    "learned_uq_or_stage2_outputs_used": false,
+    "protected_dev_or_test_routes_used": false
+  },
+  "routes": [
+    {
+      "route_index": 160,
+      "town": "Town04",
+      "scenario_family": "ConstructionObstacle",
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave0_20260829/route_160_hazard.xml",
+        "sha256": "f8d9aa55d09f1cb7c86f04d5d3f1ed345ebb2f072494d42ee2b62e48e4f2b95a"
+      },
+      "historical_clean_job_id": 1090753,
+      "historical_clean_use": "candidate selection and resource estimate only; not a current-code qualification replicate"
+    },
+    {
+      "route_index": 165,
+      "town": "Town05",
+      "scenario_family": "ParkedObstacle",
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave1_20260829/route_165_hazard.xml",
+        "sha256": "2f96a0cc8eb5572713604b4cf3baf1a95d7e063de3a896d47c12e0a7fedd7827"
+      },
+      "historical_clean_job_id": 1091123,
+      "historical_clean_use": "candidate selection and resource estimate only; not a current-code qualification replicate"
+    },
+    {
+      "route_index": 161,
+      "town": "Town04",
+      "scenario_family": "ConstructionObstacle",
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave1_20260829/route_161_hazard.xml",
+        "sha256": "5a0cf0c0188f86379d96db7e22cbc3dc7f0e13609e5e193bb1e15a0ec727f489"
+      },
+      "historical_clean_job_id": 1091122,
+      "historical_clean_use": "candidate selection and resource estimate only; not a current-code qualification replicate"
+    }
+  ],
+  "architecture_locks": {
+    "condition": "clean_off",
+    "ORION_CLOSEDLOOP_UQ_MODE": "none",
+    "ORION_CLOSEDLOOP_CONDITIONING": "none",
+    "ORION_CLOSEDLOOP_RISK_MODE": "off",
+    "ORION_PLANNING_RESPONSE_MODE": "off",
+    "ORION_STAGE2_SPATIAL_UQ_SOURCE": "disabled",
+    "ORION_EXACT_FRAME_SPEEDOMETER": "1",
+    "ORION_SENSOR_QUEUE_DIAGNOSTICS": "1",
+    "legacy_density_uq": false,
+    "corruption": "none"
+  },
+  "qualification_protocol": {
+    "q1": {
+      "run_id": "corruption_hardcase_wave2_clean_q1_v1",
+      "runs_per_route": 1,
+      "authorized": false,
+      "start_condition": "A separate post-pause activation must explicitly authorize these frozen identities without changing policy or route order."
+    },
+    "q2": {
+      "run_id": "corruption_hardcase_wave2_clean_q2_v1",
+      "runs_per_route": 1,
+      "authorized": false,
+      "start_condition": "Only Q1 routes passing every gate; freeze the Q1 result before any Q2 submission."
+    },
+    "pass_all": [
+      "evaluator entry_status Finished and terminal status Completed",
+      "route completion 100 percent",
+      "zero collision and zero serious traffic-rule infraction",
+      "complete contiguous dynamic-actor safety telemetry",
+      "longest speed below 0.25 m/s after t=2 s is at most 8.0 s",
+      "manifest records ORION_EXACT_FRAME_SPEEDOMETER=1",
+      "no strict sensor-bundle timeout"
+    ],
+    "stable_clean_rule": "Both independently executed current-code Q1 and Q2 runs must pass every gate before any corruption-conditioned job is eligible."
+  },
+  "later_corruption_boundary": {
+    "conditions_frozen_but_not_authorized": [
+      "front_stale_200ms",
+      "waterdrop_medium",
+      "native_motion_blur_medium"
+    ],
+    "severity_escalation": false,
+    "submit_only_after_stable_clean": true,
+    "front_stale_priority": "Prefer routes whose reviewed clean critical actor is moving and closing rapidly.",
+    "waterdrop_and_motion_blur_priority": "Require exact event-window readback and unchanged visual-approval profiles."
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpu_per_job": 1,
+    "cpus_per_job": 2,
+    "memory_per_job": "192G",
+    "time_limit": "02:00:00",
+    "asset_root": "/public/share/lidachuan/orion_assets",
+    "personal_home_artifacts": false,
+    "excluded_nodes": ["gpu2", "gpu5"]
+  },
+  "execution_locks": {
+    "q1_clean_submission": false,
+    "q2_clean_submission": false,
+    "corruption_submission": false,
+    "heldout_confirmation": false,
+    "severity_change": false,
+    "learned_uq_or_governor": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Prepared prospective clean-qualification protocol only. No job is authorized or submitted, and no corruption, UQ, control, or safety conclusion follows."
+}

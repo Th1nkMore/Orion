@@ -6,6 +6,7 @@ import argparse
 import copy
 import json
 import pickle
+import re
 from pathlib import Path
 
 import numpy as np
@@ -76,8 +77,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-new-tokens", type=int, default=160)
     parser.add_argument(
         "--answer-style",
-        choices=("structured", "natural", "level_only", "synthesis"),
+        choices=("structured", "natural", "level_only", "synthesis", "localization", "localization_x"),
         default="level_only",
+    )
+    parser.add_argument("--localization-labels", default=None)
+    parser.add_argument(
+        "--use-active-embedding",
+        action="store_true",
+        help="Inject Density-UQ active embeddings instead of score-only tokens.",
     )
     parser.add_argument("--output", required=True)
     return parser.parse_args()
@@ -121,7 +128,24 @@ def build_generation_prompt(
             tokenizer,
             return_tensors="pt",
         ).unsqueeze(0)
-    if answer_style == "level_only":
+    if answer_style == "localization_x":
+        task = (
+            "Use the injected UQ token to identify the most visually "
+            "unreliable front-camera column. Choose exactly one region from: "
+            "left, center, right. Do not describe traffic objects or driving "
+            "actions. Answer exactly: Most unreliable front-camera region is "
+            "REGION."
+        )
+    elif answer_style == "localization":
+        task = (
+            "Use the injected UQ token to identify the most visually "
+            "unreliable front-camera region. Choose exactly one region from: "
+            "upper-left, upper-center, upper-right, middle-left, "
+            "middle-center, middle-right, lower-left, lower-center, "
+            "lower-right. Do not describe traffic objects or driving actions. "
+            "Answer exactly: Most unreliable front-camera region is REGION."
+        )
+    elif answer_style == "level_only":
         task = RELIABILITY_QA_QUESTION
     else:
         task = (
@@ -189,6 +213,7 @@ def apply_uq_mode(
     active_embedding,
     mode,
     shuffled_uq=None,
+    use_active_embedding=False,
 ):
     orion = model.module if hasattr(model, "module") else model
     if mode == "none":
@@ -205,7 +230,11 @@ def apply_uq_mode(
             baseline_vision,
             uncertainty_embedding,
             uncertainty_score,
-            active_embedding=torch.zeros_like(active_embedding),
+            active_embedding=(
+                active_embedding
+                if use_active_embedding
+                else torch.zeros_like(active_embedding)
+            ),
         )
     if mode == "shuffled":
         if shuffled_uq is None:
@@ -215,7 +244,11 @@ def apply_uq_mode(
             baseline_vision,
             uncertainty_embedding,
             shuffled_score,
-            active_embedding=torch.zeros_like(shuffled_active),
+            active_embedding=(
+                shuffled_active
+                if use_active_embedding
+                else torch.zeros_like(shuffled_active)
+            ),
         )
     raise ValueError(f"Unsupported UQ mode: {mode}")
 
@@ -225,6 +258,31 @@ def info_sample_id(info: dict) -> str:
         f"{Path(info['folder']).name}__"
         f"{int(info['frame_idx']):05d}.pt"
     )
+
+
+def render_localization_answer(region: str) -> str:
+    return f"Most unreliable front-camera region is {region}."
+
+
+_REGION_RE = re.compile(
+    r"Most unreliable front-camera region is "
+    r"(upper-left|upper-center|upper-right|middle-left|middle-center|middle-right|lower-left|lower-center|lower-right|left|center|right)",
+    re.IGNORECASE,
+)
+
+
+def parse_localization_answer(text: str) -> str:
+    match = _REGION_RE.search(text)
+    if match is None:
+        raise ValueError("Localization answer does not contain a valid region")
+    return match.group(1).lower()
+
+
+def load_localization_labels(path: str | None) -> dict[str, dict]:
+    if not path:
+        return {}
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    return payload.get("labels", payload)
 
 
 def build_density_score_lookup(
@@ -250,6 +308,52 @@ def build_density_score_lookup(
             for index, score in zip(indices, scores.flatten().tolist()):
                 score_lookup[cache["filenames"][index]] = float(score)
     return score_lookup
+
+
+def build_shuffled_uq_lookup_with_source(
+    descriptor_cache: str,
+    density_checkpoint,
+    assignment: dict[str, str],
+    split: str,
+    seed: int,
+    allowed_sample_ids: set[str] | None = None,
+) -> dict[str, tuple[torch.Tensor, torch.Tensor, str]]:
+    cache = torch.load(
+        descriptor_cache, map_location="cpu", weights_only=True
+    )
+    density = DensityUQEstimator.from_checkpoint(density_checkpoint).eval()
+    selected = [
+        index for index, route in enumerate(cache["routes"])
+        if assignment.get(route) == split
+        and (
+            allowed_sample_ids is None
+            or cache["filenames"][index] in allowed_sample_ids
+        )
+    ]
+    descriptors = cache["descriptors"][selected].float()
+    active_parts = []
+    score_parts = []
+    with torch.no_grad():
+        for chunk in descriptors.split(512):
+            _, score, _, active = density.encode_descriptor(chunk)
+            active_parts.append(active)
+            score_parts.append(score)
+    active = torch.cat(active_parts)
+    score = torch.cat(score_parts)
+
+    generator = torch.Generator().manual_seed(seed)
+    order = torch.randperm(len(selected), generator=generator)
+    source = torch.roll(order, shifts=1)
+    lookup = {}
+    for target_position, source_position in zip(order.tolist(), source.tolist()):
+        filename = cache["filenames"][selected[target_position]]
+        source_filename = cache["filenames"][selected[source_position]]
+        lookup[filename] = (
+            active[source_position].clone(),
+            score[source_position].clone(),
+            source_filename,
+        )
+    return lookup
 
 
 def summarize_level_outputs(records: list[dict]) -> dict:
@@ -320,6 +424,53 @@ def summarize_level_outputs(records: list[dict]) -> dict:
     return summary
 
 
+def summarize_localization_outputs(records: list[dict]) -> dict:
+    summary = {}
+    for mode in ("correct", "shuffled"):
+        if not records or mode not in records[0]["outputs"]:
+            continue
+        parsed = 0
+        correct = 0
+        for record in records:
+            prediction = record["outputs"][mode]["parsed_region"]
+            target = record["targets"][mode]
+            if prediction is None:
+                continue
+            parsed += 1
+            correct += int(prediction == target)
+        count = len(records)
+        summary[mode] = {
+            "count": count,
+            "parse_rate": parsed / count if count else 0.0,
+            "accuracy": correct / count if count else 0.0,
+        }
+    if all(mode in summary for mode in ("correct", "shuffled")):
+        eligible = 0
+        changed = 0
+        target_matched_changed = 0
+        for record in records:
+            if record["targets"]["correct"] == record["targets"]["shuffled"]:
+                continue
+            eligible += 1
+            correct_pred = record["outputs"]["correct"]["parsed_region"]
+            shuffled_pred = record["outputs"]["shuffled"]["parsed_region"]
+            if correct_pred != shuffled_pred:
+                changed += 1
+            target_matched_changed += int(
+                correct_pred == record["targets"]["correct"]
+                and shuffled_pred == record["targets"]["shuffled"]
+            )
+        summary["intervention"] = {
+            "eligible": eligible,
+            "changed": changed,
+            "response_rate": changed / eligible if eligible else float("nan"),
+            "target_matched_response_rate": (
+                target_matched_changed / eligible if eligible else float("nan")
+            ),
+        }
+    return summary
+
+
 def main() -> None:
     args = parse_args()
     set_random_seed(args.seed, deterministic=True)
@@ -335,6 +486,7 @@ def main() -> None:
     with open(args.ann_file, "rb") as handle:
         infos = pickle.load(handle)
     info_lookup = {info_sample_id(info): info for info in infos}
+    localization_labels = load_localization_labels(args.localization_labels)
 
     cfg = Config.fromfile(args.config)
     cfg.model.train_cfg = None
@@ -377,13 +529,37 @@ def main() -> None:
         shuffle=False,
         nonshuffler_sampler=cfg.data.nonshuffler_sampler,
     )
-    shuffled_lookup = build_shuffled_uq_lookup(
-        args.descriptor_cache,
-        args.density_checkpoint,
-        assignment,
-        args.split,
-        args.seed,
-    )
+    if args.answer_style in ("localization", "localization_x"):
+        allowed_ids = set(localization_labels)
+        dataset.data_infos = [
+            info for info in dataset.data_infos
+            if info_sample_id(info) in allowed_ids
+        ]
+        dataset.flag = np.zeros(len(dataset), dtype=np.uint8)
+        loader = build_dataloader(
+            dataset,
+            samples_per_gpu=1,
+            workers_per_gpu=args.workers,
+            dist=False,
+            shuffle=False,
+            nonshuffler_sampler=cfg.data.nonshuffler_sampler,
+        )
+        shuffled_lookup = build_shuffled_uq_lookup_with_source(
+            args.descriptor_cache,
+            args.density_checkpoint,
+            assignment,
+            args.split,
+            args.seed,
+            allowed_sample_ids=allowed_ids,
+        )
+    else:
+        shuffled_lookup = build_shuffled_uq_lookup(
+            args.descriptor_cache,
+            args.density_checkpoint,
+            assignment,
+            args.split,
+            args.seed,
+        )
 
     model = build_model(cfg.model, test_cfg=cfg.get("test_cfg"))
     if cfg.get("fp16", None) is not None:
@@ -412,7 +588,12 @@ def main() -> None:
             )
             context = prepare_visual_context(model, batch)
             correct_score = float(context[2].item())
-            shuffled_active, shuffled_score = shuffled_lookup[name]
+            shuffled_entry = shuffled_lookup[name]
+            if args.answer_style in ("localization", "localization_x"):
+                shuffled_active, shuffled_score, shuffled_name = shuffled_entry
+            else:
+                shuffled_active, shuffled_score = shuffled_entry
+                shuffled_name = None
             shuffled_uq = (
                 shuffled_active.unsqueeze(0).cuda(),
                 shuffled_score.unsqueeze(0).cuda(),
@@ -421,6 +602,9 @@ def main() -> None:
                 render_risk_synthesis_answer
                 if args.answer_style == "synthesis"
                 else (
+                    render_localization_answer
+                    if args.answer_style in ("localization", "localization_x")
+                    else (
                     render_reliability_answer
                     if args.answer_style == "level_only"
                     else (
@@ -429,18 +613,25 @@ def main() -> None:
                         else render_risk_qa_answer
                     )
                 )
+                )
             )
-            target_by_mode = {
-                "correct": render_answer(
-                    build_risk_qa_answer(correct_score, objects)
-                ),
-                "shuffled": render_answer(
-                    build_risk_qa_answer(
-                        float(shuffled_score.item()),
-                        objects,
-                    )
-                ),
-            }
+            if args.answer_style in ("localization", "localization_x"):
+                target_by_mode = {
+                    "correct": localization_labels[name]["region"],
+                    "shuffled": localization_labels[shuffled_name]["region"],
+                }
+            else:
+                target_by_mode = {
+                    "correct": render_answer(
+                        build_risk_qa_answer(correct_score, objects)
+                    ),
+                    "shuffled": render_answer(
+                        build_risk_qa_answer(
+                            float(shuffled_score.item()),
+                            objects,
+                        )
+                    ),
+                }
             outputs = {}
             for mode in modes:
                 if mode == "shuffled":
@@ -461,6 +652,7 @@ def main() -> None:
                     *context,
                     mode=mode,
                     shuffled_uq=shuffled_uq,
+                    use_active_embedding=args.use_active_embedding,
                 )
                 output_ids = model.lm_head.generate(
                     inputs=prompt_ids,
@@ -474,20 +666,28 @@ def main() -> None:
                     output_ids, skip_special_tokens=True
                 )[0]
                 try:
-                    if args.answer_style == "synthesis":
+                    if args.answer_style in ("localization", "localization_x"):
+                        parsed_region = parse_localization_answer(text)
+                        parsed_level = None
+                        parsed_objects = ()
+                        parsed_percentile = None
+                    elif args.answer_style == "synthesis":
                         parsed_level, parsed_objects = (
                             parse_risk_synthesis_answer(text)
                         )
                         parsed_percentile = None
+                        parsed_region = None
                     elif args.answer_style == "level_only":
                         parsed_level = parse_reliability_answer(text)
                         parsed_objects = ()
                         parsed_percentile = None
+                        parsed_region = None
                     elif args.answer_style == "natural":
                         parsed_level, parsed_objects = (
                             parse_natural_risk_qa_answer(text)
                         )
                         parsed_percentile = None
+                        parsed_region = None
                     else:
                         parsed = parse_risk_qa_answer(text)
                         parsed_level = parsed.reliability_level
@@ -495,17 +695,20 @@ def main() -> None:
                             item.category for item in parsed.critical_objects
                         )
                         parsed_percentile = parsed.reliability_percentile
+                        parsed_region = None
                     parse_error = None
                 except ValueError as error:
                     parse_error = str(error)
                     parsed_percentile = None
                     parsed_level = None
                     parsed_objects = ()
+                    parsed_region = None
                 outputs[mode] = {
                     "text": text,
                     "parse_error": parse_error,
                     "parsed_percentile": parsed_percentile,
                     "parsed_level": parsed_level,
+                    "parsed_region": parsed_region,
                     "parsed_objects": parsed_objects,
                 }
             records.append(
@@ -521,8 +724,8 @@ def main() -> None:
                         }
                         for item in objects
                     ],
-                    "targets": target_by_mode,
-                    "outputs": outputs,
+                "targets": target_by_mode,
+                "outputs": outputs,
                 }
             )
             print(f"[RiskQA] generated {name}")
@@ -532,7 +735,11 @@ def main() -> None:
     output.write_text(
         json.dumps(
             {
-                "summary": summarize_level_outputs(records),
+                "summary": (
+                    summarize_localization_outputs(records)
+                    if args.answer_style in ("localization", "localization_x")
+                    else summarize_level_outputs(records)
+                ),
                 "records": records,
             },
             indent=2,

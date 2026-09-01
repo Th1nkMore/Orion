@@ -1,0 +1,42 @@
+{
+  "schema": "orion.corruption_hardcase_wave2_clean_q1_activation.v1",
+  "created_at": "2026-09-01T08:32:36+08:00",
+  "status": "authorized_after_user_resume",
+  "base_prereg": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave2_clean_qualification_prereg_v1.json",
+    "sha256": "024e3cc6d4db4d77e7f8f88565163bb1283eda90fc3771e3c4eb0f34d1820f2c"
+  },
+  "resume_record": {
+    "source": "user_message",
+    "verbatim": "恢复 Q1",
+    "recorded_at": "2026-09-01T08:32:36+08:00"
+  },
+  "scope": {
+    "routes": [
+      160,
+      165,
+      161
+    ],
+    "condition": "clean_off",
+    "runs_per_route": 1,
+    "run_id": "corruption_hardcase_wave2_clean_q1_v1"
+  },
+  "authorization": {
+    "q1_clean_submission": true,
+    "user_resume_recorded": true,
+    "q2_clean_submission": false,
+    "corruption_submission": false,
+    "heldout_confirmation": false,
+    "severity_change": false,
+    "learned_uq_or_governor": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "monitoring": {
+    "long_pending_wait_allowed": true,
+    "same_job_ids_only": true,
+    "observation_timeout_is_not_job_failure": true,
+    "automatic_resubmission": false
+  },
+  "claim_boundary": "Authorizes exactly one clean_off Q1 submission for Route160, Route165, and Route161 in that order. It authorizes no Q2, corruption-conditioned, held-out, learned-UQ/governor, Stage2-P, or formal benchmark work."
+}

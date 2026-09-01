@@ -1,0 +1,86 @@
+{
+  "schema": "orion.stage2_l.schedule.v1",
+  "created_at": "2026-08-29T12:30:00+08:00",
+  "status": "active_before_stage2l_pilot",
+  "base_scenario_factory_protocol": {
+    "path": "configs/scenario_factory/protocol_v1.json",
+    "sha256": "0df6da6276ae3002207b20c014a8de10873ebf9acf3fe81f5c68311401e997c0"
+  },
+  "architecture": {
+    "stage1_adapter": "Frozen task-agnostic spatial observation uncertainty.",
+    "stage2_l_trainable": [
+      "spatial UQ tokenizer",
+      "ORION VLM LoRA",
+      "explicit task-relevance map head"
+    ],
+    "fixed_task_risk": "K = U * R",
+    "trajectory_training_enabled": false,
+    "legacy_density_uq_used": false,
+    "hard_governor_used": false
+  },
+  "engineering_overfit_smoke": {
+    "event_id": "route196_step313",
+    "maximum_steps": 120,
+    "purpose": "Implementation sanity only: learn on-path risk above matched off-path risk while zero-UQ remains non-conservative.",
+    "formal_evidence": false
+  },
+  "fixed_keyframe_policy": {
+    "offsets_seconds_from_actor_grounded_event": [
+      -2.0,
+      -1.0,
+      0.0,
+      1.0,
+      2.0
+    ],
+    "minimum_keyframes_per_event": 3,
+    "maximum_keyframes_per_event": 5,
+    "uses_learned_uq_or_stage2_outcomes": false,
+    "records_per_keyframe": 20,
+    "repeated_frames_count_as_independent_events": false
+  },
+  "pilot_gate": {
+    "minimum_independent_events": 8,
+    "minimum_towns": 3,
+    "minimum_scenario_families": 4,
+    "event_level_split": {
+      "train": 6,
+      "dev": 2,
+      "test": 0
+    },
+    "expected_qa_records": [
+      480,
+      800
+    ],
+    "human_qa_geometry_review_required": true,
+    "decision_metrics": {
+      "heldout_on_path_risk_above_matched_off_path_fraction_gte": 0.8,
+      "heldout_zero_and_off_path_nonconservative_answer_fraction_gte": 0.8,
+      "heldout_on_path_conservative_answer_fraction_gte": 0.8,
+      "heldout_task_relevance_auroc_gte": 0.75,
+      "map_text_consistency_fraction_gte": 0.9
+    },
+    "claim_boundary": "Pilot determines whether the Stage2-L learning paradigm works across held-out events; it is not a final generalization or safety result."
+  },
+  "formal_gate": {
+    "independent_events": 24,
+    "towns": 5,
+    "scenario_families": 8,
+    "event_level_split": {
+      "train": 16,
+      "dev": 4,
+      "test": 4
+    },
+    "target_structured_qa_records": [
+      1500,
+      2500
+    ],
+    "start_only_after_split_and_corruption_family_protocols_are_frozen": true
+  },
+  "stage2_p_locked_until": [
+    "held-out on-path versus off-path risk ordering passes",
+    "task-relevance map quality passes",
+    "QA and map-text consistency pass",
+    "zero-UQ and irrelevant-UQ false-conservatism checks pass"
+  ],
+  "claim_boundary": "This schedule freezes engineering and pilot decision gates. It does not amend previously submitted scenario-runtime conditions or make a safety claim."
+}

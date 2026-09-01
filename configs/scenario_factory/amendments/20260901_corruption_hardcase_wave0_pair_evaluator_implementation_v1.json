@@ -1,0 +1,68 @@
+{
+  "schema": "orion.corruption_hardcase_wave0_pair_evaluator_implementation.v1",
+  "created_at": "2026-09-01T01:14:57+08:00",
+  "status": "implemented_and_tested_after_first_pair_terminal_before_remaining_wave_terminal",
+  "purpose": "Record the exact evaluator that operationalizes the already frozen Wave0 prospective failure-induction thresholds without presenting its implementation time as preregistration.",
+  "frozen_threshold_source": {
+    "path": "configs/scenario_factory/corruption_hardcase_funnel12_v1.json",
+    "sha256": "ca02d56b905cbc9e7901d244238b659ba3169467f7db9b238f74a7a1ff99f7cb",
+    "thresholds": {
+      "route_completion_drop_percentage_points": 10.0,
+      "minimum_ttc_drop_seconds": 0.30,
+      "minimum_ttc_drop_fraction_of_clean": 0.20,
+      "minimum_gap_drop_m": 0.50,
+      "minimum_gap_drop_fraction_of_clean": 0.20,
+      "clean_longest_stop_maximum_seconds": 8.0
+    }
+  },
+  "submission_record": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_online_wave0_submission_v1.json",
+    "sha256": "36039728c0050ee59b3c2653566cc38746a6f376886e3462ef8594b58880e7ba"
+  },
+  "implementation": {
+    "path": "scripts/evaluate_corruption_hardcase_wave_pair.py",
+    "sha256": "5243e8a1e4b56a1eae2097587c5299b3e4ec75f5ab1b4980f9e08ea6901a2371",
+    "test_path": "tests/test_evaluate_corruption_hardcase_wave_pair.py",
+    "test_sha256": "3855da66a1b142b511a17980630a27d46752142af0d0789c889c09d7cbea3b82",
+    "local_and_remote_test_command": "python -m pytest -q tests/test_evaluate_corruption_hardcase_wave_pair.py tests/test_clean_liveness_screen.py tests/test_summarize_closedloop_safety.py",
+    "local_test_result": "8 passed",
+    "remote_test_result": "8 passed"
+  },
+  "chronology": {
+    "already_terminal_scientific_jobs_when_evaluator_was_implemented": [
+      1116344,
+      1116345,
+      1116350,
+      1116351
+    ],
+    "first_pair_already_read": "route151 clean versus stale-200ms",
+    "remaining_effective_jobs_not_terminal": [
+      1116352,
+      1116353,
+      1116354,
+      1116355,
+      1116356,
+      1116357,
+      1116358,
+      1116359
+    ],
+    "anti_posthoc_statement": "The numeric thresholds and positive-case criteria were copied from the frozen funnel file. This implementation record is not claimed as a preregistration and the already observed Route151 stale result is explicitly disclosed."
+  },
+  "first_pair_outputs": {
+    "decision": {
+      "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/analysis_v1/route151_front_stale_200ms_decision.json",
+      "sha256": "349ddb4c92344a3e6d6747dcd6e523edc49aca42aefd246cf67ee3fcaa21715e",
+      "classification": "valid_negative"
+    },
+    "pair_summary": {
+      "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/analysis_v1/route151_front_stale_200ms_pair_summary.json",
+      "sha256": "ae333cfeba07721e9e29c3c92ee3bde69d8b94cb6fac2ab0e498ca376e35804c"
+    },
+    "clean_liveness": {
+      "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route151_hazard_clean_off-1116344/clean_liveness_fast_screen.json",
+      "sha256": "af57affcc7f37853e30058f38e7e805c82b45af94f6d9c4ddda2fe7a603626c5",
+      "stage_b_qualified": true
+    }
+  },
+  "claim_boundary": "This evaluator classifies development failure induction only. It does not evaluate learned uncertainty, task relevance, risk control, method benefit, held-out generalization, or the formal 200-route endpoint."
+}

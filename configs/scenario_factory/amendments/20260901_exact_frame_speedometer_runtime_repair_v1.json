@@ -1,0 +1,69 @@
+{
+  "schema": "orion.exact_frame_speedometer_runtime_repair_amendment.v1",
+  "created_at": "2026-09-01T08:10:29+08:00",
+  "status": "implemented_unit_verified_pending_live_runtime_validation",
+  "scope": "Bench2Drive SPEED pseudo-sensor frame production only",
+  "diagnosis": {
+    "stock_behavior": "Bench2Drive BaseReader produces pseudo sensors from a background-thread floating time-difference test using a strict greater-than comparison at the same nominal 20 Hz frequency as CARLA.",
+    "observed_failure_pattern": "All CARLA physical sensors and BEV delivered the target frame while SPEED delivered exactly target_frame-1; the strict current-frame bundle then could never complete.",
+    "independent_occurrences": [
+      {
+        "route_index": 194,
+        "evidence_path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave0_route194_clean_sensor_timeout_retry_prereg_v1.json",
+        "evidence_sha256": "6d98a8962b3ad4b0e7234a434f31b352737535e4817ac22f129c5cb1a8954f9f"
+      },
+      {
+        "route_index": 185,
+        "evidence_path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_route185_clean_q2_runtime_retry_prereg_v1.json",
+        "evidence_sha256": "0d7a11f5cf59c277a33584c9871f8b7959041705afc44ee59580122baf2044ab"
+      },
+      {
+        "route_index": 158,
+        "job_id": 1118497,
+        "target_frame": 15964,
+        "last_speed_frame": 15963,
+        "evidence_path": "results/scenario_factory/corruption_hardcase_wave1_route158_corruption_v1/runtime_invalid/job1118497/sensor_queue_diagnostics.jsonl",
+        "evidence_sha256": "e2d8ed92c946372bd926ebb2f02473814034285c379c5540f4caacc627d9bbe0"
+      }
+    ]
+  },
+  "repair_contract": {
+    "environment_switch": "ORION_EXACT_FRAME_SPEEDOMETER",
+    "runner_default": true,
+    "producer_trigger": "one stock SpeedometerReader current-state read for each nonzero GameTime frame",
+    "cross_tick_read": "discard and reread on the new frame",
+    "stale_speed_reuse": false,
+    "sensor_bundle_barrier_changed": false,
+    "sensor_requiredness_changed": false,
+    "timeout_changed": false,
+    "visual_or_model_input_changed": false
+  },
+  "implementation": {
+    "uq_estimator/closedloop_sensor_diagnostics.py": "a2d0a67cf4e68f64d8d9ba2d4364d349af301a7b1aa09759ebaa7973f2832ed1",
+    "scripts/run_bench2drive_external_server.py": "8b0f6b8d3e0daeaa612f0dca161cb5f8642c4040d47c21711239984ce27c423b",
+    "scripts/run_closedloop_uq_pilot.sh": "0a9b67d0c4bcc5225371836689b248f63a93d3ad194d647cc5633e8fcc3c356b",
+    "tests/test_closedloop_sensor_diagnostics.py": "0c621153ad1b277744906a9813f25ff774ae4a176a98a3e58da3cc061d4d11ab"
+  },
+  "verification": {
+    "local": {
+      "command_scope": "sensor diagnostics plus Route158 submitter/pair evaluator regression suite",
+      "passed": 20,
+      "failed": 0
+    },
+    "remote": {
+      "environment": "/public/share/lidachuan/orion_assets/envs/orion-cl-centos7/bin/python",
+      "test_file": "tests/test_closedloop_sensor_diagnostics.py",
+      "passed": 8,
+      "failed": 0,
+      "bash_syntax_check": true,
+      "local_remote_source_hashes_match": true
+    },
+    "live_carla_validation": false
+  },
+  "next_gate": {
+    "requirement": "The next separately authorized clean run must record ORION_EXACT_FRAME_SPEEDOMETER=1 and complete with strict same-frame SPEED evidence before the repair is called runtime-validated.",
+    "automatic_retry_of_prior_invalid_jobs": false,
+    "automatic_job_submission": false
+  },
+  "claim_boundary": "Engineering root-cause repair with local and cluster-environment unit verification. No live CARLA reliability, model, corruption, UQ, control, or safety result is claimed yet."
+}

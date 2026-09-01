@@ -1,0 +1,41 @@
+{
+  "schema_version": "orion-route214-qa-evidence/v1",
+  "qa_kind": "gt_axis_alignment_check",
+  "production_hook_id": "route214-gt-axis-persistent-evidence/v1",
+  "plan_id": "a6fe644a136c309f42fa6b1f17ba5e6bd906434185dc4168e05f192fa235eab1",
+  "checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+  "config_sha256": "5d106c4669620efbe6d48d9ab304f9e117646f9910aff673dbe7092525b745fb",
+  "route_folder": "v1/OppositeVehicleTakingPriority_Town04_Route214_Weather6",
+  "passed": true,
+  "checks": {
+    "actor_ids_follow_range_name_and_final_box_filters": true,
+    "traffic_state_and_validity_follow_the_same_box_mask": true,
+    "route214_real_overlay_object_axes_are_aligned": true,
+    "frame_0_all_4_gt_objects_projected_to_a_camera": true,
+    "frame_39_all_8_gt_objects_projected_to_a_camera": true,
+    "gt_attr_category_equality_is_enforced_at_runtime": true
+  },
+  "generated_by": "Codex real Route214 overlay-axis audit plus deterministic actor/traffic alignment regression review, 2026-08-26",
+  "artifacts": [
+    {
+      "path": "/public/share/lidachuan/orion_assets/spatial_uq_v1/overlays/route214_projection_preflight_20260826/manifest.json",
+      "sha256": "ebf2794610521966043fe9c6e7d6d4f8a623a9ba4270b17a9203268a440fd5a3"
+    },
+    {
+      "path": "/public/home/lidachuan/project/Orion/mmcv/datasets/pipelines/actor_id_alignment.py",
+      "sha256": "d0340405d1b3fa1b9173072a5b08036382052524d22b81e4e1fd3b2e3a2e714b"
+    },
+    {
+      "path": "/public/home/lidachuan/project/Orion/tests/test_actor_id_alignment.py",
+      "sha256": "a1fe0703ac34a02ca05b1162eaa81e5b203ace3248342caa45e80cdb1224ef9a"
+    },
+    {
+      "path": "/public/home/lidachuan/project/Orion/mmcv/datasets/pipelines/traffic_state_alignment.py",
+      "sha256": "bf01311c0ffbddf54edc219c9ce752eebdbcc8248e1d38a2885bf94fb553f4ae"
+    },
+    {
+      "path": "/public/home/lidachuan/project/Orion/tests/test_traffic_state_alignment.py",
+      "sha256": "7e0948c0ff64850a25c2990f4f71544e9cec6191ba7274774c0909c27d825cf6"
+    }
+  ]
+}

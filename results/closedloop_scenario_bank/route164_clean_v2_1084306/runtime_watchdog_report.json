@@ -1,0 +1,67 @@
+{
+  "schema": "orion.closedloop_runtime_watchdog_diagnostic.v1",
+  "timestamp": "2026-08-28T20:18:27+08:00",
+  "job_id": 1084306,
+  "route_index": 164,
+  "town": "Town04",
+  "scenario": "HazardAtSideLane",
+  "condition": "clean_off",
+  "slurm_terminal_state": "CANCELLED by 2329",
+  "slurm_elapsed": "00:24:50",
+  "evaluator_entry_status": "Started",
+  "evaluator_eligible": false,
+  "evaluator_terminal_record_count": 0,
+  "watchdog_message": "Watchdog exception - Timeout of 601.0 seconds occured",
+  "trace": {
+    "frame_count": 149,
+    "last_step": 148,
+    "last_sim_time_seconds": 7.4,
+    "last_route_progress": 0.1916518051664948,
+    "last_speed_mps": 5.04033373196583,
+    "last_file_mtime": "2026-08-28T20:01:24+08:00",
+    "safety_schema": "orion.closedloop_dynamic_actor_safety.v2"
+  },
+  "runtime_sample_before_watchdog": {
+    "carla_process": {
+      "pid": 3998,
+      "state": "running",
+      "cpu_percent": 90.5,
+      "main_thread_wchan": "0"
+    },
+    "evaluator_process": {
+      "pid": 6544,
+      "state": "sleeping",
+      "cpu_percent": 34.5,
+      "main_thread_wchan": "futex_wait_queue_me"
+    },
+    "gpu": {
+      "uuid": "GPU-58d19668-86b9-9a9c-e799-a99d7bb58357",
+      "utilization_percent": 0,
+      "memory_used_mib": 39909,
+      "memory_total_mib": 81920
+    },
+    "carla_perf_sample": {
+      "duration_seconds": 5,
+      "samples": 662,
+      "lost_samples": 0,
+      "top_symbols_percent": {
+        "__vdso_clock_gettime": 27.79,
+        "pthread_mutex_unlock": 19.26,
+        "pthread_mutex_lock": 16.88,
+        "FCarlaServer::TickCueReceived": 8.84,
+        "pthread_cond_broadcast": 8.24,
+        "boost::asio::io_context::run_one_until": 4.62,
+        "FCarlaServer::RunSome": 2.61
+      }
+    }
+  },
+  "diagnosis": {
+    "observation": "The trace stopped while ego was moving normally. CARLA and evaluator processes remained alive, GPU utilization fell to zero, the CARLA main thread busy-polled the synchronous server tick path, and the evaluator slept on a futex until the fixed watchdog fired.",
+    "inference": "This is consistent with a synchronous sensor/tick handshake deadlock, such as one required sensor frame not reaching the evaluator while CARLA waits for the next client tick. The current run does not identify the missing sensor tag, so this remains a runtime diagnosis rather than a proven sensor-specific root cause."
+  },
+  "exclusion": {
+    "stage_b_qualified": false,
+    "official_safety_result": false,
+    "rule": "Retain the partial trace and runtime samples only as diagnostic evidence. Do not submit Route164 degraded, oracle, learned, constant, shuffled, off-path, no-hazard, or additional-seed jobs under the current protocol."
+  }
+}

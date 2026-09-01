@@ -1,0 +1,1935 @@
+{
+  "calibration": {
+    "feature_rms_viewpos_z": {
+      "example_count": 560,
+      "families": [
+        "clean"
+      ],
+      "route_count": 35,
+      "source": "feature_rms_raw",
+      "tail": "absolute"
+    },
+    "spatial_viewpos_z": {
+      "example_count": 560,
+      "families": [
+        "clean"
+      ],
+      "route_count": 35,
+      "source": "spatial_raw",
+      "tail": "positive"
+    },
+    "teacher_viewpos_z": {
+      "example_count": 560,
+      "families": [
+        "clean"
+      ],
+      "route_count": 35,
+      "source": "teacher_raw",
+      "tail": "positive"
+    },
+    "temporal_viewpos_z": {
+      "example_count": 560,
+      "families": [
+        "clean"
+      ],
+      "route_count": 35,
+      "source": "temporal_raw",
+      "tail": "positive"
+    }
+  },
+  "candidate_gates": {
+    "feature_rms_raw": {
+      "checks": [
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.55,
+          "value": 0.5470713710639625
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "validation_heldout_family",
+          "threshold": 0.0,
+          "value": 7.593631744384766e-05
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.1,
+          "value": 0.016508931294083595
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.25,
+          "value": 0.01786139890924895
+        },
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.55,
+          "value": 0.477077606410046
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.0,
+          "value": -4.100799560546875e-05
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.1,
+          "value": 0.013802549801766872
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.25,
+          "value": -0.001972969175224325
+        }
+      ],
+      "passed": false
+    },
+    "feature_rms_viewpos_z": {
+      "checks": [
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.55,
+          "value": 0.48853130791122923
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "validation_heldout_family",
+          "threshold": 0.0,
+          "value": 0.00019741058349609375
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.1,
+          "value": 0.01190809067338705
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.25,
+          "value": 0.12013929193267557
+        },
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.55,
+          "value": 0.5088445474305667
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "heldout_route_and_family",
+          "threshold": 0.0,
+          "value": 0.0003921389579772949
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.1,
+          "value": 0.03193531185388565
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.25,
+          "value": 0.01647649863760218
+        }
+      ],
+      "passed": false
+    },
+    "spatial_raw": {
+      "checks": [
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.55,
+          "value": 0.349908493852943
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "validation_heldout_family",
+          "threshold": 0.0,
+          "value": 1.913309097290039e-05
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.1,
+          "value": -0.01055489107966423
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.25,
+          "value": 0.05627136471206942
+        },
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.55,
+          "value": 0.33583882975112783
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.0,
+          "value": -4.178285598754883e-05
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.1,
+          "value": -0.016508931294083595
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.25,
+          "value": -0.012245504013415901
+        }
+      ],
+      "passed": false
+    },
+    "spatial_viewpos_z": {
+      "checks": [
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.55,
+          "value": 0.5162587458141766
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "validation_heldout_family",
+          "threshold": 0.0,
+          "value": 0.0006501078605651855
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.1,
+          "value": 0.010825528763234615
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.25,
+          "value": 0.06762982483335916
+        },
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.55,
+          "value": 0.4989365048503107
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "heldout_route_and_family",
+          "threshold": 0.0,
+          "value": 0.0003294944763183594
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.1,
+          "value": 0.001353191095404327
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.25,
+          "value": 0.011479263400088046
+        }
+      ],
+      "passed": false
+    },
+    "teacher_raw": {
+      "checks": [
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.55,
+          "value": 0.44939408479895376
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "validation_heldout_family",
+          "threshold": 0.0,
+          "value": 0.0005731582641601562
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.1,
+          "value": 0.08525104075670242
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.25,
+          "value": 0.014479681615652993
+        },
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.55,
+          "value": 0.36951369102011067
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "heldout_route_and_family",
+          "threshold": 0.0,
+          "value": 0.00044333934783935547
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.1,
+          "value": 0.07415487617254257
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.25,
+          "value": 0.007505815038876247
+        }
+      ],
+      "passed": false
+    },
+    "teacher_viewpos_z": {
+      "checks": [
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.55,
+          "value": 0.5371447087011867
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "validation_heldout_family",
+          "threshold": 0.0,
+          "value": 0.002374589443206787
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.1,
+          "value": 0.04221956431865692
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.25,
+          "value": 0.014879873009944441
+        },
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.55,
+          "value": 0.4521320770013911
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "heldout_route_and_family",
+          "threshold": 0.0,
+          "value": 0.0014438033103942871
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.1,
+          "value": 0.05304509401321411
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.25,
+          "value": 0.0063344565881957296
+        }
+      ],
+      "passed": false
+    },
+    "temporal_raw": {
+      "checks": [
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.55,
+          "value": 0.4810651654605009
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "validation_heldout_family",
+          "threshold": 0.0,
+          "value": 0.0033386945724487305
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.1,
+          "value": 0.03586389869451523
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": true,
+          "split": "validation_heldout_family",
+          "threshold": 0.25,
+          "value": 0.38893209276489377
+        },
+        {
+          "metric": "mask_auroc",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.55,
+          "value": 0.4541344743747957
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "heldout_route_and_family",
+          "threshold": 0.0,
+          "value": 0.002637535333633423
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.1,
+          "value": 0.028014441952109337
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.25,
+          "value": 0.16246048675181826
+        }
+      ],
+      "passed": false
+    },
+    "temporal_viewpos_z": {
+      "checks": [
+        {
+          "metric": "mask_auroc",
+          "passed": true,
+          "split": "validation_heldout_family",
+          "threshold": 0.55,
+          "value": 0.6155315912639192
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "validation_heldout_family",
+          "threshold": 0.0,
+          "value": 0.027959048748016357
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "validation_heldout_family",
+          "threshold": 0.1,
+          "value": 0.0959528461098671
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": true,
+          "split": "validation_heldout_family",
+          "threshold": 0.25,
+          "value": 1.3799286317356374
+        },
+        {
+          "metric": "mask_auroc",
+          "passed": true,
+          "split": "heldout_route_and_family",
+          "threshold": 0.55,
+          "value": 0.5955327990825093
+        },
+        {
+          "family": "local_blur",
+          "metric": "positive_uplift",
+          "passed": true,
+          "split": "heldout_route_and_family",
+          "threshold": 0.0,
+          "value": 0.024528801441192627
+        },
+        {
+          "family": "local_blur",
+          "metric": "severity_spearman",
+          "passed": false,
+          "split": "heldout_route_and_family",
+          "threshold": 0.1,
+          "value": 0.0667203813791275
+        },
+        {
+          "family": "local_blur",
+          "metric": "uplift_to_route_shift_ratio",
+          "passed": true,
+          "split": "heldout_route_and_family",
+          "threshold": 0.25,
+          "value": 0.43614725726143716
+        }
+      ],
+      "passed": false
+    }
+  },
+  "clean_train_evaluations": {
+    "feature_rms_raw": {
+      "by_family": {
+        "clean": {
+          "example_count": 560,
+          "score_mean": 0.9103256464004517,
+          "score_std": 0.033312153071165085,
+          "severity_score_spearman": NaN
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 560
+    },
+    "feature_rms_viewpos_z": {
+      "by_family": {
+        "clean": {
+          "example_count": 560,
+          "score_mean": 0.9406973719596863,
+          "score_std": 0.05050114914774895,
+          "severity_score_spearman": NaN
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 560
+    },
+    "paired_clean_delta_oracle": {
+      "by_family": {
+        "clean": {
+          "example_count": 560,
+          "score_mean": 0.0,
+          "score_std": 0.0,
+          "severity_score_spearman": NaN
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 560
+    },
+    "spatial_raw": {
+      "by_family": {
+        "clean": {
+          "example_count": 560,
+          "score_mean": 0.45764246582984924,
+          "score_std": 0.01750391535460949,
+          "severity_score_spearman": NaN
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 560
+    },
+    "spatial_viewpos_z": {
+      "by_family": {
+        "clean": {
+          "example_count": 560,
+          "score_mean": 0.517867922782898,
+          "score_std": 0.06214507669210434,
+          "severity_score_spearman": NaN
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 560
+    },
+    "teacher_raw": {
+      "by_family": {
+        "clean": {
+          "example_count": 560,
+          "score_mean": 0.6486888527870178,
+          "score_std": 0.026041660457849503,
+          "severity_score_spearman": NaN
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 560
+    },
+    "teacher_viewpos_z": {
+      "by_family": {
+        "clean": {
+          "example_count": 560,
+          "score_mean": 0.46401095390319824,
+          "score_std": 0.09520990401506424,
+          "severity_score_spearman": NaN
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 560
+    },
+    "temporal_raw": {
+      "by_family": {
+        "clean": {
+          "example_count": 560,
+          "score_mean": 0.3627280592918396,
+          "score_std": 0.1451549082994461,
+          "severity_score_spearman": NaN
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 560
+    },
+    "temporal_viewpos_z": {
+      "by_family": {
+        "clean": {
+          "example_count": 560,
+          "score_mean": 0.8925276398658752,
+          "score_std": 0.3992822766304016,
+          "severity_score_spearman": NaN
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 560
+    }
+  },
+  "data_attestation": {
+    "actual_target_read": false,
+    "adapter_trained": false,
+    "calibrator_example_count": 560,
+    "calibrator_families": [
+      "clean"
+    ],
+    "calibrator_route_count": 35,
+    "corruption_metadata_used_for_evaluation_only": true,
+    "corruption_metadata_used_for_score_or_calibration": false,
+    "paired_clean_delta_is_deployable": false
+  },
+  "detailed_evaluations": {
+    "paired_clean_delta_oracle": {
+      "heldout_route_and_family": {
+        "by_route": {
+          "v1/Accident_Town05_Route218_Weather10": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.0,
+                "score_std": 0.0,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.006641786079853773,
+                "score_std": 0.005199688021093607,
+                "score_uplift_over_clean": 0.006641786079853773,
+                "severity_score_spearman": 0.8664485812187195,
+                "uplift_standardized_effect": 1.8064360620109874
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.9888725958599424,
+            "example_count": 48
+          },
+          "v1/DynamicObjectCrossing_Town02_Route11_Weather11": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.0,
+                "score_std": 0.0,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.008199447765946388,
+                "score_std": 0.006662603467702866,
+                "score_uplift_over_clean": 0.008199447765946388,
+                "severity_score_spearman": 0.8664485812187195,
+                "uplift_standardized_effect": 1.7404262899303462
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.9902817426112313,
+            "example_count": 48
+          },
+          "v1/InvadingTurn_Town02_Route95_Weather9": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.0,
+                "score_std": 0.0,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.009285517036914825,
+                "score_std": 0.007320126984268427,
+                "score_uplift_over_clean": 0.009285517036914825,
+                "severity_score_spearman": 0.8664485812187195,
+                "uplift_standardized_effect": 1.7939175311401736
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.9903487994394385,
+            "example_count": 48
+          },
+          "v1/StaticCutIn_Town05_Route226_Weather18": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.0,
+                "score_std": 0.0,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.008252238854765892,
+                "score_std": 0.006592773832380772,
+                "score_uplift_over_clean": 0.008252238854765892,
+                "severity_score_spearman": 0.8664485812187195,
+                "uplift_standardized_effect": 1.7701848122003203
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.9898869031724631,
+            "example_count": 48
+          },
+          "v1/TJunction_Town05_Route260_Weather0": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.0,
+                "score_std": 0.0,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.007391938008368015,
+                "score_std": 0.005999390501528978,
+                "score_uplift_over_clean": 0.007391938008368015,
+                "severity_score_spearman": 0.8664485812187195,
+                "uplift_standardized_effect": 1.7424735030985243
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.9903489963724531,
+            "example_count": 48
+          }
+        },
+        "by_severity": {
+          "local_blur": {
+            "1.0": {
+              "example_count": 80,
+              "example_score_mean": 0.0018610950792208314,
+              "inside_minus_outside": 0.13097919861320406,
+              "mask_inside_mean": 0.1317385733127594,
+              "mask_outside_mean": 0.0007593746995553374
+            },
+            "3.0": {
+              "example_count": 80,
+              "example_score_mean": 0.014047275297343731,
+              "inside_minus_outside": 0.2555222110822797,
+              "mask_inside_mean": 0.2606157660484314,
+              "mask_outside_mean": 0.005093554966151714
+            }
+          }
+        },
+        "by_view": {
+          "0": {
+            "mask_auroc": 0.9319985349379036,
+            "patch_count": 256000,
+            "positive_patch_count": 33316
+          },
+          "1": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "2": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "3": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "4": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "5": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          }
+        },
+        "previous_valid_only": {
+          "by_family": {
+            "clean": {
+              "example_count": 75,
+              "score_mean": 0.0,
+              "score_std": 0.0,
+              "severity_score_spearman": NaN
+            },
+            "local_blur": {
+              "example_count": 150,
+              "score_mean": 0.007851115427911282,
+              "score_std": 0.006398024968802929,
+              "score_uplift_over_clean": 0.007851115427911282,
+              "severity_score_spearman": 0.8660446405410767,
+              "uplift_standardized_effect": 1.7354033427578484
+            }
+          },
+          "corruption_mask_patch_auroc_diagnostic_only": 0.9898463453684825,
+          "example_count": 225
+        }
+      },
+      "validation_heldout_family": {
+        "by_route": {
+          "v1/CrossingBicycleFlow_Town12_Route977_Weather15": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.0,
+                "score_std": 0.0,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.008496254682540894,
+                "score_std": 0.007123122923076153,
+                "score_uplift_over_clean": 0.008496254682540894,
+                "severity_score_spearman": 0.8664485812187195,
+                "uplift_standardized_effect": 1.6868329707605678
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.9905436105047094,
+            "example_count": 48
+          },
+          "v1/HighwayExit_Town06_Route312_Weather0": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.0,
+                "score_std": 0.0,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.008650856092572212,
+                "score_std": 0.007185177877545357,
+                "score_uplift_over_clean": 0.008650856092572212,
+                "severity_score_spearman": 0.8664485812187195,
+                "uplift_standardized_effect": 1.702693826201147
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.9897044085157014,
+            "example_count": 48
+          },
+          "v1/ParkedObstacle_Town10HD_Route372_Weather8": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.0,
+                "score_std": 0.0,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.009122542105615139,
+                "score_std": 0.007397397421300411,
+                "score_uplift_over_clean": 0.009122542105615139,
+                "severity_score_spearman": 0.8664485812187195,
+                "uplift_standardized_effect": 1.7440218544879256
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.9900683756618777,
+            "example_count": 48
+          },
+          "v1/PedestrianCrossing_Town13_Route747_Weather19": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.0,
+                "score_std": 0.0,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.008715258911252022,
+                "score_std": 0.00676328781992197,
+                "score_uplift_over_clean": 0.008715258911252022,
+                "severity_score_spearman": 0.8664485812187195,
+                "uplift_standardized_effect": 1.8223736265637418
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.9911562164916377,
+            "example_count": 48
+          },
+          "v1/VanillaSignalizedTurnEncounterRedLight_Town07_Route359_Weather21": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.0,
+                "score_std": 0.0,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.009297690354287624,
+                "score_std": 0.007570301648229361,
+                "score_uplift_over_clean": 0.009297690354287624,
+                "severity_score_spearman": 0.8664485812187195,
+                "uplift_standardized_effect": 1.7369083041564803
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.9901168636565907,
+            "example_count": 48
+          }
+        },
+        "by_severity": {
+          "local_blur": {
+            "1.0": {
+              "example_count": 80,
+              "example_score_mean": 0.001879807561635971,
+              "inside_minus_outside": 0.13807953178184107,
+              "mask_inside_mean": 0.13884112238883972,
+              "mask_outside_mean": 0.0007615906069986522
+            },
+            "3.0": {
+              "example_count": 80,
+              "example_score_mean": 0.015833232551813126,
+              "inside_minus_outside": 0.2756140297278762,
+              "mask_inside_mean": 0.28150486946105957,
+              "mask_outside_mean": 0.005890839733183384
+            }
+          }
+        },
+        "by_view": {
+          "0": {
+            "mask_auroc": 0.934189937584014,
+            "patch_count": 256000,
+            "positive_patch_count": 33892
+          },
+          "1": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "2": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "3": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "4": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "5": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          }
+        },
+        "previous_valid_only": {
+          "by_family": {
+            "clean": {
+              "example_count": 75,
+              "score_mean": 0.0,
+              "score_std": 0.0,
+              "severity_score_spearman": NaN
+            },
+            "local_blur": {
+              "example_count": 150,
+              "score_mean": 0.008808765560388565,
+              "score_std": 0.007171171251684427,
+              "score_uplift_over_clean": 0.008808765560388565,
+              "severity_score_spearman": 0.8660446405410767,
+              "uplift_standardized_effect": 1.7371605398965233
+            }
+          },
+          "corruption_mask_patch_auroc_diagnostic_only": 0.9903050450044274,
+          "example_count": 225
+        }
+      }
+    },
+    "temporal_viewpos_z": {
+      "heldout_route_and_family": {
+        "by_route": {
+          "v1/Accident_Town05_Route218_Weather10": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 1.0335386991500854,
+                "score_std": 0.2977539896965027,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 1.0483155250549316,
+                "score_std": 0.3004261255264282,
+                "score_uplift_over_clean": 0.014776825904846191,
+                "severity_score_spearman": 0.14554962515830994,
+                "uplift_standardized_effect": 0.049405448609053895
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.5381171053977734,
+            "example_count": 48
+          },
+          "v1/DynamicObjectCrossing_Town02_Route11_Weather11": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 1.0670876502990723,
+                "score_std": 0.41986924409866333,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 1.093246579170227,
+                "score_std": 0.41732078790664673,
+                "score_uplift_over_clean": 0.026158928871154785,
+                "severity_score_spearman": 0.09816137701272964,
+                "uplift_standardized_effect": 0.062491923395524424
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.6195307955826992,
+            "example_count": 48
+          },
+          "v1/InvadingTurn_Town02_Route95_Weather9": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 1.0554561614990234,
+                "score_std": 0.4983613193035126,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 1.0847282409667969,
+                "score_std": 0.4960363209247589,
+                "score_uplift_over_clean": 0.029272079467773438,
+                "severity_score_spearman": 0.10493112355470657,
+                "uplift_standardized_effect": 0.05887383129863902
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.6193437069896658,
+            "example_count": 48
+          },
+          "v1/StaticCutIn_Town05_Route226_Weather18": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.8334086537361145,
+                "score_std": 0.32794326543807983,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.8653249740600586,
+                "score_std": 0.3302009105682373,
+                "score_uplift_over_clean": 0.03191632032394409,
+                "severity_score_spearman": 0.17262862622737885,
+                "uplift_standardized_effect": 0.09698827007200753
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.599712716677613,
+            "example_count": 48
+          },
+          "v1/TJunction_Town05_Route260_Weather0": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.7543457746505737,
+                "score_std": 0.33633607625961304,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.7748649716377258,
+                "score_std": 0.33891740441322327,
+                "score_uplift_over_clean": 0.0205191969871521,
+                "severity_score_spearman": 0.11847062408924103,
+                "uplift_standardized_effect": 0.060774354069866685
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.6006941457941736,
+            "example_count": 48
+          }
+        },
+        "by_severity": {
+          "local_blur": {
+            "1.0": {
+              "example_count": 80,
+              "example_score_mean": 0.9515224695205688,
+              "inside_minus_outside": 0.40517687797546387,
+              "mask_inside_mean": 1.3530824184417725,
+              "mask_outside_mean": 0.9479055404663086
+            },
+            "3.0": {
+              "example_count": 80,
+              "example_score_mean": 0.9950695037841797,
+              "inside_minus_outside": 1.1164371371269226,
+              "mask_inside_mean": 2.0717554092407227,
+              "mask_outside_mean": 0.9553182721138
+            }
+          }
+        },
+        "by_view": {
+          "0": {
+            "mask_auroc": 0.5753763660503796,
+            "patch_count": 256000,
+            "positive_patch_count": 33316
+          },
+          "1": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "2": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "3": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "4": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "5": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          }
+        },
+        "previous_valid_only": {
+          "by_family": {
+            "clean": {
+              "example_count": 75,
+              "score_mean": 1.0120185613632202,
+              "score_std": 0.3322979807853699,
+              "severity_score_spearman": NaN
+            },
+            "local_blur": {
+              "example_count": 150,
+              "score_mean": 1.0381824970245361,
+              "score_std": 0.32727062702178955,
+              "score_uplift_over_clean": 0.026163935661315918,
+              "severity_score_spearman": 0.0759040042757988,
+              "uplift_standardized_effect": 0.07933420527448701
+            }
+          },
+          "corruption_mask_patch_auroc_diagnostic_only": 0.6028394364914317,
+          "example_count": 225
+        }
+      },
+      "validation_heldout_family": {
+        "by_route": {
+          "v1/CrossingBicycleFlow_Town12_Route977_Weather15": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.899336576461792,
+                "score_std": 0.3232590854167938,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.9209138751029968,
+                "score_std": 0.32821664214134216,
+                "score_uplift_over_clean": 0.021577298641204834,
+                "severity_score_spearman": 0.12524037063121796,
+                "uplift_standardized_effect": 0.06623937932305708
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.5883623562720061,
+            "example_count": 48
+          },
+          "v1/HighwayExit_Town06_Route312_Weather0": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.8072450160980225,
+                "score_std": 0.34252017736434937,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.8362136483192444,
+                "score_std": 0.34349727630615234,
+                "score_uplift_over_clean": 0.028968632221221924,
+                "severity_score_spearman": 0.17262862622737885,
+                "uplift_standardized_effect": 0.0844544192941119
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.6238548282605122,
+            "example_count": 48
+          },
+          "v1/ParkedObstacle_Town10HD_Route372_Weather8": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.884633481502533,
+                "score_std": 0.3920135796070099,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.9184812307357788,
+                "score_std": 0.39166340231895447,
+                "score_uplift_over_clean": 0.03384774923324585,
+                "severity_score_spearman": 0.13201013207435608,
+                "uplift_standardized_effect": 0.08638188088913387
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.6184946823878698,
+            "example_count": 48
+          },
+          "v1/PedestrianCrossing_Town13_Route747_Weather19": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.9257292747497559,
+                "score_std": 0.40341514348983765,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.9588938355445862,
+                "score_std": 0.4026031494140625,
+                "score_uplift_over_clean": 0.03316456079483032,
+                "severity_score_spearman": 0.14554962515830994,
+                "uplift_standardized_effect": 0.08229228606285455
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.6100677911325658,
+            "example_count": 48
+          },
+          "v1/VanillaSignalizedTurnEncounterRedLight_Town07_Route359_Weather21": {
+            "by_family": {
+              "clean": {
+                "example_count": 16,
+                "score_mean": 0.844387412071228,
+                "score_std": 0.2619040310382843,
+                "severity_score_spearman": NaN
+              },
+              "local_blur": {
+                "example_count": 32,
+                "score_mean": 0.8666244149208069,
+                "score_std": 0.2662407457828522,
+                "score_uplift_over_clean": 0.022237002849578857,
+                "severity_score_spearman": 0.3080236315727234,
+                "uplift_standardized_effect": 0.08420514301164211
+              }
+            },
+            "corruption_mask_patch_auroc_diagnostic_only": 0.6360533212281263,
+            "example_count": 48
+          }
+        },
+        "by_severity": {
+          "local_blur": {
+            "1.0": {
+              "example_count": 80,
+              "example_score_mean": 0.87590491771698,
+              "inside_minus_outside": 0.5051276683807373,
+              "mask_inside_mean": 1.3767622709274292,
+              "mask_outside_mean": 0.8716346025466919
+            },
+            "3.0": {
+              "example_count": 80,
+              "example_score_mean": 0.92454594373703,
+              "inside_minus_outside": 1.1440114378929138,
+              "mask_inside_mean": 2.0276143550872803,
+              "mask_outside_mean": 0.8836029171943665
+            }
+          }
+        },
+        "by_view": {
+          "0": {
+            "mask_auroc": 0.5856735969142264,
+            "patch_count": 256000,
+            "positive_patch_count": 33892
+          },
+          "1": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "2": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "3": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "4": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          },
+          "5": {
+            "mask_auroc": NaN,
+            "patch_count": 256000,
+            "positive_patch_count": 0
+          }
+        },
+        "previous_valid_only": {
+          "by_family": {
+            "clean": {
+              "example_count": 75,
+              "score_mean": 0.9304173588752747,
+              "score_std": 0.27788209915161133,
+              "severity_score_spearman": NaN
+            },
+            "local_blur": {
+              "example_count": 150,
+              "score_mean": 0.9602404832839966,
+              "score_std": 0.273792028427124,
+              "score_uplift_over_clean": 0.029823124408721924,
+              "severity_score_spearman": 0.10916011780500412,
+              "uplift_standardized_effect": 0.10811565494357642
+            }
+          },
+          "corruption_mask_patch_auroc_diagnostic_only": 0.6257978062104604,
+          "example_count": 225
+        }
+      }
+    }
+  },
+  "evaluations": {
+    "feature_rms_raw": {
+      "heldout_route_and_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.9311105608940125,
+            "score_std": 0.017993619665503502,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.931069552898407,
+            "score_std": 0.01815115660429001,
+            "score_uplift_over_clean": -4.100799560546875e-05,
+            "severity_score_spearman": 0.013802549801766872,
+            "uplift_standardized_effect": -0.002269075110639274,
+            "uplift_to_clean_route_shift_ratio": -0.001972969175224325
+          }
+        },
+        "clean_route_shift_from_train": 0.02078491449356079,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.477077606410046,
+        "example_count": 240
+      },
+      "validation_heldout_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.9060742259025574,
+            "score_std": 0.033679112792015076,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.9061501622200012,
+            "score_std": 0.03369427099823952,
+            "score_uplift_over_clean": 7.593631744384766e-05,
+            "severity_score_spearman": 0.016508931294083595,
+            "uplift_standardized_effect": 0.002254193310471602,
+            "uplift_to_clean_route_shift_ratio": 0.01786139890924895
+          }
+        },
+        "clean_route_shift_from_train": 0.004251420497894287,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.5470713710639625,
+        "example_count": 240
+      }
+    },
+    "feature_rms_viewpos_z": {
+      "heldout_route_and_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.9644972681999207,
+            "score_std": 0.050759196281433105,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.964889407157898,
+            "score_std": 0.05113891884684563,
+            "score_uplift_over_clean": 0.0003921389579772949,
+            "severity_score_spearman": 0.03193531185388565,
+            "uplift_standardized_effect": 0.007696633735468434,
+            "uplift_to_clean_route_shift_ratio": 0.01647649863760218
+          }
+        },
+        "clean_route_shift_from_train": 0.023799896240234375,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.5088445474305667,
+        "example_count": 240
+      },
+      "validation_heldout_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.9390541911125183,
+            "score_std": 0.034255415201187134,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.9392516016960144,
+            "score_std": 0.035060107707977295,
+            "score_uplift_over_clean": 0.00019741058349609375,
+            "severity_score_spearman": 0.01190809067338705,
+            "uplift_standardized_effect": 0.005695615465907818,
+            "uplift_to_clean_route_shift_ratio": 0.12013929193267557
+          }
+        },
+        "clean_route_shift_from_train": 0.0016431808471679688,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.48853130791122923,
+        "example_count": 240
+      }
+    },
+    "paired_clean_delta_oracle": {
+      "heldout_route_and_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.0,
+            "score_std": 0.0,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.007954185828566551,
+            "score_std": 0.0064564477652311325,
+            "score_uplift_over_clean": 0.007954185828566551,
+            "severity_score_spearman": 0.8660423159599304,
+            "uplift_standardized_effect": 1.7422765405106617,
+            "uplift_to_clean_route_shift_ratio": 795418.5828566551
+          }
+        },
+        "clean_route_shift_from_train": 0.0,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.9899228059619402,
+        "example_count": 240
+      },
+      "validation_heldout_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.0,
+            "score_std": 0.0,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.008856520056724548,
+            "score_std": 0.007219364400953054,
+            "score_uplift_over_clean": 0.008856520056724548,
+            "severity_score_spearman": 0.8660423159599304,
+            "uplift_standardized_effect": 1.7349187662553394,
+            "uplift_to_clean_route_shift_ratio": 885652.0056724548
+          }
+        },
+        "clean_route_shift_from_train": 0.0,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.9902690476696151,
+        "example_count": 240
+      }
+    },
+    "spatial_raw": {
+      "heldout_route_and_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.46105456352233887,
+            "score_std": 0.016772419214248657,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.4610127806663513,
+            "score_std": 0.016804618760943413,
+            "score_uplift_over_clean": -4.178285598754883e-05,
+            "severity_score_spearman": -0.016508931294083595,
+            "uplift_standardized_effect": -0.002488774430071949,
+            "uplift_to_clean_route_shift_ratio": -0.012245504013415901
+          }
+        },
+        "clean_route_shift_from_train": 0.003412097692489624,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.33583882975112783,
+        "example_count": 240
+      },
+      "validation_heldout_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.45798248052597046,
+            "score_std": 0.014848355203866959,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.45800161361694336,
+            "score_std": 0.014803653582930565,
+            "score_uplift_over_clean": 1.913309097290039e-05,
+            "severity_score_spearman": -0.01055489107966423,
+            "uplift_standardized_effect": 0.0012905074572727882,
+            "uplift_to_clean_route_shift_ratio": 0.05627136471206942
+          }
+        },
+        "clean_route_shift_from_train": 0.0003400146961212158,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.349908493852943,
+        "example_count": 240
+      }
+    },
+    "spatial_viewpos_z": {
+      "heldout_route_and_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.5465713739395142,
+            "score_std": 0.06461936235427856,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.5469008684158325,
+            "score_std": 0.06479451805353165,
+            "score_uplift_over_clean": 0.0003294944763183594,
+            "severity_score_spearman": 0.001353191095404327,
+            "uplift_standardized_effect": 0.00509209944853492,
+            "uplift_to_clean_route_shift_ratio": 0.011479263400088046
+          }
+        },
+        "clean_route_shift_from_train": 0.02870345115661621,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.4989365048503107,
+        "example_count": 240
+      },
+      "validation_heldout_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.5274806618690491,
+            "score_std": 0.042892035096883774,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.5281307697296143,
+            "score_std": 0.042539842426776886,
+            "score_uplift_over_clean": 0.0006501078605651855,
+            "severity_score_spearman": 0.010825528763234615,
+            "uplift_standardized_effect": 0.015219198153983187,
+            "uplift_to_clean_route_shift_ratio": 0.06762982483335916
+          }
+        },
+        "clean_route_shift_from_train": 0.009612739086151123,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.5162587458141766,
+        "example_count": 240
+      }
+    },
+    "teacher_raw": {
+      "heldout_route_and_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.7077549695968628,
+            "score_std": 0.0073844678699970245,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.7081983089447021,
+            "score_std": 0.007432757411152124,
+            "score_uplift_over_clean": 0.00044333934783935547,
+            "severity_score_spearman": 0.07415487617254257,
+            "uplift_standardized_effect": 0.05984075763910859,
+            "uplift_to_clean_route_shift_ratio": 0.007505815038876247
+          }
+        },
+        "clean_route_shift_from_train": 0.05906611680984497,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.36951369102011067,
+        "example_count": 240
+      },
+      "validation_heldout_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.6882724761962891,
+            "score_std": 0.014525648206472397,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.6888456344604492,
+            "score_std": 0.014495588839054108,
+            "score_uplift_over_clean": 0.0005731582641601562,
+            "severity_score_spearman": 0.08525104075670242,
+            "uplift_standardized_effect": 0.039499209204125994,
+            "uplift_to_clean_route_shift_ratio": 0.014479681615652993
+          }
+        },
+        "clean_route_shift_from_train": 0.03958362340927124,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.44939408479895376,
+        "example_count": 240
+      }
+    },
+    "teacher_viewpos_z": {
+      "heldout_route_and_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.6919394731521606,
+            "score_std": 0.04354129731655121,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.6933832764625549,
+            "score_std": 0.043758489191532135,
+            "score_uplift_over_clean": 0.0014438033103942871,
+            "severity_score_spearman": 0.05304509401321411,
+            "uplift_standardized_effect": 0.03307680121342241,
+            "uplift_to_clean_route_shift_ratio": 0.0063344565881957296
+          }
+        },
+        "clean_route_shift_from_train": 0.2279285192489624,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.4521320770013911,
+        "example_count": 240
+      },
+      "validation_heldout_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.6235949397087097,
+            "score_std": 0.05862022191286087,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.6259695291519165,
+            "score_std": 0.05889340490102768,
+            "score_uplift_over_clean": 0.002374589443206787,
+            "severity_score_spearman": 0.04221956431865692,
+            "uplift_standardized_effect": 0.04041374760092843,
+            "uplift_to_clean_route_shift_ratio": 0.014879873009944441
+          }
+        },
+        "clean_route_shift_from_train": 0.15958398580551147,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.5371447087011867,
+        "example_count": 240
+      }
+    },
+    "temporal_raw": {
+      "heldout_route_and_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.37896299362182617,
+            "score_std": 0.14710773527622223,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.3816005289554596,
+            "score_std": 0.14668849110603333,
+            "score_uplift_over_clean": 0.002637535333633423,
+            "severity_score_spearman": 0.028014441952109337,
+            "uplift_standardized_effect": 0.017954843605104836,
+            "uplift_to_clean_route_shift_ratio": 0.16246048675181826
+          }
+        },
+        "clean_route_shift_from_train": 0.016234934329986572,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.4541344743747957,
+        "example_count": 240
+      },
+      "validation_heldout_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.35414379835128784,
+            "score_std": 0.1333162486553192,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.3574824929237366,
+            "score_std": 0.13313409686088562,
+            "score_uplift_over_clean": 0.0033386945724487305,
+            "severity_score_spearman": 0.03586389869451523,
+            "uplift_standardized_effect": 0.02506053265440946,
+            "uplift_to_clean_route_shift_ratio": 0.38893209276489377
+          }
+        },
+        "clean_route_shift_from_train": 0.008584260940551758,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.4810651654605009,
+        "example_count": 240
+      }
+    },
+    "temporal_viewpos_z": {
+      "heldout_route_and_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.948767364025116,
+            "score_std": 0.4043899178504944,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.9732961654663086,
+            "score_std": 0.4044324457645416,
+            "score_uplift_over_clean": 0.024528801441192627,
+            "severity_score_spearman": 0.0667203813791275,
+            "uplift_standardized_effect": 0.06065312362940635,
+            "uplift_to_clean_route_shift_ratio": 0.43614725726143716
+          }
+        },
+        "clean_route_shift_from_train": 0.05623972415924072,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.5955327990825093,
+        "example_count": 240
+      },
+      "validation_heldout_family": {
+        "by_family": {
+          "clean": {
+            "example_count": 80,
+            "score_mean": 0.872266411781311,
+            "score_std": 0.3508782386779785,
+            "severity_score_spearman": NaN
+          },
+          "local_blur": {
+            "example_count": 160,
+            "score_mean": 0.9002254605293274,
+            "score_std": 0.35256773233413696,
+            "score_uplift_over_clean": 0.027959048748016357,
+            "severity_score_spearman": 0.0959528461098671,
+            "uplift_standardized_effect": 0.07949144429483969,
+            "uplift_to_clean_route_shift_ratio": 1.3799286317356374
+          }
+        },
+        "clean_route_shift_from_train": 0.02026122808456421,
+        "corruption_mask_patch_auroc_diagnostic_only": 0.6155315912639192,
+        "example_count": 240
+      }
+    }
+  },
+  "gate_policy": {
+    "adapter_authorized": false,
+    "all_checks_must_pass_both_splits": true,
+    "mask_auroc": 0.55,
+    "positive_uplift": true,
+    "severity_spearman": 0.1,
+    "stage_b_authorized": false,
+    "uplift_to_clean_route_shift_ratio": 0.25
+  },
+  "inputs": {
+    "shard": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/observation_uq_unseen_local_blur_seed20260827_r1/clean_first_local_blur_features.pt",
+    "shard_sha256": "3f01ff65a6f39426bf7fb1518ef80fd2cc540bc7ea5ee02eca5032961928eb12",
+    "teacher": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/observation_uq_teacher560_v31_seed20260826_r1/teacher_v31.pt",
+    "teacher_sha256": "27b12408e2aaa20fccb59c32e17a1dd8a8386d9b670f0bfb85c4886463c2f46d"
+  },
+  "schema_version": "orion.observation-uq-signal-audit/v1.2",
+  "temporal_followup_gate": {
+    "checks": [
+      {
+        "metric": "routes_with_auc_at_least_0.55",
+        "passed": true,
+        "route_count": 5,
+        "split": "validation_heldout_family",
+        "threshold": 4,
+        "value": 5
+      },
+      {
+        "metric": "median_route_auc",
+        "passed": true,
+        "split": "validation_heldout_family",
+        "threshold": 0.6,
+        "value": 0.6184946823878698
+      },
+      {
+        "metric": "previous_valid_only_auc",
+        "passed": true,
+        "split": "validation_heldout_family",
+        "threshold": 0.6,
+        "value": 0.6257978062104604
+      },
+      {
+        "family": "local_blur",
+        "metric": "mask_inside_minus_outside",
+        "passed": true,
+        "severity": 1.0,
+        "split": "validation_heldout_family",
+        "threshold": 0.0,
+        "value": 0.5051276683807373
+      },
+      {
+        "family": "local_blur",
+        "metric": "mask_inside_minus_outside",
+        "passed": true,
+        "severity": 3.0,
+        "split": "validation_heldout_family",
+        "threshold": 0.0,
+        "value": 1.1440114378929138
+      },
+      {
+        "family": "local_blur",
+        "metric": "higher_severity_higher_mean",
+        "passed": true,
+        "split": "validation_heldout_family",
+        "threshold": 0.0,
+        "value": 0.04864102602005005
+      },
+      {
+        "metric": "routes_with_auc_at_least_0.55",
+        "passed": true,
+        "route_count": 5,
+        "split": "heldout_route_and_family",
+        "threshold": 4,
+        "value": 4
+      },
+      {
+        "metric": "median_route_auc",
+        "passed": true,
+        "split": "heldout_route_and_family",
+        "threshold": 0.6,
+        "value": 0.6006941457941736
+      },
+      {
+        "metric": "previous_valid_only_auc",
+        "passed": true,
+        "split": "heldout_route_and_family",
+        "threshold": 0.6,
+        "value": 0.6028394364914317
+      },
+      {
+        "family": "local_blur",
+        "metric": "mask_inside_minus_outside",
+        "passed": true,
+        "severity": 1.0,
+        "split": "heldout_route_and_family",
+        "threshold": 0.0,
+        "value": 0.40517687797546387
+      },
+      {
+        "family": "local_blur",
+        "metric": "mask_inside_minus_outside",
+        "passed": true,
+        "severity": 3.0,
+        "split": "heldout_route_and_family",
+        "threshold": 0.0,
+        "value": 1.1164371371269226
+      },
+      {
+        "family": "local_blur",
+        "metric": "higher_severity_higher_mean",
+        "passed": true,
+        "split": "heldout_route_and_family",
+        "threshold": 0.0,
+        "value": 0.04354703426361084
+      }
+    ],
+    "passed": true
+  }
+}

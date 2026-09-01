@@ -1,0 +1,148 @@
+{
+  "schema": "orion.route147_braking_aware_v2_preregistration.v1",
+  "created_at": "2026-08-29T06:26:11+08:00",
+  "amendment_to": "configs/closedloop_scenario_bank/route147_bounded_crossing_pair_v1.json",
+  "amendment_reason": "The v1 oracle passed every endpoint, trace, exposure, utility, and liveness check but missed the frozen minimum-TTC gain because its tail-only clamp left ORION PID's first two speed-command waypoints unchanged. This v2 amendment repairs only near-horizon trajectory timing and does not change the route, clean reference, event detector, or any success threshold.",
+  "research_question": "With an accurate privileged finite-crossing signal, can a braking-aware retiming of ORION's unmodified path reduce the natural Route147 pedestrian near-miss by the already-frozen v1 safety threshold while preserving completion and bounded delay?",
+  "scientific_role": {
+    "clean": "Immutable current-code clean reference from job 1087790; it is not rerun or selected again.",
+    "oracle": "One mechanism-upper-bound run using privileged walker occupancy and braking-aware path retiming.",
+    "claim_boundary": "A pass validates only the existence of a useful task-level response mechanism and unlocks training with the new spatial adapter. It does not demonstrate learned-adapter efficacy, uncertainty semantics, or collision reduction. Density and the learned adapter are absent from this oracle."
+  },
+  "route": {
+    "index": 147,
+    "route_id": 24224,
+    "town": "Town02",
+    "scenario": "DynamicObjectCrossing",
+    "variant": "hazard",
+    "route_file": "configs/closedloop_scenario_bank/routes/route_147_hazard.xml"
+  },
+  "conditions": {
+    "clean_reference": "closedloop_route147_bounded_crossing_clean_v1 / job 1087790",
+    "oracle": "native_braking_aware_crossing_oracle"
+  },
+  "frozen_planning_response": {
+    "mode": "privileged_braking_aware_crossing",
+    "actor_categories": [
+      "walker"
+    ],
+    "interpolation_step_seconds": 0.1,
+    "safety_margin_m": 0.75,
+    "imminent_horizon_seconds": 1.5,
+    "certified_deceleration_mps2": 3.0,
+    "clearance_seconds": 1.0,
+    "release_seconds": 0.5,
+    "prepare_creep_speed_mps": 1.0,
+    "release_creep_speed_mps": 0.5,
+    "stop_buffer_m": 2.0,
+    "release_creep_distance_m": 1.0,
+    "trajectory_contract": "Retimestamp every ORION horizon along its unchanged geometric path with at least 3.0 m/s^2 certified deceleration in prepare/hold, use a 0.5 m/s bounded creep during release, and exactly preserve the native ORION plan in go. No post-PID scalar control is permitted."
+  },
+  "mechanism_gate": {
+    "minimum_first_hold_brake_ratio": 1.1,
+    "definition": "ego speed divided by the ORION PID desired-speed proxy from the first two target waypoints on the first hold frame",
+    "offline_gate_required": true
+  },
+  "validity_thresholds": {
+    "maximum_clean_walker_ttc_seconds": 1.0,
+    "minimum_clean_walker_ttc_lte_1_exposure_seconds": 0.5,
+    "require_both_completed": true,
+    "require_both_full_route_completion": true,
+    "require_both_zero_collisions": true,
+    "require_both_zero_serious_infractions": true
+  },
+  "success_thresholds": {
+    "minimum_walker_ttc_gain_seconds": 0.25,
+    "minimum_walker_ttc_lte_1_exposure_reduction_seconds": 0.25,
+    "maximum_vehicle_ttc_lte_1_exposure_increase_seconds": 0.25,
+    "maximum_duration_increase_seconds": 5.0,
+    "maximum_continuous_stop_seconds": 8.0,
+    "logic": "unchanged_from_v1_all_required; walker minimum TTC may be right-censored as safe if no finite collision TTC occurs"
+  },
+  "pipeline_contract": {
+    "legacy_density_uq": "hard_disabled; every oracle trace frame must have density_uq_score=null",
+    "new_spatial_adapter": "deliberately absent from this mechanism-only oracle; every oracle frame must have observation_uq=null",
+    "scalar_risk_governor": "off and exact PID-output passthrough",
+    "corruption": "none",
+    "oracle_actor_filter": "walker only",
+    "go_state": "exact native ORION plan identity",
+    "stage2_target_source": "privileged walker occupancy crossed with ORION's unmodified candidate path; never Density, corruption identity, or adapter output"
+  },
+  "frozen_clean_reference": {
+    "run_id": "closedloop_route147_bounded_crossing_clean_v1",
+    "job_id": 1087790,
+    "local_directory": "results/closedloop_scenario_bank/route147_bounded_crossing_pair_v1/clean_1087790",
+    "artifacts": {
+      "control_trace.jsonl": "3a2edd0a98ce412024e7a6e431265a61f03b7c6480c43f1f7d680e19d7f9b312",
+      "manifest.json": "383332851a2a29704270f6672eb84899d55dfd6ac8550fb5f61858c30e2c1802",
+      "eval_orion_traj_0.json": "18d46cf90ccf324fee96473a6decdac5b519ba8d98bcddbbf32592cab17f1876"
+    }
+  },
+  "offline_evidence": {
+    "gate_path": "results/closedloop_scenario_bank/route147_bounded_crossing_pair_v1/route147_braking_aware_v2_offline_gate.json",
+    "gate_decision": "eligible_for_one_preregistered_route147_braking_aware_v2_oracle",
+    "frozen_artifacts": [
+      {
+        "path": "results/closedloop_scenario_bank/route147_bounded_crossing_pair_v1/route147_bounded_crossing_pair_result.json",
+        "sha256": "789a6590f1f9227c62c475e6d739a49dddb062b8be6fee58dbc2bafc6bd43bb5"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_bounded_crossing_pair_v1/route147_braking_aware_v2_offline_gate.json",
+        "sha256": "6a2dc572091cb49af2740352990b4a265e35200a7da5c5a81a810d089fe7922d"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_bounded_crossing_pair_v1/oracle_1087791/control_trace.jsonl",
+        "sha256": "5930342b8d7081d8ec880b1da4a6910a80410f4f767067b4a11e57ae7641aa19"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_bounded_crossing_pair_v1/clean_1087790/control_trace.jsonl",
+        "sha256": "3a2edd0a98ce412024e7a6e431265a61f03b7c6480c43f1f7d680e19d7f9b312"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_bounded_crossing_pair_v1/clean_1087790/manifest.json",
+        "sha256": "383332851a2a29704270f6672eb84899d55dfd6ac8550fb5f61858c30e2c1802"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_bounded_crossing_pair_v1/clean_1087790/eval_orion_traj_0.json",
+        "sha256": "18d46cf90ccf324fee96473a6decdac5b519ba8d98bcddbbf32592cab17f1876"
+      }
+    ]
+  },
+  "frozen_hashes": {
+    "route_147_hazard.xml": "eb59a25dd8d72327e1c4029609e34adaab3abc4e7b0f9e00c975d2c8251e9ce1",
+    "adzoo/orion/configs/orion_stage3_agent_uq.py": "e6fc0e941f574d3190ff52f5ae78ca0428a2c40c616cf472899b845b6264807b",
+    "team_code/orion_b2d_agent.py": "b1f34fcddd81780dfe754441a40a714e5931dea4359c0a926574599e7383fd8d",
+    "team_code/pid_controller.py": "8b7c288ba1350b8a2a8de72e0acdefbd15786a1e004a09bcf9ddfd1aa3d23f78",
+    "mmcv/models/dense_heads/orion_head.py": "9d4e18ba4cad278635b5bd85e0fc6056d5104adda38d99701e1d087680cf2754",
+    "mmcv/models/detectors/orion.py": "9b5afa4116e117f94aa7f00d82e502c21bfbae5c5392bcbc0db806a5af05dda7",
+    "uq_estimator/risk_governor.py": "23587dc31d86edfa77f8a0949c2027a292d06a4fa467c0d5975eaaa23737dcd6",
+    "uq_estimator/closedloop_safety_metrics.py": "e2404a8eab623db58fe90914a9a77047a4e769e4471e999e7fdf6f8f0c5c55c7",
+    "uq_estimator/privileged_yield_labels.py": "ce7a982f0726fd2c820090cb0a243fc0d42b8feb6f3cb93a8fd835f1d7677876",
+    "uq_estimator/dynamic_yield_expert.py": "16879b84e16f45cc80f957f59fed8ae208522ac64f66a151e67486440ae7d862",
+    "uq_estimator/bounded_crossing_expert.py": "90550ce5bd51cefa635f314acf04d8ae9916d22dd5a7189408dfa2908f2c404a",
+    "scripts/run_closedloop_uq_pilot.sh": "3a9a92e8256a5772e34acf58aafeecbacdcb4c95172dcc3b0d14c3afc7baaca0",
+    "scripts/submit_closedloop_uq_pilot.sh": "c49cf022bd4469eed09d1023826bde506e4d912331e54967512a421d7d6a098e",
+    "scripts/audit_route147_braking_aware_v2.py": "0726149f653125373099f9dfccb95a8f22cc08d5f1b1542c91deaeac07e93db4",
+    "scripts/evaluate_route147_braking_aware_v2.py": "4f6ea6c4a1ad37cc84b9bc3f0b185fb8a34a50c00a4d4a70ff90b2224f6f1a13",
+    "scripts/evaluate_route147_bounded_crossing_pair.py": "ee00f7bea69df6025a76836d9411555b437bc450cd9e2caeb431a08fee96fec3",
+    "scripts/evaluate_clean_liveness_screen.py": "3b78db969ae7d2866319c9716d2d4839cbe12f5e43c69e1b83a9489d94e8d550",
+    "scripts/evaluate_native_collision_discovery.py": "227133aa7b0d8a4398c0d675bfd01ba16567615a2494817e5bcc533088b303ef",
+    "scripts/summarize_closedloop_safety.py": "5840b584f20837c2ec993debecd04adb8854c19f9217dbbcc668807149be8e41",
+    "scripts/submit_route147_braking_aware_v2.sh": "e5b1bc2b9eeec38d91753245c3094011c4abd23a05d40db1edda837e0696220a"
+  },
+  "single_oracle_rule": {
+    "maximum_clean_submissions": 0,
+    "maximum_oracle_submissions": 1,
+    "resubmission": "forbidden without a timestamped amendment documenting a runtime-environment failure before any valid route result",
+    "run_id": "closedloop_route147_braking_aware_oracle_v2"
+  },
+  "stage2_unlock_rule": {
+    "report_schema": "orion.route147_braking_aware_v2_result.v1",
+    "required": {
+      "primary_success": true,
+      "stage2_eligible": true
+    },
+    "success_action": "Integrate the new spatial observation-uncertainty adapter into ORION/VLM Stage2 task training; do not substitute Density or a scalar governor.",
+    "failure_action": "Keep Stage2 locked and redesign the response mechanism or select another preregistered natural safety event; do not lower the v1 thresholds."
+  }
+}

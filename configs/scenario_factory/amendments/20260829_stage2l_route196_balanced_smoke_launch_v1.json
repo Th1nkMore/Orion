@@ -1,0 +1,30 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T19:48:00+08:00",
+  "status": "active_single_route196_balanced_smoke_authorization",
+  "authorization_basis": "User instruction to begin implementing the staged plan, limited here to its preregistered Route196 learnability gate.",
+  "authorized_run": {
+    "event_id": "route196_step313",
+    "objective": "stance-balanced Stage2-L language-grounding smoke",
+    "maximum_submissions": 1,
+    "maximum_steps": 240,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "visual_cache_reuse_allowed": true,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_balanced_language_v1_240"
+  },
+  "unchanged": [
+    "20 source QA records",
+    "five matched UQ variants",
+    "U/R/K targets",
+    "model architecture and losses",
+    "all semantic evaluation gates"
+  ],
+  "only_change": "Oversample minority driving-implication target stances with replacement; non-driving QA records remain once per epoch.",
+  "launch_locks": {
+    "route196_balanced_language_smoke_allowed": true,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "stop_policy": "Do not extend or resubmit if any unchanged semantic gate fails; diagnose the objective or UQ-to-language path under a new amendment.",
+  "claim_boundary": "One-event engineering learnability smoke only; no held-out generalization, trajectory, closed-loop, or safety evidence."
+}

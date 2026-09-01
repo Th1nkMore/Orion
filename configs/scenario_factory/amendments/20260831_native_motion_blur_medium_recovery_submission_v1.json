@@ -1,0 +1,34 @@
+{
+  "schema": "orion.native_motion_blur_medium_recovery_submission.v1",
+  "timestamp": "2026-08-31T22:33:18+08:00",
+  "status": "submitted_pending_priority",
+  "preregistration": "configs/scenario_factory/amendments/20260831_native_motion_blur_medium_recovery_prereg_v1.json",
+  "parent_failure": "configs/scenario_factory/amendments/20260831_native_motion_blur_clean_revalidation_runtime_failure_v1.json",
+  "slurm": {
+    "job_id": 1115955,
+    "job_name": "hc151_blur_med_rec",
+    "partition": "Nvidia_A800",
+    "submit_time": "2026-08-31T22:33:05+08:00",
+    "state_at_record": "PENDING",
+    "reason_at_record": "Priority",
+    "time_limit": "00:15:00",
+    "cpus": 2,
+    "memory_gb": 16,
+    "gpus": 1,
+    "excluded_nodes": ["gpu5"]
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_native_motion_blur_medium_recovery_v1",
+  "log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/corruption_hardcase_diagnostics/route151_native_motion_blur_medium_recovery_v1-1115955.out",
+  "source_sha256": {
+    "scripts/render_native_motion_blur_clean_revalidation.py": "232c152b568b35db70135412bd1236618322e52301b646c7f009570ac89e273c",
+    "scripts/run_native_motion_blur_medium_recovery_route151.sh": "418c683c0f9a4beeacb19785597e2c76f9d7c72cb63d48edd0779ec2558c290b",
+    "scripts/submit_native_motion_blur_medium_recovery_route151.sh": "feeeb372a2b14a57c2d009f677c55e28ffa711b473bbb6bdc2ab616870b0ae81",
+    "configs/scenario_factory/amendments/20260831_native_motion_blur_clean_revalidation_runtime_failure_v1.json": "fa5c69a90e5574f9994978292c1b63f2b85d296f589ebf215c7f628056d8c9ff",
+    "configs/scenario_factory/amendments/20260831_native_motion_blur_medium_recovery_prereg_v1.json": "6abed08b7174f7f5600f449be355bae5e7f2fa60f8abd8fcdcc52385c5dda223"
+  },
+  "scope": "single medium native-motion-blur visual capture; immutable artifact-free none capture reused as clean reference",
+  "orion_loaded": false,
+  "formal_result": false,
+  "remaining_submission_budget": 0,
+  "downstream_locks_unchanged": true
+}

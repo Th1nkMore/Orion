@@ -1,0 +1,27 @@
+{
+  "schema": "orion.front_stale_clean_revalidation_prereg_amendment.v1",
+  "timestamp": "2026-08-31T22:02:00+08:00",
+  "status": "preregistered_not_yet_rendered",
+  "trigger": "The original corruption bakeoff was revoked because its CARLA clean capture contained black-block artifacts. Revalidate front_stale from the separately artifact-gated unmodified clean capture.",
+  "protocol": "configs/scenario_factory/corruption_hardcase_front_stale_revalidation_route151_v1.json",
+  "prospective_decisions": {
+    "source": "Route151 clean-render diagnostic profile none",
+    "delays_ms": [100, 200, 400],
+    "warmup_exclusion_ms": 400,
+    "application_resolution": [1600, 900],
+    "orion_loaded": false,
+    "slurm_job_required": false,
+    "local_output": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_front_stale_clean_revalidation_v1"
+  },
+  "abort_rules": {
+    "clean_gate_failure": "abort",
+    "nonuniform_or_nonmonotonic_timestamps": "abort",
+    "realized_delay_mismatch": "abort",
+    "missing_full_delay_history": "exclude warmup targets prospectively; abort if no targets remain"
+  },
+  "locks": {
+    "orion_screen": false,
+    "closed_loop": false,
+    "training": false
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-30T15:02:00+08:00",
+  "title": "Authorize one bounded Route151 Stage2-L v7 calibrated smoke",
+  "reason": "The v6 smoke completed but failed semantic gates. Corrected R, ranking, stance and QA objectives now pass a five-group CPU-only feasibility diagnostic and static QA audit.",
+  "supersedes_for_this_future_run_only": "configs/scenario_factory/amendments/20260830_stage2l_v6_route151_matched_smoke_v1.json",
+  "prerequisites": {
+    "v6_result": "engineering_v6_matched_smoke_failed_gate",
+    "objective_feasibility": "objective_feasibility_pass",
+    "qa_static_audit": "passed",
+    "formal_pilot_remains_locked": true
+  },
+  "authorized_run": {
+    "event_id": "route151_step218",
+    "purpose": "bounded v7 calibrated learnability smoke only",
+    "maximum_submissions": 1,
+    "maximum_optimizer_steps": 20,
+    "optimizer_step_unit": "one complete 20-record matched counterfactual group",
+    "answer_micro_batch_size": 2,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "formal_training": false,
+    "stage2p_training": false,
+    "trajectory_or_control_loss": false,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route151_v7_calibrated_v1_20/training"
+  },
+  "validated_inputs": {
+    "trainer_sha256": "4f18871e5803cb5197b0b1b05c2198585839038ac5ea45e32346363838b7adca",
+    "training_protocol_sha256": "c56cf3d40d3a8403cbad809e0f6a54a13a09ec0c91989dc5d0571fa640e71ff4",
+    "qa_factory_config_sha256": "095351ca92fc3f222faca2310634c250160e3900f7dae49e47d149be822b78c3",
+    "calibrated_objective_sha256": "8775ff03348e228bcce28ba7121e996cb8d25776baa567cddb99260aa592aaae",
+    "qa_contract_sha256": "285b549d64433cefca1d9e7f9f4d62408d557c74b0c6ca9bda6589da7311af59",
+    "semantic_bottleneck_v2_sha256": "4d5ad94e149f963661df2de8debe5c174c64403c2042ea6db95032e1262a6a37",
+    "semantic_runtime_v2_sha256": "bf464af987d61f769bfe8559d8a60eead1728847342f34d9321294d9e3397807",
+    "objective_diagnostic_sha256": "d06c99f4cfe5903a01e9ea8a344b668105d45cee272fe56d2c48354a4a22bd9d",
+    "records_sha256": "f45be2ab48bb93767ae81d56dfce517a4cc3bbadd967cebc16683106c3d63fc1",
+    "visual_cache_sha256": "2058b2fa86ffc900aefc38df496ac7fa7117a96641ad58cdebe019b060f16623",
+    "orion_config_sha256": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "base_orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "launch_locks": {
+    "stage2l_v7_route151_smoke_allowed": true,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "stop_policy": {
+    "smoke_failure_does_not_unlock_more_steps": true,
+    "smoke_failure_does_not_unlock_eight_event_pilot": true,
+    "no_automatic_retry_or_epoch_extension": true
+  },
+  "claim_boundary": "This amendment authorizes one Route151 engineering smoke only. It cannot establish held-out generalization, planning benefit, closed-loop benefit or safety."
+}

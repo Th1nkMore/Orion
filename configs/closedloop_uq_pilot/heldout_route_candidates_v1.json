@@ -1,0 +1,347 @@
+{
+  "schema": "orion.closedloop_heldout_route_candidates.v1",
+  "created_at": "2026-08-26T00:00:00+08:00",
+  "status": "screen_only_no_jobs_submitted",
+  "heldout_scope": {
+    "definition": "Held out from the current route-146/148/203 mechanism-development pilot.",
+    "warning": "This manifest does not establish exclusion from ORION pretraining or adapter training data. Make a separate dataset-lineage check before using the phrase training-held-out."
+  },
+  "sources": {
+    "official_route_directory": "/public/share/lidachuan/orion_assets/Bench2Drive/leaderboard/data",
+    "route_filename_pattern": "bench2drive220_<route_index>_orion_traj.xml",
+    "clean_reference": "assets/results/ORION.json",
+    "selector": "scripts/select_closedloop_heldout_routes.py"
+  },
+  "selection_rules": {
+    "allowed_towns": [
+      "Town01",
+      "Town02",
+      "Town04",
+      "Town05",
+      "Town10HD"
+    ],
+    "excluded_route_indices": [
+      146,
+      148,
+      203
+    ],
+    "clean_reference_gate": {
+      "status": "Completed",
+      "score_route": 100,
+      "score_penalty": 1,
+      "collisions": 0,
+      "completion_failures": 0
+    },
+    "current_environment_gate": "Each route still requires one clean_off replay in the current environment before any corrupt condition is run."
+  },
+  "spatial_corruption_pairing_policy": {
+    "camera": "CAM_FRONT",
+    "event_window": "Calibrate the first hazard-visible and conflict-resolved frames from a clean trace, then freeze the same route-progress window for every condition.",
+    "on_path_region": "A compact region intersecting the projected ego path corridor and the relevant pedestrian, cyclist, or vehicle conflict region.",
+    "off_path_region": "A same-view, equal-area region with matched baseline luminance that does not intersect the projected path corridor or relevant actor.",
+    "matching_constraints": [
+      "same corruption family",
+      "same severity",
+      "same pixel area",
+      "same temporal window",
+      "same seed when the corruption is stochastic"
+    ],
+    "allowed_corruption_families": [
+      "local_blur",
+      "local_dark",
+      "local_glare",
+      "local_occlusion"
+    ],
+    "excluded_for_causal_comparison": [
+      "full-route corruption",
+      "full-camera dropout"
+    ],
+    "important_note": "The XML trigger point anchors scenario activation; it is not automatically the first frame in which the hazard is visible or safety-critical."
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "tier": "primary",
+      "route_index": 147,
+      "xml_route_id": "24224",
+      "source_xml": "bench2drive220_147_orion_traj.xml",
+      "town": "Town02",
+      "scenario": "DynamicObjectCrossing",
+      "scenario_name": "DynamicObjectCrossing_1",
+      "trigger_point": {
+        "x": 144.5,
+        "y": 105.4,
+        "z": 0.0,
+        "yaw": 180.0
+      },
+      "route_length_m": 134.002,
+      "trigger_along_route_m": 13.0,
+      "trigger_progress": 0.097013,
+      "scenario_parameters": {
+        "distance_m": 40,
+        "direction": "right",
+        "crossing_angle_deg": 0,
+        "blocker_model": "static.prop.advertisement"
+      },
+      "clean_reference": {
+        "status": "Completed",
+        "score_route": 100,
+        "score_penalty": 1,
+        "score_composed": 100,
+        "collisions": 0
+      },
+      "why_suitable": "Closest held-out transfer check for route 146: the same cyclist/pedestrian crossing mechanism occurs in Town02, with a blocker that makes a compact path-intersecting corruption causally plausible. A matched off-path patch tests whether location, rather than corruption energy alone, matters."
+    },
+    {
+      "rank": 2,
+      "tier": "primary",
+      "route_index": 151,
+      "xml_route_id": "24294",
+      "source_xml": "bench2drive220_151_orion_traj.xml",
+      "town": "Town02",
+      "scenario": "ParkingCrossingPedestrian",
+      "scenario_name": "ParkingCrossingPedestrian_1",
+      "trigger_point": {
+        "x": 143.8,
+        "y": 302.6,
+        "z": 0.0,
+        "yaw": 179.9
+      },
+      "route_length_m": 104.005,
+      "trigger_along_route_m": 13.004,
+      "trigger_progress": 0.12503,
+      "scenario_parameters": {
+        "distance_m": 40,
+        "direction": "right",
+        "crossing_angle_deg": 12
+      },
+      "clean_reference": {
+        "status": "Completed",
+        "score_route": 100,
+        "score_penalty": 1,
+        "score_composed": 100,
+        "collisions": 0
+      },
+      "why_suitable": "A pedestrian emerges from a parking-side context into the future corridor. The actor/conflict area is compact and spatially separable from an equal-area off-path patch, so it directly probes whether localized uncertainty changes yielding or braking."
+    },
+    {
+      "rank": 3,
+      "tier": "primary",
+      "route_index": 194,
+      "xml_route_id": "26944",
+      "source_xml": "bench2drive220_194_orion_traj.xml",
+      "town": "Town04",
+      "scenario": "OppositeVehicleRunningRedLight",
+      "scenario_name": "OppositeVehicleRunningRedLight_1",
+      "trigger_point": {
+        "x": 169.3,
+        "y": -169.7,
+        "z": 0.2,
+        "yaw": 0.3
+      },
+      "route_length_m": 87.908,
+      "trigger_along_route_m": 11.002,
+      "trigger_progress": 0.125159,
+      "scenario_parameters": {
+        "direction": "right"
+      },
+      "clean_reference": {
+        "status": "Completed",
+        "score_route": 100,
+        "score_penalty": 1,
+        "score_composed": 100,
+        "collisions": 0
+      },
+      "why_suitable": "A moving vehicle crosses the ego conflict zone against the signal. Corrupting the approaching vehicle or conflict-zone patch should be more safety-relevant than an equally sized non-conflict patch, while the clean reference shows ORION can complete the route without intervention."
+    },
+    {
+      "rank": 4,
+      "tier": "primary",
+      "route_index": 157,
+      "xml_route_id": "24759",
+      "source_xml": "bench2drive220_157_orion_traj.xml",
+      "town": "Town05",
+      "scenario": "ParkingCutIn",
+      "scenario_name": "ParkingCutIn_1",
+      "trigger_point": {
+        "x": 79.8,
+        "y": 145.3,
+        "z": 0.0,
+        "yaw": 355.0
+      },
+      "route_length_m": 136.776,
+      "trigger_along_route_m": 13.12,
+      "trigger_progress": 0.095923,
+      "scenario_parameters": {
+        "direction": "right"
+      },
+      "clean_reference": {
+        "status": "Completed",
+        "score_route": 100,
+        "score_penalty": 1,
+        "score_composed": 100,
+        "collisions": 0
+      },
+      "why_suitable": "A parked vehicle cuts into the ego lane, creating a localized moving hazard whose image support transitions from roadside to future path. That transition is useful for an on-path/off-path spatial counterfactual and for checking response timing."
+    },
+    {
+      "rank": 5,
+      "tier": "primary",
+      "route_index": 164,
+      "xml_route_id": "25300",
+      "source_xml": "bench2drive220_164_orion_traj.xml",
+      "town": "Town04",
+      "scenario": "HazardAtSideLane",
+      "scenario_name": "HazardAtSideLane_1",
+      "trigger_point": {
+        "x": -457.8,
+        "y": 12.7,
+        "z": 0.0,
+        "yaw": -202.3
+      },
+      "route_length_m": 155.527,
+      "trigger_along_route_m": 16.978,
+      "trigger_progress": 0.109167,
+      "scenario_parameters": {
+        "distance_m": 45,
+        "ego_speed_kmh": 33,
+        "bicycle_drive_distance_m": 59,
+        "bicycle_speed_kmh": 12
+      },
+      "clean_reference": {
+        "status": "Completed",
+        "score_route": 100,
+        "score_penalty": 1,
+        "score_composed": 100,
+        "collisions": 0
+      },
+      "why_suitable": "Three moving bicycles encroach from the side lane ahead. Their lateral relation to the future path changes over time, making this a useful localization-and-timing test rather than a global anomaly test."
+    },
+    {
+      "rank": 6,
+      "tier": "primary",
+      "route_index": 168,
+      "xml_route_id": "25381",
+      "source_xml": "bench2drive220_168_orion_traj.xml",
+      "town": "Town05",
+      "scenario": "HazardAtSideLane",
+      "scenario_name": "HazardAtSideLane_1",
+      "trigger_point": {
+        "x": -27.9,
+        "y": -207.5,
+        "z": 2.9,
+        "yaw": -179.9
+      },
+      "route_length_m": 135.025,
+      "trigger_along_route_m": 11.0,
+      "trigger_progress": 0.081466,
+      "scenario_parameters": {
+        "distance_m": 41,
+        "ego_speed_kmh": 54,
+        "bicycle_drive_distance_m": 73,
+        "bicycle_speed_kmh": 8
+      },
+      "clean_reference": {
+        "status": "Completed",
+        "score_route": 100,
+        "score_penalty": 1,
+        "score_composed": 100,
+        "collisions": 0
+      },
+      "why_suitable": "A faster Town05 variant of the side-lane bicycle hazard. The higher configured ego speed raises the chance that a short, localized visual degradation creates a measurable safety margin change without requiring full-view dropout."
+    },
+    {
+      "rank": 7,
+      "tier": "reserve",
+      "route_index": 180,
+      "xml_route_id": "25955",
+      "source_xml": "bench2drive220_180_orion_traj.xml",
+      "town": "Town05",
+      "scenario": "HazardAtSideLaneTwoWays",
+      "scenario_name": "HazardAtSideLaneTwoWays_1",
+      "trigger_point": {
+        "x": 155.0,
+        "y": -47.0,
+        "z": 0.0,
+        "yaw": 269.9
+      },
+      "route_length_m": 136.498,
+      "trigger_along_route_m": 10.0,
+      "trigger_progress": 0.073261,
+      "scenario_parameters": {
+        "distance_m": 44,
+        "opposite_flow_frequency": 82,
+        "bicycle_drive_distance_m": 93,
+        "bicycle_speed_kmh": 11
+      },
+      "clean_reference": {
+        "status": "Completed",
+        "score_route": 100,
+        "score_penalty": 1,
+        "score_composed": 100,
+        "collisions": 0
+      },
+      "why_suitable": "Adds oncoming traffic to the bicycle encroachment and therefore stresses whether local uncertainty is tied to the actual future-path hazard. It is reserve-tier because the opposite flow adds a control confound absent from routes 164 and 168."
+    },
+    {
+      "rank": 8,
+      "tier": "reserve",
+      "route_index": 208,
+      "xml_route_id": "28087",
+      "source_xml": "bench2drive220_208_orion_traj.xml",
+      "town": "Town04",
+      "scenario": "NonSignalizedJunctionLeftTurnEnterFlow",
+      "scenario_name": "NonSignalizedJunctionLeftTurnEnterFlow_1",
+      "trigger_point": {
+        "x": 222.8,
+        "y": -246.0,
+        "z": 0.0,
+        "yaw": 359.6
+      },
+      "route_length_m": 75.16,
+      "trigger_along_route_m": 5.0,
+      "trigger_progress": 0.066525,
+      "scenario_parameters": {
+        "flow_speed_kmh": 10,
+        "source_distance_interval_m": [
+          19,
+          26
+        ]
+      },
+      "clean_reference": {
+        "status": "Completed",
+        "score_route": 100,
+        "score_penalty": 1,
+        "score_composed": 100,
+        "collisions": 0
+      },
+      "why_suitable": "The ego must turn left across an unsignalized actor flow. The conflict-zone portion of the front view is naturally separable from a non-conflict region, but continuous traffic makes this harder to attribute than a single crossing actor, so it remains reserve-tier."
+    }
+  ],
+  "screened_out_dynamic_routes": [
+    {
+      "route_index": 179,
+      "reason": "Official clean reference completed but contains two vehicle collisions."
+    },
+    {
+      "route_index": 196,
+      "reason": "Official clean reference contains one vehicle collision."
+    },
+    {
+      "route_index": 197,
+      "reason": "Official clean reference contains one vehicle collision."
+    },
+    {
+      "route_index": 201,
+      "reason": "Official clean reference contains one vehicle collision."
+    },
+    {
+      "route_index": 209,
+      "reason": "Official clean reference contains one vehicle collision."
+    },
+    {
+      "route_index": 210,
+      "reason": "Official clean reference contains one vehicle collision."
+    }
+  ]
+}

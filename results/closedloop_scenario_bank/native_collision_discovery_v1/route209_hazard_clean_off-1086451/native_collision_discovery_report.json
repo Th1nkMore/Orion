@@ -1,0 +1,149 @@
+{
+  "claim_boundary": "A partial trace may establish that contact-like geometry or severe TTC occurred, but cancellation before a terminal evaluator record means it is not an official completed collision result and is not eligible for the retained development-case set.",
+  "continuous_safety": {
+    "duration_seconds": 83.35,
+    "efficiency": {
+      "route_progress_delta": 0.37439236830293987,
+      "slow_below_1_mps_seconds": 75.04999999999998,
+      "stopped_below_0_25_mps_seconds": 73.79999999999998,
+      "time_weighted_mean_speed_mps": 0.35996054749021866
+    },
+    "frames": 1667,
+    "safety": {
+      "by_category": {
+        "vehicle": {
+          "frames_with_actor_record": 1660,
+          "low_ttc_exposure_seconds": {
+            "1.0": 0,
+            "2.0": 0,
+            "3.0": 0,
+            "5.0": 1.849999999999998
+          },
+          "min_obb_separating_axis_gap_m": 7.036128774069859,
+          "min_obb_ttc_seconds": 4.355326329202588
+        },
+        "walker": {
+          "frames_with_actor_record": 0,
+          "low_ttc_exposure_seconds": {
+            "1.0": 0,
+            "2.0": 0,
+            "3.0": 0,
+            "5.0": 0
+          },
+          "min_obb_separating_axis_gap_m": null,
+          "min_obb_ttc_seconds": null
+        }
+      },
+      "critical_frame": {
+        "actor": {
+          "actor_id": 164,
+          "category": "vehicle",
+          "closest_approach_time_seconds": 5.249157234007208,
+          "closing_speed_mps": 4.361129094706014,
+          "disc_clearance_m": 17.853872324848098,
+          "disc_collision_ttc_seconds": 4.1196601369127315,
+          "disc_radius_m": 2.5062703582014554,
+          "extent_xy_m": [
+            2.3368194103240967,
+            0.9059062600135803
+          ],
+          "extent_z_m": 0.7209736704826355,
+          "obb_collision_ttc_seconds": 4.355326329202588,
+          "obb_separating_axis_gap_m": 14.931369470899567,
+          "position_xy": [
+            273.1340637207031,
+            -249.9241180419922
+          ],
+          "position_z": 0.723268985748291,
+          "predicted_min_disc_clearance_m": -3.7568449199975307,
+          "range_m": 22.973039264637844,
+          "relative_lateral_m": -18.204298668710233,
+          "relative_longitudinal_m": 14.012995505422348,
+          "relative_position_xy_m": [
+            17.996063232421875,
+            14.279434204101562
+          ],
+          "relative_velocity_xy_mps": [
+            -3.5773497819900513,
+            -2.5078148432075977
+          ],
+          "type_id": "vehicle.mercedes.coupe_2020",
+          "velocity_xy": [
+            -3.6231226921081543,
+            0.020373385399580002
+          ],
+          "yaw_degrees": 179.69056701660156
+        },
+        "sim_time_seconds": 8.5,
+        "step": 170
+      },
+      "low_ttc_exposure_seconds": {
+        "1.0": 0,
+        "2.0": 0,
+        "3.0": 0,
+        "5.0": 1.849999999999998
+      },
+      "min_disc_clearance_m_diagnostic": 7.774697539012921,
+      "min_obb_separating_axis_gap_m": 7.036128774069859,
+      "min_obb_ttc_seconds": 4.355326329202588,
+      "primary_metric": "constant_velocity_fixed_orientation_obb_ttc"
+    },
+    "safety_telemetry_available_frames": 1667,
+    "safety_telemetry_coverage": 1.0
+  },
+  "first_geometry_contact": null,
+  "manifest_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route209_hazard_clean_off-1086451/manifest.json",
+  "observed_serious_geometry_in_partial_trace": false,
+  "official_endpoint_available": false,
+  "result_kind": "partial_no_serious_event_and_runtime_environment_invalid",
+  "retain_as_mechanism_development_case": false,
+  "run_dir": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route209_hazard_clean_off-1086451",
+  "runtime": {
+    "condition_clean_off": true,
+    "invalid_reason": "runtime_environment_failure",
+    "liveness_triggered": true,
+    "longest_low_speed_interval": {
+      "duration_seconds": 72.3,
+      "end_progress": 0.37439352325871667,
+      "end_step": 1666,
+      "end_time_seconds": 83.3,
+      "start_progress": 0.36883762793238684,
+      "start_step": 221,
+      "start_time_seconds": 11.05
+    },
+    "maximum_allowed_stop_seconds": 8.0,
+    "risk_mode_off": true,
+    "safety_telemetry_coverage": 1.0,
+    "trace_frames": 1667,
+    "trace_steps_contiguous": true,
+    "uq_mode_none": true,
+    "valid": false
+  },
+  "schema": "orion.closedloop_native_collision_discovery_result.v1",
+  "severe_ttc_surrogate": {
+    "checks": {
+      "minimum_obb_gap_m": {
+        "passed": false,
+        "required": "<=0.5",
+        "value": 7.036128774069859
+      },
+      "minimum_obb_ttc_seconds": {
+        "passed": false,
+        "required": "<=1.0",
+        "value": 4.355326329202588
+      },
+      "ttc_lte_2_exposure_seconds": {
+        "passed": false,
+        "required": ">=0.5",
+        "value": 0
+      }
+    },
+    "logic": "all_required",
+    "passed": false
+  },
+  "slurm": {
+    "job_id": "1086451",
+    "state": "FAILED"
+  },
+  "trace_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route209_hazard_clean_off-1086451/records_orion_traj_0/RouteScenario_28093_rep0_Town04_NonSignalizedJunctionLeftTurnEnterFlow_1_14_08_29_00_27_19/control_trace.jsonl"
+}

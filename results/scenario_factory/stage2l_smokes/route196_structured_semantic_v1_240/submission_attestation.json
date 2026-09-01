@@ -1,0 +1,55 @@
+{
+  "schema": "orion.stage2l_submission_attestation.v1",
+  "submitted_at": "2026-08-29T23:14:23+08:00",
+  "job": {
+    "job_id": "1096224",
+    "job_name": "s2l_r196_semantic",
+    "partition": "Nvidia_A800",
+    "state_after_submission": "RUNNING",
+    "start_time": "2026-08-29T23:14:35+08:00",
+    "node": "gpu2",
+    "resources": {
+      "gpu": 1,
+      "cpu": 2,
+      "memory": "192G",
+      "time_limit": "03:00:00"
+    }
+  },
+  "authorized_run": {
+    "event_id": "route196_step313",
+    "steps": 240,
+    "maximum_submissions": 1,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "reuse_failed_bridge_checkpoint": false,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_structured_semantic_v1_240/training",
+    "log": "/public/share/lidachuan/orion_assets/logs/stage2l_route196_structured_semantic_v1_240/train-1096224.out"
+  },
+  "source_hashes": {
+    "training_protocol_sha256": "6fd48d4b3b446aefe83b9d2fdab7e5dd3db1228a65a145cd24a9f4c80e05c0e5",
+    "launch_amendment_sha256": "9200b7eaa031f6b3372c3f7533705bb6cb3f1adc29a3caf287796bf61a068792",
+    "trainer_sha256": "a3b6aad3f9662bb6d1bc47d8c7e184eab0b5a7d372b3b6bcd9e25b85bdaffd34",
+    "bridge_trainer_helpers_sha256": "74f72836d923ced888363a8109b91083a0d892ec7c8999cb153a2e6fd41c489d",
+    "uq_relevance_bridge_sha256": "2e04bbfdf7fc9fd20ab4c1d8cf6fd8f02c655f350d33599e80c8d92a6d858be7",
+    "two_pass_runtime_sha256": "30533e5f8683cf0d10491a3eaacc65820a864f2aa43a3a7eade1aafcab9d53c1",
+    "semantic_bottleneck_sha256": "3e85676d80354ca5620b08740a257e8de8f1437f7bf616edb09bb5b1bb1b83e0",
+    "semantic_runtime_sha256": "bde7501dd58c685fb45d4dbe4a215e2692552cc990ecf6622db22ff7c2a39e8c",
+    "submit_wrapper_sha256": "eb3cf9af6604849a0b5f916bb0f89e08ed899da2e45184d6509e966e1b4ba2a8"
+  },
+  "data_hashes": {
+    "records_sha256": "256e4706fbc8f3637b85a43a5a3dba9703f6ff74cd285f338fd1c3c96bd97c39",
+    "visual_cache_sha256": "048e4556ce4f881c49693f1808749006edd45f34cd0d0f2e1579216773a5532d",
+    "base_orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+    "base_orion_checkpoint_hash_basis": "Cross-checked against the completed Route196 task-risk bridge report for the identical immutable checkpoint path; live rehash exceeded the bounded 30-second provenance check."
+  },
+  "preflight": {
+    "remote_unit_tests": "16 passed",
+    "inactive_submit_rejected_before_sbatch": true,
+    "inactive_submit_queue_unchanged": true,
+    "active_dry_run_authorized": true,
+    "post_submission_reservation_blocks_repeat_invocation": true,
+    "post_submission_repeat_check_queue_unchanged": true,
+    "stage2l_pilot_locked": true,
+    "stage2p_locked": true
+  },
+  "claim_boundary": "One-event structured semantic architecture learnability smoke only; no held-out generalization, trajectory, closed-loop, or safety evidence."
+}

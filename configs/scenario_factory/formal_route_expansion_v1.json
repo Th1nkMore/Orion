@@ -1,0 +1,44 @@
+{
+  "schema": "orion.stage2_l.formal_route_expansion_config.v1",
+  "created_at": "2026-08-29T19:25:00+08:00",
+  "status": "frozen_before_new_formal_route_replays",
+  "inherits_pilot": "stage2l_pilot8_frozen_6_2_20260829_v2",
+  "additions": {
+    "development": [
+      {"route_index": 147, "scenario_type": "DynamicObjectCrossing", "formal_split": "dev", "development_selection_role": "published_clean_valid"},
+      {"route_index": 195, "scenario_type": "OppositeVehicleRunningRedLight", "formal_split": "dev", "development_selection_role": "published_clean_valid"},
+      {"route_index": 151, "scenario_type": "ParkingCrossingPedestrian", "formal_split": "train", "development_selection_role": "published_clean_valid"},
+      {"route_index": 157, "scenario_type": "ParkingCutIn", "formal_split": "train", "development_selection_role": "published_clean_valid"},
+      {"route_index": 158, "scenario_type": "HardBreakRoute", "formal_split": "train", "development_selection_role": "published_clean_valid"},
+      {"route_index": 164, "scenario_type": "HazardAtSideLane", "formal_split": "train", "development_selection_role": "published_clean_valid"},
+      {"route_index": 168, "scenario_type": "HazardAtSideLane", "formal_split": "train", "development_selection_role": "published_clean_valid"},
+      {"route_index": 177, "scenario_type": "ParkedObstacleTwoWays", "formal_split": "train", "development_selection_role": "published_clean_valid", "existing_reviewed_event_reuse": true},
+      {"route_index": 180, "scenario_type": "HazardAtSideLaneTwoWays", "formal_split": "train", "development_selection_role": "published_clean_valid"},
+      {"route_index": 194, "scenario_type": "OppositeVehicleRunningRedLight", "formal_split": "train", "development_selection_role": "published_clean_valid"},
+      {"route_index": 201, "scenario_type": "EnterActorFlow", "formal_split": "train", "development_selection_role": "published_failure_hard_case"},
+      {"route_index": 208, "scenario_type": "NonSignalizedJunctionLeftTurnEnterFlow", "formal_split": "train", "development_selection_role": "published_clean_valid"}
+    ],
+    "locked_test": [
+      {"route_index": 145, "scenario_type": "ParkingCrossingPedestrian", "formal_split": "test"},
+      {"route_index": 173, "scenario_type": "HazardAtSideLaneTwoWays", "formal_split": "test"},
+      {"route_index": 206, "scenario_type": "T_Junction", "formal_split": "test"},
+      {"route_index": 212, "scenario_type": "T_Junction", "formal_split": "test"}
+    ]
+  },
+  "formal_gate": {
+    "events": 24,
+    "minimum_towns": 5,
+    "minimum_scenario_families": 8,
+    "split": {"train": 16, "dev": 4, "test": 4},
+    "qa_record_range": [1500, 2500]
+  },
+  "selection_guards": {
+    "whole_route_event_split": true,
+    "locked_test_uses_static_geometry_only": true,
+    "locked_test_model_failure_is_not_an_exclusion": true,
+    "learned_uq_or_stage2_outputs_used": false,
+    "geometry_ineligible_pilot_reserves_excluded": [192, 202],
+    "semantically_rejected_selector_artifacts_excluded": [159, 200]
+  },
+  "claim_boundary": "Route identity and split design only; no model, uncertainty, trajectory, closed-loop, or safety result."
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T16:26:54+08:00",
+  "status": "active_development_screen_amendment",
+  "purpose": "Replace pilot events that pass event review but cannot produce the preregistered minimum of three fixed-offset Stage2-L keyframes with visible unmodified ORION route support.",
+  "preserved_inputs": {
+    "original_frozen_bank": "/public/share/lidachuan/orion_assets/scenario_factory/event_banks/stage2l_pilot8_frozen_6_2_20260829_v1.json",
+    "original_frozen_bank_is_modified": false,
+    "fixed_keyframe_offsets_are_modified": false,
+    "scenario_factory_protocol_is_modified": false
+  },
+  "geometry_ineligible_events": [
+    {
+      "event_id": "route192_step729",
+      "reason": "fewer_than_three_fixed_offset_keyframes_have_visible_unmodified_orion_route_support",
+      "event_review_decision_is_changed": false
+    },
+    {
+      "event_id": "route202_step105",
+      "reason": "fewer_than_three_fixed_offset_keyframes_have_visible_unmodified_orion_route_support",
+      "event_review_decision_is_changed": false
+    }
+  ],
+  "reserve_policy": {
+    "route177_step276": "Previously completed reserve event; it must still pass an immutable human decision, fixed-offset keyframe construction, and Stage2-L geometry review before inclusion.",
+    "new_clean_replays": [
+      {
+        "route_index": 207,
+        "town": "Town02",
+        "scenario_family": "T_Junction",
+        "prior_failure": "runtime_invalid_missing_terminal_evaluator_record"
+      },
+      {
+        "route_index": 152,
+        "town": "Town10HD",
+        "scenario_family": "HardBreakRoute",
+        "prior_failure": "runtime_invalid_missing_terminal_evaluator_record"
+      }
+    ],
+    "selection_uses_stage1_uq": false,
+    "selection_uses_stage2_outputs": false,
+    "selection_uses_collision_or_task_response_outcomes": false,
+    "admission_requires_original_event_and_geometry_gates": true,
+    "only_successful_needed_reserves_enter_a_new_versioned_pilot_bank": true
+  },
+  "claim_boundary": "This amendment repairs pilot data eligibility and map diversity only. It does not turn neighboring frames into independent events, change rejected-event decisions, or provide evidence that the adapter, VLM, or planner is effective."
+}

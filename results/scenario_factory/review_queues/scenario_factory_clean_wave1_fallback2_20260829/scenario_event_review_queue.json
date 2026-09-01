@@ -1,0 +1,155 @@
+{
+  "automatically_excluded": [],
+  "automatically_excluded_count": 0,
+  "candidate_count": 2,
+  "claim_boundary": "Queue priority is for review efficiency only. Human acceptance establishes event integrity, not UQ validity or closed-loop benefit.",
+  "human_review_contract": {
+    "decision_values": [
+      "accept",
+      "reject",
+      "pending"
+    ],
+    "locked_test_rejection_must_be_technical_only": true,
+    "prohibited_rejection_basis": [
+      "learned UQ behavior",
+      "Stage2 behavior",
+      "whether ORION succeeded or failed"
+    ],
+    "required_checks": [
+      "visual_stream_integrity",
+      "actor_event_semantics",
+      "front_bev_temporal_alignment",
+      "no_actor_disappearance_or_spawn_artifact"
+    ]
+  },
+  "human_review_count": 2,
+  "review_order": [
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.0,
+        "min_obb_ttc_seconds": 0.0,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 136,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 0.0,
+          "obb_ttc_seconds": 0.0,
+          "type_id": "vehicle.chevrolet.impala"
+        },
+        "route_progress": 0.3845044427184213,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 13.85,
+        "speed_mps": 1.5200274665216653,
+        "step": 277,
+        "window_seconds": [
+          10.85,
+          15.85
+        ]
+      },
+      "event_id": "route162_step277",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829/route162/event_package.json",
+        "sha256": "f35b96c430ae3637c7a17f8ab3ad1248a3b8dbcc315dbb3e793fcc11ec074df7"
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_SEVERE_TTC",
+      "qa_input_ready": true,
+      "review_rank": 1,
+      "route_index": 162,
+      "runtime_valid": true,
+      "scenario_family": "Accident",
+      "screen_role": "static_visual_hazard",
+      "split_origin": "development_screen",
+      "town": "Town03",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829/route162/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829/route162/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829/route162/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [
+        "critical_event_near_route_end",
+        "majority_of_route_nearly_stopped"
+      ],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.09800125405822646,
+        "min_obb_ttc_seconds": 1.9882479239436928,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 160,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 0.09800125405822646,
+          "obb_ttc_seconds": 1.9882479239436928,
+          "type_id": "vehicle.chevrolet.impala"
+        },
+        "route_progress": 1.0,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 92.4,
+        "speed_mps": 5.235480430769131,
+        "step": 1848,
+        "window_seconds": [
+          89.4,
+          92.4
+        ]
+      },
+      "event_id": "route202_step1848",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829/route202/event_package.json",
+        "sha256": "4bf13e72cdac0db8137699fcbd6c2b85a3806a39b5b0dce91aaad2de7a98d4a3"
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 2,
+      "route_index": 202,
+      "runtime_valid": true,
+      "scenario_family": "PedestrianCrossing",
+      "screen_role": "dynamic_path_conflict",
+      "split_origin": "development_screen",
+      "town": "Town03",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829/route202/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829/route202/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829/route202/visuals/raw_front.gif"
+      ]
+    }
+  ],
+  "schema": "orion.scenario_event_review_queue.v1",
+  "source_batch_reports": [
+    {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829/batch_screen_report.json",
+      "sha256": "52d062382c7d3085fe46956a27d03eb53e49b8572d2d95d27a440682d4b1953a"
+    }
+  ],
+  "status": "pending_human_event_review"
+}

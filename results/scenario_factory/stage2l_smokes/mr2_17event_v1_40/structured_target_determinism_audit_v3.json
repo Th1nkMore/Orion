@@ -1,0 +1,43 @@
+{
+  "architecture_evidence": {
+    "language_understanding_still_requires_separate_evaluation": true,
+    "learned_structured_field_classifier_required_to_define_targets": false,
+    "relevance_level_is_deterministic_from_u_and_r": true,
+    "risk_view_region_and_level_are_deterministic_from_k": true,
+    "stage1_u_remains_task_agnostic": true,
+    "stance_is_deterministic_from_k_thresholds_and_view": true,
+    "task_relevance_r_remains_vlm_owned": true,
+    "task_risk_is_fixed_k_equals_u_times_r": true
+  },
+  "checks": {
+    "every_group_has_all_five_counterfactual_variants": true,
+    "every_structured_summary_reconstructed_exactly": true,
+    "every_variant_has_all_four_qa_families": true,
+    "record_count_matches_manifest": true,
+    "scalar_u_equals_mean_normalized_components": true,
+    "stored_task_risk_equals_latest_u_times_r": true
+  },
+  "claim_boundary": "This audit establishes target determinism and architectural redundancy only. It does not establish learned-R accuracy, QA understanding, planning, closed-loop behavior, generalization, or safety.",
+  "errors": [],
+  "group_variant_count": 400,
+  "matched_group_count": 80,
+  "passed": true,
+  "reconstructed_summary_count": 400,
+  "record_count": 1600,
+  "schema": "orion.stage2l_structured_target_determinism_audit.v1",
+  "sources": {
+    "dataset_manifest": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v1/manifest.json",
+      "sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3"
+    },
+    "qa_config": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/qa_factory_v2_matched_supervision.json",
+      "sha256": "2236bbc84bb794abc0ce69fc3b4706b131eaa1282b2942212ef429a3b381471e"
+    },
+    "records": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v1/records.jsonl",
+      "sha256": "2a4edbc48e031b15cea91f81efd5af3bfde758ca8b41606b79ba6f73e2b7993d"
+    }
+  },
+  "status": "structured_targets_are_deterministic_from_u_r_k"
+}

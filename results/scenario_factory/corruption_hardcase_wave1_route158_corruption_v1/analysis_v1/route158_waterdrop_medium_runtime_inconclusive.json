@@ -1,0 +1,57 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_route158_runtime_inconclusive.v1",
+  "created_at": "2026-09-01T07:52:44+08:00",
+  "status": "runtime_inconclusive",
+  "route_index": 158,
+  "condition": "waterdrop_medium",
+  "pilot_condition": "lens_waterdrop_paired_template_transient_off",
+  "exact_condition": "profile:medium",
+  "scientific_result": null,
+  "positive_case": null,
+  "attempts": [
+    {
+      "job_id": 1118151,
+      "node": "gpu1",
+      "slurm_state": "FAILED",
+      "slurm_exit_code": "124:0",
+      "classification": "runtime_environment_invalid",
+      "event_realization": "not_reached",
+      "last_sim_time_seconds": 3.9,
+      "last_route_progress": 0.103319,
+      "failure": "Control trace stalled for more than the frozen 300 second watchdog threshold before the 13.3 percent event window.",
+      "evidence_sha256": {
+        "manifest": "7a7cde9b4b25b230af5824932e77d52040bcdf8d65d547fe8abe09203a25e03f",
+        "runtime_progress_watchdog": "b4e281ac3be8d9f3dc871ad4e2e8e79c45f3b809d4d15abf2e3265aff6aa548b",
+        "job_log": "3e008c9acdc2e14d6c1aa455ee3b524ab05ec9ab14c8589edc46033e3013539f"
+      }
+    },
+    {
+      "job_id": 1118497,
+      "node": "gpu4",
+      "slurm_state": "FAILED",
+      "slurm_exit_code": "127:0",
+      "classification": "runtime_environment_invalid",
+      "event_realization": {
+        "active_frames": 100,
+        "exact_five_second_window_observed": true
+      },
+      "last_sim_time_seconds": 23.65,
+      "last_route_progress": 0.493339,
+      "failure": "Strict current-frame sensor queue timed out because SPEED was missing at frame 15964 after the corruption event had completed.",
+      "evidence_sha256": {
+        "manifest": "1b1220130b7d875341a03d7b6b8790d9eba040c028fb7e5eba29900b859ee409",
+        "evaluator": "7601aa83d292ff849be3bd3693a51527c7cfc2e5bc201b30e8eb548ccb35f3af",
+        "sensor_queue_diagnostics": "e2d8ed92c946372bd926ebb2f02473814034285c379c5540f4caacc627d9bbe0",
+        "control_trace": "f76415610d02d7cbb558169792f683986c71e18aa16c76ac65a765b5f2ab4441",
+        "job_log": "df9f97c5303cac0a848215321bf1e0513ec4e621af5f8491270ed750e4ba0fd5"
+      }
+    }
+  ],
+  "replacement_policy": {
+    "authorized_replacements": 1,
+    "used_replacements": 1,
+    "additional_replacement_authorized": false
+  },
+  "decision": "Exclude both attempts scientifically and stop the waterdrop condition for this wave. The partial replacement trace must not be interpreted as a route-completion failure.",
+  "claim_boundary": "Runtime diagnostic only; no waterdrop-induced degradation or robustness result."
+}

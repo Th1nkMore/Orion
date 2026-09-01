@@ -1,0 +1,102 @@
+{
+  "schema": "orion.stage2l_uq_language_grounding_protocol.v1",
+  "created_at": "2026-08-29T19:05:00+08:00",
+  "status": "preregistered_not_launched_route196_new_objective_smoke_only",
+  "supersedes_for_future_runs": "stage2l_training_v1.json",
+  "change_reason": "The final unchanged 480-step Route196 smoke learned dense R and on/off-path K ordering but retained the majority maintain-language answer for on-path UQ. The five source driving records have a 3:1:1 maintain/caution/prepare_to_yield class prior, so the next bounded diagnostic changes sampling rather than adding epochs to the failed objective.",
+  "objective": "Teach ORION/VLM to interpret frozen task-agnostic spatial observation UQ, predict an explicit task-relevance map, and produce map-consistent QA explanations before any trajectory optimization.",
+  "frozen": [
+    "Stage-1 observation uncertainty adapter",
+    "Stage-1 normalization policy",
+    "ORION visual encoder and detection/map heads",
+    "ORION trajectory decoder during Stage2-L"
+  ],
+  "trainable": [
+    "UQ component tokenizer",
+    "task-relevance map head",
+    "ORION/VLM LoRA adapters"
+  ],
+  "sampling": {
+    "balance_driving_stances": true,
+    "scope": "driving_implication QA only",
+    "method": "oversample minority target stances with replacement to the majority stance count independently in each epoch",
+    "target_stances": ["maintain", "caution", "prepare_to_yield"],
+    "non_driving_qa_frequency": "exactly once per epoch",
+    "labels_changed": false,
+    "loss_weights_changed": false
+  },
+  "uq_tokenizer": {
+    "input": "normalized U_components[B,T,6,H,W,3]",
+    "components": [
+      "persistent_direction",
+      "persistent_magnitude",
+      "transient_inconsistency"
+    ],
+    "temporal_statistics": ["latest", "mean", "latest_minus_first"],
+    "output_grid": [6, 10, 10],
+    "token_count": 600,
+    "preserves": ["view", "2D position", "component", "magnitude", "temporal change"],
+    "forbidden_inputs": ["route", "TTC", "collision", "scenario name", "corruption family", "corruption severity"]
+  },
+  "task_relevance": {
+    "target_shape": "R[B,6,10,10]",
+    "prediction_source": "VLM-fused hidden states at UQ token positions",
+    "task_risk": "K = mean_components(U_latest) * sigmoid(R_logits)",
+    "dense_map_is_authoritative": true,
+    "qa_text_is_summary": true
+  },
+  "losses": {
+    "qa_causal_language_modeling": 1.0,
+    "dense_soft_relevance_bce": 1.0,
+    "matched_onpath_offpath_risk_ranking": 0.25,
+    "trajectory": 0.0,
+    "yield_state": 0.0,
+    "direct_control": 0.0
+  },
+  "route196_new_objective_smoke": {
+    "maximum_steps": 240,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "same_20_source_qa_records": true,
+    "source_driving_stance_counts": {
+      "maintain": 3,
+      "caution": 1,
+      "prepare_to_yield": 1
+    },
+    "effective_balanced_epoch": {
+      "non_driving_records": 15,
+      "driving_records": 9,
+      "total_records": 24
+    },
+    "stop_policy": "One run only. If the on-path language preference gate fails, stop and inspect UQ-to-language attention or replace the objective under a new amendment; do not extend steps."
+  },
+  "data_gates": {
+    "pilot_semantic_gate": {
+      "minimum_independent_events": 8,
+      "minimum_towns": 3,
+      "minimum_scenario_families": 4,
+      "route_event_split": {"train": 6, "dev": 2},
+      "qa_record_range": [480, 800]
+    },
+    "formal_training_target": {
+      "minimum_independent_events": 24,
+      "minimum_towns": 5,
+      "minimum_scenario_families": 8,
+      "qa_record_range": [1500, 2500],
+      "route_event_split": {"train": 16, "dev": 4, "test": 4}
+    }
+  },
+  "evaluation_gates": [
+    "held-out route/event dense relevance BCE and ranking",
+    "on-path UQ must increase K more than equal-strength off-path UQ",
+    "zero-UQ and irrelevant-UQ hard negatives must not produce conservative language by default",
+    "on-path UQ must prefer its target caution/prepare answer over the matched maintain counterfactual",
+    "structured QA answer must agree with dense R and K sidecars"
+  ],
+  "launch_locks": {
+    "route196_fourth_run_submitted": false,
+    "stage2l_pilot_training_allowed": false,
+    "unlock_stage2l_pilot": "Route196 balanced-language smoke passes all unchanged semantic gates and the reviewed 8-event 6/2 pilot is frozen.",
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "Sampling repair for an engineering learnability smoke only. It provides no held-out generalization, trajectory, closed-loop, or safety evidence."
+}

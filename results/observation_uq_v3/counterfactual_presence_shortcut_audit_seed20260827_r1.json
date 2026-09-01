@@ -1,0 +1,347 @@
+{
+  "continuation": {
+    "adapter_training_authorized_by_this_audit": false,
+    "orion_finetuning_authorized": false,
+    "recommended_data_schedule": "sample-conditioned or short-window-balanced camera assignment so each route/family/severity observes multiple cameras",
+    "recommended_supervision": "continuous amplitude or target-derived high-response/soft support; never the numerical nonzero footprint of globally mixed ViT features",
+    "reuse_exact_nonzero_presence_label": false,
+    "reuse_route_condition_fixed_view_schedule": false,
+    "stage_b_authorized": false
+  },
+  "diagnosis": {
+    "exact_nonzero_support_degenerates_to_one_full_view": true,
+    "high_amplitude_target_remains_spatially_local": true,
+    "interpretation": "The 1e-6 presence label is effectively an intervened-camera label. Because that camera is fixed for every frame of each route/family/severity key, absolute visual features plus view identity can memorize a route-specific camera schedule. Strong target amplitude is still locally meaningful, so the paired target itself should not be discarded.",
+    "route_family_severity_determines_positive_view_for_all_16_frames": true,
+    "shortcut_risk_confirmed": true
+  },
+  "inputs": {
+    "manifest_sha256": "c1a6ac085d7cb734dc2d17cd17ceab3e2961a0bac1acb46740dee2eb09098658",
+    "protocol_sha256": "4d40c1f81455336e763b8396d02fa39ecf82b2212f010029b264b745f70b1686",
+    "seed": 20260826,
+    "spatial_audit_sha256": "d6907ca9c78e802b6638adf7c4de1c10d713ece61ece51243fcb4579caeec5c9",
+    "target_audit_sha256": "14d72e4dbbbe12aedbb7e1d63a5924f590b0c511289e07c264a0c111a53d0076",
+    "view_count": 6
+  },
+  "responsive_support": {
+    "persistent_direction": {
+      "absolute_delta": 0.0007074032738095259,
+      "all_view_q80": 1.1920928955078125e-07,
+      "expected_one_full_view_fraction": 0.16666666666666666,
+      "fraction": 0.16595926339285713,
+      "responsive_q50": 0.0022243261337280273,
+      "responsive_q80": 0.03938797861337662
+    },
+    "persistent_magnitude": {
+      "absolute_delta": 3.250558035713946e-05,
+      "all_view_q80": 0.0,
+      "expected_one_full_view_fraction": 0.16666666666666666,
+      "fraction": 0.16663416108630952,
+      "responsive_q50": 0.008474588394165039,
+      "responsive_q80": 0.05071449279785156
+    },
+    "transient_inconsistency": {
+      "absolute_delta": 6.200396825395416e-05,
+      "all_view_q80": 0.0,
+      "expected_one_full_view_fraction": 0.16666666666666666,
+      "fraction": 0.1666046626984127,
+      "responsive_q50": 0.013359040021896362,
+      "responsive_q80": 0.10066010802984238
+    }
+  },
+  "route_condition_view_schedule": {
+    "train": {
+      "v1/AccidentTwoWays_Town12_Route1115_Weather23": {
+        "local_blur/severity_1": 1,
+        "local_blur/severity_3": 0,
+        "local_dark/severity_1": 0,
+        "local_dark/severity_3": 5
+      },
+      "v1/BlockedIntersection_Town03_Route135_Weather5": {
+        "local_blur/severity_1": 4,
+        "local_blur/severity_3": 1,
+        "local_dark/severity_1": 1,
+        "local_dark/severity_3": 5
+      },
+      "v1/ConstructionObstacleTwoWays_Town12_Route1093_Weather1": {
+        "local_blur/severity_1": 1,
+        "local_blur/severity_3": 4,
+        "local_dark/severity_1": 3,
+        "local_dark/severity_3": 1
+      },
+      "v1/ConstructionObstacle_Town10HD_Route74_Weather22": {
+        "local_blur/severity_1": 3,
+        "local_blur/severity_3": 0,
+        "local_dark/severity_1": 3,
+        "local_dark/severity_3": 4
+      },
+      "v1/ConstructionObstacle_Town12_Route78_Weather0": {
+        "local_blur/severity_1": 1,
+        "local_blur/severity_3": 0,
+        "local_dark/severity_1": 2,
+        "local_dark/severity_3": 2
+      },
+      "v1/ControlLoss_Town04_Route170_Weather14": {
+        "local_blur/severity_1": 2,
+        "local_blur/severity_3": 1,
+        "local_dark/severity_1": 3,
+        "local_dark/severity_3": 3
+      },
+      "v1/DynamicObjectCrossing_Town01_Route3_Weather3": {
+        "local_blur/severity_1": 3,
+        "local_blur/severity_3": 3,
+        "local_dark/severity_1": 0,
+        "local_dark/severity_3": 3
+      },
+      "v1/HardBreakRoute_Town01_Route32_Weather6": {
+        "local_blur/severity_1": 3,
+        "local_blur/severity_3": 5,
+        "local_dark/severity_1": 2,
+        "local_dark/severity_3": 3
+      },
+      "v1/HazardAtSideLane_Town10HD_Route373_Weather9": {
+        "local_blur/severity_1": 2,
+        "local_blur/severity_3": 2,
+        "local_dark/severity_1": 0,
+        "local_dark/severity_3": 5
+      },
+      "v1/HighwayCutIn_Town12_Route1029_Weather15": {
+        "local_blur/severity_1": 2,
+        "local_blur/severity_3": 4,
+        "local_dark/severity_1": 4,
+        "local_dark/severity_3": 5
+      },
+      "v1/InterurbanActorFlow_Town12_Route1291_Weather1": {
+        "local_blur/severity_1": 2,
+        "local_blur/severity_3": 2,
+        "local_dark/severity_1": 3,
+        "local_dark/severity_3": 0
+      },
+      "v1/InterurbanAdvancedActorFlow_Town06_Route324_Weather2": {
+        "local_blur/severity_1": 0,
+        "local_blur/severity_3": 1,
+        "local_dark/severity_1": 2,
+        "local_dark/severity_3": 1
+      },
+      "v1/LaneChange_Town06_Route307_Weather21": {
+        "local_blur/severity_1": 0,
+        "local_blur/severity_3": 0,
+        "local_dark/severity_1": 2,
+        "local_dark/severity_3": 4
+      },
+      "v1/MergerIntoSlowTrafficV2_Town12_Route857_Weather25": {
+        "local_blur/severity_1": 5,
+        "local_blur/severity_3": 4,
+        "local_dark/severity_1": 0,
+        "local_dark/severity_3": 1
+      },
+      "v1/MergerIntoSlowTraffic_Town06_Route317_Weather5": {
+        "local_blur/severity_1": 0,
+        "local_blur/severity_3": 0,
+        "local_dark/severity_1": 3,
+        "local_dark/severity_3": 0
+      },
+      "v1/NonSignalizedJunctionLeftTurnEnterFlow_Town12_Route949_Weather13": {
+        "local_blur/severity_1": 1,
+        "local_blur/severity_3": 5,
+        "local_dark/severity_1": 3,
+        "local_dark/severity_3": 3
+      },
+      "v1/NonSignalizedJunctionLeftTurn_Town07_Route342_Weather3": {
+        "local_blur/severity_1": 5,
+        "local_blur/severity_3": 5,
+        "local_dark/severity_1": 3,
+        "local_dark/severity_3": 4
+      },
+      "v1/NonSignalizedJunctionRightTurn_Town03_Route126_Weather18": {
+        "local_blur/severity_1": 0,
+        "local_blur/severity_3": 2,
+        "local_dark/severity_1": 5,
+        "local_dark/severity_3": 4
+      },
+      "v1/OppositeVehicleRunningRedLight_Town04_Route180_Weather23": {
+        "local_blur/severity_1": 3,
+        "local_blur/severity_3": 0,
+        "local_dark/severity_1": 3,
+        "local_dark/severity_3": 4
+      },
+      "v1/ParkedObstacleTwoWays_Town13_Route1333_Weather26": {
+        "local_blur/severity_1": 2,
+        "local_blur/severity_3": 5,
+        "local_dark/severity_1": 3,
+        "local_dark/severity_3": 3
+      },
+      "v1/ParkedObstacle_Town06_Route282_Weather22": {
+        "local_blur/severity_1": 1,
+        "local_blur/severity_3": 0,
+        "local_dark/severity_1": 0,
+        "local_dark/severity_3": 5
+      },
+      "v1/ParkingCrossingPedestrian_Town13_Route545_Weather25": {
+        "local_blur/severity_1": 0,
+        "local_blur/severity_3": 1,
+        "local_dark/severity_1": 2,
+        "local_dark/severity_3": 4
+      },
+      "v1/ParkingCutIn_Town13_Route1343_Weather1": {
+        "local_blur/severity_1": 1,
+        "local_blur/severity_3": 5,
+        "local_dark/severity_1": 1,
+        "local_dark/severity_3": 0
+      },
+      "v1/ParkingExit_Town12_Route922_Weather12": {
+        "local_blur/severity_1": 3,
+        "local_blur/severity_3": 5,
+        "local_dark/severity_1": 3,
+        "local_dark/severity_3": 4
+      },
+      "v1/SignalizedJunctionLeftTurnEnterFlow_Town13_Route657_Weather2": {
+        "local_blur/severity_1": 1,
+        "local_blur/severity_3": 3,
+        "local_dark/severity_1": 5,
+        "local_dark/severity_3": 1
+      },
+      "v1/SignalizedJunctionLeftTurn_Town04_Route173_Weather26": {
+        "local_blur/severity_1": 1,
+        "local_blur/severity_3": 4,
+        "local_dark/severity_1": 4,
+        "local_dark/severity_3": 1
+      },
+      "v1/SignalizedJunctionRightTurn_Town03_Route118_Weather14": {
+        "local_blur/severity_1": 1,
+        "local_blur/severity_3": 1,
+        "local_dark/severity_1": 1,
+        "local_dark/severity_3": 3
+      },
+      "v1/TJunction_Town06_Route306_Weather20": {
+        "local_blur/severity_1": 2,
+        "local_blur/severity_3": 3,
+        "local_dark/severity_1": 4,
+        "local_dark/severity_3": 0
+      },
+      "v1/VanillaNonSignalizedTurnEncounterStopsign_Town12_Route979_Weather9": {
+        "local_blur/severity_1": 0,
+        "local_blur/severity_3": 3,
+        "local_dark/severity_1": 5,
+        "local_dark/severity_3": 4
+      },
+      "v1/VanillaSignalizedTurnEncounterGreenLight_Town07_Route354_Weather8": {
+        "local_blur/severity_1": 3,
+        "local_blur/severity_3": 4,
+        "local_dark/severity_1": 1,
+        "local_dark/severity_3": 4
+      },
+      "v1/VanillaSignalizedTurnEncounterRedLight_Town15_Route491_Weather23": {
+        "local_blur/severity_1": 4,
+        "local_blur/severity_3": 5,
+        "local_dark/severity_1": 5,
+        "local_dark/severity_3": 3
+      },
+      "v1/VehicleOpensDoorTwoWays_Town12_Route1203_Weather7": {
+        "local_blur/severity_1": 4,
+        "local_blur/severity_3": 2,
+        "local_dark/severity_1": 4,
+        "local_dark/severity_3": 1
+      },
+      "v1/VehicleTurningRoutePedestrian_Town15_Route481_Weather19": {
+        "local_blur/severity_1": 0,
+        "local_blur/severity_3": 1,
+        "local_dark/severity_1": 0,
+        "local_dark/severity_3": 4
+      },
+      "v1/VehicleTurningRoute_Town15_Route504_Weather10": {
+        "local_blur/severity_1": 0,
+        "local_blur/severity_3": 1,
+        "local_dark/severity_1": 0,
+        "local_dark/severity_3": 0
+      },
+      "v1/YieldToEmergencyVehicle_Town04_Route166_Weather10": {
+        "local_blur/severity_1": 1,
+        "local_blur/severity_3": 2,
+        "local_dark/severity_1": 0,
+        "local_dark/severity_3": 0
+      }
+    },
+    "validation": {
+      "v1/CrossingBicycleFlow_Town12_Route977_Weather15": {
+        "local_blur/severity_1": 4,
+        "local_blur/severity_3": 2,
+        "local_dark/severity_1": 4,
+        "local_dark/severity_3": 3
+      },
+      "v1/HighwayExit_Town06_Route312_Weather0": {
+        "local_blur/severity_1": 2,
+        "local_blur/severity_3": 1,
+        "local_dark/severity_1": 4,
+        "local_dark/severity_3": 3
+      },
+      "v1/ParkedObstacle_Town10HD_Route372_Weather8": {
+        "local_blur/severity_1": 2,
+        "local_blur/severity_3": 3,
+        "local_dark/severity_1": 0,
+        "local_dark/severity_3": 1
+      },
+      "v1/PedestrianCrossing_Town13_Route747_Weather19": {
+        "local_blur/severity_1": 5,
+        "local_blur/severity_3": 3,
+        "local_dark/severity_1": 2,
+        "local_dark/severity_3": 2
+      },
+      "v1/VanillaSignalizedTurnEncounterRedLight_Town07_Route359_Weather21": {
+        "local_blur/severity_1": 0,
+        "local_blur/severity_3": 5,
+        "local_dark/severity_1": 0,
+        "local_dark/severity_3": 4
+      }
+    }
+  },
+  "schedule_summary": {
+    "train": {
+      "conditional_positive_view_entropy_bits_given_route_family_severity": 0.0,
+      "maximum_view_entropy_bits": 2.584962500721156,
+      "positive_view_counts_by_schedule_key": {
+        "0": 29,
+        "1": 27,
+        "2": 17,
+        "3": 27,
+        "4": 22,
+        "5": 18
+      },
+      "positive_view_entropy_bits": 2.5557231032823604,
+      "records_per_route_condition_key": 16,
+      "route_condition_keys": 140,
+      "route_count": 35,
+      "unique_positive_views_per_route": {
+        "2": 5,
+        "3": 25,
+        "4": 5
+      }
+    },
+    "validation": {
+      "conditional_positive_view_entropy_bits_given_route_family_severity": 0.0,
+      "maximum_view_entropy_bits": 2.584962500721156,
+      "positive_view_counts_by_schedule_key": {
+        "0": 3,
+        "1": 2,
+        "2": 5,
+        "3": 4,
+        "4": 4,
+        "5": 2
+      },
+      "positive_view_entropy_bits": 2.503701696057348,
+      "records_per_route_condition_key": 16,
+      "route_condition_keys": 20,
+      "route_count": 5,
+      "unique_positive_views_per_route": {
+        "3": 3,
+        "4": 2
+      }
+    }
+  },
+  "schema_version": "orion.counterfactual-presence-shortcut-audit/v1",
+  "spatial_high_amplitude_evidence": {
+    "equal_area_top_iou_median": 0.3311510384082794,
+    "inside_outside_ratio_median": 5.736783027648926,
+    "within_view_mask_auroc_median": 0.8928208351135254
+  }
+}

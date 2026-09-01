@@ -1,0 +1,44 @@
+{
+  "schema": "orion.stage2l_v101_phase_a_milestone.v1",
+  "timestamp": "2026-08-31T19:13:00+08:00",
+  "status": "step040_improved_but_gate_failed_continue_to_step080",
+  "job_id": 1113867,
+  "optimizer_step": 40,
+  "metrics": {
+    "v10_replay_train_average_precision": 0.4402717577742334,
+    "v101_train_average_precision": 0.7852973079054499,
+    "train_average_precision_delta": 0.3450255501312165,
+    "v10_replay_dev_average_precision": 0.2294376679628193,
+    "v101_dev_average_precision": 0.34031795945651283,
+    "dev_average_precision_delta": 0.11088029149369354
+  },
+  "frozen_gate_checks": {
+    "train_foreground_recall": false,
+    "train_background_fpr": true,
+    "dev_foreground_recall": false,
+    "dev_background_fpr": true,
+    "dev_probability_gap_positive": true,
+    "all_passed": false
+  },
+  "decision": {
+    "continue_to_step080": true,
+    "reason": "Both train and held-out dev AP materially improved relative to v10 while background-FPR and dev-gap checks passed; one more frozen milestone is justified to test recall and overfitting.",
+    "continue_automatically_to_step120": false,
+    "phase_b_unlocked": false,
+    "phase_c_unlocked": false,
+    "formal_stage2l_unlocked": false,
+    "stage2p_unlocked": false,
+    "closed_loop_unlocked": false
+  },
+  "artifacts": {
+    "phase_a_step040.pt": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/phase_a_step040.pt",
+      "sha256": "c97699ac58658b5cfa36672937436a2507918aad47c5426e5adec6aada34b11d"
+    },
+    "spatial_maps_step040.pt": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/spatial_maps_step040.pt",
+      "sha256": "a322fc3fce84c527ff71414089aa868575ca37eec44786b3169d16d77139567e"
+    }
+  },
+  "claim_boundary": "Engineering milestone only. AP improvement does not satisfy the frozen Phase-A release gate and is not planning, closed-loop, generalization, or safety evidence."
+}

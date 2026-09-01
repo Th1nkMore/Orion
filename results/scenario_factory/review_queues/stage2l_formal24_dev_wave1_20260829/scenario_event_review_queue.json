@@ -1,0 +1,234 @@
+{
+  "automatically_excluded": [],
+  "automatically_excluded_count": 0,
+  "candidate_count": 3,
+  "claim_boundary": "Queue priority is for review efficiency only. Human acceptance establishes event integrity, not UQ validity or closed-loop benefit.",
+  "human_review_contract": {
+    "decision_values": [
+      "accept",
+      "reject",
+      "pending"
+    ],
+    "locked_test_rejection_must_be_technical_only": true,
+    "prohibited_rejection_basis": [
+      "learned UQ behavior",
+      "Stage2 behavior",
+      "whether ORION succeeded or failed"
+    ],
+    "required_checks": [
+      "visual_stream_integrity",
+      "actor_event_semantics",
+      "front_bev_temporal_alignment",
+      "no_actor_disappearance_or_spawn_artifact"
+    ]
+  },
+  "human_review_count": 3,
+  "review_order": [
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.0,
+        "min_obb_ttc_seconds": 0.0,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 139,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 0.0,
+          "obb_ttc_seconds": 0.0,
+          "type_id": "vehicle.mini.cooper_s_2021"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.2887757659998243,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "selection_policy": {
+          "complete_review_window_required": true,
+          "maximum_route_progress_exclusive": 0.98,
+          "minimum_post_event_seconds": 2.0,
+          "minimum_pre_event_seconds": 3.0,
+          "terminal_route_tail_excluded": true
+        },
+        "sim_time_seconds": 9.65,
+        "speed_mps": 1.4185005258924774,
+        "step": 193,
+        "window_seconds": [
+          6.65,
+          11.65
+        ]
+      },
+      "event_id": "route157_step193",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route157/event_package.json",
+        "sha256": "e4bb65cd867d9d9aa79255a5e225f32e207adf3d101428366a593ac57840ed4a"
+      },
+      "official_endpoint": {
+        "collision_count": 1,
+        "scores": {
+          "score_composed": 60.0,
+          "score_penalty": 0.6,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_COLLISION",
+      "qa_input_ready": true,
+      "review_rank": 1,
+      "route_index": 157,
+      "runtime_valid": true,
+      "scenario_family": "ParkingCutIn",
+      "screen_role": "dynamic_path_conflict",
+      "split_origin": "development_screen",
+      "town": "Town05",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route157/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route157/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route157/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 2.182521105725754,
+        "min_obb_ttc_seconds": 1.33930395783362,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 209,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 6.8565528055217015,
+          "obb_ttc_seconds": 1.33930395783362,
+          "type_id": "vehicle.nissan.patrol_2021"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.1748260697516527,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "selection_policy": {
+          "complete_review_window_required": true,
+          "maximum_route_progress_exclusive": 0.98,
+          "minimum_post_event_seconds": 2.0,
+          "minimum_pre_event_seconds": 3.0,
+          "terminal_route_tail_excluded": true
+        },
+        "sim_time_seconds": 7.7,
+        "speed_mps": 0.00035972283786068435,
+        "step": 154,
+        "window_seconds": [
+          4.7,
+          9.7
+        ]
+      },
+      "event_id": "route158_step154",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route158/event_package.json",
+        "sha256": "22a047d780a76f6af3968b5ee96fed7c605828fd431431194fc7cc86bcdf8ae1"
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 2,
+      "route_index": 158,
+      "runtime_valid": true,
+      "scenario_family": "HardBreakRoute",
+      "screen_role": "longitudinal_response_hazard",
+      "split_origin": "development_screen",
+      "town": "Town01",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route158/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route158/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route158/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.04470224550965196,
+        "min_obb_ttc_seconds": 0.5360459300702463,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 204,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 0.37663923644056796,
+          "obb_ttc_seconds": 0.5360459300702463,
+          "type_id": "vehicle.lincoln.mkz_2020"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.7651369472392394,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "selection_policy": {
+          "complete_review_window_required": true,
+          "maximum_route_progress_exclusive": 0.98,
+          "minimum_post_event_seconds": 2.0,
+          "minimum_pre_event_seconds": 3.0,
+          "terminal_route_tail_excluded": true
+        },
+        "sim_time_seconds": 26.1,
+        "speed_mps": -0.0033235107478517584,
+        "step": 522,
+        "window_seconds": [
+          23.1,
+          28.1
+        ]
+      },
+      "event_id": "route164_step522",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route164/event_package.json",
+        "sha256": "c60a0fc74cebcb3c40eb86fa694a139811104b593e534c577183da7734d69f0f"
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_SEVERE_TTC",
+      "qa_input_ready": true,
+      "review_rank": 3,
+      "route_index": 164,
+      "runtime_valid": true,
+      "scenario_family": "HazardAtSideLane",
+      "screen_role": "dynamic_path_conflict",
+      "split_origin": "development_screen",
+      "town": "Town04",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route164/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route164/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route164/visuals/raw_front.gif"
+      ]
+    }
+  ],
+  "schema": "orion.scenario_event_review_queue.v1",
+  "source_batch_reports": [
+    {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/batch_screen_report.json",
+      "sha256": "46d22224742bad453f4d0bb2ea24cea93429cb8e5d259fa906653b6e9d83d781"
+    }
+  ],
+  "status": "pending_human_event_review"
+}

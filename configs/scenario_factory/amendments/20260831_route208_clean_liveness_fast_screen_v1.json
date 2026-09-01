@@ -1,0 +1,59 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T06:03:50+08:00",
+  "status": "route208_clean_liveness_fast_screen_triggered_stage_b_ineligible",
+  "title": "Route208 clean baseline was cancelled under the preregistered liveness fast-screen",
+  "scope": "clean-baseline liveness eligibility and resource termination only",
+  "route": {
+    "route_index": 208,
+    "town": "Town04",
+    "scenario_family": "NonSignalizedJunctionLeftTurnEnterFlow",
+    "formal_split": "dev",
+    "condition": "clean_off"
+  },
+  "job": {
+    "job_id": 1107306,
+    "final_state": "CANCELLED",
+    "elapsed": "01:35:39",
+    "cancellation_time": "2026-08-31T06:03:50+08:00",
+    "cancellation_authority": "the frozen unified clean-liveness fast-screen rule",
+    "automatic_retry_allowed": false
+  },
+  "frozen_rule": {
+    "ignore_before_seconds": 2.0,
+    "speed_threshold_mps": 0.25,
+    "maximum_stop_seconds": 8.0,
+    "comparison": "trigger when the longest interval is strictly greater than the maximum"
+  },
+  "observed_evidence": {
+    "fast_screen_triggered": true,
+    "stage_b_qualified": false,
+    "trace_frames_observed": 3658,
+    "longest_low_speed_interval": {
+      "start_step": 224,
+      "end_step": 1469,
+      "start_time_seconds": 11.2,
+      "end_time_seconds": 73.45,
+      "duration_seconds": 62.3,
+      "start_progress": 0.3430229042564887,
+      "end_progress": 0.35171798355365136
+    },
+    "last_observed": {
+      "step": 3657,
+      "sim_time_seconds": 182.85,
+      "route_progress": 0.36238984861859097,
+      "speed_mps": 0.09516712022069858
+    },
+    "trace_sha256": "bdc96c10d88aa4f9a13e1680e91af66ba2114f77d2074654610abc366d4fafc9",
+    "manifest_sha256": "8c38dcde0c182dd296c2a1ac702b848dfa2579c4da69a672848ef32f13bbe204"
+  },
+  "decision": {
+    "route208_may_enter_stage_b": false,
+    "partial_run_may_be_counted_as_an_official_safety_result": false,
+    "partial_run_may_be_used_for_collision_or_ttc_claims": false,
+    "trace_and_visuals_may_be_retained_for_liveness_diagnosis": true,
+    "formal_stage2l_training_allowed_by_this_result": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "This is a preregistered clean-baseline liveness exclusion and resource-saving cancellation. It is not a collision, TTC, uncertainty, planning or safety outcome."
+}

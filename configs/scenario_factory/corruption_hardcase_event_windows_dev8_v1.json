@@ -1,0 +1,148 @@
+{
+  "schema": "orion.corruption_hardcase_event_windows.v1",
+  "created_at": "2026-08-31T19:47:00+08:00",
+  "status": "frozen_before_corruption_conditioned_orion_screening",
+  "parent_funnel": {
+    "path": "configs/scenario_factory/corruption_hardcase_funnel12_v1.json",
+    "sha256": "5446e16c8454ef0fdd6dccbd47be1b425a23ba1e131e5bb2bfd0180cd6017ab8"
+  },
+  "selection_rule": {
+    "source": "existing clean ORION control trace only",
+    "critical_anchor": "the already-frozen clean event-package critical frame",
+    "source_time_window_seconds": [-3.0, 2.0],
+    "runtime_schedule": "route_progress",
+    "reason": "Route progress preserves event alignment when a corruption changes vehicle speed; simulation time is retained only as source provenance.",
+    "corrupt_run_outcomes_read": false,
+    "stage2_outputs_read": false,
+    "heldout_routes_read": false,
+    "waterdrop_actor_or_bbox_alignment": false
+  },
+  "events": [
+    {
+      "event_id": "route151_step218",
+      "route_index": 151,
+      "role": "visual_parameter_development_only_and_clean_valid_screen",
+      "positive_case_eligible": true,
+      "clean_outcome": "VALID_NEAR_MISS_OR_CONFLICT",
+      "route_progress_window": [0.32162320371253544, 0.4757938890155946],
+      "route_progress_anchor": 0.46461600000599634,
+      "source_time_window_seconds": [7.9, 12.9],
+      "source_steps": [158, 218, 258],
+      "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route151/event_package.json",
+      "event_package_sha256": "c2cb277b5ce3ec2f3af5b3139b35bfd26de38c4584e20d46a5f43ff5c9503cd2",
+      "control_trace_sha256": "0d2bd4775bc749e07a12105cc1564f8b0bbcb21b33ad32b6d7c7358ec497e4b9"
+    },
+    {
+      "event_id": "route158_step154",
+      "route_index": 158,
+      "role": "screen",
+      "positive_case_eligible": true,
+      "clean_outcome": "VALID_NEAR_MISS_OR_CONFLICT",
+      "route_progress_window": [0.1331479129200312, 0.17814128032808355],
+      "route_progress_anchor": 0.1748260697516527,
+      "source_time_window_seconds": [4.7, 9.7],
+      "source_steps": [94, 154, 194],
+      "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route158/event_package.json",
+      "event_package_sha256": "22a047d780a76f6af3968b5ee96fed7c605828fd431431194fc7cc86bcdf8ae1",
+      "control_trace_sha256": "bc10a4c87f94facfe91bf75a9a9c06d22369fe36fc7ba911449d0fdc7107fd09"
+    },
+    {
+      "event_id": "route164_step522",
+      "route_index": 164,
+      "role": "screen",
+      "positive_case_eligible": true,
+      "clean_outcome": "VALID_SEVERE_TTC",
+      "route_progress_window": [0.6875293010072122, 0.8040601729738077],
+      "route_progress_anchor": 0.7651369472392394,
+      "source_time_window_seconds": [23.1, 28.1],
+      "source_steps": [462, 522, 562],
+      "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route164/event_package.json",
+      "event_package_sha256": "c60a0fc74cebcb3c40eb86fa694a139811104b593e534c577183da7734d69f0f",
+      "control_trace_sha256": "f021a412cc838256ed67197567d2ca840f017ce9fa28ce51f972f06ff153a363"
+    },
+    {
+      "event_id": "route168_step482",
+      "route_index": 168,
+      "role": "negative_front_corruption_specificity_control_only",
+      "positive_case_eligible": false,
+      "clean_outcome": "VALID_COLLISION",
+      "route_progress_window": [0.4950410381756956, 0.5312409503346726],
+      "route_progress_anchor": 0.5268337793392173,
+      "source_time_window_seconds": [21.1, 26.1],
+      "source_steps": [422, 482, 522],
+      "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave2_20260829/route168/event_package.json",
+      "event_package_sha256": "1ad0af5252160d8751944aa8e31a04b13aeb6bb1d0c8b9d1a631e8f8aa76f4bd",
+      "control_trace_sha256": "ce7ccd6ad98257d837f81eec0e144ff0b5dd137060e5fe4928ecc4c85dd44c4a"
+    },
+    {
+      "event_id": "route180_step696",
+      "route_index": 180,
+      "role": "screen",
+      "positive_case_eligible": true,
+      "clean_outcome": "VALID_NEAR_MISS_OR_CONFLICT",
+      "route_progress_window": [0.8652563711843793, 0.9732059096268506],
+      "route_progress_anchor": 0.9285632233192601,
+      "source_time_window_seconds": [31.8, 36.8],
+      "source_steps": [636, 696, 736],
+      "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave2_20260829/route180/event_package.json",
+      "event_package_sha256": "5eac4b183cfa95fa72edea604256de27aa536884b6169061fa2767020634f88c",
+      "control_trace_sha256": "0e080aac031968042b5742d3c7d1e2a6b67483c91b17fd0f45ac87074703a191"
+    },
+    {
+      "event_id": "route185_step304",
+      "route_index": 185,
+      "role": "screen_replacing_clean_collision_route157",
+      "positive_case_eligible": true,
+      "clean_outcome": "VALID_NEAR_MISS_OR_CONFLICT",
+      "route_progress_window": [0.4018377760928284, 0.542870053843049],
+      "route_progress_anchor": 0.4986020145615517,
+      "source_time_window_seconds": [12.2, 17.2],
+      "source_steps": [244, 304, 344],
+      "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route185/event_package.json",
+      "event_package_sha256": "0bd0b2aeac3b5de75b60962061eeafc7dc3ec8818817679fbde9cae9ce95f4fa",
+      "control_trace_sha256": "bb2d94982e227c59840073e896c18178510a67b1ce4f17159b6042e2d6045ae6"
+    },
+    {
+      "event_id": "route194_step684",
+      "route_index": 194,
+      "role": "screen",
+      "positive_case_eligible": true,
+      "clean_outcome": "VALID_NEAR_MISS_OR_CONFLICT",
+      "route_progress_window": [0.3660182774316598, 0.38706561618286633],
+      "route_progress_anchor": 0.3838388189349919,
+      "source_time_window_seconds": [31.2, 36.2],
+      "source_steps": [624, 684, 724],
+      "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave2_20260829/route194/event_package.json",
+      "event_package_sha256": "ebae6ec949d243f58f1f14b196c687b46bbb8ccf8c5f55b0553af1ed6ffc0218",
+      "control_trace_sha256": "eb8d5901bb28fef8b4ef7498265e4e5b48cabb76d2bfa68818ceccd917a5cfe9"
+    },
+    {
+      "event_id": "route207_step924",
+      "route_index": 207,
+      "role": "screen_late_route_event",
+      "positive_case_eligible": true,
+      "clean_outcome": "VALID_NEAR_MISS_OR_CONFLICT",
+      "route_progress_window": [0.7628471808265076, 0.9999669171928571],
+      "route_progress_anchor": 0.949087627852726,
+      "source_time_window_seconds": [43.2, 48.2],
+      "source_steps": [864, 924, 964],
+      "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave2_geometry_reserve_20260829/route207/event_package.json",
+      "event_package_sha256": "5278dd0d1161464567296d6f4da6dbb9d821745657bbfdcac7a3d9be1cc2f5fc",
+      "control_trace_sha256": "5e4cf787a29d6df464a87e3117f3196f8be02d8500c3d02f90f608bd7db9af24"
+    }
+  ],
+  "counts": {
+    "events": 8,
+    "positive_case_eligible": 7,
+    "negative_controls": 1,
+    "heldout_events": 0
+  },
+  "execution_locks": {
+    "use_before_visual_severity_freeze": false,
+    "route_jobs_submitted_by_this_freeze": false,
+    "change_windows_after_corrupt_orion_output": false,
+    "read_heldout_confirmation": false,
+    "accept_route168_as_positive": false
+  },
+  "claim_boundary": "Prospective development-screen alignment only. A frozen window neither proves that a corruption induces failure nor that uncertainty-aware planning improves safety."
+}

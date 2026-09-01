@@ -1,0 +1,50 @@
+{
+  "schema": "orion.clean_render_artifact_gate.v1",
+  "created_at": "2026-08-31T20:48:00+08:00",
+  "status": "frozen_engineering_rejection_gate",
+  "scope": "CARLA 0.9.15 1600x900 front RGB black-square renderer contamination",
+  "per_frame_thresholds": {
+    "candidate_pixel_fraction_min": 0.05,
+    "rectangular_component_count_min": 320,
+    "rectangular_component_area_fraction_min": 0.011,
+    "combination": "all three thresholds must be met"
+  },
+  "sequence_rule": {
+    "minimum_frames": 5,
+    "suspicious_frame_fraction_reject_at_or_above": 0.2
+  },
+  "calibration": {
+    "rejected_bad_clean": {
+      "frames": 78,
+      "suspicious_frames": 78,
+      "rectangular_component_count_range": [353, 479],
+      "rectangular_component_area_fraction_range": [0.012206944444444444, 0.01759236111111111],
+      "candidate_pixel_fraction_range": [0.0544625, 0.06598263888888889]
+    },
+    "accepted_diagnostic_profiles": {
+      "profiles": ["none", "intensity_zero_only", "clean"],
+      "frames": 102,
+      "suspicious_frames": 0,
+      "rectangular_component_count_max": 286,
+      "rectangular_component_area_fraction_max": 0.008980555555555556,
+      "candidate_pixel_fraction_max": 0.04523888888888889
+    }
+  },
+  "required_use": [
+    "evaluate an unmodified front-camera clean sequence before corruption visual approval",
+    "reject the whole CARLA server capture when the sequence gate fails",
+    "retain raw rejected frames and logs for provenance"
+  ],
+  "non_guarantees": [
+    "does not prove visual realism",
+    "does not replace human review",
+    "is calibrated on one Town02 event and must be audited before general use",
+    "does not repair corrupted frames"
+  ],
+  "execution_locks": {
+    "orion_screen_without_gate_pass": false,
+    "severity_selection_without_human_review": false,
+    "closed_loop_without_visual_release": false
+  },
+  "claim_boundary": "Engineering rejection gate for one observed renderer failure mode only."
+}

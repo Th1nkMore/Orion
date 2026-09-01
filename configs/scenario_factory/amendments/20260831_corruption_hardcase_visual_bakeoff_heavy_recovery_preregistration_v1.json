@@ -1,0 +1,46 @@
+{
+  "schema": "orion.corruption_hardcase_visual_bakeoff_recovery.v1",
+  "timestamp": "2026-08-31T19:31:00+08:00",
+  "timestamp_correction": {
+    "original_incorrect_value": "2026-08-31T20:16:00+08:00",
+    "corrected_at": "2026-08-31T19:35:00+08:00",
+    "reason": "The initial manually entered timestamp was ahead of the local host clock; scientific content and execution contract are unchanged."
+  },
+  "status": "authorized_single_profile_recovery_pending_submission",
+  "parent_job_id": 1114233,
+  "parent_run_id": "route151_corruption_hardcase_visual_bakeoff_v1",
+  "parent_state": "FAILED",
+  "observed_parent_result": {
+    "clean": "completed_with_156_png_files",
+    "light": "completed_with_156_png_files",
+    "medium": "completed_with_156_png_files",
+    "heavy": "evaluator_timeout_before_capture",
+    "parent_elapsed": "00:16:21",
+    "parent_exit_code": "1:0",
+    "parent_max_rss": "3765624K"
+  },
+  "diagnosis": "The heavy evaluator reached the preregistered 360-second per-profile timeout while preparing the route. The parent cleanup trap then terminated CARLA. There was no Slurm OOM and no heavy visual artifact from which to draw a scientific conclusion.",
+  "recovery_contract": {
+    "profiles": ["heavy"],
+    "fresh_carla_server": true,
+    "reuse_completed_clean_light_medium_captures": true,
+    "render_all_three_corruption_family_gifs_after_heavy": true,
+    "orion_loaded": false,
+    "corruption_parameters_changed": false,
+    "route_or_event_changed": false,
+    "maximum_recovery_jobs": 1,
+    "automatic_retry": false
+  },
+  "resource_contract": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus": 2,
+    "memory": "16G",
+    "time": "00:20:00",
+    "exclude": ["gpu5"]
+  },
+  "source_sha256": {
+    "scripts/run_corruption_hardcase_visual_bakeoff_route151.sh": "91a345f716b2738d73d75a055a83525a1ca0f78e8196fe3af9bf6ca48d64b7d6"
+  },
+  "claim_boundary": "Operational recovery only. The partial parent job and this recovery cannot establish ORION degradation or safety benefit."
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "orion.stage2l_route196_language_failure_diagnosis.v1",
+  "created_at": "2026-08-29T19:50:00+08:00",
+  "source_report": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_balanced_language_v1_240/training/report.json",
+    "sha256": "05565d2a98d735ebc73fb555afe04e898da8218cc2ba9d643d60feb882b510f7"
+  },
+  "classification": "uq_to_language_discrimination_failure_after_stance_balance_repair",
+  "passed": {
+    "optimization_reduces_language_nll": true,
+    "optimization_reduces_relevance_bce": true,
+    "on_path_risk_exceeds_off_path_by_margin": true,
+    "zero_uq_prefers_nonconservative_answer": true,
+    "off_path_prefers_nonconservative_answer": true
+  },
+  "failed": {
+    "on_path_prefers_conservative_answer": false,
+    "on_path_target_nll": 0.2811925411224365,
+    "on_path_incorrect_maintain_nll": 0.02799571119248867,
+    "on_path_generated_stance": "maintain",
+    "on_path_target_stance": "prepare_to_yield"
+  },
+  "balanced_sampling_audit": {
+    "source_stances": {"maintain": 3, "caution": 1, "prepare_to_yield": 1},
+    "per_epoch_stances": {"maintain": 3, "caution": 3, "prepare_to_yield": 3},
+    "240_step_variant_driving_counts": {
+      "observed": 10,
+      "zero_uq": 10,
+      "off_path_uq": 10,
+      "on_path_uq": 30,
+      "view_shuffled_uq": 30
+    },
+    "class_imbalance_remains_primary_explanation": false
+  },
+  "uq_token_path_audit": {
+    "spatial_tokens": 600,
+    "on_path_vs_zero_changed_tokens": 6,
+    "changed_token_fraction": 0.01,
+    "active_token_rms": 0.13332727551460266,
+    "all_token_mean_rms": 0.0013332727830857038,
+    "baseline_visual_token_norm_mean": 57.47290802001953,
+    "trained_uq_token_norm_mean": 64.08645629882812,
+    "interpretation": "The UQ representation is finite and scale-compatible, but the local counterfactual changes only one percent of the 600-token grid. Full-sequence LM loss can fit shared answer boilerplate without ranking the discriminative stance correctly."
+  },
+  "decision": {
+    "repeat_same_objective": false,
+    "extend_steps": false,
+    "stage2l_pilot_unlocked": false,
+    "next_bounded_test": "Add matched target-versus-opposite stance preference loss while keeping tokenizer, U/R/K, LoRA, data, and step budget unchanged.",
+    "if_next_test_fails": "Stop Route196 retries and implement an explicit predicted task-map-to-language bridge."
+  },
+  "claim_boundary": "One-event engineering failure diagnosis only; no held-out generalization, trajectory, closed-loop, or safety evidence."
+}

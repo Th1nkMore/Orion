@@ -1,0 +1,31 @@
+{
+  "schema": "orion.corruption_hardcase_visual_bakeoff_recovery_submission.v1",
+  "timestamp": "2026-08-31T19:34:00+08:00",
+  "status": "submitted_pending",
+  "job_id": 1114491,
+  "job_name": "hardcase151_hvyrec",
+  "parent_job_id": 1114233,
+  "run_id": "route151_corruption_hardcase_visual_bakeoff_v1",
+  "profiles": ["heavy"],
+  "resource_contract": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus": 2,
+    "memory": "16G",
+    "time": "00:20:00",
+    "exclude": ["gpu5"]
+  },
+  "paths": {
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_v1",
+    "log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_heavy_recovery_v1-1114491.out",
+    "preregistration": "configs/scenario_factory/amendments/20260831_corruption_hardcase_visual_bakeoff_heavy_recovery_preregistration_v1.json"
+  },
+  "execution_locks": {
+    "orion_loaded": false,
+    "other_profiles_rerun": false,
+    "corruption_parameters_changed": false,
+    "route_jobs_submitted": false,
+    "automatic_retry_after_this_job": false
+  },
+  "claim_boundary": "Single operational recovery submission. It does not establish corruption-induced ORION degradation or safety benefit."
+}

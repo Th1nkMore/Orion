@@ -1,0 +1,102 @@
+schema_version: orion.observation-uq-config/v3.1
+status: active_bounded_mvp
+date: 2026-08-26
+
+supersedes:
+  config: configs/spatial_uq_stage1.yaml
+  old_status: diagnostic_history_only
+  reason: actual ORION failure and synthetic corruption labels are not primary observation-uncertainty truth
+
+claim:
+  learned_quantity: clean-conditional feature surprise distilled as spatial observation insufficiency
+  semantic_uncertainty_truth: false
+  task_relevance_is_adapter_output: false
+  model_independence: not_claimed
+  stage1_supports_closed_loop_safety_by_itself: false
+
+teacher:
+  training_inputs: clean_sequences_only
+  minimum_viability_corpus:
+    train_routes: 35
+    clean_frames_per_train_route: 16
+    total_train_clean_frames: 560
+    validation_routes: 5
+    held_out_routes: 5
+    status: replaces_8_frame_infrastructure_smoke
+  target_patch_access: masked_nine_phase_block_lattice
+  mask_block_size: 4
+  mask_halo: 2
+  temporal_target_access: masked_with_same_spatial_context_mask
+  context:
+    spatial: same_view_neighboring_patches
+    temporal: one_previous_frame_when_available
+    receptive_field: dilated_convolution_radius_7
+    cross_view_geometry: deferred_after_mvp
+  members: 2
+  hidden_dim: 64
+  first_scaled_epochs: 24
+  checkpoint_selection: minimum_clean_validation_prediction_loss
+  loss: withheld_patch_cosine_prediction_error
+  score:
+    residual: conditional_cosine_error
+    disagreement_weight: 0.25
+    normalization: clean_train_patch_p95
+
+adapter:
+  input: current_and_previous_frozen_evavit_patch_tokens
+  output: nonnegative_six_view_patch_score
+  supervision: teacher_conditional_surprise_only
+  corruption_family_input: prohibited
+  corruption_severity_input: prohibited
+  corruption_mask_input: prohibited
+  actual_target_input: prohibited_for_core_checkpoint
+  driving_gradient: stopped
+
+corruption_protocol:
+  role: intervention_curriculum_and_independent_stress_test_not_ground_truth
+  train_families: [local_blur, local_dark]
+  held_out_family_mvp: [local_glare]
+  diagnostic_only: [local_occlusion, camera_dropout, full_route_blackout]
+  formal_held_out_after_mvp:
+    - carla_native_fog
+    - carla_native_rain
+    - carla_night_or_low_sun
+    - temporal_camera_drop_or_freeze
+  split_invariants:
+    - corruption_family_disjoint
+    - route_disjoint
+    - future_town_and_generator_disjoint
+    - future_severity_range_disjoint
+
+actual_target:
+  current_role: independent_orion_degradation_diagnostic
+  primary_or_only_adapter_label: false
+  optional_future_auxiliary:
+    enabled: false
+    separate_checkpoint_required: true
+    low_weight_rank_loss_only: true
+
+first_result_gate:
+  required:
+    - teacher_training_loss_decreases
+    - adapter_distillation_loss_decreases
+    - held_out_family_prediction_above_clean
+    - held_out_family_severity_has_positive_trend
+    - corruption_metadata_leakage_test_passes
+  interpretation: implementation_and_generalization_trend_only
+  does_not_authorize: full_closed_loop_matrix
+
+infrastructure_smoke_amendment_2026_08_26:
+  job: 1062951
+  teacher_train_clean_frames: 8
+  status: insufficient_for_architecture_judgment
+  permitted_use: code_resource_storage_and_schema_smoke_only
+  prohibited_use: teacher_viability_or_generalization_claim
+  corrective_action: deduplicated_fp16_clean_shard_and_560_frame_teacher_gate
+
+next_gate_before_scale:
+  - native_engine_degradation_not_seen_during_training
+  - clean_rare_content_false_positive_audit
+  - actual_orion_error_selective_risk
+  - oracle_closed_loop_mechanism_improves_safety
+  - matched_slowdown_constant_and_shuffled_controls

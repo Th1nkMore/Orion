@@ -1,0 +1,38 @@
+{
+  "schema": "orion.corruption_hardcase_wave0_runtime_retry_submission.v1",
+  "created_at": "2026-09-01T01:49:01+08:00",
+  "status": "exact_retry_submitted_pending_priority",
+  "preregistration": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave0_route194_waterdrop_watchdog_retry_prereg_v1.json",
+    "sha256": "dfc3df546d93cccd194b0d54fa525fb3f028648dfa0287a10de5e5bdad5e5de3"
+  },
+  "invalid_attempt": {
+    "job_id": 1116354,
+    "classification": "platform_runtime_control_trace_stall",
+    "excluded_from_scientific_counts": true
+  },
+  "retry": {
+    "job_id": 1116924,
+    "job_key": "route194_lens_waterdrop_paired_template_transient_off",
+    "state_at_record": "PENDING",
+    "reason_at_record": "Priority",
+    "excluded_nodes": ["gpu4", "gpu5"],
+    "plan": {
+      "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/route194_waterdrop_retry1_plan.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/route194_waterdrop_retry1_plan.json",
+      "sha256": "193ca904bacf5302e343e51c4af3371b2f7d50f72812b8918d743e54274f61ea"
+    },
+    "submission": {
+      "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/route194_waterdrop_retry1_submission.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/route194_waterdrop_retry1_submission.json",
+      "sha256": "c8a6b34a4ec4c15c418bc240ca1322d4b425c7316ad746af50840d4ef63427ad"
+    }
+  },
+  "effective_scientific_matrix_update": {
+    "route194.waterdrop_medium": 1116924,
+    "replaces_invalid_job": 1116354,
+    "effective_matrix_size": 12,
+    "duplicate_scientific_jobs": 0
+  },
+  "claim_boundary": "Submission and runtime-recovery record only. Job 1116924 becomes evidence only after terminal runtime, evaluator, trace, exact-medium metadata, and pair validity checks pass."
+}

@@ -1,0 +1,177 @@
+{
+  "schema": "orion.route197_dynamic_yield_oracle.v3",
+  "created_at": "2026-08-29T03:20:11+08:00",
+  "status": "preregistered_before_single_planning_oracle_submission",
+  "post_run_verifier_amendments": [
+    {
+      "timestamp": "2026-08-29T03:49:35+08:00",
+      "reason": "The frozen v3 evaluator compared numeric values stored as manifest strings against JSON numbers without coercion, causing seven false manifest-check failures. All trace recomputation checks passed and the collision endpoint already failed independently.",
+      "scientific_change": "None. Route, runtime, trajectory response, endpoint rules, trace rules, and the failure decision are unchanged.",
+      "original_evaluator_sha256": "cfaff67a8b3aa7b559f327ce6a2e8e4615513b031ffec6d86d3a6dc65dbc9c38",
+      "amended_evaluator_sha256": "bb3fa87effcc3723df03e055a6b5433862eb4e2fa972e1d4f3e8b576268d0051",
+      "additional_reporting_only": "Record the already-present min_speed_infractions count as a secondary endpoint."
+    }
+  ],
+  "execution_records": [
+    {
+      "timestamp": "2026-08-29T03:46:03+08:00",
+      "slurm_job_id": 1087469,
+      "runtime_status": "Completed with exit code 0",
+      "trace_sha256": "f2390b5628200f0417854b402e2ecfaf12c6df1ce1b3e50662b77444d58ebac8",
+      "official_eval_sha256": "a1fb84a17ba91723b90f4443f2197ccfd3f3f990f624c43dfe54576c6322bb85",
+      "original_result_sha256": "b6570932203a2706b18a85175306f1ffd449896d32e6dac197e3f95785ad0c5c",
+      "endpoint": {
+        "route_completion_percent": 100,
+        "official_vehicle_collisions": 1,
+        "collision_actor_type": "vehicle.mercedes.coupe_2020",
+        "collision_actor_id": 199,
+        "collision_time_seconds_from_trace_geometry": 22.25,
+        "score_composed": 60.0,
+        "red_light_infractions": 0,
+        "stop_sign_infractions": 0,
+        "outside_route_lanes": 0,
+        "min_speed_infraction_entries": 21
+      },
+      "trace_contracts": {
+        "all_trace_checks_passed": true,
+        "first_prepare_time_seconds": 0.45,
+        "main_event_prepare_time_seconds": 9.1,
+        "first_hold_time_seconds": 10.65,
+        "release_to_hold_count": 1,
+        "density_and_observation_adapter_absent_every_frame": true,
+        "scalar_governor_exact_passthrough_every_frame": true
+      },
+      "primary_success": false,
+      "decision": "Reject the constant-velocity OBB trajectory-clamp target and do not train Stage-2 against it. The collision was detected in advance, but the target retained the first two ORION waypoints until too late; the existing PID therefore carried the ego into the crossing lane before stopping. Redesign supervision as a dynamically feasible deceleration/yield-line trajectory."
+    }
+  ],
+  "scope": "post-hoc Route197 mechanism development only; not confirmatory evidence",
+  "scientific_question": "Can a planning-layer oracle that recomputes trajectory conflict and release from current privileged actor state eliminate Route197 sequential-cross-traffic collisions while preserving completion and traffic-rule compliance?",
+  "naming_boundary": {
+    "condition_name": "native_dynamic_yield_oracle",
+    "paper_name": "privileged dynamic-yield planning oracle",
+    "prohibited_names": [
+      "uncertainty oracle",
+      "learned adapter control",
+      "deployable perception system",
+      "held-out confirmation"
+    ]
+  },
+  "development_evidence_used": {
+    "clean_reference_job": 1086450,
+    "failed_fixed_window_jobs": [1087430, 1087449],
+    "failure_summary": "Both fixed-duration scalar governors retained one official collision and score 60 while changing the collision actor from Mini to Mercedes to Audi. Route197 therefore rejects duration/speed tuning and motivates current-state planning response.",
+    "offline_label_audit": {
+      "source_job": 1087449,
+      "report_path": "/public/share/lidachuan/orion_assets/results/planning_label_audit_v1/route197_stop_yield_v2/privileged_yield_report.json",
+      "report_sha256": "897923d6ba1c1d0acb8b36191a27adf8669933ef95e554e821470604a1aa22d7",
+      "labels_path": "/public/share/lidachuan/orion_assets/results/planning_label_audit_v1/route197_stop_yield_v2/privileged_yield_labels.jsonl",
+      "labels_sha256": "8d423e04853b82ae55206c9c11db67aedfaf664015c26227154154590ab6d4b1",
+      "first_prepare_time_seconds": 9.5,
+      "first_hold_time_seconds": 11.0,
+      "final_audi_first_hold_time_seconds": 19.5,
+      "original_v2_audi_collision_time_seconds": 22.3,
+      "audi_hold_lead_seconds": 2.8,
+      "boundary": "This is a post-hoc feasibility audit on the same development route. It selects no collision actor or fixed runtime window in the online experiment."
+    }
+  },
+  "clean_reference": {
+    "job_id": 1086450,
+    "report_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route197_hazard_clean_off-1086450/native_collision_discovery_report.json",
+    "report_sha256": "50d597f3bc35c8780387c79e7a68b0e1c79139c9eb3467e4289163ef999c6a64",
+    "official_vehicle_collisions": 1,
+    "route_completion_percent": 100,
+    "score_composed": 60.0
+  },
+  "frozen_condition": {
+    "route_index": 197,
+    "town": "Town05",
+    "scenario": "SignalizedJunctionRightTurn",
+    "corruption": "none",
+    "orion_uq_inference_mode": "none",
+    "observation_adapter_loaded": false,
+    "legacy_density_uq_enabled": false,
+    "scalar_risk_mode": "off",
+    "planning_response_mode": "privileged_dynamic_yield",
+    "orion_weights_modified": false,
+    "base_candidate_source": "unmodified ORION ego_fut_preds",
+    "response_location": "six-step trajectory before the existing PID controller"
+  },
+  "frozen_planning_response": {
+    "horizons_seconds": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
+    "actor_prediction": "privileged CARLA constant velocity with fixed yaw",
+    "collision_geometry": "time-aligned fixed-orientation OBB separating-axis gap",
+    "interpolation_step_seconds": 0.1,
+    "safety_margin_m": 0.75,
+    "imminent_horizon_seconds": 1.5,
+    "clearance_seconds": 1.0,
+    "release_seconds": 0.5,
+    "stop_buffer_m": 2.0,
+    "release_creep_distance_m": 1.0,
+    "states": ["go", "prepare_yield", "hold", "release"],
+    "go_semantics": "exact unmodified ORION trajectory",
+    "yield_semantics": "clamp progress along the same ORION path before the earliest privileged conflict",
+    "release_semantics": "allow at most one metre of creep, recompute every control frame, then restore the ORION path only after the additional release interval remains conflict-free",
+    "explicitly_absent": [
+      "fixed route-progress trigger",
+      "fixed hold duration",
+      "collision actor ID lookup",
+      "Density UQ",
+      "learned observation adapter",
+      "scalar speed governor intervention"
+    ]
+  },
+  "single_run_rule": {
+    "maximum_authorized_submissions": 1,
+    "no_parameter_sweep": true,
+    "no_retry_for_scientific_failure": true,
+    "runtime_only_retry_allowed": "Only an unambiguous infrastructure failure before a terminal route result may be retried without changing any frozen source or parameter."
+  },
+  "runtime": {
+    "partition": "Nvidia_A800",
+    "validated_node": "gpu4",
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "gpus_per_task": 1,
+    "carla_quality": "Epic",
+    "time_limit": "03:00:00"
+  },
+  "frozen_hashes": {
+    "route_197_hazard.xml": "a25537ab3d966cdc6d786e1c37982e040296ec95068afcf21ac193a1fc1a7cae",
+    "adzoo/orion/configs/orion_stage3_agent_uq.py": "d21bc03079e61e3a9cb84c654b99c58c5e694ddaab28e6d9dd91639dfebb3364",
+    "team_code/orion_b2d_agent.py": "87ade67ab24d9946815e1a533d1cf7ccaa8f6684538afee0874ad6101fd89a4f",
+    "mmcv/models/dense_heads/orion_head.py": "9d4e18ba4cad278635b5bd85e0fc6056d5104adda38d99701e1d087680cf2754",
+    "uq_estimator/risk_governor.py": "23587dc31d86edfa77f8a0949c2027a292d06a4fa467c0d5975eaaa23737dcd6",
+    "uq_estimator/privileged_yield_labels.py": "f9d268b0ad8651e17049800e3ecf1736c7906f78f80e82cd8b36bff2c442c4f4",
+    "scripts/run_closedloop_uq_pilot.sh": "18670b27d6a619d2c8818b57854d3432e64c57a522954243a45b40af95eacbbc",
+    "scripts/evaluate_route197_dynamic_yield_oracle.py": "cfaff67a8b3aa7b559f327ce6a2e8e4615513b031ffec6d86d3a6dc65dbc9c38"
+  },
+  "primary_success_rule_all_required": {
+    "runtime_valid_terminal_endpoint": true,
+    "official_collision_count": 0,
+    "route_completion_percent": 100,
+    "new_serious_infraction_count": 0,
+    "legacy_density_and_observation_adapter_absent_every_frame": true,
+    "scalar_governor_exact_passthrough_every_frame": true,
+    "planning_conflicts_states_targets_and_residuals_exactly_recomputable_from_trace": true,
+    "prepare_or_hold_observed": true,
+    "trajectory_intervention_observed": true
+  },
+  "secondary_outcomes": [
+    "score_composed",
+    "minimum OBB TTC",
+    "TTC threshold exposure",
+    "minimum OBB gap",
+    "state counts and transitions",
+    "release-to-hold re-entry count",
+    "stopped time and mean speed",
+    "route completion and all traffic infractions"
+  ],
+  "decision_rule": {
+    "if_primary_success": "The planning response mechanism has a privileged upper bound on this development event. Proceed to Stage-2 label generation/training, but keep the learned observation adapter non-controlling until its independent gates improve.",
+    "if_collision_zero_but_completion_or_rules_fail": "Reject blanket stopping or invalid control as a mechanism proof; redesign the planner objective.",
+    "if_collision_remains": "Reject the current constant-velocity OBB oracle/trajectory clamp and do not train Stage-2 against it.",
+    "no_learned_matrix_expansion": "A single development-route success does not authorize learned-UQ closed-loop matrices; first build training data and confirm on a separately frozen route/seed."
+  },
+  "claim_boundary": "This privileged oracle reads simulator actor state unavailable to the learned driving system. Even a complete success proves only that current-state conflict-aware trajectory response can mechanically solve this development event. It does not validate Stage-1 uncertainty, learned task relevance, VLM understanding, real-world generalization, or deployability."
+}

@@ -1,0 +1,758 @@
+{
+  "checks": {
+    "locked_test_lineage_valid": true,
+    "minimum_dev_events": true,
+    "minimum_independent_events": false,
+    "minimum_locked_test_events": false,
+    "minimum_scenario_families": false,
+    "minimum_towns": false,
+    "minimum_train_events": false,
+    "route_disjoint": true
+  },
+  "claim_boundary": "A frozen event bank establishes data integrity and split governance only. Stage1, Stage2-L, and closed-loop claims require their own evaluations.",
+  "counts": {
+    "accepted_events": 8,
+    "rejected_events": 2,
+    "scenario_families": 6,
+    "splits": {
+      "dev": 4,
+      "test": 0,
+      "train": 4
+    },
+    "towns": 3
+  },
+  "events": [
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.09863450766600868,
+        "min_obb_ttc_seconds": 0.31469298263689527,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 201,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 2.489066984114425,
+          "obb_ttc_seconds": 0.31469298263689527,
+          "type_id": "vehicle.ford.mustang"
+        },
+        "route_progress": 0.6646881362401295,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 25.9,
+        "speed_mps": 4.783824322215619,
+        "step": 518,
+        "window_seconds": [
+          22.9,
+          27.9
+        ]
+      },
+      "event_id": "route160_step518",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route160/event_package.json",
+        "sha256": "100312d6468f5a2573dc1a4c587233d7c435377f2db9ce42c70a30740fe5641e"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "Ford Mustang remains temporally continuous while entering and crossing the ego corridor; raw/model-input front and BEV agree. Development event only.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_SEVERE_TTC",
+      "qa_input_ready": true,
+      "review_rank": 1,
+      "route_index": 160,
+      "runtime_valid": true,
+      "scenario_family": "ConstructionObstacle",
+      "screen_role": "static_visual_hazard",
+      "split_origin": "development_screen",
+      "stage2_split": "dev",
+      "town": "Town04",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route160/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route160/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route160/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.3105996990486921,
+        "min_obb_ttc_seconds": 0.46781664607273854,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 182,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 0.882404491164889,
+          "obb_ttc_seconds": 0.46781664607273854,
+          "type_id": "vehicle.dodge.charger_2020"
+        },
+        "route_progress": 0.3474452803573711,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 21.05,
+        "speed_mps": 4.328107681987776,
+        "step": 421,
+        "window_seconds": [
+          18.05,
+          23.05
+        ]
+      },
+      "event_id": "route165_step421",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route165/event_package.json",
+        "sha256": "a32b44dcd43402c5545a2c4870f7ff20701ab916cd4d4305c013fe8e6dd5b080"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "Severe-TTC parked-obstacle interaction is temporally continuous in native dark/rain conditions. The route's MinSpeed failure remains recorded and is not treated as a safety improvement.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_SEVERE_TTC",
+      "qa_input_ready": true,
+      "review_rank": 4,
+      "route_index": 165,
+      "runtime_valid": true,
+      "scenario_family": "ParkedObstacle",
+      "screen_role": "static_visual_hazard",
+      "split_origin": "development_screen",
+      "stage2_split": "dev",
+      "town": "Town05",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route165/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route165/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route165/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.6260148338233464,
+        "min_obb_ttc_seconds": 1.4124262907030065,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 171,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 7.449315191886297,
+          "obb_ttc_seconds": 1.4124262907030065,
+          "type_id": "vehicle.lincoln.mkz_2020"
+        },
+        "route_progress": 0.15473288886289582,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 6.95,
+        "speed_mps": -0.0003489592886489761,
+        "step": 139,
+        "window_seconds": [
+          3.95,
+          8.95
+        ]
+      },
+      "event_id": "route188_step139",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route188/event_package.json",
+        "sha256": "c223fc670d88d047e744d7ee1a371e7a5fec2066fc118cda705f2e3bb3e76e25"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "Dense-traffic hard-braking interaction is continuous; ego stops behind the lead traffic and front/BEV motion agree. Accepted as a development longitudinal-conflict event.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 10,
+      "route_index": 188,
+      "runtime_valid": true,
+      "scenario_family": "HardBreakRoute",
+      "screen_role": "longitudinal_response_hazard",
+      "split_origin": "development_screen",
+      "stage2_split": "dev",
+      "town": "Town04",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route188/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route188/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route188/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [
+        "majority_of_route_nearly_stopped"
+      ],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.09800125405822646,
+        "min_obb_ttc_seconds": 1.9882479239436928,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 115,
+          "category": "walker",
+          "obb_separating_axis_gap_m": 12.121620684410459,
+          "obb_ttc_seconds": 5.043701877207121,
+          "type_id": "walker.pedestrian.0042"
+        },
+        "preferred_actor_categories": [
+          "walker"
+        ],
+        "route_progress": 0.17569927796034704,
+        "selection_basis": "minimum_finite_preferred_actor_obb_ttc",
+        "sim_time_seconds": 5.25,
+        "speed_mps": 2.4358612972795495,
+        "step": 105,
+        "window_seconds": [
+          2.25,
+          7.25
+        ]
+      },
+      "event_id": "route202_step105",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829_pedreview_v1/route202/event_package.json",
+        "sha256": "8e5e4df478446fe2484e724504b308dcbbf691cfe68e1b7205d7fa0ae4f77030"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "Corrected pedestrian-specific review window shows a continuous right-to-left crossing aligned in front and BEV. Majority-stopped warning is retained; this is a semantic QA event, not closed-loop performance evidence.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 6,
+      "route_index": 202,
+      "runtime_valid": true,
+      "scenario_family": "PedestrianCrossing",
+      "screen_role": "dynamic_path_conflict",
+      "split_origin": "development_screen",
+      "stage2_split": "dev",
+      "town": "Town03",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829_pedreview_v1/route202/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829_pedreview_v1/route202/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829_pedreview_v1/route202/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.28767520771940625,
+        "min_obb_ttc_seconds": 1.0736622494968981,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 200,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 4.067565553739031,
+          "obb_ttc_seconds": 1.0736622494968981,
+          "type_id": "vehicle.mini.cooper_s_2021"
+        },
+        "route_progress": 0.35920506421177667,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 15.4,
+        "speed_mps": 4.949896019023221,
+        "step": 308,
+        "window_seconds": [
+          12.4,
+          17.4
+        ]
+      },
+      "event_id": "route161_step308",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route161/event_package.json",
+        "sha256": "11ad7ddaa0de75901e73ab89fee158a35094a970266c8b00270ddfd91ead3022"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "Construction-zone cones and crossing/cut-in vehicles remain continuous and aligned across front and BEV throughout the selected conflict window.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 9,
+      "route_index": 161,
+      "runtime_valid": true,
+      "scenario_family": "ConstructionObstacle",
+      "screen_role": "static_visual_hazard",
+      "split_origin": "development_screen",
+      "stage2_split": "train",
+      "town": "Town04",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route161/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route161/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route161/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.0,
+        "min_obb_ttc_seconds": 0.0,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 136,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 0.0,
+          "obb_ttc_seconds": 0.0,
+          "type_id": "vehicle.chevrolet.impala"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.3845044427184213,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 13.85,
+        "speed_mps": 1.5200274665216653,
+        "step": 277,
+        "window_seconds": [
+          10.85,
+          15.85
+        ]
+      },
+      "event_id": "route162_step277",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829_pedreview_v1/route162/event_package.json",
+        "sha256": "ecced03ac5a1952e88e2105d5356da2ecd0a30bb1714a01074a1a2aa67625b0c"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "Accident/crossing-vehicle interaction is continuous in native dark/rain conditions. The BEV is naturally very dark but present and temporally aligned, not a missing stream.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_SEVERE_TTC",
+      "qa_input_ready": true,
+      "review_rank": 7,
+      "route_index": 162,
+      "runtime_valid": true,
+      "scenario_family": "Accident",
+      "screen_role": "static_visual_hazard",
+      "split_origin": "development_screen",
+      "stage2_split": "train",
+      "town": "Town03",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829_pedreview_v1/route162/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829_pedreview_v1/route162/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829_pedreview_v1/route162/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.8445393803253043,
+        "min_obb_ttc_seconds": 1.311140492879237,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 156,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 9.439139411388723,
+          "obb_ttc_seconds": 1.311140492879237,
+          "type_id": "vehicle.chevrolet.impala"
+        },
+        "route_progress": 0.4986020145615517,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 15.2,
+        "speed_mps": -0.005766302109082125,
+        "step": 304,
+        "window_seconds": [
+          12.2,
+          17.2
+        ]
+      },
+      "event_id": "route185_step304",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route185/event_package.json",
+        "sha256": "0bd0b2aeac3b5de75b60962061eeafc7dc3ec8818817679fbde9cae9ce95f4fa"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "Chevrolet Impala remains visible during the diagonal cut-in and front/BEV agree. Dense surrounding traffic makes this a lower-specificity development conflict, not a standalone headline case.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 8,
+      "route_index": 185,
+      "runtime_valid": true,
+      "scenario_family": "StaticCutIn",
+      "screen_role": "static_visual_hazard",
+      "split_origin": "development_screen",
+      "stage2_split": "train",
+      "town": "Town05",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route185/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route185/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route185/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [
+        "majority_of_route_nearly_stopped"
+      ],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.8653311911066563,
+        "min_obb_ttc_seconds": 1.0236056896527257,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 121,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 6.643263675607965,
+          "obb_ttc_seconds": 1.0236056896527257,
+          "type_id": "vehicle.lincoln.mkz_2020"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.9392128372578288,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 36.45,
+        "speed_mps": 0.0067957380470938,
+        "step": 729,
+        "window_seconds": [
+          33.45,
+          38.45
+        ]
+      },
+      "event_id": "route192_step729",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_reserve2_20260829_earlyfinalize_v1/route192/event_package.json",
+        "sha256": "593070436b8e8aa48a2f848c2ab439d54cac5e9bffa14e306d7e6ca86cd028fd"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "Lead vehicle remains continuous while braking sharply in the ego lane; ego closes and then stops. Front and BEV motion agree. Early immutable packaging was used so the completed route did not wait for the reserve route.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 3,
+      "route_index": 192,
+      "runtime_valid": true,
+      "scenario_family": "HardBreakRoute",
+      "screen_role": "longitudinal_response_hazard",
+      "split_origin": "development_screen",
+      "stage2_split": "train",
+      "town": "Town03",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_reserve2_20260829_earlyfinalize_v1/route192/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_reserve2_20260829_earlyfinalize_v1/route192/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_reserve2_20260829_earlyfinalize_v1/route192/visuals/raw_front.gif"
+      ]
+    }
+  ],
+  "formal_training_ready": false,
+  "provenance": {
+    "review_decisions": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/stage2l_pilot8_review_20260829_v1/scenario_event_review_decisions.json",
+      "sha256": "6616ccabb84486bbdf2f827ab06c1b362a0f5f31a3caccdfeed749c603d29e2f"
+    },
+    "review_queue": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/stage2l_pilot8_review_20260829_v1/scenario_event_review_queue.json",
+      "sha256": "9f29ca52bc2e441ca0893d7d4d7ab2cba7310f79224f3c7a00d29f0aa3847acf"
+    },
+    "stage2_config": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/stage2l_training_v1.json",
+      "sha256": "fb82ec589d49aef9863009620c8c210d29e83167d6afe3a78643e3ae2cd80fa1"
+    }
+  },
+  "rejected_events": [
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [
+        "majority_of_route_nearly_stopped"
+      ],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 2.0404782159392347,
+        "min_obb_ttc_seconds": 1.6508627720370017,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 148,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 6.95159712743385,
+          "obb_ttc_seconds": 1.6508627720370017,
+          "type_id": "vehicle.lincoln.mkz_2020"
+        },
+        "route_progress": 0.9419731551580188,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 51.0,
+        "speed_mps": 0.7928653578718489,
+        "step": 1020,
+        "window_seconds": [
+          48.0,
+          52.6
+        ]
+      },
+      "event_id": "route159_step1020",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route159/event_package.json",
+        "sha256": "c3e5eaab465c4f09a239f5de09b22cf416353a3d516e30d87d877d9c74c1b47f"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "fail",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "reject",
+        "notes": "Automatic minimum-TTC window occurs after the visible interaction has passed and does not ground a current ego-corridor conflict; most of the route is also nearly stopped. Retained only as a selector diagnostic.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 2,
+      "route_index": 159,
+      "runtime_valid": true,
+      "scenario_family": "ControlLoss",
+      "screen_role": "non_perceptual_control_hard_negative",
+      "split_origin": "development_screen",
+      "town": "Town02",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route159/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route159/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route159/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [
+        "critical_event_near_route_start",
+        "majority_of_route_nearly_stopped"
+      ],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 1.908759547029383,
+        "min_obb_ttc_seconds": 1.6412292914177795,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 160,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 6.932334448345117,
+          "obb_ttc_seconds": 1.6412292914177795,
+          "type_id": "vehicle.lincoln.mkz_2020"
+        },
+        "route_progress": 0.0009399976164219529,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 1.65,
+        "speed_mps": 0.8759374368546526,
+        "step": 33,
+        "window_seconds": [
+          0.0,
+          3.65
+        ]
+      },
+      "event_id": "route200_step33",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route200/event_package.json",
+        "sha256": "89b2edcc5ad169ebf7e65a278d05f42cb9c4d11be729aee632b5d939e588ac3b"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "fail",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "fail",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "reject",
+        "notes": "Critical event lies essentially at route start and is dominated by initial neighboring-traffic/spawn geometry rather than an established driving interaction. Retained only as a selector diagnostic.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 5,
+      "route_index": 200,
+      "runtime_valid": true,
+      "scenario_family": "BlockedIntersection",
+      "screen_role": "liveness_and_rule_hard_negative",
+      "split_origin": "development_screen",
+      "town": "Town04",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route200/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route200/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route200/visuals/raw_front.gif"
+      ]
+    }
+  ],
+  "schema": "orion.scenario_event_bank.v1",
+  "split_seed": "orion-stage2l-split-v1",
+  "status": "reviewed_pilot_bank_below_formal_gate"
+}

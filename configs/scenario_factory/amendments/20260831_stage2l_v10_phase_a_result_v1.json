@@ -1,0 +1,103 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T16:10:02+08:00",
+  "status": "stage2l_v10_scientific_early_stop_after_phase_a",
+  "title": "Stage2-L v10 17-event staged smoke terminal result",
+  "job": {
+    "job_id": "1112878",
+    "slurm_state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed": "00:46:53",
+    "max_rss_kib": 42207164,
+    "runtime_failure": false,
+    "oom": false
+  },
+  "scientific_status": {
+    "terminal_status": "stopped_after_phase_a_failed_gate",
+    "completed_phases": [],
+    "phase_a_optimizer_steps": 40,
+    "phase_b_started": false,
+    "phase_c_started": false,
+    "automatic_retry_submitted": false
+  },
+  "phase_a": {
+    "optimization": {
+      "step_1_loss": 1.470748171210289,
+      "step_40_loss": 0.6037604305893183,
+      "minimum_logged_loss": 0.46626674197614193,
+      "all_logged_gradients_finite": true
+    },
+    "train": {
+      "mean_map_loss": 0.5895023576915264,
+      "foreground_recall": 0.628571093082428,
+      "foreground_recall_gate": 0.9,
+      "background_false_positive_rate": 0.010996885597705841,
+      "background_false_positive_rate_gate_maximum": 0.1,
+      "foreground_background_probability_gap": 0.464152991771698,
+      "positive_order_fraction_diagnostic": 0.95,
+      "mean_attained_fraction_diagnostic": 0.9502789483001834
+    },
+    "dev": {
+      "mean_map_loss": 0.794858169555664,
+      "foreground_recall": 0.341455340385437,
+      "foreground_recall_gate": 0.8,
+      "background_false_positive_rate": 0.008005127310752869,
+      "background_false_positive_rate_gate_maximum": 0.1,
+      "foreground_background_probability_gap": 0.21578891575336456,
+      "positive_order_fraction_diagnostic": 0.65,
+      "mean_attained_fraction_diagnostic": 0.24863950618891978
+    },
+    "passed_checks": [
+      "train_background_fpr",
+      "dev_background_fpr",
+      "dev_probability_gap_positive"
+    ],
+    "failed_checks": [
+      "train_foreground_recall",
+      "dev_foreground_recall"
+    ]
+  },
+  "interpretation": {
+    "supported": "The Phase-A implementation optimized stably, strongly suppressed background, and learned a positive foreground-background relevance gap on held-out events.",
+    "not_supported": "The learned R map did not activate enough foreground support at the frozen decision threshold, especially on held-out events; Phase A therefore did not establish the required spatial relevance learnability gate.",
+    "most_likely_current_diagnosis": "Foreground-response underactivation or objective/support-label calibration mismatch, with a generalization gap; not numerical divergence and not evidence that parameter capacity is insufficient.",
+    "required_next_diagnostic": "Inspect per-event foreground probability distributions, support geometry and threshold-free precision-recall before changing optimizer steps, gate thresholds, labels or model capacity.",
+    "forbidden_shortcut": "Do not lower the preregistered release threshold post hoc and call v10 passed. Any revised gate or objective must be a new version and a new bounded smoke."
+  },
+  "artifacts": {
+    "remote_report": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/training/report.json",
+      "sha256": "8085bd52f51c491c55a5ed474ecbcef9b6912055ad433540bb08035ac2bd8783"
+    },
+    "remote_phase_a_checkpoint": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/training/phase_a.pt",
+      "sha256": "9010ee1b559bbd5a822bc78193bc88594f5d266bd64932ceefe90b2699f03443"
+    },
+    "analysis": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/analysis/analysis.json",
+      "sha256": "c5f9d545c51ec885685be2ae64b9dc2be3fcc53136cefcec79ff8964426d8b75"
+    },
+    "optimization_plot": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/analysis/optimization.png",
+      "sha256": "b841d8ea3f4751e20c7e5145994344bf348d70f8856eb50c8fc10fb85cb8950b"
+    }
+  },
+  "provenance": {
+    "trainer_sha256": "03093c10b1f68b3f9c1a068a8aaaa680be8aa466d53b1e6bf0bc474fa4b31d02",
+    "protocol_sha256": "9c59849afe81fa4fa0f3ff7b185ebaa6969ef882d5b714a504189a5f6897dcf1",
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "frozen_u_tokenizer_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "submission_attestation_sha256": "f09f3ccbf95852d5cfbb6119ab82379f2b7def4be44e43d7ba27934c3f77cad4"
+  },
+  "launch_locks": {
+    "stage2l_v10_retry_allowed_now": false,
+    "phase_b_allowed": false,
+    "phase_c_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "v10_aware_closed_loop_allowed": false,
+    "native_glare_original_orion_failure_induction_track_independent": true,
+    "route203_native_glare_submission_allowed": false
+  },
+  "claim_boundary": "A failed bounded engineering learnability smoke with useful Phase-A diagnostics. It is not a formal Stage2-L result, a U-token semantic success, a native-glare result, a planning result or a closed-loop safety result."
+}

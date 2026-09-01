@@ -1,0 +1,38 @@
+{
+  "decisions": [
+    {
+      "checks": {
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass",
+        "visual_stream_integrity": "pass"
+      },
+      "decision": "accept",
+      "event_id": "route160_step518",
+      "event_package_sha256": "100312d6468f5a2573dc1a4c587233d7c435377f2db9ce42c70a30740fe5641e",
+      "notes": "Codex-assisted visual audit of raw front, ORION model-input front, and external BEV sequences. The Ford Mustang remains temporally continuous while entering and crossing the ego corridor; raw/model-input streams agree. Accepted as a development severe-TTC event, not as a locked-test or collision claim.",
+      "rejection_basis": null
+    },
+    {
+      "checks": {
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass",
+        "visual_stream_integrity": "pass"
+      },
+      "decision": "accept",
+      "event_id": "route185_step304",
+      "event_package_sha256": "0bd0b2aeac3b5de75b60962061eeafc7dc3ec8818817679fbde9cae9ce95f4fa",
+      "notes": "Codex-assisted visual audit of raw front, ORION model-input front, and external BEV sequences. The Chevrolet Impala remains visible and its diagonal cut-in is aligned across front and BEV. Accepted for development diversity; dense surrounding traffic makes it a lower-specificity conflict event rather than a standalone headline case.",
+      "rejection_basis": null
+    }
+  ],
+  "review_queue": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/scenario_factory_clean_wave0_20260829/scenario_event_review_queue.json",
+    "sha256": "725b6a31896c4359e0157368578da2aa465759f11eb558d4b1538a03e2519b2c"
+  },
+  "reviewed_at": "2026-08-29T11:20:34+08:00",
+  "reviewer": "Codex-assisted visual review",
+  "schema": "orion.scenario_event_review_decisions.v1",
+  "status": "review_complete"
+}

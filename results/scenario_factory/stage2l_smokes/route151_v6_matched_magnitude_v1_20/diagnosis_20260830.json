@@ -1,0 +1,59 @@
+{
+  "schema": "orion.stage2l_v6_route151_smoke_diagnosis.v1",
+  "recorded_at": "2026-08-30T14:23:53+08:00",
+  "job": {
+    "slurm_job_id": "1101917",
+    "state": "FAILED",
+    "exit_code": "3:0",
+    "elapsed": "01:55:42",
+    "batch_max_rss_kib": 50712440,
+    "interpretation": "The trainer intentionally returned exit code 3 after completing all 20 optimizer groups because semantic gates failed; this was not an OOM or an incomplete run."
+  },
+  "decision": {
+    "smoke_passed": false,
+    "formal_pilot_unlocked": false,
+    "submit_additional_training": false,
+    "next_action": "Repair and validate the Stage2-L objectives and gates with an offline/head-level diagnostic before another A800 smoke."
+  },
+  "observed_metrics": {
+    "before": {
+      "first_group_cross_family_margin_pass_fraction": 0.37037037037037035,
+      "first_group_mean_hard_language_nll": 12.460481219821506,
+      "hard_stance_accuracy": 0.2,
+      "mean_on_minus_off_peak_task_risk": -0.027477073669433593,
+      "mean_relevance_bce": 0.7596083045005798,
+      "minimum_hard_stance_target_probability": 0.3237907588481903
+    },
+    "after": {
+      "first_group_cross_family_margin_pass_fraction": 0.3333333333333333,
+      "first_group_mean_hard_language_nll": 5.175423039330377,
+      "hard_stance_accuracy": 0.6666666666666666,
+      "mean_on_minus_off_peak_task_risk": 0.14789296285101727,
+      "mean_relevance_bce": 0.05021130070090294,
+      "minimum_hard_stance_target_probability": 0.14418725669384003
+    }
+  },
+  "diagnosis": [
+    "Language fitting improved, but cross-family QA preference worsened and generated answers remained malformed, so the model did not demonstrate stable UQ semantics.",
+    "The exact 2/3 stance accuracy equals the majority-class baseline for two maintain labels and one conservative label per group; it is not evidence of on-path understanding.",
+    "The minimum target-stance probability fell from 0.3238 to 0.1442, consistent with majority-class collapse despite the nominal accuracy gate passing.",
+    "The mean learned on-minus-off peak task-risk gap became positive but remained below the configured 0.2 gate.",
+    "With target R and frozen U, only one of five groups can attain the fixed 0.2 risk gap; the objective is incompatible with four of five supervision geometries.",
+    "Target R is very sparse, with group means from approximately 0.00086 to 0.00443, so unweighted BCE can be small while predicting mostly background."
+  ],
+  "required_repairs_before_next_gpu_smoke": [
+    "Replace unweighted relevance BCE with a foreground-balanced spatial objective and report positive-region recall plus background false-positive rate.",
+    "Replace the fixed absolute 0.2 gap with a preregistered target-geometry-aware ordering metric, such as sign correctness plus a fraction of the attainable oracle gap.",
+    "Replace overall stance accuracy with balanced metrics: on-path conservative recall, off-path specificity, zero-UQ specificity, and minimum target probability.",
+    "Repair QA answer construction or language supervision and require valid generated answers plus agreement between generated stance and structured stance.",
+    "Pass a small tensor/head-level overfit diagnostic on the same five groups before allocating another full ORION smoke."
+  ],
+  "artifacts": {
+    "report_sha256": "ed01b5235a1c245d79cf0da0457ad7de73d84a4f8cf52ee13ad4abe8a12892cd",
+    "checkpoint_sha256": "41947dfe4368f03557f19a04986ce050643c75d846dd1b36ca700dc153532a53",
+    "independent_validation_sha256": "aa4449130d20c278a5c44cf7e83f59100261b3452e1dbb6163863da54e8dbf28",
+    "ranking_geometry_diagnostic_sha256": "d798eae6f59b9af48826012a425c8695cb55464af88287099a010348aae7ed32",
+    "slurm_log_sha256": "94636554ce6781030486ef89642dae3de289005910a42ffd34c5f599656e1c9a"
+  },
+  "claim_boundary": "Engineering smoke diagnosis only. This provides no held-out, generalization, trajectory, closed-loop, or safety evidence."
+}

@@ -1,0 +1,54 @@
+{
+  "schema_version": "orion.observation-uq-native-manifold-candidates/v1",
+  "frozen_at": "2026-08-26T22:52:51+08:00",
+  "purpose": "Audit clean-only multimodal appearance priors after local conditional prediction and unimodal clean statistics failed on persistent Epic fog.",
+  "inputs": {
+    "clean_calibration_examples": 560,
+    "clean_calibration_routes": 35,
+    "clean_feature_sha256": "ab8d16ce9ffe67aba192ae331b102bcda8ccf917b4bbe491e86e452367b5beac",
+    "native_feature_sha256": "debdeac1cbb1bb72227604a79ef41f38c1be13dde6562256599055d6ea20ddda",
+    "native_routes": ["Town01/Route146", "Town04/Route203"],
+    "renderer_quality": "Epic"
+  },
+  "reference": {
+    "scope": "same camera view and exact 40x40 feature-grid position",
+    "route_balancing": "minimum distance within each clean route, followed by the mean of the five nearest distinct clean routes",
+    "clean_calibration": "leave-one-route-out raw score for every one of the 560 clean frames, then per-view-position median/MAD positive-tail calibration",
+    "l2_feature_standardization": "clean-only per-view-position-channel mean/std with a per-position 10th-percentile scale floor",
+    "nearest_route_count": 5,
+    "position_chunk_size": 16
+  },
+  "candidates": {
+    "appearance_route_knn_cosine_z": "Route-balanced five-nearest-clean-route cosine distance on the full 1024-D patch direction.",
+    "appearance_route_knn_standardized_l2_z": "Route-balanced five-nearest-clean-route Euclidean distance after clean-only per-view-position-channel standardization; unlike the failed diagonal distance, this retains a multimodal nearest-clean-manifold reference."
+  },
+  "attestation": {
+    "candidate_training": false,
+    "clean_observations_are_the_only_reference": true,
+    "query_current_neighbourhood_used_as_prediction_context": false,
+    "query_previous_frame_used": false,
+    "corruption_metadata_used_for_candidate": false,
+    "paired_clean_used_for_candidate_or_calibration": false,
+    "paired_clean_used_for_evaluation_only": true,
+    "adapter_training": false,
+    "actual_target_training": false,
+    "stage_b": false
+  },
+  "gate": {
+    "all_checks_must_pass_per_candidate": true,
+    "checks": [
+      "fog_light score uplift over clear > 0",
+      "fog_heavy score mean > fog_light score mean",
+      "sample-level fog severity Spearman >= 0.10",
+      "score versus paired-clean patch-delta Spearman >= 0.10 at both fog levels",
+      "score AUROC for the top 20 percent paired-delta patches >= 0.60 at both fog levels",
+      "paired-clean delta mean is positive and fog_heavy > fog_light",
+      "fog_heavy > fog_light > clear score mean independently on both routes"
+    ]
+  },
+  "decision": {
+    "no_candidate_passes": "Stop clean-feature manifold engineering on this development family and design a learned clean density/evidence model before any adapter training.",
+    "candidate_passes": "Freeze the passing appearance definition and test it on a new native sensor or weather family that was not used to design it; adapter training remains unauthorized."
+  },
+  "claim_boundary": "Epic fog is now architecture-development evidence, not an untouched confirmation set. A pass cannot support external generalization by itself."
+}

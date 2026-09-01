@@ -1,0 +1,103 @@
+{
+  "schema": "orion.stage2l_gradient_routed_training_protocol.v1",
+  "created_at": "2026-08-30T18:18:00+08:00",
+  "status": "cpu_preflight_prepared_training_locked",
+  "triggering_v7_failure": {
+    "report_sha256": "18e05deb9cc7c2002cd20ffc864c87e2636ab558dc50c23d60fb359def27e790",
+    "independent_validation_sha256": "e20cf0d76cde5d8ea594ba2b98937b7267f133cb1ceace693e8e15604c974709",
+    "diagnosis_sha256": "6949de0607cb57feae8cf1b3e2eedaa6fde65987715d3082bd8568791065e3a3",
+    "failed_gate_count": 10
+  },
+  "architecture": {
+    "stage1_adapter": "frozen task-agnostic spatial observation uncertainty U",
+    "stage2_l_role": "ORION/VLM predicts R, K=U*R, structured QA semantics and planning stance",
+    "trajectory_training_enabled": false,
+    "direct_control_training_enabled": false,
+    "legacy_density_uq_used": false,
+    "hard_governor_used": false
+  },
+  "gradient_ownership": {
+    "qa_language_loss_to_relevance_logits": false,
+    "qa_language_loss_to_stance_classifier": false,
+    "qa_language_loss_to_lora": true,
+    "qa_language_loss_to_uq_tokenizer": true,
+    "qa_language_loss_to_task_risk_bridge": true,
+    "qa_language_loss_to_stance_embeddings": true,
+    "relevance_map_and_ranking_losses_to_relevance_path": true,
+    "stance_classification_loss_to_stance_classifier": true,
+    "ground_truth_stance_enters_forward": false
+  },
+  "losses": {
+    "structured_qa_causal_language_modeling": {"weight": 1.0},
+    "foreground_balanced_relevance": {
+      "weight": 2.0,
+      "support_fraction_of_peak": 0.1,
+      "calibration_bce_weight": 0.1
+    },
+    "geometry_normalized_on_off_ranking": {
+      "weight": 1.0,
+      "required_oracle_fraction": 0.8
+    },
+    "dataset_frequency_balanced_stance": {
+      "weight": 2.0,
+      "class_counts": {"maintain": 10, "caution": 2, "prepare_to_yield": 3},
+      "counts_are_from_frozen_route151_v4_training_records": true
+    },
+    "same_family_structured_preference": {"weight": 2.0, "margin": 0.2},
+    "trajectory": 0.0,
+    "direct_control": 0.0,
+    "observed_consequence_calibration": 0.0
+  },
+  "implementation_sources": {
+    "uq_estimator/stage2l_semantic_bottleneck_v3.py": "76f6d0752f74dbffd9cf3f3c856af8a2fefbe6a0dec8d9a15204eb65b4596bf3",
+    "uq_estimator/stage2l_semantic_runtime_v3.py": "54d837823b0f20450d48f535e07871df7a8f242f8bcefc0c68d7452316c94ab2",
+    "uq_estimator/stage2l_qa_contract_v4.py": "53029722a4a98bc7a3e8ca8bb6307eb7ee1147957428d8fa74463778ddc7c3e3",
+    "uq_estimator/stage2l_gradient_routed_objective.py": "4352f62a334adfb401654603a4720f77ad04b217f611ece7a741100ca7b40062",
+    "scripts/train_stage2l_v8_route151_smoke.py": "0d7e512567e6651a006c700b19af1a199f7a78751d8dc1e910bc3556b1916ee9",
+    "scripts/preflight_stage2l_v8_route151.py": "b09bd83947a094e9ff2b5abb7b61c75c23edad5059d7a22a367d26c501511707",
+    "scripts/upgrade_stage2l_v8_qa_records.py": "af0f6a5fb15f3a089ea5f881ac6b692c40756618f4bc7f7cdf50cb2214b93f91",
+    "scripts/audit_stage2l_v8_dataset_references.py": "d0176fd48f2061afdfcfa7c9eee3fbc989c29b3e0c0530e861fdcfcf522a3010",
+    "configs/scenario_factory/qa_factory_v4_structured_semantics.json": "d4d4aec8d3d8694b0fa98a2b73e4448a2eb99df0913deba92a89fc5769dd4abe"
+  },
+  "route151_v8_dataset": {
+    "remote_records": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa/route151_step218/qa_dataset_v4_gradient_routed_v1/records.jsonl",
+    "records_sha256": "686f639bb58804f0ebec444a801923f4013950bebed8dabf735a2f83a4a16d38",
+    "audit_sha256": "a772d27ea462cfcf1469e4f921449a2eb7c7b1c4690ed18a3726f5e5a78ae320",
+    "reference_audit_sha256": "b85c79c06878a2c7644f1206a328d793248ce1cf65ec3310666a931f8bfbf7dc",
+    "record_count": 100,
+    "matched_group_count": 5,
+    "hard_language_record_count": 90,
+    "hard_stance_record_count": 15,
+    "same_family_preference_anchor_count": 90,
+    "distinct_counterfactual_negative_count": 270,
+    "all_ninety_unique_references_and_declared_hashes_verified": true
+  },
+  "cpu_preflight_tests": {
+    "platform_python": "/public/share/lidachuan/orion_assets/envs/orion-cl-centos7/bin/python",
+    "selected_test_count": 19,
+    "selected_test_result": "19 passed",
+    "gpu_used": false
+  },
+  "future_probe_bound_not_authorized": {
+    "matched_group_count": 5,
+    "proposed_epochs": 12,
+    "proposed_maximum_optimizer_steps": 60,
+    "reason": "v7 improved throughout four epochs but ended with language NLL 5.68 and one ranking group at 0.659",
+    "automatic_retry_or_extension": false
+  },
+  "release_gates": {
+    "all_v7_structural_gates_retained": true,
+    "semantic_parse_rate": 1.0,
+    "semantic_field_accuracy": 1.0,
+    "semantic_answer_exact_match": 1.0,
+    "same_family_margin_pass_fraction": 0.8,
+    "format_prefix_accuracy_is_diagnostic_only": true
+  },
+  "launch_locks": {
+    "real_orion_smoke_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false,
+    "new_immutable_amendment_required": true
+  },
+  "claim_boundary": "Gradient-routing and QA protocol preparation only; no new model result or generalization evidence."
+}

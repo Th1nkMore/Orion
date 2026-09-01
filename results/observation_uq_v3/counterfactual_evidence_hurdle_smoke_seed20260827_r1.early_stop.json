@@ -1,0 +1,47 @@
+{
+  "schema_version": "orion.counterfactual-evidence-hurdle-smoke-early-stop/v1",
+  "job_id": 1070480,
+  "run_id": "counterfactual_evidence_hurdle_smoke_seed20260827_r1",
+  "cancelled_at": "2026-08-27T08:27:56+08:00",
+  "slurm_state": "CANCELLED by 2329",
+  "elapsed": "00:16:04",
+  "config_sha256": "6ec1a09b2ca8eb35325f7ec9b698a93d1a0b50ffcabd680d6c031139b47e0b60",
+  "completed_epochs": [
+    {
+      "epoch": 1,
+      "train_total": 0.949811,
+      "route_validation_total": 1.475510,
+      "route_validation_presence": 1.177389,
+      "route_validation_magnitude": 0.056151
+    },
+    {
+      "epoch": 2,
+      "train_total": 0.716362,
+      "route_validation_total": 1.767545,
+      "route_validation_presence": 1.514645,
+      "route_validation_magnitude": 0.053467
+    },
+    {
+      "epoch": 3,
+      "train_total": 0.646045,
+      "route_validation_total": 2.563275,
+      "route_validation_presence": 2.269363,
+      "route_validation_magnitude": 0.060031
+    }
+  ],
+  "early_stop_rule": "After epoch 3, stop if train loss continues to improve while route-disjoint validation, especially presence, continues to worsen materially.",
+  "early_stop_triggered": true,
+  "interpretation": "The hurdle head fits train presence while presence detection fails to generalize across routes; magnitude regression is not the dominant failure.",
+  "formal_gate_evaluated": false,
+  "checkpoint_written": false,
+  "decision": "Stop this hurdle-head training path; do not run epoch 4 or expand to formal training.",
+  "scope_attestation": {
+    "heldout_glare_read": false,
+    "native_fog_read": false,
+    "corruption_mask_optimizer_weight": 0.0,
+    "actual_target_optimizer_weight": 0.0,
+    "automatic_full_training": false,
+    "orion_finetuning": false,
+    "stage_b": false
+  }
+}

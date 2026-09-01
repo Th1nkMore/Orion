@@ -1,0 +1,150 @@
+{
+  "schema": "orion.stage2l_mr1_training_protocol.v1",
+  "created_at": "2026-08-31T16:20:00+08:00",
+  "status": "bounded_multiroute_preexperiment_prepared_training_locked",
+  "protocol_path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/stage2l_mr1_training_v1.json",
+  "research_question": "Can the Stage2-L architecture learn task relevance and uncertainty-response semantics across six train events and transfer them to two event-held-out dev routes, without moving task relevance into the frozen Stage1 adapter?",
+  "architecture": {
+    "stage1_adapter": "frozen task-agnostic spatial observation uncertainty U",
+    "stage1_adapter_trainable": false,
+    "task_relevance_owner": "ORION/VLM",
+    "task_risk_definition": "K=U*sigmoid(R)",
+    "task_fields_and_stance_owner": "ORION/VLM structured field path",
+    "field_head_reads_u_and_k": true,
+    "free_language_role": "auxiliary diagnostic only",
+    "trajectory_training_enabled": false,
+    "direct_control_training_enabled": false,
+    "legacy_density_uq_used": false,
+    "hard_governor_used": false
+  },
+  "gradient_ownership": {
+    "dense_relevance_and_ranking_losses_to_relevance_path": true,
+    "task_field_loss_to_relevance_path": false,
+    "task_field_loss_to_task_risk_bridge_and_field_head": true,
+    "qa_language_loss_to_relevance_logits": false,
+    "qa_language_loss_to_task_risk_bridge": false,
+    "qa_language_loss_to_task_field_classifiers": false,
+    "qa_language_loss_to_orion_lora_second_pass": true,
+    "dev_labels_enter_optimizer": false
+  },
+  "dataset": {
+    "manifest": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiroute_smokes/stage2l_mr1_8event_v5_dataset_v1/manifest.json",
+    "manifest_sha256": "9e5e84fa469951a32f87abe5516a9594b3cc8d16bd7ac54f309b44e6b8f27330",
+    "records_sha256": "373fbbb0add64c3e2e69c043a63751691a3eec2219f5625024c04ca5589761d7",
+    "event_count": 8,
+    "train_event_count": 6,
+    "dev_event_count": 2,
+    "train_group_count": 27,
+    "dev_group_count": 10,
+    "record_count": 740,
+    "keyframe_count": 37,
+    "town_count": 5,
+    "scenario_family_count": 7,
+    "formal_per_frame_human_review_completed": false,
+    "eligible_for_bounded_preexperiment": true,
+    "eligible_for_formal_training": false
+  },
+  "bounded_preexperiment": {
+    "optimizer_steps": 40,
+    "train_events_per_step": 6,
+    "matched_groups_per_step": 6,
+    "language_anchors_per_step": 6,
+    "primary_group_presentations": 240,
+    "approximate_primary_group_epochs": 8.8888888889,
+    "language_anchor_presentations": 240,
+    "first_two_steps_finite_value_fail_fast": true,
+    "dev_labels_enter_optimizer": false,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "maximum_submissions": 1,
+    "automatic_retry_or_extension": false,
+    "formal_training": false
+  },
+  "losses": {
+    "auxiliary_language": {
+      "weight": 0.25,
+      "release_evidence": false
+    },
+    "dense_relevance": {
+      "weight": 2.0,
+      "support_fraction": 0.1,
+      "calibration_bce_weight": 0.1,
+      "background_support_weight": 1.0,
+      "background_probability_margin": 0.01
+    },
+    "on_off_ranking": {
+      "weight": 1.0,
+      "required_oracle_fraction": 0.8
+    },
+    "task_fields": {
+      "weight": 2.0,
+      "class_counts_source": "train_split_only",
+      "absent_train_classes_receive_zero_weight": true
+    },
+    "language_preference": 0.0,
+    "trajectory": 0.0,
+    "direct_control": 0.0
+  },
+  "release_gates": {
+    "interpretation": "Engineering multi-event learnability and held-out transfer gates only; passing does not unlock formal training automatically.",
+    "train_min_foreground_recall": 0.9,
+    "train_max_background_fpr": 0.1,
+    "train_min_oracle_fraction": 0.8,
+    "train_min_task_field_accuracy": 0.85,
+    "dev_min_foreground_recall": 0.8,
+    "dev_max_background_fpr": 0.1,
+    "dev_min_oracle_fraction": 0.8,
+    "dev_min_task_field_accuracy": 0.75,
+    "dev_min_supported_class_macro_recall": 0.7,
+    "dev_min_zero_uq_complete_field_accuracy": 0.9,
+    "dev_min_stance_accuracy": 0.8,
+    "dev_min_render_field_accuracy": 0.75,
+    "free_language_nll_or_generation": "diagnostic_only",
+    "unsupported_train_or_dev_classes": "reported_coverage_gap_not_a_model_gate"
+  },
+  "known_coverage_gaps": {
+    "train_missing_risk_views": [
+      "CAM_BACK_RIGHT"
+    ],
+    "train_missing_risk_regions": [
+      "upper_left",
+      "upper_center",
+      "upper_right"
+    ],
+    "dev_missing_risk_views": [
+      "CAM_BACK",
+      "CAM_BACK_LEFT",
+      "CAM_BACK_RIGHT",
+      "CAM_FRONT_LEFT"
+    ],
+    "dev_missing_risk_regions": [
+      "upper_left",
+      "upper_center",
+      "upper_right"
+    ],
+    "dev_missing_stances": [
+      "caution"
+    ],
+    "claim_limit": "This smoke cannot establish complete camera/region/stance generalization; the formal 24-event bank must fill these cells."
+  },
+  "implementation_sources": {
+    "scripts/train_stage2l_mr1_smoke.py": "d3eb2c6b8995c6ba29c6f26321221234e26eb0b2241a9700ca1ed3e38b3271c0",
+    "tests/test_train_stage2l_mr1_smoke.py": "0948c32715b7903cbdae38c9380f2b01a5a6363b86d82a4ce3803bdced4bc395",
+    "scripts/train_stage2l_v7_route151_smoke.py": "4f18871e5803cb5197b0b1b05c2198585839038ac5ea45e32346363838b7adca",
+    "scripts/train_stage2l_v9_route151_smoke.py": "184bde8a03d3abba82756bf959b4b3eb985d8f4272e39830da63bcd33f19dde6",
+    "scripts/upgrade_stage2l_v9_qa_records.py": "7ed8bce212b648818fed6e9b4107a714e682e0a9d1c2a43c8b002314815f54c3",
+    "uq_estimator/stage2l_qa_contract_v5.py": "43f4bf3991f14e441b3cf6963f4dc2937422f66cc43c7ab4fcba97d7ed1cc394",
+    "uq_estimator/stage2l_semantic_runtime_v4.py": "20c023abafb0272c6e100312f0a8794b9409ef3614f745d6e6390ef321aad99b",
+    "uq_estimator/stage2l_structured_field_head.py": "715b18b5e4d31386677323c94cd6eaa97106d77dfe0ddda555b02ea088f78d94",
+    "uq_estimator/stage2l_support_aligned_objective_v9.py": "68156b0bdb46d34413c990a8fea32e45ec825e46cc39ad427a49994582c4d77d",
+    "uq_estimator/stage2l_calibrated_objective.py": "8775ff03348e228bcce28ba7121e996cb8d25776baa567cddb99260aa592aaae",
+    "uq_estimator/stage2l_matched_objective.py": "a3c7fc1af94220a58be2df54dec97eb089396ffb3747f4fc407e1e88dbf35be8",
+    "uq_estimator/uq_relevance_tokenizer.py": "1edf59228f76c8b07fea81dd1389a7b70d6378f88508e7192cf57f50fb16011b"
+  },
+  "launch_locks": {
+    "bounded_preexperiment_allowed_after_amendment": false,
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false,
+    "immutable_amendment_required": true
+  },
+  "claim_boundary": "One bounded 8-event engineering pre-experiment. No formal Stage2-L, Stage2-P, closed-loop, trajectory, control, generalization, or safety claim."
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "orion.scenario_factory.postprocess_amendment.v1",
+  "created_at": "2026-08-31T05:19:09+08:00",
+  "run_id": "stage2l_formal24_dev_wave3_20260829",
+  "scope": "technical postprocessing resource repair only",
+  "trigger": {
+    "dependency_jobs": [1107305, 1107306],
+    "original_finalize_job_id": 1107308,
+    "original_review_job_id": 1107309,
+    "scheduler_condition": "zero-GRES jobs on Nvidia_A800 would become QOSMinGRES after dependencies",
+    "model_or_safety_outcomes_used": false
+  },
+  "action": {
+    "original_pending_jobs_cancelled": [1107308, 1107309],
+    "replacement_finalize_job_id": 1107329,
+    "replacement_finalize_dependency": "afterany:1107305:1107306",
+    "replacement_review_job_id": 1107330,
+    "replacement_review_dependency": "afterok:1107329",
+    "partition": "Nvidia_A800",
+    "gres": "gpu:1",
+    "resource_note": "GPU allocation only satisfies QOS; packaging remains CPU-only."
+  },
+  "claim_boundary": "Scheduler repair only; route eligibility and scientific classification are unchanged."
+}

@@ -188,6 +188,12 @@ class OrionHead(AnchorFreeHead):
                  state_velo_threshold=0.5,
                  use_uncertainty=False,
                  uq_checkpoint='',
+                 use_stage2_spatial_uq=False,
+                 stage2_spatial_uq_checkpoint='',
+                 stage2_spatial_uq_checkpoint_sha256='',
+                 stage2_spatial_uq_tokens_per_view=8,
+                 stage2_spatial_uq_hidden_dim=256,
+                 stage2_spatial_uq_num_heads=8,
                  **kwargs):
         # NOTE here use `AnchorFreeHead` instead of `TransformerHead`,
         # since it brings inconvenience when the initialization of
@@ -319,6 +325,68 @@ class OrionHead(AnchorFreeHead):
                     self.uq_estimator.load_state_dict(ckpt['model_state_dict'])
                     print(f'[UQ] Loaded UQEstimator from {uq_checkpoint}')
             self.uq_estimator.eval()
+
+        # New mainline: task-aware fusion of the frozen Stage-1 *spatial*
+        # observation-evidence map.  This path is intentionally independent of
+        # ``use_uncertainty`` above, which is the retired global Density path.
+        self.use_stage2_spatial_uq = bool(use_stage2_spatial_uq)
+        self.stage2_spatial_uq_metadata = None
+        self.stage2_spatial_uq_checkpoint = str(stage2_spatial_uq_checkpoint or '')
+        if self.use_stage2_spatial_uq:
+            if self.use_uncertainty:
+                raise ValueError(
+                    'Stage-2 spatial UQ cannot be combined with legacy Density UQ'
+                )
+            projector_config = dict(
+                component_dim=3,
+                model_dim=self.embed_dims,
+                hidden_dim=int(stage2_spatial_uq_hidden_dim),
+                max_views=8,
+                tokens_per_view=int(stage2_spatial_uq_tokens_per_view),
+            )
+            adapter_config = dict(
+                model_dim=self.embed_dims,
+                num_heads=int(stage2_spatial_uq_num_heads),
+                trajectory_steps=6,
+                task_context_dim=89,
+            )
+            if self.stage2_spatial_uq_checkpoint:
+                from uq_estimator.spatial_task_fusion import (
+                    load_stage2_task_fusion_checkpoint,
+                )
+                (
+                    self.stage2_spatial_uq_projector,
+                    self.stage2_task_adapter,
+                    self.stage2_spatial_uq_metadata,
+                ) = load_stage2_task_fusion_checkpoint(
+                    self.stage2_spatial_uq_checkpoint,
+                    expected_sha256=(stage2_spatial_uq_checkpoint_sha256 or None),
+                    device='cpu',
+                )
+                if self.stage2_spatial_uq_metadata.get(
+                    'closed_loop_eligible'
+                ) is not True:
+                    raise RuntimeError(
+                        'Stage-2 checkpoint is auxiliary/offline only; '
+                        'closed-loop ORION requires a jointly trained eligible checkpoint'
+                    )
+                if (
+                    self.stage2_spatial_uq_projector.model_dim != self.embed_dims
+                    or self.stage2_task_adapter.model_dim != self.embed_dims
+                ):
+                    raise ValueError(
+                        'Stage-2 checkpoint dimension differs from ORION head'
+                    )
+            else:
+                from uq_estimator.spatial_task_fusion import (
+                    build_stage2_task_fusion_modules,
+                )
+                (
+                    self.stage2_spatial_uq_projector,
+                    self.stage2_task_adapter,
+                ) = build_stage2_task_fusion_modules(
+                    projector_config, adapter_config
+                )
 
         self.code_weights = nn.Parameter(torch.tensor(
             self.code_weights), requires_grad=False)
@@ -482,6 +550,42 @@ class OrionHead(AnchorFreeHead):
         self.memory_canbus = None
         self.memory_scene_tokens = None
         self.his_memory_canbus_len = None
+        # These two buffers participate whenever ``use_memory`` is enabled.
+        # They must be reset together with the ordinary temporal memory so
+        # independent replay branches cannot inherit scene-query history.
+        self.memory_scene_query = None
+        self.scene_memory_timestamp = None
+        self.stage2_planning_context = None
+        self.stage2_observation_uq = None
+        self.stage2_task_context = None
+        self.stage2_selected_uq_tokens = None
+        self.stage2_task_output = None
+
+    def _fuse_stage2_spatial_uq(self, planning_context, data, task_context):
+        """Condition 256-D VLM memory on a frozen spatial UQ map.
+
+        The map is detached again at this boundary.  Stage-2 collision,
+        conflict, and trajectory objectives may update the projector/task
+        adapter but can never redefine the Stage-1 observation signal.
+        """
+        if not self.use_stage2_spatial_uq:
+            return planning_context
+        observation_uq = data.get('stage2_spatial_uq')
+        if observation_uq is None:
+            raise RuntimeError(
+                'Stage-2 spatial UQ is enabled but no [B,V,H,W,3] map was supplied'
+            )
+        observation_uq = observation_uq.detach()
+        selected = self.stage2_spatial_uq_projector(observation_uq)
+        output = self.stage2_task_adapter(
+            planning_context, selected, task_context
+        )
+        self.stage2_planning_context = planning_context.detach()
+        self.stage2_observation_uq = observation_uq
+        self.stage2_task_context = task_context.detach()
+        self.stage2_selected_uq_tokens = selected
+        self.stage2_task_output = output
+        return output.conditioned_context
 
     def pre_update_memory(self, img_metas, data):
         B = data['img_feats'].size(0)
@@ -865,12 +969,15 @@ class OrionHead(AnchorFreeHead):
         rec_can_bus[:, -1] = 0
         rec_can_bus = torch.cat([data['command'].unsqueeze(-1), rec_can_bus], dim=-1) # (1, 1+18)
         memory_ego_pose = self.memory_egopose.reshape(B, -1, self.topk_proposals, 4, 4).flatten(-2)
+        can_bus_input = torch.cat([rec_can_bus, self.memory_canbus.flatten(-2), memory_ego_pose.mean(-2).flatten(-2)], dim=-1) # (1, 19+19*2+16*2)
+        can_bus_input = can_bus_input.to(torch.float32)
+        vlm_memory = self._fuse_stage2_spatial_uq(
+            vlm_memory, data, can_bus_input
+        )
         if self.output_dims is not None:
             if self.use_memory:
                 vlm_memory = torch.cat((vlm_memory, history_query), dim=1)
             vlm_memory = self.output_projection(vlm_memory) # (B, 256, 256) -> (B, 256, 4096)
-            can_bus_input = torch.cat([rec_can_bus, self.memory_canbus.flatten(-2), memory_ego_pose.mean(-2).flatten(-2)], dim=-1) # (1, 19+19*2+16*2)
-            can_bus_input = can_bus_input.to(torch.float32)
             can_bus_embed = self.can_bus_embed(can_bus_input) # (1, 89) -> (1, 4096)
             if self.with_ego_pose: 
                 vlm_memory = torch.cat([vlm_memory, can_bus_embed.unsqueeze(-2)], dim=-2) # (1, 257, 4096)

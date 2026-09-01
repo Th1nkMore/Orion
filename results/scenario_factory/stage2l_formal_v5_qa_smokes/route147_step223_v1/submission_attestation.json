@@ -1,0 +1,39 @@
+{
+  "schema": "orion.stage2_l.formal_v5_qa_reuse_smoke_submission.v1",
+  "submitted_at": "2026-08-31T06:34:00+08:00",
+  "job_id": 1108229,
+  "state_at_attestation": "pending_priority",
+  "event_id": "route147_step223",
+  "route_index": 147,
+  "formal_split": "dev",
+  "purpose": "End-to-end validation of clean Stage1 reuse, frozen v2 geometry construction and deterministic v5 task-field QA upgrade.",
+  "inputs": {
+    "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route147/event_package.json",
+    "stage1_multiframe_manifest": "/public/share/lidachuan/orion_assets/scenario_factory/stage1_multiframe/route147_step223/stage1_observation_uq_multiframe.json",
+    "stage1_checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+    "base_qa_factory_sha256": "2236bbc84bb794abc0ce69fc3b4706b131eaa1282b2942212ef429a3b381471e",
+    "v5_qa_factory_sha256": "c942d85a3ac44b551397cbb4b47172d75594d520be8258147dee1aa4a2e9b476"
+  },
+  "implementation": {
+    "validator_sha256": "5a97dacb9c6e143fca1f9b57c9fa7720c574270d41a5379f0ef70d866d91d71b",
+    "submitter_sha256": "853d89ef29e381e45e3c03398ee2c1ed7e686569903b12414135d0ec5c4ed63f",
+    "event_finalizer_sha256": "2704a2ac9246fbd8bcb0821c61882dd6c2c1e00f5320a0bbf7c7d641ea112d3a"
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpu_requested": 1,
+    "gpu_used_by_workload": false,
+    "gpu_request_reason": "The account is not associated with any CPU-only partition and Nvidia_A800 QOSMinGRES requires gpu:1.",
+    "cpus": 2,
+    "host_memory": "16G",
+    "time_limit": "00:30:00"
+  },
+  "locks": {
+    "stage1_trainable": false,
+    "stage2l_training_started": false,
+    "stage2p_allowed": false,
+    "batch_expansion_before_smoke_pass": false
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_formal_v5_qa_smokes/route147_step223_v1",
+  "claim_boundary": "CPU data-contract smoke only; no VLM learning, uncertainty quality, planning or safety result."
+}

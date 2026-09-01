@@ -1,0 +1,164 @@
+{
+  "audit": {
+    "development_failure_candidates_allowed": true,
+    "eligible_for_locked_test_claim": false,
+    "jobs_submitted": false,
+    "selection_uses_learned_uq_outcomes": false,
+    "selection_uses_published_orion_outcomes": true,
+    "selection_uses_stage2_outcomes": false,
+    "writes_performed": true
+  },
+  "claim_boundary": "Development screening batch may use published ORION priors; not an untouched test set and not learned-UQ evidence.",
+  "lineage": {
+    "candidate_manifest": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/development_candidates.json",
+      "sha256": "3da95f3d4f1ebb39012be6105069aeddd97fcda1907cf763f2caf903521550f5"
+    },
+    "published_orion_baseline": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/sources/ORION.json",
+      "sha256": "af050e20ba4aa4a86bb865d394546041feb46d7f18beb5590f7b219982d4d503",
+      "used_for_selection": true
+    },
+    "scenario_factory_protocol": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/protocol_v1.json",
+      "sha256": "0df6da6276ae3002207b20c014a8de10873ebf9acf3fe81f5c68311401e997c0"
+    }
+  },
+  "postprocessing": {
+    "event_package_schema": "orion.scenario_event_package.v1",
+    "initial_review_status": "pending_human_review",
+    "stage1_uq": "offline precomputation only; never affects clean replay control"
+  },
+  "route_count": 3,
+  "routes": [
+    {
+      "development_selection_role": "published_clean_valid",
+      "formal_split": "dev",
+      "hazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave0/route_147_hazard.xml",
+        "sha256": "eb59a25dd8d72327e1c4029609e34adaab3abc4e7b0f9e00c975d2c8251e9ce1"
+      },
+      "initial_condition": "clean_off",
+      "nohazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave0/route_147_nohazard.xml",
+        "sha256": "425f9f8af6e2645d7aa5633205baed41fa69a3fe39a3f7c8b591b9bed819dc2e"
+      },
+      "priority": 100,
+      "published_clean_prior": {
+        "available": true,
+        "collisions": 0,
+        "completion_failures": 0,
+        "score_composed": 100.0,
+        "score_penalty": 1.0,
+        "score_route": 100,
+        "status": "Completed",
+        "valid": true
+      },
+      "review_status": "awaiting_current_environment_replay",
+      "route_index": 147,
+      "route_length_m": 134.002,
+      "scenario_name": "DynamicObjectCrossing_1",
+      "scenario_type": "DynamicObjectCrossing",
+      "screen_role": "dynamic_path_conflict",
+      "source_xml": {
+        "path": "/public/share/lidachuan/orion_assets/Bench2Drive/leaderboard/data/bench2drive220_147_orion_traj.xml",
+        "sha256": "eb59a25dd8d72327e1c4029609e34adaab3abc4e7b0f9e00c975d2c8251e9ce1"
+      },
+      "town": "Town02",
+      "trigger_progress": 0.097013,
+      "xml_route_id": "24224"
+    },
+    {
+      "development_selection_role": "published_clean_valid",
+      "formal_split": "dev",
+      "hazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave0/route_195_hazard.xml",
+        "sha256": "c064c27afa4f63eba19ba75735a98190455d21591d6981b4fd8004c48fd479fc"
+      },
+      "initial_condition": "clean_off",
+      "nohazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave0/route_195_nohazard.xml",
+        "sha256": "0babdae44c0239cc151e03d0f0c20c6a688b90d95ff19b5b618e629bf8a16664"
+      },
+      "priority": 96,
+      "published_clean_prior": {
+        "available": true,
+        "collisions": 0,
+        "completion_failures": 0,
+        "score_composed": 100.0,
+        "score_penalty": 1.0,
+        "score_route": 100,
+        "status": "Completed",
+        "valid": true
+      },
+      "review_status": "awaiting_current_environment_replay",
+      "route_index": 195,
+      "route_length_m": 73.009,
+      "scenario_name": "OppositeVehicleRunningRedLight_1",
+      "scenario_type": "OppositeVehicleRunningRedLight",
+      "screen_role": "dynamic_path_conflict",
+      "source_xml": {
+        "path": "/public/share/lidachuan/orion_assets/Bench2Drive/leaderboard/data/bench2drive220_195_orion_traj.xml",
+        "sha256": "c064c27afa4f63eba19ba75735a98190455d21591d6981b4fd8004c48fd479fc"
+      },
+      "town": "Town03",
+      "trigger_progress": 0.06857,
+      "xml_route_id": "26950"
+    },
+    {
+      "development_selection_role": "published_clean_valid",
+      "formal_split": "train",
+      "hazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave0/route_151_hazard.xml",
+        "sha256": "ecb0fd699b3f2533e460e265f8d1137f6899ab117c32c468514e73ad3bc0d740"
+      },
+      "initial_condition": "clean_off",
+      "nohazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave0/route_151_nohazard.xml",
+        "sha256": "41bf41ebbe6fca7f1cdd622c3b59f3c6aa1977bb2e72c374428b913f2a02cadc"
+      },
+      "priority": 98,
+      "published_clean_prior": {
+        "available": true,
+        "collisions": 0,
+        "completion_failures": 0,
+        "score_composed": 100.0,
+        "score_penalty": 1.0,
+        "score_route": 100,
+        "status": "Completed",
+        "valid": true
+      },
+      "review_status": "awaiting_current_environment_replay",
+      "route_index": 151,
+      "route_length_m": 104.005,
+      "scenario_name": "ParkingCrossingPedestrian_1",
+      "scenario_type": "ParkingCrossingPedestrian",
+      "screen_role": "dynamic_path_conflict",
+      "source_xml": {
+        "path": "/public/share/lidachuan/orion_assets/Bench2Drive/leaderboard/data/bench2drive220_151_orion_traj.xml",
+        "sha256": "ecb0fd699b3f2533e460e265f8d1137f6899ab117c32c468514e73ad3bc0d740"
+      },
+      "town": "Town02",
+      "trigger_progress": 0.12503,
+      "xml_route_id": "24294"
+    }
+  ],
+  "run_id": "stage2l_formal24_dev_wave0_20260829",
+  "runtime_contract": {
+    "agent_config": "adzoo/orion/configs/orion_stage3_agent_spatial_stage2.py",
+    "carla_quality": "Epic",
+    "condition": "clean_off",
+    "cpus_per_route": 2,
+    "gpus_per_route": 1,
+    "legacy_density_uq": false,
+    "memory_per_route": "192G",
+    "planning_response": "off",
+    "risk_mode": "off",
+    "stage1_adapter_control_influence": false,
+    "stage2_spatial_uq_source": "disabled",
+    "variant": "hazard"
+  },
+  "schema": "orion.scenario_factory.batch.v1",
+  "split": "development_screen",
+  "status": "prepared_no_jobs_submitted"
+}

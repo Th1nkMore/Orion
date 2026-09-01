@@ -1,0 +1,30 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T19:22:00+08:00",
+  "status": "active_before_stage2l_pilot_training",
+  "reason": "The frozen v2 deterministic 6/2 pilot split assigns route185_step304 to train, while its previously generated immutable QA bundles retain the superseded v1 dev assignment.",
+  "event_id": "route185_step304",
+  "split_revision": {
+    "source_split": "dev",
+    "revised_split": "train",
+    "selection_algorithm_changed": false,
+    "frozen_bank_changed": false,
+    "geometry_changed": false,
+    "model_input_changed": false,
+    "uq_arrays_changed": false,
+    "relevance_or_risk_maps_changed": false,
+    "qa_targets_changed": false,
+    "visual_cache_changed": false
+  },
+  "required_provenance": [
+    "Materialize versioned split-only frame bundles with source paths and SHA-256 hashes.",
+    "Rebuild QA records and sidecars from those bundles without modifying source artifacts.",
+    "Rebind the human geometry-review queue and report hashes before pilot assembly.",
+    "Retain the existing visual cache because its image/model inputs are unchanged."
+  ],
+  "launch_locks": {
+    "stage2l_pilot_training_allowed": false,
+    "route196_balanced_language_smoke_allowed": false
+  },
+  "claim_boundary": "Split metadata correction only; no geometry, UQ, relevance, language-label, model, planning, closed-loop, or safety result."
+}

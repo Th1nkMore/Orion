@@ -1,0 +1,59 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T23:39:16+08:00",
+  "status": "active_qa_geometry_definition_no_training_authorization",
+  "reason": "The original preflight rejected a frame whenever the ORION ground-path corridor was outside all camera images, even when a trajectory-conflicting actor remained visibly projectable. That rule conflated a near-field route-camera blind spot with absence of task-relevant visual support.",
+  "triggering_evidence": {
+    "route157_original_preflight": {
+      "path": "results/scenario_factory/keyframes/stage2l_formal_pilot8_v1/route157_step193.geometry_preflight.json",
+      "sha256": "e47593e0a271950f74bc7265b940b18e51a952952a50226fc520e0e286c80654",
+      "retained_keyframes": 2,
+      "diagnosis": "The three rejected frames have zero visible ground-route coverage but visible conflict-actor support in front/right/rear camera views."
+    },
+    "route158_original_preflight": {
+      "path": "results/scenario_factory/keyframes/stage2l_formal_pilot8_v1/route158_step154.geometry_preflight.json",
+      "sha256": "3093ac421c17095506ea561c9c97a40b292e01c3f5f4c44e6439e2c250ab84bf",
+      "retained_keyframes": 2,
+      "diagnosis": "Frame15 has visible rear conflict-actor support despite zero route coverage; frames13 and19 have neither route nor actor support and remain excludable."
+    }
+  },
+  "amended_task_relevance_definition": {
+    "formula": "R support = visible ORION route corridor union visible boxes of actors whose predicted occupancy conflicts with that plan",
+    "route_and_actor_support": "retain",
+    "route_only_support": "retain",
+    "actor_only_support": "retain with explicit provenance",
+    "neither_route_nor_actor_support": "exclude",
+    "minimum_retained_keyframes_per_event": 3,
+    "uses_observation_uq": false,
+    "uses_recorded_ttc": false,
+    "uses_collision_outcome": false,
+    "uses_stage2_outputs": false,
+    "stage1_adapter_target_changed": false
+  },
+  "validated_inputs": {
+    "task_relevance_geometry_sha256": "cba507af7fe302fcc48ade62ebfcb3374352e5e61fefdaeaa545e4dc96679daf",
+    "geometry_preflight_sha256": "728f2b3254080757502cb2a5675231ddfe0419484708515bb0ae3a26c3e2b53c",
+    "formal_pilot_freezer_sha256": "b3d38b2571a1f13904d59243ebdcf9e78c015716383612c1b4707bbaf016c5e0",
+    "stage2l_schedule_sha256": "15487fbc4469d62da41e4c86ccabeb3a1187c7cfaf5c5775c77a0d55851b8d34",
+    "task_relevance_tests_sha256": "6408c8d90f6b1838ac549694e793b69cfe9518c708f63b10bf1e759508f68602",
+    "preflight_tests_sha256": "d34f0e5c58024df4b28ed9d8cd423743a61c70c6be60290cc6f09a5957eb3cb0",
+    "formal_pilot_freezer_tests_sha256": "82f4f2a287b4782f0d1e3ed25c383bcbc5f980d0698c0e244f12cd8d57d5cc81",
+    "tests": {
+      "geometry_and_preflight": "7 passed",
+      "QA_factory_regressions": "10 passed",
+      "formal_bank_and_assembler": "10 passed"
+    }
+  },
+  "artifact_policy": {
+    "original_preflights_preserved": true,
+    "new_output_root": "/public/share/lidachuan/orion_assets/scenario_factory/keyframes/stage2l_formal_pilot8_v2_actor_support",
+    "formal_pilot_selection_requires_hash_bound_geometry_preflight_for_every_reviewed_event": true,
+    "technical_failures_may_be_skipped_only_in_frozen_formal_route_order": true
+  },
+  "launch_locks": {
+    "stage1_multiframe_gpu_extraction_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "This amendment corrects offline Stage2-L task-relevance geometry and event eligibility only. It does not validate Stage1 uncertainty, authorize training, or provide trajectory, closed-loop, or safety evidence."
+}

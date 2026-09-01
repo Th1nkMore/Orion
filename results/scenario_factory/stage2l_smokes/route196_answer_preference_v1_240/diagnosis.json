@@ -1,0 +1,62 @@
+{
+  "schema": "orion.stage2l_route196_diagnosis.v1",
+  "created_at": "2026-08-29T20:17:22+08:00",
+  "status": "route196_failed_stop_one_event_retries",
+  "classification": "explicit_task_map_to_language_bridge_required",
+  "source_report": {
+    "path": "results/scenario_factory/stage2l_smokes/route196_answer_preference_v1_240/training/report.json",
+    "sha256": "c3de3d39888ca05b32dd4efcb3a156f59d8d2a5ceaa7461d164a06a56f19bd0b"
+  },
+  "passed": {
+    "optimization_reduces_language_nll": true,
+    "optimization_reduces_relevance_bce": true,
+    "on_path_risk_exceeds_off_path_by_margin": true,
+    "zero_uq_prefers_nonconservative_answer": true,
+    "off_path_prefers_nonconservative_answer": true
+  },
+  "failed": {
+    "on_path_prefers_conservative_answer": true,
+    "generated_zero_uq_is_maintain": true,
+    "generated_off_path_is_maintain": true,
+    "generated_on_path_matches_target_stance": true
+  },
+  "decisive_metrics": {
+    "after_mean_language_nll": 0.2655359946191311,
+    "after_mean_relevance_bce": 0.07633939199149609,
+    "after_mean_on_minus_off_risk": 0.260827332676854,
+    "on_path_target_nll": 0.26086878776550293,
+    "on_path_incorrect_maintain_nll": 0.202691450715065,
+    "generated_stances": {
+      "zero_uq": null,
+      "off_path_uq": null,
+      "on_path_uq": null
+    },
+    "all_three_generated_the_same_invalid_template": "<task_relevance_map> The uncertainty-aware planning stance is high; its strongest region is CAM_FRONT_LEFT/middle_left; its temporal trend is rising."
+  },
+  "interpretation": [
+    "The explicit relevance map and K-ranking objectives are learnable, but the current single-pass VLM does not reliably route their result into language generation.",
+    "A matched full-answer preference loss does not solve the bottleneck: the model collapses onto an observation-semantics template and still prefers the maintain answer under on-path UQ.",
+    "This is an architectural communication failure between R/K and language, not evidence that more repetitions of the same one-event objective will help."
+  ],
+  "next_architecture": {
+    "name": "two_pass_task_risk_language_bridge_v1",
+    "pass_1": "Use route-conditioned, view/space-aligned neutral query tokens with ORION visual tokens to predict task relevance R. The current U magnitude must not define R.",
+    "fusion": "Compute K = U * sigmoid(R) and summarize it into six view tokens plus one global task-risk token with continuous spatial statistics.",
+    "pass_2": "Append the seven bridge tokens to the original ORION visual and spatial-UQ tokens for QA loss, matched answer preference, and deterministic free generation.",
+    "responsibility_boundary": "Stage1 adapter still predicts only task-agnostic observation uncertainty U; the ORION/VLM relevance pass predicts R; the bridge communicates K to the VLM but does not issue brake, steering, or a hard governor command."
+  },
+  "launch_policy": {
+    "repeat_current_route196_objective": false,
+    "extend_current_steps": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false,
+    "route_factory_may_continue": true,
+    "next_gpu_run_requires": [
+      "bridge tensor-shape and finite-gradient unit tests",
+      "zero-UQ invariance test",
+      "same-group on/off K ordering test",
+      "versioned protocol and single-run amendment"
+    ]
+  },
+  "claim_boundary": "One-event engineering diagnosis only; no held-out generalization, trajectory, closed-loop, or safety claim."
+}

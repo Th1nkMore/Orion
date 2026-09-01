@@ -1,0 +1,98 @@
+{
+  "automatically_excluded": [
+    {
+      "actor_grounded_event": false,
+      "automatic_exclusion_reasons": [
+        "runtime_invalid",
+        "event_package_unbuildable"
+      ],
+      "automatic_status": "excluded_before_human_review",
+      "continuous_safety_summary": {},
+      "critical_event": null,
+      "event_id": "route201_unpackageable_runtime",
+      "event_package": null,
+      "official_endpoint": {},
+      "outcome_class": "INVALID_RUNTIME_UNPACKAGEABLE",
+      "qa_input_ready": false,
+      "route_index": 201,
+      "runtime_attempts": [
+        {
+          "error": "RuntimeError: expected exactly one terminal evaluator record",
+          "job_id": 1107305,
+          "package_buildable": false,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/stage2l_formal24_dev_wave3_20260829/route201_hazard_clean_off-1107305",
+          "runtime_valid": false
+        }
+      ],
+      "runtime_valid": false,
+      "scenario_family": "EnterActorFlow",
+      "screen_role": "dynamic_junction_conflict",
+      "split_origin": "development_screen",
+      "town": "Town05",
+      "visual_artifacts": []
+    },
+    {
+      "actor_grounded_event": false,
+      "automatic_exclusion_reasons": [
+        "runtime_invalid",
+        "event_package_unbuildable"
+      ],
+      "automatic_status": "excluded_before_human_review",
+      "continuous_safety_summary": {},
+      "critical_event": null,
+      "event_id": "route208_unpackageable_runtime",
+      "event_package": null,
+      "official_endpoint": {},
+      "outcome_class": "INVALID_RUNTIME_UNPACKAGEABLE",
+      "qa_input_ready": false,
+      "route_index": 208,
+      "runtime_attempts": [
+        {
+          "error": "RuntimeError: expected exactly one terminal evaluator record",
+          "job_id": 1107306,
+          "package_buildable": false,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/stage2l_formal24_dev_wave3_20260829/route208_hazard_clean_off-1107306",
+          "runtime_valid": false
+        }
+      ],
+      "runtime_valid": false,
+      "scenario_family": "NonSignalizedJunctionLeftTurnEnterFlow",
+      "screen_role": "dynamic_junction_conflict",
+      "split_origin": "development_screen",
+      "town": "Town04",
+      "visual_artifacts": []
+    }
+  ],
+  "automatically_excluded_count": 2,
+  "candidate_count": 2,
+  "claim_boundary": "Queue priority is for review efficiency only. Human acceptance establishes event integrity, not UQ validity or closed-loop benefit.",
+  "human_review_contract": {
+    "decision_values": [
+      "accept",
+      "reject",
+      "pending"
+    ],
+    "locked_test_rejection_must_be_technical_only": true,
+    "prohibited_rejection_basis": [
+      "learned UQ behavior",
+      "Stage2 behavior",
+      "whether ORION succeeded or failed"
+    ],
+    "required_checks": [
+      "visual_stream_integrity",
+      "actor_event_semantics",
+      "front_bev_temporal_alignment",
+      "no_actor_disappearance_or_spawn_artifact"
+    ]
+  },
+  "human_review_count": 0,
+  "review_order": [],
+  "schema": "orion.scenario_event_review_queue.v1",
+  "source_batch_reports": [
+    {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave3_20260829/batch_screen_report.json",
+      "sha256": "6b3371af8d9f8b982c649297c271c70b353188cba275c9fba5ff028355bcc99e"
+    }
+  ],
+  "status": "pending_human_event_review"
+}

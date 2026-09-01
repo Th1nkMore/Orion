@@ -1,0 +1,133 @@
+{
+  "schema": "orion.corruption_hardcase_funnel.v1",
+  "created_at": "2026-08-31T19:20:00+08:00",
+  "status": "amended_clean_validity_audited_pending_visual_severity_freeze",
+  "purpose": "Find clean-valid ORION routes that degrade under naturalistic temporal, lens-contamination, or optical-motion interventions without expanding to a full closed-loop matrix.",
+  "architecture_boundary": {
+    "candidate_selection_uses_stage2_outputs": false,
+    "candidate_selection_uses_learned_uq": false,
+    "candidate_selection_uses_collision_outcome_to_tune_corruption": false,
+    "adapter_owner": "task-agnostic spatial observation uncertainty U",
+    "task_relevance_owner": "ORION/VLM R",
+    "risk_definition": "K=U*sigmoid(R)"
+  },
+  "event_source": {
+    "manifest": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v1/manifest.json",
+    "sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "use": "Existing clean-valid event identity, town, scenario family, keyframes and visual context only; QA answers and task-risk labels are not screening inputs."
+  },
+  "route_roles": {
+    "development_screen": [
+      {"event_id": "route151_step218", "route_index": 151, "town": "Town02", "scenario_family": "ParkingCrossingPedestrian", "role": "visual_parameter_development_only"},
+      {"event_id": "route185_step304", "route_index": 185, "town": "Town05", "scenario_family": "StaticCutIn", "role": "screen; clean completed with zero collision and zero serious infraction"},
+      {"event_id": "route158_step154", "route_index": 158, "town": "Town01", "scenario_family": "HardBreakRoute", "role": "screen"},
+      {"event_id": "route164_step522", "route_index": 164, "town": "Town04", "scenario_family": "HazardAtSideLane", "role": "screen"},
+      {"event_id": "route168_step482", "route_index": 168, "town": "Town05", "scenario_family": "HazardAtSideLane", "role": "negative front-corruption specificity control only; clean already collides; never positive-case eligible"},
+      {"event_id": "route180_step696", "route_index": 180, "town": "Town05", "scenario_family": "HazardAtSideLaneTwoWays", "role": "screen"},
+      {"event_id": "route194_step684", "route_index": 194, "town": "Town04", "scenario_family": "OppositeVehicleRunningRedLight", "role": "screen"},
+      {"event_id": "route207_step924", "route_index": 207, "town": "Town02", "scenario_family": "T_Junction", "role": "screen"}
+    ],
+    "heldout_confirmation": [
+      {"event_id": "route147_step223", "route_index": 147, "town": "Town02", "scenario_family": "DynamicObjectCrossing"},
+      {"event_id": "route152_step125", "route_index": 152, "town": "Town10HD", "scenario_family": "HardBreakRoute"},
+      {"event_id": "route162_step277", "route_index": 162, "town": "Town03", "scenario_family": "Accident"},
+      {"event_id": "route195_step230", "route_index": 195, "town": "Town03", "scenario_family": "OppositeVehicleRunningRedLight"}
+    ],
+    "counts": {
+      "development": 8,
+      "heldout_confirmation": 4,
+      "total": 12,
+      "towns_total": 6,
+      "scenario_families_total": 9
+    }
+  },
+  "corruption_families": {
+    "front_stale": {
+      "candidate_delays_ms": [100, 200, 400],
+      "freeze_rule": "Select at most two physical delays before reading any ORION output; retain requested and effective timestamp metadata."
+    },
+    "lens_waterdrop": {
+      "candidate_severities": [1, 2, 3],
+      "seed": 20260831,
+      "freeze_rule": "Select one severity by visual plausibility, temporal continuity and target-evidence loss only; do not move droplets onto actor boxes."
+    },
+    "native_motion_blur": {
+      "candidate_profiles": ["light", "medium", "heavy"],
+      "freeze_rule": "Select one CARLA profile by actor readback, edge degradation and visual continuity only; keep route weather unchanged."
+    }
+  },
+  "funnel": [
+    {
+      "stage": "V0_visual_freeze",
+      "input": "Route151 high-rate no-ORION bake-off",
+      "output": "Frozen severity subset and seeds",
+      "maximum_orion_loads": 0
+    },
+    {
+      "stage": "O1_single_load_offline_replay",
+      "input": "Eight development events and frozen corruption settings",
+      "output": "Ranked route-condition pairs using native ORION trajectory/semantic change; no safety claim",
+      "maximum_orion_loads": 1,
+      "heldout_confirmation_read": false
+    },
+    {
+      "stage": "C1_closed_loop_failure_induction",
+      "input": "Only the top offline-ranked pairs whose clean baseline remains valid",
+      "maximum_route_condition_pairs": 6,
+      "output": "At least three clean-valid/corrupt-degraded candidates or a documented failure of the current corruption families"
+    },
+    {
+      "stage": "H1_heldout_confirmation",
+      "input": "Frozen corruption implementation and at most four held-out events",
+      "start_condition": "At least one development positive case per retained corruption family",
+      "output": "Independent confirmation or family rejection"
+    }
+  ],
+  "prospective_failure_induction_gate": {
+    "clean_valid": {
+      "route_completed_or_official_success": true,
+      "no_hard_infraction": true,
+      "liveness_fast_screen_passed": true
+    },
+    "corrupt_degraded_any": [
+      "new collision or hard traffic-rule infraction",
+      "route completion decreases by at least 10 percentage points",
+      "minimum dynamic-actor OBB TTC decreases by at least 0.30 s and at least 20 percent",
+      "minimum OBB separating gap decreases by at least 0.50 m and at least 20 percent",
+      "event response becomes invalid by a preregistered scenario-specific completion/yield rule"
+    ],
+    "required_artifacts": [
+      "front raw and exact ORION-input GIF",
+      "clean BEV context GIF",
+      "control/trajectory trace",
+      "corruption timestamp, mask/readback and severity metadata",
+      "collision, infraction, completion, TTC and OBB-gap summary"
+    ],
+    "not_a_positive_case": [
+      "clean baseline is already invalid or stationary",
+      "CARLA/map/runtime failure",
+      "only ADE/FDE changes",
+      "only image-quality metrics change",
+      "corruption is active but native ORION behavior and safety metrics do not meaningfully degrade"
+    ]
+  },
+  "execution_locks": {
+    "route_jobs_before_visual_freeze": false,
+    "full_12_route_closed_loop_matrix": false,
+    "heldout_confirmation_before_development_gate": false,
+    "method_or_stage2p_run_before_positive_case": false,
+    "formal_200_route_evaluation": false,
+    "locked_formal_test_routes_read": false,
+    "route203_native_glare_submission": false
+  },
+  "amendments": [
+    "configs/scenario_factory/amendments/20260831_corruption_hardcase_funnel_clean_validity_audit_v1.json",
+    "configs/scenario_factory/amendments/20260831_corruption_hardcase_visual_rejection_v1.json",
+    "configs/scenario_factory/amendments/20260831_corruption_hardcase_clean_render_diagnostic_prereg_v1.json",
+    "configs/scenario_factory/amendments/20260831_corruption_hardcase_clean_render_diagnostic_submission_v1.json",
+    "configs/scenario_factory/amendments/20260831_corruption_hardcase_clean_render_diagnostic_postprocess_recovery_v1.json",
+    "configs/scenario_factory/amendments/20260831_corruption_hardcase_clean_render_diagnostic_result_v1.json",
+    "configs/scenario_factory/amendments/20260831_lens_waterdrop_v2_real_mask_source_freeze_v1.json"
+  ],
+  "claim_boundary": "A funnel for discovering case-study candidates. Offline ranking is not safety evidence; only prospective clean/corrupt closed-loop pairs can establish failure induction."
+}

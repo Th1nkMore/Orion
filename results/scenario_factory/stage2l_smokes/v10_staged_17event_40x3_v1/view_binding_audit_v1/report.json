@@ -1,0 +1,181 @@
+{
+  "canonical_camera_order": [
+    "CAM_FRONT",
+    "CAM_FRONT_LEFT",
+    "CAM_FRONT_RIGHT",
+    "CAM_BACK",
+    "CAM_BACK_LEFT",
+    "CAM_BACK_RIGHT"
+  ],
+  "checks": {
+    "all_1600_record_camera_orders_match": true,
+    "all_source_camera_orders_match": true,
+    "explicit_camera_grid_evidence_binding_found": false,
+    "obvious_camera_permutation_bug_found": false
+  },
+  "claim_boundary": "Static/data-lineage audit. It rules out an obvious ordering mismatch but does not prove that implicit attention caused the failed map, nor does it establish a passed Stage2-L or safety result.",
+  "data_lineage": {
+    "all_records_canonical": true,
+    "component_shapes": [
+      [
+        4,
+        6,
+        40,
+        40,
+        3
+      ]
+    ],
+    "observation_camera_orders": [
+      [
+        "CAM_FRONT",
+        "CAM_FRONT_LEFT",
+        "CAM_FRONT_RIGHT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ]
+    ],
+    "target_camera_orders": [
+      [
+        "CAM_FRONT",
+        "CAM_FRONT_LEFT",
+        "CAM_FRONT_RIGHT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ]
+    ],
+    "target_shapes": [
+      [
+        6,
+        40,
+        40
+      ]
+    ]
+  },
+  "decision": {
+    "additional_view_aligned_feature_cache_required": true,
+    "formal_stage2l": false,
+    "new_phase_a_only_smoke_before_phase_b": true,
+    "next_model_change": "Keep R owned by ORION/VLM, but expose frozen ORION image-backbone features as six explicitly indexed view grids and bind each R-query view to the corresponding evidence grid before global VLM fusion.",
+    "phase_b": false,
+    "phase_c": false,
+    "reuse_existing_det_map_cache": true,
+    "stage2p": false
+  },
+  "diagnosis": {
+    "more_epochs_without_interface_change_supported": false,
+    "systematic_view_order_bug_supported": false,
+    "weak_or_implicit_view_binding_supported": true
+  },
+  "event_count": 17,
+  "group_count": 80,
+  "provenance": {
+    "dataset_manifest": {
+      "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/view_binding_audit_v1/dataset_manifest.json",
+      "sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3"
+    },
+    "records": {
+      "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/view_binding_audit_v1/records.jsonl",
+      "sha256": "2a4edbc48e031b15cea91f81efd5af3bfde758ca8b41606b79ba6f73e2b7993d"
+    }
+  },
+  "r_map_evidence_interface": {
+    "baseline_token_layout": {
+      "can_bus": 1,
+      "current_object_queries": 256,
+      "map_queries": 256,
+      "temporal_scene_queries": 16,
+      "total": 529
+    },
+    "baseline_tokens_are_detection_and_map_queries_only": true,
+    "baseline_tokens_have_explicit_per_camera_grid_segments": false,
+    "camera_grid_binding_mechanism": "implicit_learned_attention_only",
+    "explicit_same_view_cross_attention_or_mask": false,
+    "relevance_queries_and_baseline_use_one_shared_vlm_span": true,
+    "relevance_queries_have_learned_view_ids": true
+  },
+  "record_count": 1600,
+  "schema": "orion.stage2l_v10_view_binding_audit.v1",
+  "source_orders": {
+    "deterministic_decoder": {
+      "canonical": true,
+      "path": "/Users/th1nkmore/th1nkmore_ws/Orion/uq_estimator/stage2l_deterministic_semantics_v10.py",
+      "sha256": "3cc35825ccbf5971bb03854964279adfb247b04bb37016b08e8b2f08a83b6391",
+      "symbol": "DEFAULT_CAMERA_ORDER",
+      "value": [
+        "CAM_FRONT",
+        "CAM_FRONT_LEFT",
+        "CAM_FRONT_RIGHT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ]
+    },
+    "geometry_target": {
+      "canonical": true,
+      "path": "/Users/th1nkmore/th1nkmore_ws/Orion/uq_estimator/task_relevance_geometry.py",
+      "sha256": "cba507af7fe302fcc48ade62ebfcb3374352e5e61fefdaeaa545e4dc96679daf",
+      "symbol": "CAMERA_ORDER",
+      "value": [
+        "CAM_FRONT",
+        "CAM_FRONT_LEFT",
+        "CAM_FRONT_RIGHT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ]
+    },
+    "offline_visual_cache": {
+      "canonical": true,
+      "path": "/Users/th1nkmore/th1nkmore_ws/Orion/scripts/cache_closedloop_orion_visual_context.py",
+      "sha256": "80be393f7dc9db789030f99f9f607628aa550c9e3a8b24316302013cee314f18",
+      "symbol": "CAMERA_ORDER",
+      "value": [
+        "CAM_FRONT",
+        "CAM_FRONT_LEFT",
+        "CAM_FRONT_RIGHT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ]
+    },
+    "online_agent": {
+      "canonical": true,
+      "path": "/Users/th1nkmore/th1nkmore_ws/Orion/team_code/orion_b2d_agent.py",
+      "sha256": "79ea4a3858d4ab8326722e097579647e7402b2c357bfa49cd28f169e7d53b1bf",
+      "symbol": "CAMERA_ORDER",
+      "value": [
+        "CAM_FRONT",
+        "CAM_FRONT_LEFT",
+        "CAM_FRONT_RIGHT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ]
+    },
+    "replay_renderer": {
+      "canonical": true,
+      "normalized_value": [
+        "CAM_FRONT",
+        "CAM_FRONT_LEFT",
+        "CAM_FRONT_RIGHT",
+        "CAM_BACK",
+        "CAM_BACK_LEFT",
+        "CAM_BACK_RIGHT"
+      ],
+      "path": "/Users/th1nkmore/th1nkmore_ws/Orion/scripts/evaluate_stage2l_v10_phase_a_checkpoint.py",
+      "sha256": "79c994cc60499cb9ba2444cc9a276993075730de65afd3099f1eb69f0b07e520",
+      "symbol": "VIEW_NAMES",
+      "value": [
+        "front",
+        "front_left",
+        "front_right",
+        "back",
+        "back_left",
+        "back_right"
+      ]
+    }
+  },
+  "status": "camera_order_consistent_explicit_view_grid_binding_absent"
+}

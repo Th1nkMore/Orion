@@ -1,0 +1,50 @@
+{
+  "schema": "orion.corruption_hardcase_visual_bakeoff.v1",
+  "status": "preregistered_visual_prototype_only",
+  "route": {
+    "route_id": 151,
+    "town": "Town02",
+    "event": "ParkingCrossingPedestrian",
+    "source_xml": "configs/closedloop_scenario_bank/routes/route_151_hazard.xml",
+    "event_start_progress_reference": 0.39881549704622504,
+    "capture_start_progress": 0.34,
+    "capture_end_progress": 0.50,
+    "capture_stride_simulation_steps": 1,
+    "expected_simulation_hz": 20.0
+  },
+  "conditions": {
+    "front_stale": {
+      "delays_ms": [100, 200, 400],
+      "source": "same clean high-rate capture",
+      "selection": "newest source frame at or before target simulation time"
+    },
+    "lens_waterdrop": {
+      "severities": [1, 2, 3],
+      "seed": 20260831,
+      "source": "same clean high-rate capture",
+      "placement": "frozen actor-independent lens coordinates"
+    },
+    "native_motion_blur": {
+      "profiles": ["clean", "light", "medium", "heavy"],
+      "source": "CARLA RGB camera blueprint and renderer",
+      "weather": "unchanged route-native weather",
+      "pose_matching": "nearest route progress for visual comparison"
+    }
+  },
+  "render": {
+    "width": 480,
+    "height": 270,
+    "output_fps": 10,
+    "maximum_frames": 120,
+    "contact_progress": 0.39881549704622504
+  },
+  "acceptance": {
+    "all_conditions_are_visually_time_continuous": true,
+    "front_stale_realized_delay_error_ms_max": 51.0,
+    "waterdrop_has_no_actor_or_bbox_input": true,
+    "motion_blur_readback_matches_requested_blueprint": true,
+    "no_orion_loaded": true,
+    "no_collision_outcome_used_for_parameter_selection": true
+  },
+  "claim_boundary": "Visual engineering bake-off only. Route151 may select implementation/severity candidates but cannot provide held-out or safety evidence."
+}

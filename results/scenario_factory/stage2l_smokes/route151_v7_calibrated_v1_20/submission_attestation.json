@@ -1,0 +1,62 @@
+{
+  "schema": "orion.stage2l_v7_smoke_submission_attestation.v1",
+  "submitted_at": "2026-08-30T15:29:21+08:00",
+  "slurm_job_id": "1102461",
+  "job_name": "s2l_v7_r151_smoke",
+  "initial_scheduler_state": "PENDING(Priority)",
+  "event_id": "route151_step218",
+  "purpose": "bounded Stage2-L v7 calibrated learnability smoke; diagnostic only",
+  "slurm_resources": {
+    "partition": "Nvidia_A800",
+    "gres": "gpu:1",
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "04:00:00",
+    "excluded_nodes": [
+      "gpu5"
+    ]
+  },
+  "training_bounds": {
+    "maximum_submissions": 1,
+    "maximum_optimizer_steps": 20,
+    "optimizer_step_unit": "one complete 20-record matched counterfactual group",
+    "answer_micro_batch_size": 2,
+    "formal_training": false,
+    "stage2p_training": false,
+    "trajectory_or_control_loss": false,
+    "automatic_retry_or_extension": false
+  },
+  "preflight": {
+    "status": "v7_route151_smoke_preflight_pass",
+    "training_started": false,
+    "focused_tests": "17 passed",
+    "objective_feasibility": "objective_feasibility_pass",
+    "record_count": 100,
+    "matched_group_count": 5,
+    "hard_language_record_count": 90,
+    "hard_stance_record_count": 15,
+    "same_family_preference_anchor_count": 90,
+    "distinct_counterfactual_negative_count": 270,
+    "relative_sidecar_missing_count": 0
+  },
+  "source_sha256": {
+    "submitter": "06000c80fc0c5f3dd2b835d265891539db8d0e0544d71bbf293ba777e3196242",
+    "trainer": "4f18871e5803cb5197b0b1b05c2198585839038ac5ea45e32346363838b7adca",
+    "training_protocol": "c56cf3d40d3a8403cbad809e0f6a54a13a09ec0c91989dc5d0571fa640e71ff4",
+    "launch_amendment": "98d7aff4ff46feeb1c093ea04183299761437cd19779225046cbca896c97e87f",
+    "qa_factory_config": "095351ca92fc3f222faca2310634c250160e3900f7dae49e47d149be822b78c3",
+    "calibrated_objective": "8775ff03348e228bcce28ba7121e996cb8d25776baa567cddb99260aa592aaae",
+    "qa_contract": "285b549d64433cefca1d9e7f9f4d62408d557c74b0c6ca9bda6589da7311af59",
+    "semantic_bottleneck": "4d5ad94e149f963661df2de8debe5c174c64403c2042ea6db95032e1262a6a37",
+    "semantic_runtime": "bf464af987d61f769bfe8559d8a60eead1728847342f34d9321294d9e3397807",
+    "objective_diagnostic": "d06c99f4cfe5903a01e9ea8a344b668105d45cee272fe56d2c48354a4a22bd9d",
+    "records": "f45be2ab48bb93767ae81d56dfce517a4cc3bbadd967cebc16683106c3d63fc1",
+    "qa_static_audit": "5e9d1dad59940aba93fc558584c97e1b1b59a9a6b5e9172473ace057743e0427",
+    "visual_cache": "2058b2fa86ffc900aefc38df496ac7fa7117a96641ad58cdebe019b060f16623",
+    "orion_config": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "base_orion_checkpoint": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "remote_output_dir": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route151_v7_calibrated_v1_20/training",
+  "remote_log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/stage2l_smokes/route151_v7_calibrated_v1_20-1102461.out",
+  "claim_boundary": "One Route151 engineering smoke only; no held-out, trajectory, closed-loop, generalization or safety evidence."
+}

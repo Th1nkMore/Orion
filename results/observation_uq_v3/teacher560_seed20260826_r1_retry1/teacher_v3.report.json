@@ -1,0 +1,208 @@
+{
+  "claim_boundary": {
+    "actual_orion_failure_is_primary_label": false,
+    "actual_orion_failure_role": "independent diagnostic or optional later auxiliary",
+    "closed_loop_safety_claim_supported_by_stage1_alone": false,
+    "corruption_is_ground_truth": false,
+    "corruption_metadata_used_by_adapter": false,
+    "corruption_metadata_used_by_teacher": false,
+    "learned_quantity": "clean-conditional feature surprise distilled to a single-pass spatial observation-insufficiency score",
+    "model_independence_claimed": false,
+    "task_relevance_is_adapter_output": false
+  },
+  "clean_scale": 0.7726454138755798,
+  "data_attestation": {
+    "actual_target_tensor_read": false,
+    "adapter_trained": false,
+    "corruption_metadata_used_as_target": false,
+    "teacher_optimizer_example_count": 560,
+    "teacher_optimizer_families": [
+      "clean"
+    ],
+    "teacher_optimizer_route_count": 35
+  },
+  "evaluations": {
+    "clean_heldout": {
+      "by_family": {
+        "clean": {
+          "example_count": 80,
+          "severity_teacher_score_spearman": NaN,
+          "teacher_score_mean": 0.6088156700134277,
+          "teacher_score_std": 0.038413435220718384
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 80,
+      "patch_score_mean": 0.6088156700134277
+    },
+    "clean_train": {
+      "by_family": {
+        "clean": {
+          "example_count": 560,
+          "severity_teacher_score_spearman": NaN,
+          "teacher_score_mean": 0.552048921585083,
+          "teacher_score_std": 0.04867105185985565
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 560,
+      "patch_score_mean": 0.5520488619804382
+    },
+    "clean_validation": {
+      "by_family": {
+        "clean": {
+          "example_count": 80,
+          "severity_teacher_score_spearman": NaN,
+          "teacher_score_mean": 0.5849544405937195,
+          "teacher_score_std": 0.04121022671461105
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": NaN,
+      "example_count": 80,
+      "patch_score_mean": 0.5849543809890747
+    },
+    "heldout_route_and_family": {
+      "by_family": {
+        "clean": {
+          "example_count": 80,
+          "severity_teacher_score_spearman": NaN,
+          "teacher_score_mean": 0.6088156700134277,
+          "teacher_score_std": 0.038413435220718384
+        },
+        "local_glare": {
+          "example_count": 160,
+          "severity_teacher_score_spearman": 0.03976913169026375,
+          "teacher_score_mean": 0.6117703318595886,
+          "teacher_score_std": 0.03791444003582001,
+          "teacher_score_uplift_over_clean": 0.0029546618461608887
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": 0.44442183985773487,
+      "example_count": 240,
+      "patch_score_mean": 0.6107854247093201
+    },
+    "validation_heldout_family": {
+      "by_family": {
+        "clean": {
+          "example_count": 80,
+          "severity_teacher_score_spearman": NaN,
+          "teacher_score_mean": 0.5849544405937195,
+          "teacher_score_std": 0.04121022671461105
+        },
+        "local_glare": {
+          "example_count": 160,
+          "severity_teacher_score_spearman": -0.010312902741134167,
+          "teacher_score_mean": 0.5873174071311951,
+          "teacher_score_std": 0.04040412977337837,
+          "teacher_score_uplift_over_clean": 0.002362966537475586
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": 0.5174344605888004,
+      "example_count": 240,
+      "patch_score_mean": 0.5865296721458435
+    }
+  },
+  "gate_inputs": {
+    "heldout_route_and_family": {
+      "families": {
+        "local_glare": {
+          "positive_severity_spearman": true,
+          "positive_uplift": true
+        }
+      },
+      "mask_auroc_above_random": false
+    },
+    "validation_heldout_family": {
+      "families": {
+        "local_glare": {
+          "positive_severity_spearman": false,
+          "positive_uplift": true
+        }
+      },
+      "mask_auroc_above_random": true
+    }
+  },
+  "history": {
+    "teacher_train": [
+      {
+        "loss": 0.6859828791448048,
+        "member_max_loss": 0.6867745178086417,
+        "member_min_loss": 0.6851912404809679
+      },
+      {
+        "loss": 0.5442067039864404,
+        "member_max_loss": 0.5493802445275443,
+        "member_min_loss": 0.5390331634453365
+      },
+      {
+        "loss": 0.5049857756921223,
+        "member_max_loss": 0.5109366412673678,
+        "member_min_loss": 0.4990349101168769
+      },
+      {
+        "loss": 0.48584324909108023,
+        "member_max_loss": 0.49403723776340486,
+        "member_min_loss": 0.47764926041875566
+      },
+      {
+        "loss": 0.47249108446495874,
+        "member_max_loss": 0.4811918684414455,
+        "member_min_loss": 0.463790300488472
+      },
+      {
+        "loss": 0.4633521324821881,
+        "member_max_loss": 0.47099898500101905,
+        "member_min_loss": 0.45570527996335713
+      },
+      {
+        "loss": 0.4566125229001045,
+        "member_max_loss": 0.46435133474213736,
+        "member_min_loss": 0.44887371105807167
+      },
+      {
+        "loss": 0.4508037420255797,
+        "member_max_loss": 0.4575064071587154,
+        "member_min_loss": 0.44410107689244405
+      },
+      {
+        "loss": 0.4462244738425527,
+        "member_max_loss": 0.45201152435370856,
+        "member_min_loss": 0.4404374233313969
+      },
+      {
+        "loss": 0.44212034025362557,
+        "member_max_loss": 0.44722885532038553,
+        "member_min_loss": 0.43701182518686565
+      },
+      {
+        "loss": 0.4383220117006983,
+        "member_max_loss": 0.44323144682816096,
+        "member_min_loss": 0.4334125765732357
+      },
+      {
+        "loss": 0.4356378312621798,
+        "member_max_loss": 0.43962995197091786,
+        "member_min_loss": 0.43164571055344175
+      }
+    ]
+  },
+  "model_config": {
+    "feature_dim": 1024,
+    "hidden_dim": 64,
+    "max_views": 6,
+    "teacher_members": 2,
+    "temporal_context": "one_previous_frame_when_available"
+  },
+  "observation_uq_schema_version": "orion.observation-uq/v3",
+  "schema_version": "orion.observation-uq-teacher-checkpoint/v3",
+  "training_config": {
+    "batch_size": 8,
+    "disagreement_weight": 0.25,
+    "heldout_families": [
+      "local_glare"
+    ],
+    "learning_rate": 0.002,
+    "seed": 20260826,
+    "teacher_epochs": 12
+  }
+}

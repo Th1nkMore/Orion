@@ -1,0 +1,412 @@
+{
+    "speed": 4.670114071984021,
+    "steer": 0.0008744720253162086,
+    "throttle": 0.75,
+    "brake": 0.0,
+    "wp_4": [
+        -0.4005669057369232,
+        15.310044288635254
+    ],
+    "wp_3": [
+        -0.24321050941944122,
+        10.792716979980469
+    ],
+    "wp_2": [
+        -0.08288171142339706,
+        6.545174598693848
+    ],
+    "wp_1": [
+        0.0026604891754686832,
+        2.819101572036743
+    ],
+    "aim": [
+        0.0026604891754686832,
+        2.819101572036743
+    ],
+    "target": [
+        -0.6622703776009671,
+        27.713981107486678
+    ],
+    "desired_speed": 6.09218156337738,
+    "angle": 0.0006008011464535965,
+    "angle_last": -0.02101993499824943,
+    "angle_target": -0.015210163737319274,
+    "angle_final": 0.0006008011464535965,
+    "delta": 0.25,
+    "agent": "only_traj",
+    "steer_traj": 0.0008744720272496619,
+    "throttle_traj": 0.75,
+    "brake_traj": 0.0,
+    "plan": [
+        [
+            0.0026604891754686832,
+            2.819101572036743
+        ],
+        [
+            -0.08288171142339706,
+            6.545174598693848
+        ],
+        [
+            -0.24321050941944122,
+            10.792716979980469
+        ],
+        [
+            -0.4005669057369232,
+            15.310044288635254
+        ],
+        [
+            -0.552550733089447,
+            19.83196258544922
+        ],
+        [
+            -0.702506959438324,
+            24.371965408325195
+        ]
+    ],
+    "command": 4,
+    "command_near_xy": [
+        -27.721075425781635,
+        -0.21290400959497902
+    ],
+    "local_command_xy ": [
+        -0.6622703776009671,
+        27.713981107486678
+    ],
+    "density_uq_score": 0.09756097942590714,
+    "uq_mode": "none",
+    "uq_conditioning": "vision_adapter",
+    "corruption": "clean",
+    "corruption_severity": 1,
+    "corruption_views": "front",
+    "corruption_seed": 0,
+    "corruption_region": null,
+    "corruption_metadata": null,
+    "oracle_corruption_relevant": true,
+    "corruption_active": false,
+    "corruption_schedule_mode": "simulation_time",
+    "corruption_trigger_time_seconds": null,
+    "route_progress": 0.5690570228371404,
+    "risk_governor": {
+        "mode": "off",
+        "raw_score": 0.09756097942590714,
+        "applied_score": null,
+        "intensity": 0.0,
+        "speed_cap": 5.0,
+        "base_throttle": 0.75,
+        "base_brake": 0.0,
+        "throttle": 0.75,
+        "brake": 0.0
+    },
+    "closedloop_safety": {
+        "schema": "orion.closedloop_dynamic_actor_safety.v2",
+        "available": true,
+        "primary_model": "constant_velocity_fixed_orientation_planar_obb",
+        "diagnostic_model": "constant_velocity_planar_disc_envelope",
+        "horizon_seconds": 10.0,
+        "ego": {
+            "actor_id": 135,
+            "position_xy": [
+                82.3853988647461,
+                104.5908203125
+            ],
+            "position_z": 0.9644394516944885,
+            "velocity_xy": [
+                -4.669487476348877,
+                -0.07688670605421066
+            ],
+            "yaw_degrees": -179.0711212158203,
+            "extent_xy_m": [
+                2.44619083404541,
+                0.9183566570281982
+            ],
+            "extent_z_m": 0.7451388239860535,
+            "disc_radius_m": 2.612896581588293
+        },
+        "actor_count_considered": 6,
+        "min_obb_collision_ttc_seconds": null,
+        "min_obb_separating_axis_gap_m": 5.762210575533603,
+        "min_disc_collision_ttc_seconds": 0.9298899225332677,
+        "min_disc_clearance_m": 6.402646431029542,
+        "min_predicted_disc_clearance_m": -0.12243232569791296,
+        "critical_actor": {
+            "actor_id": 158,
+            "type_id": "vehicle.mini.cooper_s_2021",
+            "category": "vehicle",
+            "position_xy": [
+                66.25618743896484,
+                109.5020751953125
+            ],
+            "position_z": 1.1147671937942505,
+            "velocity_xy": [
+                11.450545310974121,
+                0.008575485087931156
+            ],
+            "yaw_degrees": 0.03310389816761017,
+            "extent_xy_m": [
+                2.2763495445251465,
+                1.0485360622406006
+            ],
+            "extent_z_m": 0.8835831880569458,
+            "disc_radius_m": 2.506231258818481,
+            "relative_position_xy_m": [
+                -16.12921142578125,
+                4.9112548828125
+            ],
+            "relative_velocity_xy_mps": [
+                16.120032787322998,
+                0.08546219114214182
+            ],
+            "relative_longitudinal_m": 16.047474119493558,
+            "relative_lateral_m": -5.172084698232085,
+            "range_m": 16.860364341896712,
+            "closing_speed_mps": 15.396090211922065,
+            "disc_clearance_m": 11.741236501489938,
+            "closest_approach_time_seconds": 0.998926085308052,
+            "predicted_min_disc_clearance_m": -0.12243232569791296,
+            "disc_collision_ttc_seconds": 0.9298899225332677,
+            "obb_separating_axis_gap_m": 11.38977251719499,
+            "obb_collision_ttc_seconds": null
+        },
+        "actors": [
+            {
+                "actor_id": 158,
+                "type_id": "vehicle.mini.cooper_s_2021",
+                "category": "vehicle",
+                "position_xy": [
+                    66.25618743896484,
+                    109.5020751953125
+                ],
+                "position_z": 1.1147671937942505,
+                "velocity_xy": [
+                    11.450545310974121,
+                    0.008575485087931156
+                ],
+                "yaw_degrees": 0.03310389816761017,
+                "extent_xy_m": [
+                    2.2763495445251465,
+                    1.0485360622406006
+                ],
+                "extent_z_m": 0.8835831880569458,
+                "disc_radius_m": 2.506231258818481,
+                "relative_position_xy_m": [
+                    -16.12921142578125,
+                    4.9112548828125
+                ],
+                "relative_velocity_xy_mps": [
+                    16.120032787322998,
+                    0.08546219114214182
+                ],
+                "relative_longitudinal_m": 16.047474119493558,
+                "relative_lateral_m": -5.172084698232085,
+                "range_m": 16.860364341896712,
+                "closing_speed_mps": 15.396090211922065,
+                "disc_clearance_m": 11.741236501489938,
+                "closest_approach_time_seconds": 0.998926085308052,
+                "predicted_min_disc_clearance_m": -0.12243232569791296,
+                "disc_collision_ttc_seconds": 0.9298899225332677,
+                "obb_separating_axis_gap_m": 11.38977251719499,
+                "obb_collision_ttc_seconds": null
+            },
+            {
+                "actor_id": 148,
+                "type_id": "vehicle.mercedes.coupe_2020",
+                "category": "vehicle",
+                "position_xy": [
+                    100.15646362304688,
+                    105.32762145996094
+                ],
+                "position_z": 0.9393118619918823,
+                "velocity_xy": [
+                    -5.510319232940674,
+                    -0.004320019856095314
+                ],
+                "yaw_degrees": -179.96937561035156,
+                "extent_xy_m": [
+                    2.3368194103240967,
+                    0.9059062600135803
+                ],
+                "extent_z_m": 0.7209736704826355,
+                "disc_radius_m": 2.5062703582014554,
+                "relative_position_xy_m": [
+                    17.77106475830078,
+                    0.7368011474609375
+                ],
+                "relative_velocity_xy_mps": [
+                    -0.8408317565917969,
+                    0.07256668619811535
+                ],
+                "relative_longitudinal_m": -17.780673928239256,
+                "relative_lateral_m": -0.44861256363654395,
+                "range_m": 17.786332353091225,
+                "closing_speed_mps": 0.8371039112502998,
+                "disc_clearance_m": 12.667165413301477,
+                "closest_approach_time_seconds": 10.0,
+                "predicted_min_disc_clearance_m": 4.357111215008883,
+                "disc_collision_ttc_seconds": null,
+                "obb_separating_axis_gap_m": 12.983749093656323,
+                "obb_collision_ttc_seconds": null
+            },
+            {
+                "actor_id": 157,
+                "type_id": "vehicle.lincoln.mkz_2017",
+                "category": "vehicle",
+                "position_xy": [
+                    92.9822769165039,
+                    109.52058410644531
+                ],
+                "position_z": 0.9727768301963806,
+                "velocity_xy": [
+                    8.046038627624512,
+                    0.006036675535142422
+                ],
+                "yaw_degrees": 0.0429847426712513,
+                "extent_xy_m": [
+                    2.4508416652679443,
+                    1.0641621351242065
+                ],
+                "extent_z_m": 0.7553732395172119,
+                "disc_radius_m": 2.6719030517676834,
+                "relative_position_xy_m": [
+                    10.596878051757812,
+                    4.9297637939453125
+                ],
+                "relative_velocity_xy_mps": [
+                    12.715526103973389,
+                    0.08292338158935308
+                ],
+                "relative_longitudinal_m": -10.675403296203111,
+                "relative_lateral_m": -4.757326977551185,
+                "range_m": 11.687446064385519,
+                "closing_speed_mps": 0.0,
+                "disc_clearance_m": 6.402646431029542,
+                "closest_approach_time_seconds": 0.0,
+                "predicted_min_disc_clearance_m": 6.402646431029542,
+                "disc_collision_ttc_seconds": null,
+                "obb_separating_axis_gap_m": 5.762210575533603,
+                "obb_collision_ttc_seconds": null
+            },
+            {
+                "actor_id": 159,
+                "type_id": "vehicle.audi.tt",
+                "category": "vehicle",
+                "position_xy": [
+                    25.49845314025879,
+                    109.47528076171875
+                ],
+                "position_z": 1.0779480934143066,
+                "velocity_xy": [
+                    0.0,
+                    0.0
+                ],
+                "yaw_degrees": -0.206878662109375,
+                "extent_xy_m": [
+                    2.0906050205230713,
+                    0.9970585703849792
+                ],
+                "extent_z_m": 0.6926480531692505,
+                "disc_radius_m": 2.316194107715156,
+                "relative_position_xy_m": [
+                    -56.886945724487305,
+                    4.88446044921875
+                ],
+                "relative_velocity_xy_mps": [
+                    4.669487476348877,
+                    0.07688670605421066
+                ],
+                "relative_longitudinal_m": 56.800286756059265,
+                "relative_lateral_m": -5.806028950167694,
+                "range_m": 57.09625686278171,
+                "closing_speed_mps": 4.645791950791571,
+                "disc_clearance_m": 52.16716617347826,
+                "closest_approach_time_seconds": 10.0,
+                "predicted_min_disc_clearance_m": 6.725883459387249,
+                "disc_collision_ttc_seconds": null,
+                "obb_separating_axis_gap_m": 52.34969286031078,
+                "obb_collision_ttc_seconds": null
+            },
+            {
+                "actor_id": 151,
+                "type_id": "vehicle.mercedes.coupe_2020",
+                "category": "vehicle",
+                "position_xy": [
+                    114.4386215209961,
+                    105.33473205566406
+                ],
+                "position_z": 0.9381547570228577,
+                "velocity_xy": [
+                    -0.38277965784072876,
+                    -0.00015069983783178031
+                ],
+                "yaw_degrees": -179.6678009033203,
+                "extent_xy_m": [
+                    2.3368194103240967,
+                    0.9059062600135803
+                ],
+                "extent_z_m": 0.7209736704826355,
+                "disc_radius_m": 2.5062703582014554,
+                "relative_position_xy_m": [
+                    32.05322265625,
+                    0.7439117431640625
+                ],
+                "relative_velocity_xy_mps": [
+                    4.286707818508148,
+                    0.07673600621637888
+                ],
+                "relative_longitudinal_m": -32.06107025852557,
+                "relative_lateral_m": -0.22419012164441088,
+                "range_m": 32.061854084453,
+                "closing_speed_mps": 0.0,
+                "disc_clearance_m": 26.942687144663253,
+                "closest_approach_time_seconds": 0.0,
+                "predicted_min_disc_clearance_m": 26.942687144663253,
+                "disc_collision_ttc_seconds": null,
+                "obb_separating_axis_gap_m": 27.268752769255784,
+                "obb_collision_ttc_seconds": null
+            },
+            {
+                "actor_id": 153,
+                "type_id": "vehicle.ford.mustang",
+                "category": "vehicle",
+                "position_xy": [
+                    128.85916137695312,
+                    105.34325408935547
+                ],
+                "position_z": 0.8651512861251831,
+                "velocity_xy": [
+                    -0.2532523572444916,
+                    -0.0008415154879912734
+                ],
+                "yaw_degrees": -179.9738006591797,
+                "extent_xy_m": [
+                    2.358762502670288,
+                    0.947413444519043
+                ],
+                "extent_z_m": 0.650469958782196,
+                "disc_radius_m": 2.5419191133588104,
+                "relative_position_xy_m": [
+                    46.47376251220703,
+                    0.7524337768554688
+                ],
+                "relative_velocity_xy_mps": [
+                    4.416235119104385,
+                    0.07604519056621939
+                ],
+                "relative_longitudinal_m": -46.47985324306208,
+                "relative_lateral_m": 0.001064416919506761,
+                "range_m": 46.479853255249985,
+                "closing_speed_mps": 0.0,
+                "disc_clearance_m": 41.32503756030288,
+                "closest_approach_time_seconds": 0.0,
+                "predicted_min_disc_clearance_m": 41.32503756030288,
+                "disc_collision_ttc_seconds": null,
+                "obb_separating_axis_gap_m": 41.66026701223193,
+                "obb_collision_ttc_seconds": null
+            }
+        ],
+        "world_frame": 1879,
+        "world_elapsed_seconds": 19.5500002913177,
+        "actor_cache_size": 7,
+        "range_m": 60.0,
+        "vertical_filter_margin_m": 1.0
+    }
+}

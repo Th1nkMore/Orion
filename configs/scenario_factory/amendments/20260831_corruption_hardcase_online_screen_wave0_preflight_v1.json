@@ -1,0 +1,66 @@
+{
+  "schema": "orion.corruption_hardcase_online_screen_wave0_preflight_amendment.v1",
+  "created_at": "2026-08-31T23:51:11+08:00",
+  "status": "wave0_dry_run_verified_submission_locked_pending_human_visual_approval",
+  "parent_revision": "configs/scenario_factory/amendments/20260831_corruption_hardcase_o1_replay_readiness_and_screen_revision_v1.json",
+  "wave": {
+    "path": "configs/scenario_factory/corruption_hardcase_online_screen_wave0_v1.json",
+    "sha256": "59429ae9fa3cb01b0639c8694399d6ea12f12cf49cf77c14c23b317da3af5186",
+    "routes": [151, 180, 194],
+    "towns": ["Town02", "Town05", "Town04"],
+    "maximum_jobs_after_approval": 12,
+    "jobs_submitted_now": 0
+  },
+  "verification": {
+    "script": {
+      "path": "scripts/verify_corruption_hardcase_online_screen_wave.py",
+      "sha256": "898f3c30fbeb47cc30ebdd23052e9251a06fc58f796de8fd1bfacd8ce3c827ab"
+    },
+    "tests": {
+      "path": "tests/test_corruption_hardcase_online_screen_wave.py",
+      "sha256": "4249f56511c9779584f65de112c43745e72530d60f0cfede2d9f11914cf0158a",
+      "remote_related_suite": "35 passed in 9.33s"
+    },
+    "local_result": {
+      "path": "results/scenario_factory/audits/corruption_hardcase_online_screen_wave0_preflight_v1/result.json",
+      "sha256": "b5c23794f5d641b77e0d8dea146a15612d561fc65a887fdac4ec98b2f6ed2342"
+    },
+    "remote_result": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/audits/corruption_hardcase_online_screen_wave0_preflight_v1/result.json",
+      "sha256": "b5c23794f5d641b77e0d8dea146a15612d561fc65a887fdac4ec98b2f6ed2342"
+    },
+    "pending_lineage": "valid for all six candidate exact conditions",
+    "strict_mode": "rejected because no primary exact condition is frozen",
+    "orion_loaded": false,
+    "gpu_jobs_submitted": 0
+  },
+  "runtime_wiring": {
+    "runner": {
+      "path": "scripts/run_closedloop_uq_pilot.sh",
+      "sha256": "cd7652ff1c79b21b44a394e9af41240db6d623cf7b0a754f4f2c81f5ac4948cd"
+    },
+    "submitter": {
+      "path": "scripts/submit_closedloop_uq_pilot.sh",
+      "sha256": "0f06279b67324565a2e70bef8d70e5f3250d98df00e99ef6d942bda357076293"
+    },
+    "explicit_route_contract": "PILOT_ROUTE_FILE is accepted only with a matching PILOT_ROUTE_FILE_SHA256; both submitter and runner verify it.",
+    "submission_probe": "Route151 front_stale delay_ms:200 with the exact frozen route XML was rejected before sbatch because visual approval is pending.",
+    "squeue_after_probe": "empty"
+  },
+  "resource_budget": {
+    "per_job": "1x A800, 2 CPU, 192G RAM, 02:00:00 limit",
+    "historical_same_routes_clean_elapsed": {
+      "route151": "00:17:49",
+      "route180": "00:23:36",
+      "route194": "00:36:59"
+    },
+    "maximum_gpu_hours_if_all_12_equal_slowest_historical_run": 7.4,
+    "expected_wall_clock_with_three_concurrent_starts": "approximately 1.5-3 hours after scheduling, excluding queue delay"
+  },
+  "next_gate": {
+    "required_user_input": "explicitly approve or reject exact visual conditions",
+    "after_approval": "write a separate hash-pinned authorization amendment and a new wave config with at most one primary condition per approved family before any sbatch",
+    "current_submission_enabled": false
+  },
+  "claim_boundary": "Dry-run route/resource/lineage validation only. No corruption-conditioned ORION result, failure-induction case, uncertainty evidence, or safety claim exists."
+}

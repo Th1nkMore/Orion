@@ -1,0 +1,573 @@
+{
+  "actor_category": "walker",
+  "claim_boundary": "Development failure-induction screen only. A positive case shows native ORION degradation under the frozen corruption; it does not show uncertainty estimation or method benefit.",
+  "comparison_scope": "event_plus_3s_recovery",
+  "condition": "waterdrop_medium",
+  "continuous_safety_margin": {
+    "checks": {
+      "gap_drop_gate": false,
+      "ttc_drop_gate": false
+    },
+    "clean_min_obb_gap_m": 1.6034800656009054,
+    "clean_min_obb_ttc_seconds": 1.2073832545637084,
+    "degraded": false,
+    "degraded_min_obb_gap_m": 1.566792373191939,
+    "degraded_min_obb_ttc_seconds": 1.2831411836435611,
+    "observed_gap_drop_m": 0.0366876924089663,
+    "observed_ttc_drop_seconds": -0.07575792907985268,
+    "required_gap_drop_m": 0.5,
+    "required_ttc_drop_seconds": 0.3
+  },
+  "decision": {
+    "eligible_for_heldout_confirmation": false,
+    "evidence_tier": "valid_negative",
+    "positive_case": false,
+    "retain_for_case_study": false
+  },
+  "hard_endpoint": {
+    "checks": {
+      "new_hard_infraction": false,
+      "route_completion_drop_at_least_10pp": false
+    },
+    "clean_route_completion_percent": 100.0,
+    "degraded": false,
+    "degraded_route_completion_percent": 100.0,
+    "infraction_count_delta_degraded_minus_clean": {
+      "collisions_layout": 0,
+      "collisions_pedestrian": 0,
+      "collisions_vehicle": 0,
+      "outside_route_lanes": 0,
+      "red_light": 0,
+      "route_dev": 0,
+      "route_timeout": 0,
+      "scenario_timeouts": 0,
+      "stop_infraction": 0,
+      "vehicle_blocked": 0
+    },
+    "route_completion_drop_percentage_points": 0.0
+  },
+  "paired_event": {
+    "active_event": {
+      "clean": {
+        "duration_seconds": 5.05,
+        "efficiency": {
+          "route_progress_delta": 0.1541764286515221,
+          "slow_below_1_mps_seconds": 1.6500000000000004,
+          "stopped_below_0_25_mps_seconds": 1.5,
+          "time_weighted_mean_speed_mps": 3.179814502830704
+        },
+        "frames": 101,
+        "safety": {
+          "by_category": {
+            "vehicle": {
+              "frames_with_actor_record": 101,
+              "low_ttc_exposure_seconds": {
+                "1.0": 0,
+                "2.0": 0.6500000000000004,
+                "3.0": 1.1500000000000004,
+                "5.0": 1.6500000000000004
+              },
+              "min_obb_separating_axis_gap_m": 2.070075660593014,
+              "min_obb_ttc_seconds": 1.2584958189097837
+            },
+            "walker": {
+              "frames_with_actor_record": 101,
+              "low_ttc_exposure_seconds": {
+                "1.0": 0,
+                "2.0": 0.5999999999999996,
+                "3.0": 0.6500000000000004,
+                "5.0": 0.6500000000000004
+              },
+              "min_obb_separating_axis_gap_m": 3.233456941444348,
+              "min_obb_ttc_seconds": 1.2073832545637084
+            }
+          },
+          "critical_frame": {
+            "actor": {
+              "actor_id": 138,
+              "category": "walker",
+              "closest_approach_time_seconds": 1.8050024138291516,
+              "closing_speed_mps": 4.76761917126847,
+              "disc_clearance_m": 5.729203762346108,
+              "disc_collision_ttc_seconds": 1.201962509155468,
+              "disc_radius_m": 0.26541802940314196,
+              "extent_xy_m": [
+                0.18767888844013214,
+                0.18767888844013214
+              ],
+              "extent_z_m": 0.9300000071525574,
+              "obb_collision_ttc_seconds": 1.2073832545637084,
+              "obb_separating_axis_gap_m": 5.290510651482776,
+              "position_xy": [
+                100.82554626464844,
+                299.20526123046875
+              ],
+              "position_z": 1.2758030891418457,
+              "predicted_min_disc_clearance_m": -2.748617512758503,
+              "range_m": 8.607518373337543,
+              "relative_lateral_m": 3.274597183526979,
+              "relative_longitudinal_m": 7.960300611973178,
+              "relative_position_xy_m": [
+                -7.936187744140625,
+                -3.332611083984375
+              ],
+              "relative_velocity_xy_mps": [
+                4.367958813905716,
+                1.9121428355574608
+              ],
+              "type_id": "walker.pedestrian.0034",
+              "velocity_xy": [
+                0.39863279461860657,
+                1.87890625
+              ],
+              "yaw_degrees": 78.01937103271484
+            },
+            "sim_time_seconds": 10.95,
+            "step": 219
+          },
+          "low_ttc_exposure_seconds": {
+            "1.0": 0,
+            "2.0": 1.25,
+            "3.0": 1.8000000000000007,
+            "5.0": 2.3000000000000007
+          },
+          "min_disc_clearance_m_diagnostic": -1.1331816389306715,
+          "min_obb_separating_axis_gap_m": 2.070075660593014,
+          "min_obb_ttc_seconds": 1.2073832545637084,
+          "primary_metric": "constant_velocity_fixed_orientation_obb_ttc"
+        },
+        "safety_telemetry_available_frames": 101,
+        "safety_telemetry_coverage": 1.0
+      },
+      "comparison": {
+        "by_category": {
+          "vehicle": {
+            "low_ttc_exposure_seconds": {
+              "1.0": 0.0,
+              "2.0": 0.05000000000000071,
+              "3.0": 0.0,
+              "5.0": 0.0
+            },
+            "min_obb_separating_axis_gap_m": -0.08669345615524104,
+            "min_obb_ttc_seconds": -0.023001174564998284
+          },
+          "walker": {
+            "low_ttc_exposure_seconds": {
+              "1.0": 0.0,
+              "2.0": -0.09999999999999964,
+              "3.0": -0.09999999999999964,
+              "5.0": -0.09999999999999964
+            },
+            "min_obb_separating_axis_gap_m": 0.17046518853953252,
+            "min_obb_ttc_seconds": 0.07575792907985268
+          }
+        },
+        "delta_definition": "degraded_minus_clean",
+        "low_ttc_exposure_seconds": {
+          "1.0": 0.0,
+          "2.0": -0.049999999999998934,
+          "3.0": -0.09999999999999964,
+          "5.0": -0.09999999999999964
+        },
+        "min_obb_separating_axis_gap_m": -0.08669345615524104,
+        "min_obb_ttc_seconds": 0.028111389781076968,
+        "stopped_below_0_25_mps_seconds": 0.05000000000000071,
+        "time_weighted_mean_speed_mps": -0.02352965347081115
+      },
+      "degraded": {
+        "duration_seconds": 5.05,
+        "efficiency": {
+          "route_progress_delta": 0.15299766204067783,
+          "slow_below_1_mps_seconds": 1.6500000000000004,
+          "stopped_below_0_25_mps_seconds": 1.5500000000000007,
+          "time_weighted_mean_speed_mps": 3.156284849359893
+        },
+        "frames": 101,
+        "safety": {
+          "by_category": {
+            "vehicle": {
+              "frames_with_actor_record": 101,
+              "low_ttc_exposure_seconds": {
+                "1.0": 0,
+                "2.0": 0.7000000000000011,
+                "3.0": 1.1500000000000004,
+                "5.0": 1.6500000000000004
+              },
+              "min_obb_separating_axis_gap_m": 1.9833822044377731,
+              "min_obb_ttc_seconds": 1.2354946443447854
+            },
+            "walker": {
+              "frames_with_actor_record": 101,
+              "low_ttc_exposure_seconds": {
+                "1.0": 0,
+                "2.0": 0.5,
+                "3.0": 0.5500000000000007,
+                "5.0": 0.5500000000000007
+              },
+              "min_obb_separating_axis_gap_m": 3.4039221299838807,
+              "min_obb_ttc_seconds": 1.2831411836435611
+            }
+          },
+          "critical_frame": {
+            "actor": {
+              "actor_id": 148,
+              "category": "vehicle",
+              "closest_approach_time_seconds": 1.9686880462931549,
+              "closing_speed_mps": 6.5685166258417365,
+              "disc_clearance_m": 7.776545797527838,
+              "disc_collision_ttc_seconds": 1.1839121134174166,
+              "disc_radius_m": 2.5419191133588104,
+              "extent_xy_m": [
+                2.358762502670288,
+                0.947413444519043
+              ],
+              "extent_z_m": 0.650469958782196,
+              "obb_collision_ttc_seconds": 1.2354946443447854,
+              "obb_separating_axis_gap_m": 8.115367528422073,
+              "position_xy": [
+                120.70247650146484,
+                302.45611572265625
+              ],
+              "position_z": 0.8649594187736511,
+              "predicted_min_disc_clearance_m": -5.150669649749563,
+              "range_m": 12.931361492474942,
+              "relative_lateral_m": 0.1541042572590294,
+              "relative_longitudinal_m": -12.930443222370934,
+              "relative_position_xy_m": [
+                12.931358337402344,
+                0.009033203125
+              ],
+              "relative_velocity_xy_mps": [
+                -6.568516494357027,
+                -0.0024824442007229663
+              ],
+              "type_id": "vehicle.ford.mustang",
+              "velocity_xy": [
+                -6.569583415985107,
+                -0.0025974276941269636
+              ],
+              "yaw_degrees": -179.97735595703125
+            },
+            "sim_time_seconds": 12.3,
+            "step": 246
+          },
+          "low_ttc_exposure_seconds": {
+            "1.0": 0,
+            "2.0": 1.200000000000001,
+            "3.0": 1.700000000000001,
+            "5.0": 2.200000000000001
+          },
+          "min_disc_clearance_m_diagnostic": -1.0754800723913194,
+          "min_obb_separating_axis_gap_m": 1.9833822044377731,
+          "min_obb_ttc_seconds": 1.2354946443447854,
+          "primary_metric": "constant_velocity_fixed_orientation_obb_ttc"
+        },
+        "safety_telemetry_available_frames": 101,
+        "safety_telemetry_coverage": 1.0
+      },
+      "end_step": 259,
+      "start_step": 159
+    },
+    "alignment": "control_step",
+    "event_end_sim_time_seconds": 13.0,
+    "event_plus_recovery": {
+      "clean": {
+        "duration_seconds": 8.05,
+        "efficiency": {
+          "route_progress_delta": 0.2598138266056724,
+          "slow_below_1_mps_seconds": 2.0,
+          "stopped_below_0_25_mps_seconds": 1.5,
+          "time_weighted_mean_speed_mps": 3.359477599941474
+        },
+        "frames": 161,
+        "safety": {
+          "by_category": {
+            "vehicle": {
+              "frames_with_actor_record": 161,
+              "low_ttc_exposure_seconds": {
+                "1.0": 0,
+                "2.0": 0.6500000000000004,
+                "3.0": 1.1500000000000004,
+                "5.0": 1.8499999999999996
+              },
+              "min_obb_separating_axis_gap_m": 2.0327951232090555,
+              "min_obb_ttc_seconds": 1.2584958189097837
+            },
+            "walker": {
+              "frames_with_actor_record": 128,
+              "low_ttc_exposure_seconds": {
+                "1.0": 0,
+                "2.0": 0.5999999999999996,
+                "3.0": 0.6500000000000004,
+                "5.0": 0.6500000000000004
+              },
+              "min_obb_separating_axis_gap_m": 1.6034800656009054,
+              "min_obb_ttc_seconds": 1.2073832545637084
+            }
+          },
+          "critical_frame": {
+            "actor": {
+              "actor_id": 138,
+              "category": "walker",
+              "closest_approach_time_seconds": 1.8050024138291516,
+              "closing_speed_mps": 4.76761917126847,
+              "disc_clearance_m": 5.729203762346108,
+              "disc_collision_ttc_seconds": 1.201962509155468,
+              "disc_radius_m": 0.26541802940314196,
+              "extent_xy_m": [
+                0.18767888844013214,
+                0.18767888844013214
+              ],
+              "extent_z_m": 0.9300000071525574,
+              "obb_collision_ttc_seconds": 1.2073832545637084,
+              "obb_separating_axis_gap_m": 5.290510651482776,
+              "position_xy": [
+                100.82554626464844,
+                299.20526123046875
+              ],
+              "position_z": 1.2758030891418457,
+              "predicted_min_disc_clearance_m": -2.748617512758503,
+              "range_m": 8.607518373337543,
+              "relative_lateral_m": 3.274597183526979,
+              "relative_longitudinal_m": 7.960300611973178,
+              "relative_position_xy_m": [
+                -7.936187744140625,
+                -3.332611083984375
+              ],
+              "relative_velocity_xy_mps": [
+                4.367958813905716,
+                1.9121428355574608
+              ],
+              "type_id": "walker.pedestrian.0034",
+              "velocity_xy": [
+                0.39863279461860657,
+                1.87890625
+              ],
+              "yaw_degrees": 78.01937103271484
+            },
+            "sim_time_seconds": 10.95,
+            "step": 219
+          },
+          "low_ttc_exposure_seconds": {
+            "1.0": 0,
+            "2.0": 1.25,
+            "3.0": 1.8000000000000007,
+            "5.0": 2.5
+          },
+          "min_disc_clearance_m_diagnostic": -1.2941627617313802,
+          "min_obb_separating_axis_gap_m": 1.6034800656009054,
+          "min_obb_ttc_seconds": 1.2073832545637084,
+          "primary_metric": "constant_velocity_fixed_orientation_obb_ttc"
+        },
+        "safety_telemetry_available_frames": 161,
+        "safety_telemetry_coverage": 1.0
+      },
+      "comparison": {
+        "by_category": {
+          "vehicle": {
+            "low_ttc_exposure_seconds": {
+              "1.0": 0.0,
+              "2.0": 0.05000000000000071,
+              "3.0": 0.0,
+              "5.0": 0.10000000000000142
+            },
+            "min_obb_separating_axis_gap_m": -0.09239095673664544,
+            "min_obb_ttc_seconds": -0.023001174564998284
+          },
+          "walker": {
+            "low_ttc_exposure_seconds": {
+              "1.0": 0.0,
+              "2.0": -0.09999999999999964,
+              "3.0": -0.09999999999999964,
+              "5.0": -0.09999999999999964
+            },
+            "min_obb_separating_axis_gap_m": -0.0366876924089663,
+            "min_obb_ttc_seconds": 0.07575792907985268
+          }
+        },
+        "delta_definition": "degraded_minus_clean",
+        "low_ttc_exposure_seconds": {
+          "1.0": 0.0,
+          "2.0": -0.049999999999998934,
+          "3.0": -0.09999999999999964,
+          "5.0": 1.7763568394002505e-15
+        },
+        "min_obb_separating_axis_gap_m": -0.0366876924089663,
+        "min_obb_ttc_seconds": 0.028111389781076968,
+        "stopped_below_0_25_mps_seconds": 0.05000000000000071,
+        "time_weighted_mean_speed_mps": 0.02491677563717909
+      },
+      "degraded": {
+        "duration_seconds": 8.05,
+        "efficiency": {
+          "route_progress_delta": 0.2618162714513559,
+          "slow_below_1_mps_seconds": 1.9000000000000004,
+          "stopped_below_0_25_mps_seconds": 1.5500000000000007,
+          "time_weighted_mean_speed_mps": 3.384394375578653
+        },
+        "frames": 161,
+        "safety": {
+          "by_category": {
+            "vehicle": {
+              "frames_with_actor_record": 161,
+              "low_ttc_exposure_seconds": {
+                "1.0": 0,
+                "2.0": 0.7000000000000011,
+                "3.0": 1.1500000000000004,
+                "5.0": 1.950000000000001
+              },
+              "min_obb_separating_axis_gap_m": 1.94040416647241,
+              "min_obb_ttc_seconds": 1.2354946443447854
+            },
+            "walker": {
+              "frames_with_actor_record": 128,
+              "low_ttc_exposure_seconds": {
+                "1.0": 0,
+                "2.0": 0.5,
+                "3.0": 0.5500000000000007,
+                "5.0": 0.5500000000000007
+              },
+              "min_obb_separating_axis_gap_m": 1.566792373191939,
+              "min_obb_ttc_seconds": 1.2831411836435611
+            }
+          },
+          "critical_frame": {
+            "actor": {
+              "actor_id": 148,
+              "category": "vehicle",
+              "closest_approach_time_seconds": 1.9686880462931549,
+              "closing_speed_mps": 6.5685166258417365,
+              "disc_clearance_m": 7.776545797527838,
+              "disc_collision_ttc_seconds": 1.1839121134174166,
+              "disc_radius_m": 2.5419191133588104,
+              "extent_xy_m": [
+                2.358762502670288,
+                0.947413444519043
+              ],
+              "extent_z_m": 0.650469958782196,
+              "obb_collision_ttc_seconds": 1.2354946443447854,
+              "obb_separating_axis_gap_m": 8.115367528422073,
+              "position_xy": [
+                120.70247650146484,
+                302.45611572265625
+              ],
+              "position_z": 0.8649594187736511,
+              "predicted_min_disc_clearance_m": -5.150669649749563,
+              "range_m": 12.931361492474942,
+              "relative_lateral_m": 0.1541042572590294,
+              "relative_longitudinal_m": -12.930443222370934,
+              "relative_position_xy_m": [
+                12.931358337402344,
+                0.009033203125
+              ],
+              "relative_velocity_xy_mps": [
+                -6.568516494357027,
+                -0.0024824442007229663
+              ],
+              "type_id": "vehicle.ford.mustang",
+              "velocity_xy": [
+                -6.569583415985107,
+                -0.0025974276941269636
+              ],
+              "yaw_degrees": -179.97735595703125
+            },
+            "sim_time_seconds": 12.3,
+            "step": 246
+          },
+          "low_ttc_exposure_seconds": {
+            "1.0": 0,
+            "2.0": 1.200000000000001,
+            "3.0": 1.700000000000001,
+            "5.0": 2.5000000000000018
+          },
+          "min_disc_clearance_m_diagnostic": -1.4143909615177352,
+          "min_obb_separating_axis_gap_m": 1.566792373191939,
+          "min_obb_ttc_seconds": 1.2354946443447854,
+          "primary_metric": "constant_velocity_fixed_orientation_obb_ttc"
+        },
+        "safety_telemetry_available_frames": 161,
+        "safety_telemetry_coverage": 1.0
+      },
+      "end_step": 319,
+      "start_step": 159
+    },
+    "event_start_sim_time_seconds": 7.95,
+    "frame_period_seconds": 0.05000000000000071,
+    "pre_event_alignment": {
+      "absolute_delta": {
+        "route_progress": {
+          "last": 0.0002880755987206274,
+          "max": 0.00029198877601527284,
+          "mean": 0.00017608035193676945
+        },
+        "speed": {
+          "last": 0.000632714253373301,
+          "max": 0.08105640904017353,
+          "mean": 0.010617865669506002
+        },
+        "steer": {
+          "last": 0.00044508170685730875,
+          "max": 0.0025410987436771393,
+          "mean": 0.0002801791300061148
+        }
+      },
+      "control_step_sequences_equal": true,
+      "degraded_corruption_absent": true,
+      "end_step": 158,
+      "event_start_route_progress": {
+        "clean": 0.324076882383981,
+        "degraded": 0.323788508583859
+      },
+      "frames": 159,
+      "interpretation": "diagnostic replay-alignment evidence only; no post-hoc pass threshold is applied",
+      "start_step": 0
+    },
+    "recovery_seconds_requested": 3.0
+  },
+  "route_index": "151",
+  "schema": "orion.corruption_hardcase_wave_pair_decision.v1",
+  "source_files": {
+    "clean_eval": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route151_hazard_clean_off-1116344/eval_orion_traj_0.json",
+    "clean_manifest": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route151_hazard_clean_off-1116344/manifest.json",
+    "clean_trace": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route151_hazard_clean_off-1116344/records_orion_traj_0/RouteScenario_24294_rep0_Town02_ParkingCrossingPedestrian_1_6_09_01_00_19_10/control_trace.jsonl",
+    "degraded_eval": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route151_hazard_lens_waterdrop_paired_template_transient_off-1116356/eval_orion_traj_0.json",
+    "degraded_manifest": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route151_hazard_lens_waterdrop_paired_template_transient_off-1116356/manifest.json",
+    "degraded_render_readback": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route151_hazard_lens_waterdrop_paired_template_transient_off-1116356/render_condition_readback.json",
+    "degraded_trace": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route151_hazard_lens_waterdrop_paired_template_transient_off-1116356/records_orion_traj_0/RouteScenario_24294_rep0_Town02_ParkingCrossingPedestrian_1_6_09_01_01_59_15/control_trace.jsonl"
+  },
+  "validity": {
+    "checks": {
+      "architecture_locks": true,
+      "clean_finished": true,
+      "clean_liveness_fast_screen_passed": true,
+      "clean_no_hard_infraction": true,
+      "clean_safety_telemetry_complete": true,
+      "conditions_match": true,
+      "degraded_finished": true,
+      "degraded_safety_telemetry_complete": true,
+      "exact_corruption_condition_realized": true,
+      "route_indices_match": true,
+      "route_xml_hash_matches": true,
+      "same_code_hashes": true
+    },
+    "clean_longest_low_speed_interval": {
+      "duration_seconds": 0.8000000000000007,
+      "end_progress": 0.4782533110355031,
+      "end_step": 259,
+      "end_time_seconds": 12.95,
+      "start_progress": 0.4779784966392554,
+      "start_step": 244,
+      "start_time_seconds": 12.2
+    },
+    "exact_condition_checks": {
+      "active_event_duration_is_5s": true,
+      "active_event_present": true,
+      "front_view_only": true,
+      "manifest_profile_medium": true,
+      "metadata_profile_medium": true,
+      "pre_pipeline_1600x900": true,
+      "visual_approval_exact": true
+    },
+    "valid": true
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schema": "orion.corruption_hardcase_wave2_q1_submission_journal_amendment.v1",
+  "created_at": "2026-09-01T08:23:41+08:00",
+  "status": "durable_fail_closed_submission_journal_prepared_no_jobs_submitted",
+  "lineage": {
+    "prior_execution_chain_amendment": {
+      "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave2_q1_execution_chain_v1.json",
+      "sha256": "ac94c8bc7db07f9f214ab25db8d52a2fe9b59a0312c33e88e3d92ed621187402"
+    },
+    "clean_qualification_prereg": {
+      "path": "configs/scenario_factory/corruption_hardcase_wave2_clean_qualification_prereg_v1.json",
+      "sha256": "024e3cc6d4db4d77e7f8f88565163bb1283eda90fc3771e3c4eb0f34d1820f2c"
+    },
+    "activation_template": {
+      "path": "configs/scenario_factory/corruption_hardcase_wave2_clean_q1_activation_template_v1.json",
+      "sha256": "6083694f67b4bf7c04cea3e778b9acd5bfebbd75037af3aaa203db19d6b91ff8"
+    }
+  },
+  "durability_repair": {
+    "problem": "The prior submitter wrote its submission record only after the sbatch loop completed, so an interruption after one or more successful submissions could lose returned JobIDs from the local audit record.",
+    "implementation": {
+      "path": "scripts/submit_corruption_hardcase_wave2_clean_q1.py",
+      "sha256": "7e268e82c1cdaa99edc69ee89380c7d0d930d9ac9c93ea0e62603561fa7cc158"
+    },
+    "properties": [
+      "The submission record is written atomically before execution begins.",
+      "A submitting journal entry is persisted before every sbatch invocation.",
+      "Raw sbatch stdout and its return timestamp are persisted before JobID parsing.",
+      "Every parsed JobID is persisted immediately before the next route is submitted.",
+      "Failures persist the attempt state, error type, error message, and all previously returned JobIDs.",
+      "The output remains immutable at the command boundary: a pre-existing submission record is never overwritten."
+    ]
+  },
+  "verification": {
+    "test_file": {
+      "path": "tests/test_submit_corruption_hardcase_wave2_clean_q1.py",
+      "sha256": "1eada7d6d534216790d7a3949ebaf9a8069e2fdec1ca4d943a070eca5bbae909"
+    },
+    "remote_relevant_suite": {
+      "passed": 20,
+      "failed": 0,
+      "elapsed_seconds": 5.14,
+      "included": [
+        "tests/test_submit_corruption_hardcase_wave2_clean_q1.py",
+        "tests/test_evaluate_corruption_hardcase_clean_qualification.py",
+        "tests/test_collect_corruption_hardcase_clean_qualifications.py",
+        "tests/test_closedloop_sensor_diagnostics.py"
+      ]
+    },
+    "remote_source_hash_match": true,
+    "remote_unauthorized_template_check": {
+      "result": "WAVE2_DURABLE_TEMPLATE_REJECTED_NO_OUTPUT_NO_JOBS=1",
+      "return_code": 1,
+      "submission_record_created": false,
+      "job_ids_created": [],
+      "queue_empty_after_check": true
+    }
+  },
+  "execution_locks": {
+    "explicit_user_resume_received": false,
+    "actual_activation_created": false,
+    "q1_clean_submission": false,
+    "q2_clean_submission": false,
+    "corruption_submission": false,
+    "heldout_confirmation": false,
+    "learned_uq_or_governor": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "future_monitoring": {
+    "long_pending_wait_allowed_after_submission": true,
+    "authoritative_handles": "Use the atomically journaled Slurm JobIDs for long bounded waits and result collection after a separately authorized Q1 submission."
+  },
+  "claim_boundary": "Submission durability and fail-close engineering evidence only. No Q1 job was submitted and the exact-frame speedometer repair remains unvalidated in live CARLA."
+}

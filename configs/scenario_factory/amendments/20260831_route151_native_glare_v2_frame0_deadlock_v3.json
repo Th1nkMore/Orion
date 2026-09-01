@@ -1,0 +1,56 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T18:35:00+08:00",
+  "status": "runtime_repair_single_preexperiment",
+  "title": "Route151 native glare v3 after v2 synchronous load deadlock",
+  "authorization_basis": {
+    "user_instruction": "以后无需我审计，预实验可以直接开始",
+    "interpretation": "A bounded visual preexperiment may be relaunched after a machine-confirmed runtime failure without using safety outcomes for parameter selection."
+  },
+  "invalidated_run": {
+    "job_id": "1107291",
+    "run_id": "route151_native_glare_bakeoff_v2",
+    "state_at_diagnosis": {
+      "town": "Town02",
+      "carla_frame": 0,
+      "actor_count": 0,
+      "gpu_utilization_percent": 0,
+      "elapsed_seconds_before_cancel": 728
+    },
+    "classification": "CARLA synchronous cross-map load deadlock before agent setup",
+    "experimental_result": false
+  },
+  "runtime_repair": {
+    "load_order": [
+      "start external CARLA asynchronously",
+      "load the requested map with reset_settings=true",
+      "apply deterministic synchronous world settings",
+      "enable synchronous Traffic Manager",
+      "issue the first world tick"
+    ],
+    "per_profile_evaluator_timeout_seconds": 300,
+    "automatic_retry_inside_job": false
+  },
+  "authorized_run": {
+    "name": "route151_native_glare_bakeoff_v3",
+    "maximum_submissions": 1,
+    "profiles": [
+      "clean",
+      "light",
+      "medium",
+      "heavy"
+    ],
+    "orion_load": false,
+    "adapter_training": false,
+    "collision_or_ttc_used_for_parameter_selection": false,
+    "formal_closed_loop_result": false,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/glare_bakeoffs/route151_native_glare_bakeoff_v3"
+  },
+  "validated_sources": {
+    "scripts/run_bench2drive_external_server.py": "c8cc9348502e7af0b413ebf59ac105c43b28124cb0037b9327bbf2b467b121b3",
+    "scripts/run_native_glare_bakeoff_route151.sh": "481d8e3bcce90b30d7dfb1110e15c4afd16883d61e4e84094c0d68893ae26c28",
+    "team_code/glare_capture_agent.py": "b1493fd791ef84fead6285657a4c67a71a4987a33014f75cef4053e5ab93554d",
+    "configs/glare_visual_bakeoff_route151_v1.json": "0a56e6cdb71200c9eea09849ff43b6bdb18a3a2e75afc32d81d732f497409e2e"
+  },
+  "claim_boundary": "Visual corruption mechanism and severity-selection preexperiment only; no ORION, adapter, closed-loop safety, collision, TTC, or generalization claim."
+}

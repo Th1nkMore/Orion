@@ -1,0 +1,212 @@
+{
+  "claim_boundary": "Development/event-discovery evidence selected from published ORION outcomes; not held-out confirmation and not evidence that observation uncertainty caused the event.",
+  "continuous_safety": {
+    "duration_seconds": 22.6,
+    "efficiency": {
+      "route_progress_delta": 0.9999991925287369,
+      "slow_below_1_mps_seconds": 4.15,
+      "stopped_below_0_25_mps_seconds": 1.85,
+      "time_weighted_mean_speed_mps": 3.4523549801022266
+    },
+    "frames": 452,
+    "safety": {
+      "by_category": {
+        "vehicle": {
+          "frames_with_actor_record": 444,
+          "low_ttc_exposure_seconds": {
+            "1.0": 3.3000000000000007,
+            "2.0": 4.700000000000001,
+            "3.0": 5.0,
+            "5.0": 7.099999999999999
+          },
+          "min_obb_separating_axis_gap_m": 0.0,
+          "min_obb_ttc_seconds": 0.0
+        },
+        "walker": {
+          "frames_with_actor_record": 0,
+          "low_ttc_exposure_seconds": {
+            "1.0": 0,
+            "2.0": 0,
+            "3.0": 0,
+            "5.0": 0
+          },
+          "min_obb_separating_axis_gap_m": null,
+          "min_obb_ttc_seconds": null
+        }
+      },
+      "critical_frame": {
+        "actor": {
+          "actor_id": 189,
+          "category": "vehicle",
+          "closest_approach_time_seconds": 0.2742856236792302,
+          "closing_speed_mps": 10.433268645901155,
+          "disc_clearance_m": -2.0092734633304343,
+          "disc_collision_ttc_seconds": 0.0,
+          "disc_radius_m": 2.506231258818481,
+          "extent_xy_m": [
+            2.2763495445251465,
+            1.0485360622406006
+          ],
+          "extent_z_m": 0.8835831880569458,
+          "obb_collision_ttc_seconds": 0.0,
+          "obb_separating_axis_gap_m": 0.0,
+          "position_xy": [
+            -119.97061157226562,
+            94.92864990234375
+          ],
+          "position_z": 0.8999761939048767,
+          "predicted_min_disc_clearance_m": -4.240641832147332,
+          "range_m": 3.10985437707634,
+          "relative_lateral_m": -3.0253029448991944,
+          "relative_longitudinal_m": -0.7202335303255016,
+          "relative_position_xy_m": [
+            -2.7204666137695312,
+            -1.5067367553710938
+          ],
+          "relative_velocity_xy_mps": [
+            10.615484714508057,
+            2.367284396663308
+          ],
+          "type_id": "vehicle.mini.cooper_s_2021",
+          "velocity_xy": [
+            13.94880199432373,
+            0.015595057979226112
+          ],
+          "yaw_degrees": 0.06405508518218994
+        },
+        "sim_time_seconds": 14.0,
+        "step": 280
+      },
+      "low_ttc_exposure_seconds": {
+        "1.0": 3.3000000000000007,
+        "2.0": 4.700000000000001,
+        "3.0": 5.0,
+        "5.0": 7.099999999999999
+      },
+      "min_disc_clearance_m_diagnostic": -2.087466691466613,
+      "min_obb_separating_axis_gap_m": 0.0,
+      "min_obb_ttc_seconds": 0.0,
+      "primary_metric": "constant_velocity_fixed_orientation_obb_ttc"
+    },
+    "safety_telemetry_available_frames": 452,
+    "safety_telemetry_coverage": 1.0
+  },
+  "endpoint": {
+    "collision_count": 1,
+    "collision_entries": {
+      "collisions_layout": [],
+      "collisions_pedestrian": [],
+      "collisions_vehicle": [
+        "Agent collided against object with type=vehicle.mini.cooper_s_2021 and id=189 at (x=-117.236, y=96.437, z=-0.005)"
+      ]
+    },
+    "min_speed_infractions": [
+      "Average speed is 113.52% of the surrounding traffic's one",
+      "Average speed is 351.69% of the surrounding traffic's one",
+      "Average speed is 1326.67% of the surrounding traffic's one",
+      "Average speed is 287.98% of the surrounding traffic's one",
+      "Average speed is 57.88% of the surrounding traffic's one",
+      "Average speed is 160.67% of the surrounding traffic's one",
+      "Average speed is 221.02% of the surrounding traffic's one",
+      "Average speed is 319.96% of the surrounding traffic's one",
+      "Average speed is 200.18% of the surrounding traffic's one",
+      "Average speed is 476.48% of the surrounding traffic's one",
+      "Average speed is 425.69% of the surrounding traffic's one",
+      "Average speed is 2854.11% of the surrounding traffic's one",
+      "Average speed is 781.02% of the surrounding traffic's one",
+      "Average speed is 317.36% of the surrounding traffic's one",
+      "Average speed is 252.41% of the surrounding traffic's one",
+      "Average speed is 216.7% of the surrounding traffic's one",
+      "Average speed is 157.13% of the surrounding traffic's one",
+      "Average speed is 125.57% of the surrounding traffic's one",
+      "Average speed is 124.15% of the surrounding traffic's one",
+      "Average speed is 120.92% of the surrounding traffic's one",
+      "Average speed is 120.92% of the surrounding traffic's one"
+    ],
+    "scores": {
+      "score_composed": 60.0,
+      "score_penalty": 0.6,
+      "score_route": 100
+    },
+    "serious_infraction_count": 0,
+    "serious_infraction_entries": {
+      "outside_route_lanes": [],
+      "red_light": [],
+      "route_dev": [],
+      "route_timeout": [],
+      "scenario_timeouts": [],
+      "stop_infraction": []
+    },
+    "status": "Completed"
+  },
+  "eval_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route197_hazard_clean_off-1086450/eval_orion_traj_0.json",
+  "first_geometry_contact": {
+    "actor_category": "vehicle",
+    "actor_id": 189,
+    "actor_type": "vehicle.mini.cooper_s_2021",
+    "minimum_obb_gap_m": 0.0,
+    "minimum_obb_ttc_seconds": 0.0,
+    "route_progress": 0.4873480968198533,
+    "sim_time_seconds": 14.0,
+    "speed_mps": 3.9838303434314652,
+    "step": 280
+  },
+  "manifest_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route197_hazard_clean_off-1086450/manifest.json",
+  "protocol_amendment": "native_collision_discovery_amendments_v1: low speed, legal waiting, post-contact blocking, timeout, and incomplete route progress are model/outcome diagnostics rather than automatic runtime exclusions",
+  "result_kind": "collision_reproduced",
+  "retain_as_mechanism_development_case": true,
+  "run_dir": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route197_hazard_clean_off-1086450",
+  "runtime": {
+    "checks": {
+      "condition_clean_off": true,
+      "evaluator_eligible": true,
+      "risk_mode_off": true,
+      "route_completion_recorded": true,
+      "safety_schema_v2": true,
+      "safety_telemetry_full_coverage": true,
+      "terminal_status_recorded": true,
+      "trace_steps_contiguous": true,
+      "uq_mode_none": true
+    },
+    "longest_low_speed_interval": {
+      "duration_seconds": 0.25000000000000044,
+      "end_progress": 0.25830838472136175,
+      "end_step": 145,
+      "end_time_seconds": 7.25,
+      "start_progress": 0.25816783427113904,
+      "start_step": 141,
+      "start_time_seconds": 7.05
+    },
+    "low_speed_role": "outcome diagnostic only under amendment 2026-08-28T23:26:53+08:00; not an automatic runtime exclusion",
+    "post_contact_liveness_exception_applied": false,
+    "safety_schemas": [
+      "orion.closedloop_dynamic_actor_safety.v2"
+    ],
+    "safety_telemetry_coverage": 1.0,
+    "trace_frames": 452,
+    "valid": true
+  },
+  "schema": "orion.closedloop_native_collision_discovery_result.v1",
+  "severe_ttc_surrogate": {
+    "checks": {
+      "minimum_obb_gap_m": {
+        "passed": true,
+        "required": "<=0.5",
+        "value": 0.0
+      },
+      "minimum_obb_ttc_seconds": {
+        "passed": true,
+        "required": "<=1.0",
+        "value": 0.0
+      },
+      "ttc_lte_2_exposure_seconds": {
+        "passed": true,
+        "required": ">=0.5",
+        "value": 4.700000000000001
+      }
+    },
+    "logic": "all_required",
+    "passed": true
+  },
+  "trace_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route197_hazard_clean_off-1086450/records_orion_traj_0/RouteScenario_26966_rep0_Town05_SignalizedJunctionRightTurn_1_10_08_29_00_10_11/control_trace.jsonl"
+}

@@ -1,0 +1,45 @@
+{
+  "schema": "orion.native_motion_blur_medium_recovery_prereg.v1",
+  "timestamp": "2026-08-31T22:31:00+08:00",
+  "status": "prospective_one_shot_recovery_not_yet_submitted",
+  "parent_failure": "configs/scenario_factory/amendments/20260831_native_motion_blur_clean_revalidation_runtime_failure_v1.json",
+  "protocol": "configs/scenario_factory/corruption_hardcase_native_motion_blur_revalidation_route151_v1.json",
+  "run_id": "route151_native_motion_blur_medium_recovery_v1",
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_native_motion_blur_medium_recovery_v1",
+  "scope": "Route151 native-motion-blur medium visual capture only; reuse the independently validated unmodified none capture as the clean reference",
+  "maximum_submissions": 1,
+  "orion_loaded": false,
+  "immutable_clean_reference": {
+    "root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_clean_render_diagnostic_v1/captures/none",
+    "audit": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_clean_render_diagnostic_v1/quality_audit/diagnostic_good_none.json",
+    "trace_sha256": "8700da2e411b1a764f66c60a3dcf36e2b66e15320c4300af42676ff414c38a0b",
+    "audit_sha256": "e1bb2ec1736b5f89c46ecb19f1f140fdb41ee0c06f48f153f5e5bd91601ce37b",
+    "png_count_front_and_bev": 68,
+    "png_manifest_sha256": "c1360821c6ab3d4b59128fc1e47b09b7b3a8ba855a92ef4f8dcc74bf08c6d615",
+    "artifact_gate": "passed, 0 suspicious frames of 34 front frames"
+  },
+  "prospective_condition": {
+    "profile": "medium",
+    "front_resolution": [1600, 900],
+    "motion_blur_intensity": 0.7,
+    "motion_blur_max_distortion": 0.45,
+    "motion_blur_min_object_screen_size": 0.05,
+    "capture_progress": [0.36, 0.43],
+    "fresh_carla_server": true,
+    "new_output_root": true
+  },
+  "acceptance": {
+    "capture_trace_nonempty": true,
+    "camera_actor_readback_verified": true,
+    "medium_black_block_gate_passed": true,
+    "pose_matched_none_vs_medium_gif_rendered": true,
+    "human_visual_review_required": true
+  },
+  "stop_rule": "If this single recovery also stalls before capture, do not resubmit; repair or replace the Route151 CARLA/ScenarioRunner runtime path first.",
+  "locks": {
+    "orion_screen": false,
+    "profile_freeze": false,
+    "closed_loop": false,
+    "safety_claim": false
+  }
+}

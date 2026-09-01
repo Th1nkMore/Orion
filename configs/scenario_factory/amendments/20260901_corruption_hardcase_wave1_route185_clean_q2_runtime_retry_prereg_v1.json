@@ -1,0 +1,74 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_route185_clean_q2_runtime_retry_preregistration.v1",
+  "created_at": "2026-09-01T05:25:05+08:00",
+  "status": "single_exact_runtime_replacement_authorized_before_submission",
+  "invalid_attempt": {
+    "job_id": 1117850,
+    "route_index": 185,
+    "phase": "q2",
+    "condition": "clean_off",
+    "node": "gpu1",
+    "slurm_sacct_state": "FAILED",
+    "slurm_sacct_exit_code": "127:0",
+    "scontrol_exit_code": "255:0",
+    "failure_class": "runtime_environment_invalid",
+    "failure_reason": "At target frame 11862 the strict sensor queue received every expected sensor except SPEED. The SPEED item was off-target by one frame, the queue remained empty for 60 seconds, and SensorReceivedNoData terminated the evaluator at 16.4 percent route completion.",
+    "scientific_use": "excluded; neither a clean pass nor a clean reject"
+  },
+  "invalid_attempt_evidence": {
+    "manifest": {
+      "path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q2_v1/route185_hazard_clean_off-1117850/manifest.json",
+      "sha256": "12c69c0478da007b797e2638180b9181dbd142b3e69577289f82dc90927d6b40"
+    },
+    "evaluator_checkpoint": {
+      "path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q2_v1/route185_hazard_clean_off-1117850/eval_orion_traj_0.json",
+      "sha256": "c1a54f28c635378a19b1bf802833687cba5c5bbe6c3742ca044b4c2b7571133a"
+    },
+    "sensor_queue_diagnostics": {
+      "path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q2_v1/route185_hazard_clean_off-1117850/sensor_queue_diagnostics.jsonl",
+      "sha256": "73f82af9c671abe0e08c5ce8a5d5128fb0dcaf448afd99b1c7a1895c2ea7307a"
+    },
+    "job_log": {
+      "path": "/public/share/lidachuan/orion_assets/logs/corruption_hardcase_wave1_clean_q2_v1/uqcl_185_hazard_clean_off-1117850.out",
+      "sha256": "8afca7d0e9827884a01a86270b9e38d9044b0485a5df3cfd4b27c5aba295040c"
+    }
+  },
+  "replacement_plan": {
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_wave1_clean_q2_v1/route185_runtime_retry1_plan.json",
+    "local_path": "results/scenario_factory/submissions/corruption_hardcase_wave1_clean_q2_v1/route185_runtime_retry1_plan.json",
+    "sha256": "574b60ecdf89e828151ff0e238c7e3540530fb192493046b4ff5cab035f6d9ec",
+    "jobs_planned": 1,
+    "jobs_submitted": 0
+  },
+  "replacement_implementation": {
+    "submitter": {
+      "path": "scripts/submit_corruption_hardcase_wave1_clean_q2.py",
+      "sha256": "b436c1c3827de7d7bbff4ee1d95b3dfd8ecfb0ee20562b9c6177e45b9879be75"
+    },
+    "tests": {
+      "path": "tests/test_submit_corruption_hardcase_wave1_clean_q2.py",
+      "sha256": "77569e7a98714d27534e867b816b8f04c3efbb65fa3ee471f5cc8ebd166f8007",
+      "combined_local_and_remote_result": "11 passed"
+    }
+  },
+  "exact_replacement_contract": {
+    "route_index": 185,
+    "phase": "q2",
+    "condition": "clean_off",
+    "run_id": "corruption_hardcase_wave1_clean_q2_v1",
+    "route_xml_sha256": "3012f8016e396a0b2ec7f0fe5b4c7d4352421ed3280b0e227ab752f5c4a25a48",
+    "model_and_control_settings": "identical to invalid attempt",
+    "resources": "identical 1xA800, 2 CPU, 192G, 02:00:00",
+    "only_change": "Extend node exclusions from gpu2,gpu5 to gpu1,gpu2,gpu5 after gpu1's sensor synchronization failure.",
+    "maximum_replacements_authorized_by_this_record": 1,
+    "submission_output": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_wave1_clean_q2_v1/route185_runtime_retry1_submission.json"
+  },
+  "automatic_scope_locks": {
+    "other_q2_jobs": false,
+    "corruption": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Prospective authorization for one exact runtime replacement only. The invalid attempt is excluded scientifically and no clean or corruption result is claimed."
+}

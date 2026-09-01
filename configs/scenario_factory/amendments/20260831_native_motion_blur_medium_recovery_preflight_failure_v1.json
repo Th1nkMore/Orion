@@ -1,0 +1,43 @@
+{
+  "schema": "orion.native_motion_blur_medium_recovery_preflight_failure.v1",
+  "timestamp": "2026-08-31T22:35:30+08:00",
+  "status": "implementation_preflight_failed_no_capture_attempt",
+  "job": {
+    "job_id": 1115955,
+    "state": "FAILED",
+    "exit_code": "1:0",
+    "start_time": "2026-08-31T22:33:58+08:00",
+    "end_time": "2026-08-31T22:34:01+08:00",
+    "elapsed": "00:00:03",
+    "batch_max_rss_kib": 1736
+  },
+  "preregistration": "configs/scenario_factory/amendments/20260831_native_motion_blur_medium_recovery_prereg_v1.json",
+  "submission": "configs/scenario_factory/amendments/20260831_native_motion_blur_medium_recovery_submission_v1.json",
+  "failure": {
+    "stage": "clean-reference preflight before Vulkan or CARLA startup",
+    "cause": "The runner incorrectly expected the historical calibration-statistics JSON to have the later frozen-gate status and gate fields.",
+    "historical_file_status": "calibration_metrics_only_no_gate_frozen",
+    "assertion_expected_status": "passed_clean_render_artifact_gate",
+    "carla_started": false,
+    "capture_attempted": false,
+    "png_count": 0,
+    "orion_loaded": false
+  },
+  "correction": {
+    "method": "Recompute the already-frozen black-block gate from the immutable 34-frame clean sequence before any GPU runtime starts, and validate the source trace and PNG manifest hashes separately.",
+    "independent_login_node_preflight": {
+      "passed": true,
+      "frame_count": 34,
+      "suspicious_frame_count": 0,
+      "suspicious_frame_fraction": 0.0
+    }
+  },
+  "accounting": {
+    "submission_attempt_consumed": true,
+    "capture_attempt_consumed": false,
+    "visual_result": false,
+    "runtime_result": false,
+    "authorizes_one_corrected_capture_attempt": true
+  },
+  "claim_boundary": "This is an implementation-preflight failure and cannot be interpreted as evidence about CARLA rendering, native motion blur, ORION, or safety."
+}

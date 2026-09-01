@@ -1,0 +1,207 @@
+{
+  "schema": "orion.clean_pairwise_trace_diagnostic.v1",
+  "created_at": "2026-08-29T00:12:02+08:00",
+  "status": "preregistered_before_diagnostic_submission",
+  "execution_amendments": [
+    {
+      "timestamp": "2026-08-29T01:29:00+08:00",
+      "invalid_job_id": "1087427",
+      "failure_stage": "Slurm job bootstrap before CARLA startup",
+      "failure_reason": "The isolated staging tree omitted scripts/run_official_closedloop_job.sh and other complete runtime-tree dependencies; the job exited in one second before producing a manifest, evaluator endpoint, or control frame.",
+      "scientific_status": "Submission/runtime packaging error with no experimental result.",
+      "repair_boundary": "Do not patch the staging tree piecemeal. After the final already-running clean_off job finishes, deploy only the attested frozen core files into the complete production project tree, rerun full preregistration hash attestation there, and submit one replacement clean_pairwise_trace job with the unchanged scientific condition.",
+      "production_attestation_after_deployment": "passed",
+      "replacement_job_id": "1087428"
+    },
+    {
+      "timestamp": "2026-08-29T01:36:00+08:00",
+      "cancelled_job_id": "1087428",
+      "failure_stage": "Agent setup before the first control frame",
+      "triggering_observation": "The log showed that the legacy DensityUQEstimator was still instantiated even though its score had no control path in clean_pairwise_trace.",
+      "scientific_status": "Cancelled before any control frame; no experimental result.",
+      "repair_boundary": "Make legacy Density UQ structurally absent in the adapter sidecar: disable construction in the model config, assert environment/model agreement in the agent, record the disable flag in the manifest, require density_uq_score to be null on every frame, re-freeze source hashes, and submit one replacement with the unchanged adapter checkpoint and no-control contract."
+    },
+    {
+      "timestamp": "2026-08-29T01:48:37+08:00",
+      "replacement_job_id": "1087429",
+      "repair_attestation": "Production hash attestation, five focused tests, disabled-config loading, and wrapper dry-run all passed before submission.",
+      "interim_runtime_evidence": "The replacement loaded the frozen pairwise adapter with the registered SHA-256, logged legacy_density_uq=False, emitted six 10x10 camera grids on every inspected control frame, kept density_uq_score null, and kept risk mode off with zero intervention.",
+      "scientific_status": "Running; no endpoint interpretation is permitted until the frozen verifier passes on the complete trace."
+    },
+    {
+      "timestamp": "2026-08-29T02:03:43+08:00",
+      "completed_job_id": "1087429",
+      "runtime_status": "Completed with exit code 0",
+      "endpoint": {
+        "status": "Completed",
+        "route_completion_percent": 100,
+        "official_vehicle_collisions": 1,
+        "collision_actor_type": "vehicle.mini.cooper_s_2021",
+        "score_composed": 60.0
+      },
+      "verification": {
+        "passed": true,
+        "trace_frames": 471,
+        "control_intervention": false,
+        "trace_sha256": "1ce66958511cae9655b0ec19ca0ad0717606527b8fb7054671b31bd0c16a6287",
+        "verification_sha256": "4572741f63ce933049800a0a3924ac0075392d416428cc2bb65687f83db0a099",
+        "event_analysis_sha256": "a31c2feba4a7f12425653065b9644c36b4f5d86103a8b041829baca605f882a4"
+      },
+      "adapter_event_diagnostic": {
+        "independent_event_time_seconds": 14.0,
+        "approach_uplift_view_ranking": [
+          "CAM_BACK_RIGHT",
+          "CAM_FRONT",
+          "CAM_FRONT_RIGHT",
+          "CAM_BACK_LEFT",
+          "CAM_BACK",
+          "CAM_FRONT_LEFT"
+        ],
+        "front_first_trigger_lead_seconds": 2.5,
+        "dominant_view": "CAM_BACK_RIGHT",
+        "interpretation": "The adapter emitted a temporally early front-view response, but the largest approach uplift occurred in the rear-right view and its heatmap emphasized static facade/road regions rather than the collision actor. This is a mixed task-agnostic observation-evidence response, not clean task-relevant localization and not authority for learned control."
+      },
+      "decision": "Retain the run as a valid no-control adapter diagnostic. Proceed only to the already-preregistered, adapter-free task-event oracle mechanism test; do not expand learned-control matrices."
+    }
+  ],
+  "scope": "sidecar observation-uncertainty diagnostic only",
+  "scientific_question": "On a native clean route where frozen ORION has a terminal collision, does the frozen Stage-1 adapter produce timely and view/spatially selective observation-evidence signals around the event without changing ORION control?",
+  "primary_route": {
+    "route_index": 196,
+    "town": "Town05",
+    "scenario": "SignalizedJunctionRightTurn",
+    "selection_basis": "Job 1086150 was a runtime-valid clean_off replay with 100 percent route completion and one official vehicle collision.",
+    "development_boundary": "The route was selected using a known clean failure and is a mechanism-development diagnostic, not held-out confirmation."
+  },
+  "prospective_route_priority_amendment": {
+    "timestamp": "2026-08-29T00:31:24+08:00",
+    "made_before_any_clean_pairwise_trace_submission": true,
+    "first_submission_route_index": 197,
+    "second_submission_route_index": 196,
+    "reason": "Job 1086450 subsequently produced a runtime-valid 100-percent-complete official collision whose evaluator actor exactly matched the first zero-gap trace actor in a forward crossing conflict. This geometry is better suited to both all-view observation diagnostics and a separately preregistered conservative-response upper bound than Route196's rear/side collision, where slowing may be harmful.",
+    "selection_information_used": [
+      "clean evaluator endpoint",
+      "clean actor geometry",
+      "front and BEV visual review"
+    ],
+    "selection_information_not_used": [
+      "pairwise adapter output",
+      "all-view observation-UQ grids",
+      "learned-control outcome",
+      "task-oracle outcome"
+    ],
+    "boundary": "Route196 remains a registered secondary diagnostic. Route197 is still development-selected and does not become held-out evidence."
+  },
+  "frozen_condition": {
+    "pilot_condition": "clean_pairwise_trace",
+    "corruption": "none",
+    "risk_mode": "off",
+    "orion_uq_inference_mode": "none",
+    "orion_weight_update": false,
+    "adapter_feedback_to_orion": false,
+    "adapter_feedback_to_governor": false,
+    "task_risk_oracle": false,
+    "legacy_density_uq_enabled": false,
+    "safety_telemetry": true,
+    "all_six_camera_grids_logged": true
+  },
+  "control_invariance_contract": {
+    "model_path": "The adapter receives detached frozen EVAViT features only after ORION has produced its trajectory.",
+    "conditioning_path": "UQ inference mode none bypasses both UQ token and UQ vision-adapter conditioning.",
+    "control_path": "Risk mode off must return throttle and brake exactly equal to the base PID values and must never alter steering.",
+    "trace_checks_all_frames": [
+      "corruption_active is false",
+      "risk.mode equals off",
+      "risk.applied_score is null",
+      "risk.intensity equals 0",
+      "risk.throttle equals risk.base_throttle",
+      "risk.brake equals risk.base_brake",
+      "density_uq_score is null because the legacy estimator is not constructed"
+    ]
+  },
+  "frozen_adapter": {
+    "path": "/public/home/lidachuan/orion_work/observation_uq_v3/runs/counterfactual_pairwise_native_repair_seed20260828_r1/counterfactual_evidence_pairwise_native_repair.pt",
+    "sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+    "schema": "orion.counterfactual-evidence-pairwise-native-checkpoint/v1",
+    "best_epoch": 1,
+    "early_stopped_after_epoch": 3,
+    "identified_quantity": "within-pair score increment",
+    "declared_quantity": "generic spatial observation evidence-loss proxy",
+    "not_outputs": [
+      "task relevance",
+      "path risk",
+      "unique uncertainty truth"
+    ]
+  },
+  "upstream_gate_status": {
+    "learned_control_execution_authority": false,
+    "unseen_local_glare_gate": {
+      "passed": true,
+      "held_out_combined_patch_spearman": 0.1288132220506668,
+      "held_out_combined_target_top20_auroc": 0.7206033909712772,
+      "interpretation": "The checkpoint retained limited localization/ranking ability on an unseen synthetic family; this is not native external validity."
+    },
+    "native_fog_held_out_gate": {
+      "passed": false,
+      "fog_light_patch_spearman": 0.23202483355998993,
+      "fog_light_paired_delta_top20_auroc": 0.6363486801915699,
+      "fog_heavy_patch_spearman": 0.12908802926540375,
+      "fog_heavy_paired_delta_top20_auroc": 0.5903130611446169,
+      "required_each_condition_top20_auroc": 0.6,
+      "frozen_upstream_decision": "stop_before_learned_closed_loop_and_expand_independent_native_supervision"
+    },
+    "non_override_rule": "No clean Route197 heatmap, scalar uplift, or task-event oracle outcome can convert this checkpoint into a deployable learned-control signal. A new independently supervised and externally gated checkpoint is required."
+  },
+  "causal_online_calibration": {
+    "baseline_start_seconds": 1.0,
+    "baseline_end_seconds": 4.0,
+    "minimum_baseline_frames": 40,
+    "future_frames_used": false,
+    "known_event_state_used": false,
+    "known_actor_state_used": false,
+    "route_progress_used_by_adapter_or_calibrator": false
+  },
+  "frozen_source_hashes": {
+    "adzoo/orion/configs/orion_stage3_agent_uq.py": "78ac9cbd629ac3e019d7efaf25c8c3214c200cfe746fdb99eb0603f32ddd2799",
+    "team_code/orion_b2d_agent.py": "3a650b97e14f9c6673b3b7a33dfa356461ae2ea9f4342eb97c787bebb6abc803",
+    "mmcv/models/dense_heads/orion_head.py": "9d4e18ba4cad278635b5bd85e0fc6056d5104adda38d99701e1d087680cf2754",
+    "mmcv/models/detectors/orion.py": "9b5afa4116e117f94aa7f00d82e502c21bfbae5c5392bcbc0db806a5af05dda7",
+    "uq_estimator/online_observation_uq.py": "a8ead4304c9710933670da25d4ac821154a4c3e00410f188a8d55a5c22783fe9",
+    "uq_estimator/risk_governor.py": "000cd309853a2173cc8fcf0e5362615c2d251ffb54cfc1c187f8a164af89edc2",
+    "scripts/analyze_clean_pairwise_native_event.py": "07abf774e01ea78151ab93952277b2f6fd9a77dd8b1da76631b015794dcd1222",
+    "scripts/render_closedloop_observation_uq_heatmap.py": "714247d81b917961193c7d008b62544f43dde5e0620bdfcce7eefe7e2bf9944f",
+    "scripts/run_closedloop_uq_pilot.sh": "e9d85bd9d18f42dfc79732e7bcac9ce991169cdc195049987e24d4b899ab3eb3",
+    "scripts/verify_clean_pairwise_trace_diagnostic.py": "f9fb32c14e3ccb57f944231a0ec38a09b201ec994bd9d1f852175e5c8fa54e00"
+  },
+  "runtime": {
+    "partition": "Nvidia_A800",
+    "validated_node": "gpu4",
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "gpus_per_task": 1,
+    "carla_quality": "Epic",
+    "control_trace_stall_watchdog_seconds": 300
+  },
+  "required_outputs": [
+    "terminal Bench2Drive endpoint",
+    "complete control trace with observation_uq on every frame",
+    "all-view raw score traces",
+    "causally calibrated 10x10 heatmap grids for all six cameras",
+    "front, rear, side-camera overlay GIFs around the official collision or minimum-TTC event",
+    "BEV GIF around the same event",
+    "control-invariance attestation"
+  ],
+  "diagnostic_interpretation": {
+    "localized_and_early": "A signal concentrated in the camera/region containing degraded or ambiguous evidence before the event supports using the adapter as a candidate observation-evidence side channel; it still does not prove task relevance or causation.",
+    "global_all_view_uplift": "Treat the adapter as an operational anomaly score rather than spatial observation uncertainty; do not claim localization.",
+    "no_relevant_view_uplift": "Classify this native event as unsupported by the current adapter and do not use its score to control this event.",
+    "event_visible_and_certain": "A collision despite low localized observation UQ is consistent with planning/interaction failure rather than observation uncertainty.",
+    "terminal_event_not_reproduced": "Keep the run as a no-control signal/false-positive diagnostic but do not compare event-window safety against job 1086150 as a paired causal result."
+  },
+  "next_step_rule": {
+    "before_any_adapter_control": "The existing checkpoint has no adapter-control execution authority because its frozen native-fog gate failed. A future checkpoint must pass an independently frozen external gate in addition to runtime-valid signal diagnostics.",
+    "if_supported": "Use the result only to diagnose useful spatial behavior and to design the next independent supervision set; do not retrofit a governor window from adapter output.",
+    "if_not_supported": "Return to Stage-1 supervision/localization rather than expanding learned-control matrices."
+  },
+  "claim_boundary": "This diagnostic can show whether the frozen adapter emits a useful, non-controlling observation-evidence signal on one native failure route. It cannot show that uncertainty caused the collision, that the VLM understands uncertainty, or that uncertainty-aware control improves safety."
+}

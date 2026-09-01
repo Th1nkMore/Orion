@@ -1,0 +1,139 @@
+{
+    "speed": 1.1799318693808575e-09,
+    "steer": -0.0014193601673468947,
+    "throttle": 0.75,
+    "brake": 0.0,
+    "wp_4": [
+        -0.0013308970956131816,
+        6.436880588531494
+    ],
+    "wp_3": [
+        -0.004727677907794714,
+        3.207296371459961
+    ],
+    "wp_2": [
+        -0.003114517079666257,
+        1.1380670070648193
+    ],
+    "wp_1": [
+        -0.0005004331469535828,
+        0.1728704571723938
+    ],
+    "aim": [
+        -0.004727677907794714,
+        3.207296371459961
+    ],
+    "target": [
+        0.2728311886279636,
+        52.993691561114794
+    ],
+    "desired_speed": 0.7419068217277527,
+    "angle": -0.0009384199285041659,
+    "angle_last": 0.00015099524411286787,
+    "angle_target": 0.0032775258623471814,
+    "angle_final": -0.0009384199285041659,
+    "delta": 0.25,
+    "agent": "only_traj",
+    "steer_traj": -0.001419360141862551,
+    "throttle_traj": 0.75,
+    "brake_traj": 0.0,
+    "plan": [
+        [
+            -0.0005004331469535828,
+            0.1728704571723938
+        ],
+        [
+            -0.003114517079666257,
+            1.1380670070648193
+        ],
+        [
+            -0.004727677907794714,
+            3.207296371459961
+        ],
+        [
+            -0.0013308970956131816,
+            6.436880588531494
+        ],
+        [
+            -0.00024007644969969988,
+            10.398198127746582
+        ],
+        [
+            0.000738798058591783,
+            14.524163246154785
+        ]
+    ],
+    "command": 4,
+    "command_near_xy": [
+        -52.99386471126985,
+        0.23682292052633613
+    ],
+    "local_command_xy ": [
+        0.2728311886279636,
+        52.993691561114794
+    ],
+    "density_uq_score": 0.45644599199295044,
+    "uq_mode": "none",
+    "uq_conditioning": "vision_adapter",
+    "corruption": "clean",
+    "corruption_severity": 1,
+    "corruption_views": "front",
+    "corruption_seed": 0,
+    "corruption_region": null,
+    "corruption_metadata": null,
+    "oracle_corruption_relevant": true,
+    "corruption_active": false,
+    "corruption_schedule_mode": "simulation_time",
+    "corruption_trigger_time_seconds": null,
+    "route_progress": 0.0,
+    "risk_governor": {
+        "mode": "off",
+        "raw_score": 0.45644599199295044,
+        "applied_score": null,
+        "intensity": 0.0,
+        "speed_cap": 5.0,
+        "base_throttle": 0.75,
+        "base_brake": 0.0,
+        "throttle": 0.75,
+        "brake": 0.0
+    },
+    "closedloop_safety": {
+        "schema": "orion.closedloop_dynamic_actor_safety.v2",
+        "available": true,
+        "primary_model": "constant_velocity_fixed_orientation_planar_obb",
+        "diagnostic_model": "constant_velocity_planar_disc_envelope",
+        "horizon_seconds": 10.0,
+        "ego": {
+            "actor_id": 135,
+            "position_xy": [
+                157.5049285888672,
+                105.43629455566406
+            ],
+            "position_z": 0.9490437507629395,
+            "velocity_xy": [
+                -1.1735186156158761e-09,
+                9.432972625234015e-09
+            ],
+            "yaw_degrees": 179.96104431152344,
+            "extent_xy_m": [
+                2.44619083404541,
+                0.9183566570281982
+            ],
+            "extent_z_m": 0.7451388239860535,
+            "disc_radius_m": 2.612896581588293
+        },
+        "actor_count_considered": 0,
+        "min_obb_collision_ttc_seconds": null,
+        "min_obb_separating_axis_gap_m": null,
+        "min_disc_collision_ttc_seconds": null,
+        "min_disc_clearance_m": null,
+        "min_predicted_disc_clearance_m": null,
+        "critical_actor": null,
+        "actors": [],
+        "world_frame": 1509,
+        "world_elapsed_seconds": 1.0500000156462193,
+        "actor_cache_size": 1,
+        "range_m": 60.0,
+        "vertical_filter_margin_m": 1.0
+    }
+}

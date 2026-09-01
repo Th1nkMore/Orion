@@ -1,0 +1,71 @@
+{
+  "schema": "orion.native_motion_blur_clean_revalidation_protocol.v1",
+  "created_at": "2026-08-31T22:06:00+08:00",
+  "status": "prospective_capture_visual_only_no_orion",
+  "route": {
+    "route_id": 151,
+    "town": "Town02",
+    "event": "ParkingCrossingPedestrian",
+    "event_progress_reference": 0.39881549704622504,
+    "source_xml": "configs/closedloop_scenario_bank/routes/route_151_hazard.xml",
+    "source_xml_sha256": "ecb0fd699b3f2533e460e265f8d1137f6899ab117c32c468514e73ad3bc0d740",
+    "capture_start_progress": 0.36,
+    "capture_end_progress": 0.43,
+    "capture_stride_steps": 1,
+    "expected_simulation_hz": 20.0
+  },
+  "conditions": [
+    {
+      "profile": "none",
+      "role": "unmodified CARLA/Leaderboard RGB blueprint baseline",
+      "requested_front_attributes": null
+    },
+    {
+      "profile": "medium",
+      "role": "CARLA-native candidate pending visual review",
+      "requested_front_attributes": {
+        "enable_postprocess_effects": true,
+        "motion_blur_intensity": 0.7,
+        "motion_blur_max_distortion": 0.45,
+        "motion_blur_min_object_screen_size": 0.05
+      }
+    }
+  ],
+  "capture_contract": {
+    "fresh_carla_server_per_profile": true,
+    "front_resolution": [1600, 900],
+    "bev_postprocess_disabled_for_medium": true,
+    "route_native_weather_unchanged": true,
+    "actor_attribute_readback_required": true,
+    "orion_loaded": false,
+    "basic_agent_only": true
+  },
+  "artifact_gate": {
+    "config": "configs/scenario_factory/corruption_hardcase_clean_render_artifact_gate_v1.json",
+    "config_sha256": "eb1054f6d1d577e7593d750a53ed19db9a1f7ed89437e9eb22ffdc0ea608994b",
+    "required_profiles": ["none", "medium"],
+    "policy": "fail closed if either sequence triggers the calibrated black-block detector; intended blur is not exempt from visual artifact rejection"
+  },
+  "review": {
+    "output_fps": 10,
+    "review_size": [800, 450],
+    "contact_progress": 0.39881549704622504,
+    "pose_matching": "nearest route progress, preserving original frame indices",
+    "required_outputs": [
+      "per-profile artifact audits",
+      "unmodified and medium full-resolution GIFs",
+      "pose-matched comparison GIF",
+      "event contact frame",
+      "Laplacian edge-variance diagnostic",
+      "clean BEV context GIF",
+      "camera actor readback and hashed manifest"
+    ]
+  },
+  "locks": {
+    "orion_screen": false,
+    "closed_loop": false,
+    "profile_freeze": false,
+    "safety_claim": false
+  },
+  "claim_boundary": "CARLA renderer and visual-effect validation only; no proof that motion blur degrades ORION or changes safety."
+}

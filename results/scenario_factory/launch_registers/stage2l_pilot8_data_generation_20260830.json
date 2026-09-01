@@ -1,0 +1,84 @@
+{
+  "schema": "orion.stage2l.data_generation_launch_register.v1",
+  "submitted_at": "2026-08-30T11:43:00+08:00",
+  "claim_boundary": "This register records Stage1 observation-UQ extraction and QA/visual-context data generation only. It contains no LoRA, planning, closed-loop, or safety result.",
+  "frozen_bank": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_banks/stage2l_pilot8_frozen_6_2_20260830_v3.json",
+    "local_path": "results/scenario_factory/event_banks/stage2l_pilot8_frozen_6_2_20260830_v3.json",
+    "counts": {
+      "events": 8,
+      "dev": 2,
+      "train": 6,
+      "towns": 5,
+      "scenario_families": 7,
+      "reviewed_reserves": 1
+    }
+  },
+  "submission_contract": {
+    "orion_config": "/public/home/lidachuan/project/Orion/adzoo/orion/configs/orion_stage3_agent_spatial_stage2.py",
+    "stage1_control_influence": 0,
+    "qa_records_per_keyframe": 20,
+    "host_memory_gb": 192,
+    "cpus_per_task": 2,
+    "gpu": 1,
+    "visual_cache_after_qa": true,
+    "training_submitted": false
+  },
+  "submitted_events": [
+    {
+      "event_id": "route147_step223",
+      "formal_split": "dev",
+      "stage1_qa_job_id": "1101406",
+      "visual_cache_job_id": "1101407"
+    },
+    {
+      "event_id": "route195_step230",
+      "formal_split": "dev",
+      "stage1_qa_job_id": "1101411",
+      "visual_cache_job_id": "1101412"
+    },
+    {
+      "event_id": "route151_step218",
+      "formal_split": "train",
+      "stage1_qa_job_id": "1101408",
+      "visual_cache_job_id": "1101409"
+    },
+    {
+      "event_id": "route157_step193",
+      "formal_split": "train",
+      "stage1_qa_job_id": "1101414",
+      "visual_cache_job_id": "1101415"
+    },
+    {
+      "event_id": "route158_step154",
+      "formal_split": "train",
+      "stage1_qa_job_id": "1101416",
+      "visual_cache_job_id": "1101417"
+    },
+    {
+      "event_id": "route164_step522",
+      "formal_split": "train",
+      "stage1_qa_job_id": "1101418",
+      "visual_cache_job_id": "1101419"
+    },
+    {
+      "event_id": "route168_step482",
+      "formal_split": "train",
+      "stage1_qa_job_id": "1101423",
+      "visual_cache_job_id": "1101424"
+    },
+    {
+      "event_id": "route180_step696",
+      "formal_split": "train",
+      "stage1_qa_job_id": "1101425",
+      "visual_cache_job_id": "1101426"
+    }
+  ],
+  "held_reserve": [
+    {
+      "event_id": "route194_step684",
+      "reason": "reviewed and geometry-eligible, retained as formal pilot reserve; not submitted in this wave"
+    }
+  ],
+  "protocol_note": "The user accepted event integrity for routes 168/180/194. Glare visual quality is recorded as rough but acceptable for an engineering pre-experiment; it is not claimed to be realistic sensor corruption or external validation."
+}

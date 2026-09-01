@@ -1,0 +1,164 @@
+{
+  "schema": "orion.route197_task_event_oracle.v1",
+  "created_at": "2026-08-29T00:31:24+08:00",
+  "status": "preregistered_before_oracle_submission",
+  "pre_submission_amendments": [
+    {
+      "timestamp": "2026-08-29T01:51:00+08:00",
+      "reason": "After discovering that the legacy Density estimator could be instantiated by the old model configuration even when it had no control path, strengthen the already-required signal separation before submitting the oracle.",
+      "scientific_change": "None. The task-event window, governor parameters, route, endpoint gates, and decision rule remain unchanged.",
+      "additional_required_checks": [
+        "ORION_ENABLE_LEGACY_DENSITY_UQ equals 0 in the manifest",
+        "density_uq_score is null on every control frame",
+        "no observation adapter checkpoint or observation_uq output is present",
+        "the frozen Density-disable model config and model-head source hashes match"
+      ]
+    }
+  ],
+  "execution_records": [
+    {
+      "timestamp": "2026-08-29T02:05:23+08:00",
+      "slurm_job_id": "1087430",
+      "submission_attestation": "ROUTE197_PREREG_ATTESTATION_OK=1",
+      "explicit_signal_separation": {
+        "ORION_ENABLE_LEGACY_DENSITY_UQ": "0",
+        "ORION_OBSERVATION_UQ_CHECKPOINT": "",
+        "ORION_OBSERVATION_UQ_CHECKPOINT_SHA256": ""
+      },
+      "status_at_record": "PENDING (Priority)"
+    },
+    {
+      "timestamp": "2026-08-29T02:28:05+08:00",
+      "slurm_job_id": "1087430",
+      "runtime_status": "Completed with exit code 0",
+      "result_sha256": "275a7cab88a3b65430763294270e90929b850c0301f3e4cf821b96a623abc1ae",
+      "trace_sha256": "716d7583eac4b6e45c45741258efe8417a2c6d66bac6dd93549350d8b0efaff1",
+      "endpoint": {
+        "route_completion_percent": 100,
+        "official_vehicle_collisions": 1,
+        "collision_actor_type": "vehicle.mercedes.coupe_2020",
+        "collision_time_seconds": 18.15,
+        "score_composed": 60.0,
+        "new_serious_infraction_count": 0
+      },
+      "contracts": {
+        "manifest_checks_all_passed": true,
+        "trace_checks_all_passed": true,
+        "oracle_window_frames": 100,
+        "oracle_window_duration_seconds": 5.000000000000002,
+        "density_uq_score_non_null_frames": 0,
+        "observation_uq_non_null_frames": 0
+      },
+      "primary_success": false,
+      "decision": "The 5-second 1.5 m/s cap avoided the original Mini conflict but released the vehicle into a later Mercedes crossing conflict. Collision count and composed score remained unchanged. Stop this governor setting; do not expand learned-control matrices."
+    }
+  ],
+  "scope": "mechanism-development upper bound only",
+  "scientific_question": "If a correct task-event schedule identifies the independently observed Route197 crossing conflict, can the frozen bounded governor reduce the official collision without sacrificing route completion or introducing serious infractions?",
+  "naming_boundary": {
+    "condition_name": "native_event_oracle",
+    "paper_name": "task-event oracle",
+    "prohibited_name": "uncertainty oracle",
+    "reason": "The signal encodes a known route-progress conflict window, not observation uncertainty, adapter correctness, or semantic risk understanding."
+  },
+  "clean_reference": {
+    "job_id": "1086450",
+    "route_index": 197,
+    "town": "Town05",
+    "scenario": "SignalizedJunctionRightTurn",
+    "condition": "clean_off",
+    "report_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route197_hazard_clean_off-1086450/native_collision_discovery_report.json",
+    "report_sha256": "50d597f3bc35c8780387c79e7a68b0e1c79139c9eb3467e4289163ef999c6a64",
+    "runtime_valid": true,
+    "status": "Completed",
+    "route_completion_percent": 100,
+    "official_vehicle_collisions": 1,
+    "collision_actor_type": "vehicle.mini.cooper_s_2021",
+    "collision_actor_id_in_reference_run": 189,
+    "collision_time_seconds": 14.0,
+    "collision_route_progress": 0.4873480968198533,
+    "minimum_obb_ttc_seconds": 0.0,
+    "ttc_lte_2_exposure_seconds": 4.700000000000001,
+    "minimum_obb_gap_m": 0.0,
+    "score_composed": 60.0
+  },
+  "window_selection_from_clean_geometry_only": {
+    "adapter_output_inspected": false,
+    "density_uq_used": false,
+    "selection_rule": "Start when the eventual official collision actor first entered the frozen safety-telemetry range with a finite predicted OBB collision TTC below 4 seconds; round the observed route progress down only to the recorded value, then use a fixed simulation-time duration.",
+    "reference_observation": {
+      "step": 205,
+      "sim_time_seconds": 10.25,
+      "route_progress": 0.3690731367863814,
+      "actor_range_m": 52.44350207757436,
+      "actor_obb_ttc_seconds": 3.4402015932182697,
+      "actor_obb_gap_m": 48.13950504524268,
+      "ego_speed_mps": 3.9994271416758553
+    },
+    "oracle_start_route_progress": 0.3690731367863814,
+    "oracle_duration_seconds": 5.0,
+    "schedule_semantics": "The runtime oracle reads route progress to start one fixed timed window. It does not read actor identity, TTC, collision state, adapter output, Density UQ, or future frames at runtime."
+  },
+  "frozen_condition": {
+    "corruption": "none",
+    "orion_uq_inference_mode": "none",
+    "observation_adapter_loaded": false,
+    "legacy_density_uq_enabled": false,
+    "risk_mode": "oracle",
+    "risk_threshold": 0.4,
+    "risk_saturation": 0.8,
+    "risk_min_speed_mps": 1.5,
+    "risk_max_speed_mps": 5.0,
+    "risk_slowdown_margin_mps": 1.0,
+    "risk_brake_gain": 0.5,
+    "risk_max_brake": 0.5,
+    "steering_modified": false,
+    "orion_weights_modified": false
+  },
+  "runtime": {
+    "partition": "Nvidia_A800",
+    "validated_node": "gpu4",
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "gpus_per_task": 1,
+    "carla_quality": "Epic",
+    "control_trace_stall_watchdog_seconds": 300
+  },
+  "frozen_hashes": {
+    "route_197_hazard.xml": "a25537ab3d966cdc6d786e1c37982e040296ec95068afcf21ac193a1fc1a7cae",
+    "adzoo/orion/configs/orion_stage3_agent_uq.py": "78ac9cbd629ac3e019d7efaf25c8c3214c200cfe746fdb99eb0603f32ddd2799",
+    "team_code/orion_b2d_agent.py": "3a650b97e14f9c6673b3b7a33dfa356461ae2ea9f4342eb97c787bebb6abc803",
+    "mmcv/models/dense_heads/orion_head.py": "9d4e18ba4cad278635b5bd85e0fc6056d5104adda38d99701e1d087680cf2754",
+    "uq_estimator/risk_governor.py": "000cd309853a2173cc8fcf0e5362615c2d251ffb54cfc1c187f8a164af89edc2",
+    "scripts/run_closedloop_uq_pilot.sh": "e9d85bd9d18f42dfc79732e7bcac9ce991169cdc195049987e24d4b899ab3eb3"
+  },
+  "frozen_evaluation_hashes": {
+    "scripts/evaluate_route197_task_event_oracle.py": "7a4de35f0c9c00dd8e67b76b0c29d327885668e490e4a6dc5a2eee31de6ca802"
+  },
+  "primary_success_rule_all_required": {
+    "runtime_valid_terminal_endpoint": true,
+    "official_vehicle_collision_count": 0,
+    "route_completion_percent": 100,
+    "new_serious_infraction_count": 0,
+    "oracle_window_triggered_exactly_once": true,
+    "governor_inactive_control_exact_passthrough": true,
+    "steering_trace_comes_from_base_orion": true
+  },
+  "secondary_outcomes": [
+    "score_composed",
+    "minimum actor-category OBB TTC",
+    "time at or below TTC thresholds",
+    "minimum OBB separating-axis gap",
+    "time-weighted mean speed",
+    "stopped time",
+    "route completion",
+    "collision and traffic-infraction counts"
+  ],
+  "decision_rule": {
+    "if_primary_success": "The route/governor pair has a viable task-response mechanism upper bound. This permits adapter-side signal diagnostics but does not validate the adapter or an uncertainty-aware VLM.",
+    "if_collision_removed_but_completion_or_rules_fail": "Reject as blanket conservatism or task failure; redesign the response mechanism.",
+    "if_collision_remains": "Stop using this governor on Route197 as the mechanism proof and redesign timing/control before learned-signal matrices.",
+    "no_matrix_expansion": "Do not submit constant, shuffled, or learned-control variants from this single oracle result."
+  },
+  "claim_boundary": "A successful task-event oracle shows only that a bounded conservative response can improve this known development event when given correct task timing. It does not show observation uncertainty caused the event, that the adapter detects it, or that ORION/VLM understands uncertainty."
+}

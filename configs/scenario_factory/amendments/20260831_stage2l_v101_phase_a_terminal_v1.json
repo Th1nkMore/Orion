@@ -1,0 +1,69 @@
+{
+  "schema": "orion.stage2l_v101_phase_a_terminal.v1",
+  "timestamp": "2026-08-31T20:13:00+08:00",
+  "status": "terminal_step120_gate_failed_later_stages_locked",
+  "job_id": 1113867,
+  "optimizer_steps": 120,
+  "stop_reason": "maximum_steps_reached",
+  "final_metrics": {
+    "train_average_precision": 0.9101579694229787,
+    "dev_average_precision": 0.4152420349595574,
+    "train_foreground_recall": 0.8664349317550659,
+    "dev_foreground_recall": 0.4430674612522125,
+    "train_background_false_positive_rate": 0.002734667155891657,
+    "dev_background_false_positive_rate": 0.005874070804566145,
+    "train_probability_gap": 0.7469472885131836,
+    "dev_probability_gap": 0.32603687047958374
+  },
+  "comparison_to_v10_zero_step_replay": {
+    "v10_train_average_precision": 0.4402708267918087,
+    "v101_train_average_precision_delta": 0.46988714263117,
+    "v10_dev_average_precision": 0.22944109034071786,
+    "v101_dev_average_precision_delta": 0.18580094461883956
+  },
+  "view_binding_diagnostic": {
+    "train_top1_hits_any_supported_view_fraction": 0.9666666666666667,
+    "train_top1_matches_dominant_view_fraction": 0.8333333333333334,
+    "dev_top1_hits_any_supported_view_fraction": 0.85,
+    "dev_top1_matches_dominant_view_fraction": 0.65,
+    "dev_prediction_dominant_view_counts": {"CAM_BACK": 3, "CAM_FRONT": 17},
+    "finding": "The explicit same-view interface materially improved localization but still over-concentrates held-out predictions on CAM_FRONT and misses the foreground-recall release thresholds."
+  },
+  "frozen_gate_checks": {
+    "train_foreground_recall": false,
+    "train_background_fpr": true,
+    "dev_foreground_recall": false,
+    "dev_background_fpr": true,
+    "dev_probability_gap_positive": true,
+    "all_passed": false
+  },
+  "decision": {
+    "additional_epochs_alone_authorized": false,
+    "inspect_per_event_and_view_residuals": true,
+    "phase_b_unlocked": false,
+    "phase_c_unlocked": false,
+    "formal_stage2l_unlocked": false,
+    "stage2p_unlocked": false,
+    "closed_loop_unlocked": false,
+    "route203_native_glare_submission_unlocked": false
+  },
+  "artifacts": {
+    "phase_a_step120.pt": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/phase_a_step120.pt",
+      "sha256": "3a722ffdeedf682dc58753b3997b0e68143b027f4ae757f2d57362fad026bb16"
+    },
+    "spatial_maps_step120.pt": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/spatial_maps_step120.pt",
+      "sha256": "68c33b15c402c932d31b8cb4ee5531d7515ba59f288ae4051931b061d3052031"
+    },
+    "report.json": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/report.json",
+      "sha256": "334409434e79a153496e590a27ee4db8d4e173c0af40f1682a02bfd384d08c25"
+    },
+    "analysis_v1.json": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/analysis_v1.json",
+      "sha256": "db5d55abd6782c10e42711d6639e7838cd719d90e6384e37a755be0bf291414a"
+    }
+  },
+  "claim_boundary": "Successful bounded engineering repair of part of the R interface, but not a passed Stage2-L release gate and not planning, closed-loop, or safety evidence."
+}

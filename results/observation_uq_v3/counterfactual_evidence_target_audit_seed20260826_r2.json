@@ -1,0 +1,155 @@
+{
+  "audit": {
+    "by_family_severity": {
+      "local_blur/severity_1": {
+        "record_count": 560,
+        "target_means": {
+          "combined": 0.0031939668115228415,
+          "persistent_direction": 0.0022927606478333473,
+          "persistent_magnitude": 0.002948915120214224,
+          "transient_inconsistency": 0.0044283149763941765
+        }
+      },
+      "local_blur/severity_3": {
+        "record_count": 560,
+        "target_means": {
+          "combined": 0.01828574202954769,
+          "persistent_direction": 0.01811186969280243,
+          "persistent_magnitude": 0.01500458363443613,
+          "transient_inconsistency": 0.022016780450940132
+        }
+      },
+      "local_dark/severity_1": {
+        "record_count": 560,
+        "target_means": {
+          "combined": 0.005198987666517496,
+          "persistent_direction": 0.004164784215390682,
+          "persistent_magnitude": 0.0044774580746889114,
+          "transient_inconsistency": 0.007149522192776203
+        }
+      },
+      "local_dark/severity_3": {
+        "record_count": 560,
+        "target_means": {
+          "combined": 0.019988639280200005,
+          "persistent_direction": 0.020091107115149498,
+          "persistent_magnitude": 0.016107037663459778,
+          "transient_inconsistency": 0.024107102304697037
+        }
+      }
+    },
+    "component_scales": {
+      "persistent_direction": 0.4691108465194702,
+      "persistent_magnitude": 0.2978138327598572,
+      "transient_inconsistency": 0.48655763268470764
+    },
+    "components": {
+      "persistent_direction": {
+        "all_cell_quantiles": {
+          "q50": 0.0,
+          "q80": 1.1920928955078125e-07,
+          "q90": 0.0008225440979003906,
+          "q95": 0.012744429521262646,
+          "q99": 0.37698033452033997
+        },
+        "responsive_cell_count": 3568788,
+        "responsive_fraction": 0.16595926339285713,
+        "responsive_quantiles": {
+          "q50": 0.0022243261337280273,
+          "q80": 0.03938797861337662,
+          "q90": 0.17227493226528168,
+          "q95": 0.4691108465194702,
+          "q99": 1.0262937545776367
+        },
+        "selected_scale": 0.4691108465194702,
+        "valid_cell_count": 21504000
+      },
+      "persistent_magnitude": {
+        "all_cell_quantiles": {
+          "q50": 0.0,
+          "q80": 0.0,
+          "q90": 0.0049657090567052364,
+          "q95": 0.025523891672492027,
+          "q99": 0.24752177298069
+        },
+        "responsive_cell_count": 3583301,
+        "responsive_fraction": 0.16663416108630952,
+        "responsive_quantiles": {
+          "q50": 0.008474588394165039,
+          "q80": 0.05071449279785156,
+          "q90": 0.13651344180107117,
+          "q95": 0.2978138327598572,
+          "q99": 0.8873051404953003
+        },
+        "selected_scale": 0.2978138327598572,
+        "valid_cell_count": 21504000
+      },
+      "transient_inconsistency": {
+        "all_cell_quantiles": {
+          "q50": 0.0,
+          "q80": 0.0,
+          "q90": 0.007154523860663176,
+          "q95": 0.04781872406601906,
+          "q99": 0.4240378439426422
+        },
+        "responsive_cell_count": 3358750,
+        "responsive_fraction": 0.1666046626984127,
+        "responsive_quantiles": {
+          "q50": 0.013359040021896362,
+          "q80": 0.10066010802984238,
+          "q90": 0.2608087956905365,
+          "q95": 0.48655763268470764,
+          "q99": 0.9498598575592041
+        },
+        "selected_scale": 0.48655763268470764,
+        "valid_cell_count": 20160000
+      }
+    },
+    "corruption_mask_read": false,
+    "families": [
+      "local_blur",
+      "local_dark"
+    ],
+    "paired_severity_higher_target_fraction": {
+      "local_blur": {
+        "combined": 1.0,
+        "persistent_direction": 1.0,
+        "persistent_magnitude": 1.0,
+        "transient_inconsistency": 1.0
+      },
+      "local_dark": {
+        "combined": 1.0,
+        "persistent_direction": 1.0,
+        "persistent_magnitude": 1.0,
+        "transient_inconsistency": 1.0
+      }
+    },
+    "record_count": 2240,
+    "response_floor": 1e-06,
+    "route_count": 35,
+    "scale_population": "train-only valid cells with measured paired target > response_floor",
+    "target_scale_quantile": 0.95,
+    "validation_records_read": false
+  },
+  "continuation": {
+    "adapter_training_authorized_by_this_report": false,
+    "adapter_training_started": false,
+    "orion_finetuning_authorized": false,
+    "required_next_step": "freeze a separate training-run config using this exact artifact hash, scale population, scales, and record counts",
+    "stage_b_authorized": false
+  },
+  "diagnostics": {
+    "all_components_have_responsive_cells": true,
+    "all_selected_scales_above_numeric_floor": true,
+    "both_optimizer_families_have_majority_combined_monotonic_pairs": true
+  },
+  "diagnostics_passed": true,
+  "inputs": {
+    "feature_shard": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/counterfactual_evidence_features_seed20260826_r1/counterfactual_evidence_features.pt",
+    "feature_shard_sha256_from_extraction_sidecar": "6381c09ae3818e35f93e5c44c29c2230a7e299f7c621316bfc21e04342bc07e5",
+    "protocol": "/public/home/lidachuan/project/Orion/configs/observation_uq_counterfactual_evidence_v1.json",
+    "protocol_sha256": "4d40c1f81455336e763b8396d02fa39ecf82b2212f010029b264b745f70b1686"
+  },
+  "schema_version": "orion.counterfactual-evidence-target-audit/v1",
+  "scope": "train-only paired-target distribution; no adapter optimization"
+}

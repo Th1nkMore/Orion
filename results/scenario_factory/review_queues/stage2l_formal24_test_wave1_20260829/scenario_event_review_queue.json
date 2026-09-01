@@ -1,0 +1,102 @@
+{
+  "automatically_excluded": [],
+  "automatically_excluded_count": 0,
+  "candidate_count": 1,
+  "claim_boundary": "Queue priority is for review efficiency only. Human acceptance establishes event integrity, not UQ validity or closed-loop benefit.",
+  "human_review_contract": {
+    "decision_values": [
+      "accept",
+      "reject",
+      "pending"
+    ],
+    "locked_test_rejection_must_be_technical_only": true,
+    "prohibited_rejection_basis": [
+      "learned UQ behavior",
+      "Stage2 behavior",
+      "whether ORION succeeded or failed"
+    ],
+    "required_checks": [
+      "visual_stream_integrity",
+      "actor_event_semantics",
+      "front_bev_temporal_alignment",
+      "no_actor_disappearance_or_spawn_artifact"
+    ]
+  },
+  "human_review_count": 1,
+  "review_order": [
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.2512014175535968,
+        "min_obb_ttc_seconds": 1.0133340222279517,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 58,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 4.403603308201834,
+          "obb_ttc_seconds": 1.0133340222279517,
+          "type_id": "vehicle.lincoln.mkz_2017"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.34863753439305517,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "selection_policy": {
+          "complete_review_window_required": true,
+          "maximum_route_progress_exclusive": 0.98,
+          "minimum_post_event_seconds": 2.0,
+          "minimum_pre_event_seconds": 3.0,
+          "terminal_route_tail_excluded": true
+        },
+        "sim_time_seconds": 15.2,
+        "speed_mps": 4.764712733908352,
+        "step": 304,
+        "window_seconds": [
+          12.2,
+          17.2
+        ]
+      },
+      "event_id": "route212_step304",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_test_wave1_20260829/route212/event_package.json",
+        "sha256": "0333002317196765a8dc63ff98620fb9b075b90e75506016483c97de64c969a0"
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 1,
+      "route_index": 212,
+      "runtime_valid": true,
+      "scenario_family": "T_Junction",
+      "screen_role": "route_geometry_hard_negative",
+      "split_origin": "locked_test",
+      "town": "Town10HD",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_test_wave1_20260829/route212/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_test_wave1_20260829/route212/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_test_wave1_20260829/route212/visuals/raw_front.gif"
+      ]
+    }
+  ],
+  "schema": "orion.scenario_event_review_queue.v1",
+  "source_batch_reports": [
+    {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_test_wave1_20260829/batch_screen_report.json",
+      "sha256": "a4acdc1e31c727045a927956262b21f63e61d2b5be795ea2c96f637faa705249"
+    }
+  ],
+  "status": "pending_human_event_review"
+}

@@ -27,6 +27,7 @@ from ..data_utils.constants import DEFAULT_IMAGE_TOKEN
 from ..data_utils.data_utils import preprocess
 from PIL import Image
 from pathlib import Path
+from .actor_id_alignment import filter_actor_ids_by_box_mask
 
 @PIPELINES.register_module()
 class PadMultiViewImage(object):
@@ -630,6 +631,10 @@ class VADObjectRangeFilter(object):
         # len(gt_labels_3d) == 1, where mask=1 will be interpreted
         # as gt_labels_3d[1] and cause out of index error
         gt_labels_3d = gt_labels_3d[mask.numpy().astype(bool)]
+        if 'gt_actor_ids' in input_dict:
+            input_dict['gt_actor_ids'] = filter_actor_ids_by_box_mask(
+                input_dict['gt_actor_ids'], mask.numpy().astype(bool)
+            )
         if 'traffic_state_mask' in input_dict:
             gt_traffic_state = input_dict['traffic_state']
             gt_traffic_state_mask = input_dict['traffic_state_mask']
@@ -685,6 +690,10 @@ class VADObjectNameFilter(object):
                                   dtype=np.bool_)
         input_dict['gt_bboxes_3d'] = input_dict['gt_bboxes_3d'][gt_bboxes_mask]
         input_dict['gt_labels_3d'] = input_dict['gt_labels_3d'][gt_bboxes_mask]
+        if 'gt_actor_ids' in input_dict:
+            input_dict['gt_actor_ids'] = filter_actor_ids_by_box_mask(
+                input_dict['gt_actor_ids'], gt_bboxes_mask
+            )
         if 'gt_attr_labels' in input_dict:
             input_dict['gt_attr_labels'] = input_dict['gt_attr_labels'][gt_bboxes_mask]
         if 'traffic_state_mask' in input_dict:

@@ -1,0 +1,32 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T19:24:00+08:00",
+  "status": "active_before_wave2_finalization",
+  "supersedes": "20260829_scenario_factory_terminal_event_guard_v1.json",
+  "trigger": {
+    "route_index": 207,
+    "result_after_v1_guard": {
+      "route_progress": 0.9741991866967922,
+      "sim_time_seconds": 46.6,
+      "trace_end_seconds": 48.3,
+      "available_post_event_seconds": 1.6999999999999957
+    },
+    "finding": "The v1 route-progress guard removed the terminal stop but still selected an event whose required +2 second review context was truncated by route completion."
+  },
+  "fixed_rule": {
+    "critical_event_candidate_route_progress": "strictly less than 0.98",
+    "minimum_pre_event_context_seconds": 3.0,
+    "minimum_post_event_context_seconds": 2.0,
+    "applies_to": "all actor TTC and gap candidates",
+    "outcome_blind": true,
+    "model_score_blind": true,
+    "learned_uq_blind": true
+  },
+  "application": {
+    "wave2_routes": [207, 152],
+    "route207_is_rescanned_under_rule": true,
+    "prior_frozen_event_banks_are_not_silently_rewritten": true,
+    "future_factory_batches_use_rule": true
+  },
+  "claim_boundary": "This is a review-window integrity rule fixed before wave2 finalization. It neither accepts nor rejects Route207 and does not alter model outputs."
+}

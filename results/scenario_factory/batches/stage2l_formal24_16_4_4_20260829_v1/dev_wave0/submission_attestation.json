@@ -1,0 +1,39 @@
+{
+  "schema": "orion.scenario_factory.batch_submission.v1",
+  "submitted_at": "2026-08-29T19:42:08+08:00",
+  "batch_manifest": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave0/batch_manifest.json",
+    "sha256": "bbeb8f6b21521d671045bbf4567094289b6ee88b74c9c11163abf10a7da60368"
+  },
+  "jobs": [
+    {"route_index": 147, "formal_split": "dev", "job_id": 1094360},
+    {"route_index": 195, "formal_split": "dev", "job_id": 1094361},
+    {"route_index": 151, "formal_split": "train", "job_id": 1094362}
+  ],
+  "runtime_contract": {
+    "condition": "clean_off",
+    "stage1_adapter_control_influence": false,
+    "stage2_spatial_uq_source": "disabled",
+    "legacy_density_uq": false,
+    "planning_response": "off",
+    "gpus_per_route": 1,
+    "cpus_per_route": 2,
+    "memory_per_route": "192G"
+  },
+  "postprocessing": {
+    "finalize_job_id": 1094380,
+    "review_queue_job_id": 1094381,
+    "dependency": "afterany:1094360:1094361:1094362 then afterok:1094380",
+    "cpu_partition_attempt": {
+      "partition": "cigit_cpu_70",
+      "submitted": false,
+      "scheduler_error": "Invalid account or account/partition combination specified"
+    },
+    "fallback": {
+      "partition": "Nvidia_A800",
+      "gres": "gpu:1",
+      "reason": "The lidachuan account is not listed in AllowAccounts for comput or cigit_cpu_70; remote artifacts are too large for local postprocessing."
+    }
+  },
+  "claim_boundary": "Scheduler submission provenance only; no route, model, UQ, closed-loop, or safety result."
+}

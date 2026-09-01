@@ -1,0 +1,52 @@
+{
+  "schema": "orion.stage2l_smoke_submission_attestation.v1",
+  "submitted_at": "2026-08-30T12:22:17+08:00",
+  "slurm_job_id": "1101917",
+  "job_name": "s2l_v6_r151_smoke",
+  "event_id": "route151_step218",
+  "purpose": "bounded Stage2-L v6 learnability smoke; diagnostic only",
+  "slurm_resources": {
+    "partition": "Nvidia_A800",
+    "gres": "gpu:1",
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "03:30:00",
+    "excluded_nodes": [
+      "gpu5"
+    ]
+  },
+  "training_bounds": {
+    "maximum_submissions": 1,
+    "maximum_optimizer_steps": 20,
+    "optimizer_step_unit": "one complete 20-record matched counterfactual group",
+    "answer_micro_batch_size": 2,
+    "formal_training": false,
+    "stage2p_training": false,
+    "trajectory_or_control_loss": false
+  },
+  "preflight": {
+    "status": "passed",
+    "tests": "16 passed",
+    "record_count": 100,
+    "matched_group_count": 5,
+    "hard_language_record_count": 90,
+    "hard_stance_record_count": 15,
+    "diagnostic_only_driving_record_count": 10,
+    "optimizer_steps_inside_group": 0
+  },
+  "source_sha256": {
+    "submitter": "149e3bede6115070c83b677238a4c44cb037547b20d5d6370c63b5cc113f49ff",
+    "trainer": "3828a217efc92324fa579c66220f6782bd7599da4c799b6db21ff32e558466cf",
+    "semantic_bottleneck": "4d5ad94e149f963661df2de8debe5c174c64403c2042ea6db95032e1262a6a37",
+    "semantic_runtime": "bf464af987d61f769bfe8559d8a60eead1728847342f34d9321294d9e3397807",
+    "matched_objective": "a3c7fc1af94220a58be2df54dec97eb089396ffb3747f4fc407e1e88dbf35be8",
+    "training_protocol": "01afe60c0f123460480b755606dd192e37b82d2e99f3e1c9ef2c79119d46f8a0",
+    "launch_amendment": "235bc131315eb9708871bf0ceb6fb12ad77c81edb641f98ba87d8a1ffcbc4b70",
+    "trainer_test": "abec9b430783aa0834cfa86f0c8bc4a240e80cd31fc65beae79072bb92d9e762",
+    "records": "0778592ffda28a2cc7b9046dcb228e7c821d4cae0886ba056e221b5658c82cef",
+    "visual_cache": "2058b2fa86ffc900aefc38df496ac7fa7117a96641ad58cdebe019b060f16623",
+    "base_orion_checkpoint": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "remote_output_dir": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route151_v6_matched_magnitude_v1_20/training",
+  "remote_log_pattern": "/public/share/lidachuan/orion_assets/scenario_factory/logs/stage2l_smokes/route151_v6_matched_magnitude_v1_20-%j.out"
+}

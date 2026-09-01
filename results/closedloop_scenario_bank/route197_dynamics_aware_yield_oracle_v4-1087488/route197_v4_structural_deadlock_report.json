@@ -1,0 +1,205 @@
+{
+  "artifacts": {
+    "actor_flow_source": {
+      "path": "/public/share/lidachuan/orion_assets/Bench2Drive/scenario_runner/srunner/scenarios/signalized_junction_right_turn.py",
+      "sha256": "6cdaf15520a063f872f3522ef2bdbd072fd49a891b1c9a4939e0445855b068c6"
+    },
+    "control_trace": {
+      "path": "/public/share/lidachuan/orion_assets/results/closedloop_route197_dynamics_aware_yield_oracle_v4/route197_hazard_native_dynamics_aware_yield_oracle-1087488/records_orion_traj_0/RouteScenario_26966_rep0_Town05_SignalizedJunctionRightTurn_1_10_08_29_04_34_29/control_trace.jsonl",
+      "sha256": "f72b27890a7d72766f257d3fa7051707960eb0d64520b2e68c572597dc24eb95"
+    },
+    "evaluator": {
+      "path": "/public/share/lidachuan/orion_assets/results/closedloop_route197_dynamics_aware_yield_oracle_v4/route197_hazard_native_dynamics_aware_yield_oracle-1087488/eval_orion_traj_0.json",
+      "sha256": "62339586af997351e8a6051667ee679e9d4dc76dee0af04a301f2425ab97555e"
+    },
+    "geometry": {
+      "path": "/public/share/lidachuan/orion_assets/results/closedloop_route197_dynamics_aware_yield_oracle_v4/route197_hazard_native_dynamics_aware_yield_oracle-1087488/junction_geometry_v4_partial.json",
+      "sha256": "4e2a55a54ab20fdd16dfe0df8d2cd610501c77f01152aec5f594b50b034b8af0"
+    },
+    "manifest": {
+      "path": "/public/share/lidachuan/orion_assets/results/closedloop_route197_dynamics_aware_yield_oracle_v4/route197_hazard_native_dynamics_aware_yield_oracle-1087488/manifest.json",
+      "sha256": "028409b2a6ed654d2cd45f77e77b63e415d9c9993ecff7a794b70ae58c632948"
+    },
+    "preregistration": {
+      "path": "/public/home/lidachuan/project/Orion/configs/closedloop_scenario_bank/route197_dynamics_aware_yield_oracle_v4.json",
+      "sha256": "41c2e80cb2aaf9566f336b606cdc3b482086be452145ae5cd697dde071176366"
+    }
+  },
+  "claim_boundary": "This partial trace proves neither zero collisions nor route success. It records a reproducible mechanism deadlock and the absence of both legacy Density UQ and the new learned observation adapter.",
+  "classification": "resource_stopped_structural_deadlock",
+  "created_at_utc": "2026-08-28T21:10:52.441636+00:00",
+  "decision": "do_not_train_stage2_redesign_as_gap_acceptance_merge",
+  "evidence_checks": {
+    "continuous_flow_headway_shorter_than_conflict_horizon": true,
+    "geometry_record_count_matches": true,
+    "geometry_schema_valid": true,
+    "geometry_trace_hash_matches": true,
+    "geometry_uses_raw_unmodified_plan_every_frame": true,
+    "legacy_density_absent_every_frame": true,
+    "long_stationary_interval_observed": true,
+    "new_observation_adapter_absent_every_frame": true,
+    "observed_clearance_never_reaches_requirement": true,
+    "official_terminal_endpoint_absent": true,
+    "release_state_never_reached": true,
+    "scalar_risk_governor_exact_passthrough": true,
+    "trace_nonempty_and_contiguous": true
+  },
+  "flow_release_incompatibility": {
+    "actor_flow_defaults": {
+      "continuous_actor_flow_present": true,
+      "flow_speed_mps": 20.0,
+      "initial_actors_enabled": true,
+      "scenario_timeout_seconds": 240.0,
+      "source_distance_interval_m": [
+        25.0,
+        50.0
+      ],
+      "source_headway_interval_seconds": [
+        1.25,
+        2.5
+      ]
+    },
+    "conflict_horizons_seconds": [
+      0.5,
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0
+    ],
+    "interpretation": "In steady continuous flow, a new actor can enter the 3.0 s prediction horizon within at most 2.5 s. The policy additionally requires 1.0 s of uninterrupted clearance, so its release premise is structurally unsuitable for this merge task.",
+    "maximum_conflict_horizon_seconds": 3.0,
+    "maximum_source_headway_less_than_conflict_horizon": true,
+    "maximum_source_headway_seconds": 2.5,
+    "observed_clearance_less_than_required": true,
+    "observed_maximum_clearance_seconds": 0.6999999999999993,
+    "required_conflict_free_clearance_seconds": 1.0
+  },
+  "job_id": "1087488",
+  "metadata_audit": {
+    "conditioning_field_is_misleading": true,
+    "effective_conditioning": "privileged_dynamics_aware_yield_only",
+    "recorded_conditioning": "vision_adapter",
+    "required_fix": "Future manifests must derive conditioning from the loaded checkpoint and planning-response mode instead of retaining the legacy vision_adapter default."
+  },
+  "next_authorized_action": "Offline gap-acceptance and merge-feasibility audit only. No learned adapter control, Stage-2 training, or additional A800 route matrix is authorized by this partial run.",
+  "official_endpoint": {
+    "collision_outcome": "not_determined",
+    "eligible": false,
+    "entry_status": "Started",
+    "record_count": 0,
+    "route_completion_outcome": "not_determined"
+  },
+  "primary_success": false,
+  "resource_stop_reason": "The non-terminal run was cancelled after a persistent no-release state exposed an incompatibility between a zero-conflict-horizon yield policy and the scenario's continuous ActorFlow.",
+  "run_dir": "/public/share/lidachuan/orion_assets/results/closedloop_route197_dynamics_aware_yield_oracle_v4/route197_hazard_native_dynamics_aware_yield_oracle-1087488",
+  "schema_version": "orion.route197_structural_deadlock.v1",
+  "signal_and_control_contract": {
+    "legacy_density_enabled_manifest": "0",
+    "legacy_density_score_absent_every_frame": true,
+    "new_observation_adapter_absent_every_frame": true,
+    "new_observation_adapter_checkpoint": "",
+    "planning_response_mode": "privileged_dynamics_aware_yield",
+    "scalar_risk_governor_exact_passthrough": true
+  },
+  "slurm_accounting": {
+    "command": [
+      "sacct",
+      "-j",
+      "1087488",
+      "--format=JobID,State,ExitCode,Elapsed,NodeList,ReqCPUS,ReqMem,MaxRSS",
+      "-P",
+      "-n"
+    ],
+    "rows": [
+      {
+        "elapsed": "00:24:27",
+        "exit_code": "0:0",
+        "job_id": "1087488",
+        "max_rss": "",
+        "node_list": "gpu4",
+        "requested_cpus": "2",
+        "requested_memory": "192Gn",
+        "state": "CANCELLED by 2329"
+      },
+      {
+        "elapsed": "00:24:30",
+        "exit_code": "0:15",
+        "job_id": "1087488.batch",
+        "max_rss": "30448232K",
+        "node_list": "gpu4",
+        "requested_cpus": "2",
+        "requested_memory": "192Gn",
+        "state": "CANCELLED"
+      },
+      {
+        "elapsed": "00:24:27",
+        "exit_code": "0:0",
+        "job_id": "1087488.extern",
+        "max_rss": "1500K",
+        "node_list": "gpu4",
+        "requested_cpus": "2",
+        "requested_memory": "192Gn",
+        "state": "COMPLETED"
+      }
+    ]
+  },
+  "stage2_eligible": false,
+  "trace": {
+    "first_ego_junction_record": {
+      "base_path_length_m": 3.647420572334929,
+      "base_plan_world_xy_source": "raw_conflict",
+      "ego_map_waypoint": {
+        "is_junction": true,
+        "lane_id": -1,
+        "road_id": 1779,
+        "section_id": 0
+      },
+      "ego_world_xy": [
+        -120.00120544433594,
+        103.13885498046875
+      ],
+      "junction_entry_map_waypoint": {
+        "is_junction": true,
+        "lane_id": -1,
+        "road_id": 1779,
+        "section_id": 0
+      },
+      "junction_entry_path_distance_m": 0.0,
+      "junction_entry_world_xy": [
+        -120.00120544433594,
+        103.13885498046875
+      ],
+      "sim_time_seconds": 14.0,
+      "step": 280
+    },
+    "first_sim_time_seconds": 0.0,
+    "first_step": 0,
+    "frame_count": 746,
+    "last_route_progress": 0.4044568151307044,
+    "last_sim_time_seconds": 37.25,
+    "last_step": 745,
+    "longest_stationary_interval": {
+      "duration_seconds": 23.2,
+      "end_route_progress": 0.4044568151307044,
+      "end_speed_mps": 0.0,
+      "end_step": 745,
+      "end_time_seconds": 37.25,
+      "frame_count": 465,
+      "observed": true,
+      "route_progress_delta": 4.7420027278533006e-05,
+      "start_route_progress": 0.4044093951034259,
+      "start_speed_mps": 0.00908948267377844,
+      "start_step": 281,
+      "start_time_seconds": 14.05
+    },
+    "maximum_clearance_elapsed_seconds": 0.6999999999999993,
+    "maximum_release_elapsed_seconds": 0.0,
+    "state_counts": {
+      "go": 233,
+      "hold": 478,
+      "prepare_yield": 35
+    },
+    "stationary_threshold_mps": 0.25
+  }
+}

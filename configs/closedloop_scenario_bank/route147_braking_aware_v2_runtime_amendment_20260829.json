@@ -1,0 +1,103 @@
+{
+  "schema": "orion.route147_braking_aware_v2_runtime_amendment.v1",
+  "created_at": "2026-08-29T06:57:41+08:00",
+  "base_preregistration": "configs/closedloop_scenario_bank/route147_braking_aware_v2.json",
+  "base_preregistration_sha256": "65a5efa4a764eb6983c0175a231841ea0f758a914c52f758c29baba56e0c8c5f",
+  "reason": "The sole v2 oracle attempt entered real control and completed the pedestrian event, but CARLA stopped producing control frames at simulation time 22.05 seconds and route progress 0.687416. The preregistered 300-second progress watchdog terminated the job before any terminal route record existed. This is a runtime-environment failure, not a safety outcome, and authorizes one identical retry without changing source, route, node, resources, parameters, or thresholds.",
+  "invalid_run": {
+    "job_id": 1088319,
+    "run_id": "closedloop_route147_braking_aware_oracle_v2",
+    "slurm_state": "FAILED",
+    "slurm_exit_code": "124:0",
+    "submitted_at": "2026-08-29T06:33:20+08:00",
+    "started_at": "2026-08-29T06:34:08+08:00",
+    "ended_at": "2026-08-29T06:54:45+08:00",
+    "elapsed": "00:20:37",
+    "node": "gpu4",
+    "max_rss": "48597772K",
+    "scientific_classification": "runtime_environment_invalid",
+    "watchdog_reason": "control_trace_stalled",
+    "stall_threshold_seconds": 300,
+    "terminal_route_result_exists": false,
+    "eval_status": "Started",
+    "eval_eligible": false,
+    "eval_record_count": 0,
+    "partial_trace_is_official_safety_result": false,
+    "watchdog_path": "results/closedloop_scenario_bank/route147_braking_aware_v2/partial_1088319/runtime_progress_watchdog.json",
+    "eval_path": "results/closedloop_scenario_bank/route147_braking_aware_v2/partial_1088319/eval_orion_traj_0.json",
+    "frozen_artifacts": [
+      {
+        "path": "results/closedloop_scenario_bank/route147_braking_aware_v2/partial_1088319/control_trace.jsonl",
+        "sha256": "37bc5d7a1d340ae8ac033c373f5e4406872772e583abb4bc9e010d721b115bd6"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_braking_aware_v2/partial_1088319/manifest.json",
+        "sha256": "205189c4a359870bf97b93f7888de91c5f6c099ab20094555424432a990c2f4e"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_braking_aware_v2/partial_1088319/eval_orion_traj_0.json",
+        "sha256": "62339586af997351e8a6051667ee679e9d4dc76dee0af04a301f2425ab97555e"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_braking_aware_v2/partial_1088319/runtime_progress_watchdog.json",
+        "sha256": "69d0e76fe61d19e082a0144271b1d332dbd3c65527864ec0a8aa9297d38bacae"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_braking_aware_v2/partial_1088319/uqcl_147_hazard_native_braking_aware_crossing_oracle-1088319.out",
+        "sha256": "beb915e089bab40f2720291fc56838752b167a9610fc91d9401af1be8031538f"
+      }
+    ]
+  },
+  "partial_diagnostic_only": {
+    "frames": 441,
+    "last_sim_time_seconds": 22.0,
+    "last_route_progress": 0.6874161425625134,
+    "state_counts": {
+      "go": 404,
+      "hold": 27,
+      "release": 10
+    },
+    "density_nonnull_frames": 0,
+    "adapter_nonnull_frames": 0,
+    "scalar_risk_nonoff_frames": 0,
+    "first_hold": {
+      "step": 211,
+      "sim_time_seconds": 10.55,
+      "speed_mps": 4.882924800691987,
+      "immediate_brake_ratio": 1.2993706508451635,
+      "target_pid_desired_speed_mps": 3.7579152626819257
+    },
+    "walker_min_obb_ttc_seconds": 1.1389410131747428,
+    "walker_ttc_lte_1_exposure_seconds": 0.0,
+    "interpretation": "Supports implementation diagnosis only. It cannot satisfy endpoint, completion, utility, or Stage2-unlock gates."
+  },
+  "frozen_retry_execution": {
+    "inherit_all_frozen_hashes_from_base": true,
+    "route_index": 147,
+    "variant": "hazard",
+    "condition": "native_braking_aware_crossing_oracle",
+    "node": "gpu4",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "02:00:00",
+    "legacy_density_uq": "disabled",
+    "learned_spatial_adapter": "absent_mechanism_only_oracle",
+    "scalar_risk_governor": "off",
+    "corruption": "none",
+    "planning_response": "privileged_braking_aware_crossing",
+    "success_thresholds": "identical_to_base_v2_and_v1"
+  },
+  "one_retry_rule": {
+    "maximum_retry_submissions": 1,
+    "source_or_parameter_changes_allowed": false,
+    "retry_run_id": "closedloop_route147_braking_aware_oracle_v2_retry1",
+    "retry_submitter": "scripts/submit_route147_braking_aware_v2_retry1.sh",
+    "retry_submitter_sha256": "dd1e5a9019a4ea3324014c0091993aad3d14813d722f84f9ff89bbb674bafd33",
+    "another_runtime_failure_action": "Do not resubmit again without a new explicit scientific/runtime review."
+  },
+  "stage2_status": {
+    "locked": true,
+    "unlock_requires": "A complete retry report with primary_success=true and stage2_eligible=true under the unchanged base evaluator."
+  }
+}

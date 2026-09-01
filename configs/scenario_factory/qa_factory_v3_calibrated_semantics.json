@@ -1,0 +1,73 @@
+{
+  "schema": "orion.uq_relevance_qa_factory_config.v3",
+  "created_at": "2026-08-30T15:05:00+08:00",
+  "status": "objective_repair_prepared_training_locked",
+  "supersedes_for_future_training_only": "configs/scenario_factory/qa_factory_v2_matched_supervision.json",
+  "architecture_boundary": {
+    "stage1_adapter": "frozen task-agnostic spatial observation uncertainty U",
+    "stage2_l": "ORION/VLM predicts task relevance R, task risk K=U*R, QA semantics and planning stance",
+    "trajectory_or_control_training": false,
+    "legacy_density_uq": false,
+    "hard_governor": false
+  },
+  "response_tags": {
+    "observation_semantics": "<observation_uncertainty>",
+    "epistemic_limitation": "<epistemic_limitation>",
+    "task_relevance": "<task_relevance_map>",
+    "driving_implication": "<planning_stance>"
+  },
+  "supervision_policy": {
+    "hard_stance_variants": [
+      "zero_uq",
+      "off_path_uq",
+      "on_path_uq"
+    ],
+    "hard_language_exclusions": [
+      {
+        "variant": "observed",
+        "question_family": "driving_implication"
+      },
+      {
+        "variant": "view_shuffled_uq",
+        "question_family": "driving_implication"
+      }
+    ],
+    "answer_preference": {
+      "kind": "same_family_unique_counterfactual",
+      "cross_family_answers_are_negatives": false,
+      "exact_duplicate_answers_are_negatives": false,
+      "minimum_distinct_negative_count_for_anchor": 1,
+      "margin": 0.2
+    },
+    "optimizer_group": {
+      "records": 20,
+      "optimizer_steps_inside_group": 0,
+      "optimizer_steps_after_group": 1
+    }
+  },
+  "generation_gates": {
+    "family_tag_parse_rate": 1.0,
+    "family_tag_accuracy": 1.0,
+    "hard_driving_stance_parse_rate": 1.0,
+    "hard_driving_structured_stance_agreement": 1.0,
+    "minimum_hard_stance_target_probability": 0.5,
+    "require_nonempty_nonrepeating_text": true
+  },
+  "task_relevance_gates": {
+    "minimum_foreground_recall": 0.95,
+    "maximum_background_false_positive_rate": 0.05,
+    "minimum_oracle_gap_fraction": 0.8,
+    "require_positive_on_off_order_for_every_group": true
+  },
+  "stance_gates": {
+    "minimum_per_variant_accuracy": 1.0,
+    "minimum_per_target_class_recall": 1.0,
+    "overall_accuracy_is_a_release_gate": false
+  },
+  "launch_locks": {
+    "real_orion_smoke_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "QA/objective contract preparation only; no model understanding, held-out, planning, closed-loop, generalization or safety evidence."
+}

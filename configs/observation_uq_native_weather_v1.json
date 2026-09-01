@@ -1,0 +1,75 @@
+{
+  "schema_version": "orion.observation-uq-native-weather-preregistration/v1",
+  "frozen_at": "2026-08-26T20:53:59+08:00",
+  "purpose": "Test the frozen temporal_viewpos_z observation-UQ candidate on an intervention source independent of the pixel corruption generator.",
+  "scope": {
+    "adapter_training": false,
+    "actual_target_training": false,
+    "orion_finetuning": false,
+    "closed_loop_control": false,
+    "stage_b": false
+  },
+  "renderer": {
+    "name": "CARLA-0.9.15-native-weather",
+    "paired_world_pose": true,
+    "pixel_corruption_generator_used": false,
+    "camera_order": [
+      "CAM_FRONT",
+      "CAM_FRONT_LEFT",
+      "CAM_FRONT_RIGHT",
+      "CAM_BACK",
+      "CAM_BACK_LEFT",
+      "CAM_BACK_RIGHT"
+    ],
+    "bev_saved_for_evidence": true
+  },
+  "routes": [
+    {
+      "route_id": "Town01/Route146",
+      "xml": "configs/closedloop_uq_pilot/routes/route_146_nohazard.xml"
+    },
+    {
+      "route_id": "Town04/Route203",
+      "xml": "configs/closedloop_uq_pilot/routes/route_203_nohazard.xml"
+    }
+  ],
+  "positions_per_route": 16,
+  "conditions": {
+    "clear": {
+      "severity": 0,
+      "fog_density": 0
+    },
+    "fog_light": {
+      "severity": 1,
+      "fog_density": 25
+    },
+    "fog_heavy": {
+      "severity": 3,
+      "fog_density": 75
+    }
+  },
+  "score": {
+    "name": "temporal_viewpos_z",
+    "definition_frozen_before_native_capture": true,
+    "clean_calibrator": "560 clean frames / 35 B2D routes from the immutable teacher560 shard",
+    "paired_clean_delta_used_for_score_or_calibration": false,
+    "paired_clean_delta_used_for_evaluation_only": true
+  },
+  "gate": {
+    "all_checks_must_pass": true,
+    "checks": [
+      "fog_light score uplift over clear > 0",
+      "fog_heavy score mean > fog_light score mean",
+      "sample-level fog severity Spearman >= 0.10",
+      "score versus paired-clean patch-delta Spearman >= 0.10 at both fog levels",
+      "score AUROC for the top 20 percent paired-delta patches >= 0.60 at both fog levels",
+      "paired-clean delta mean is positive and fog_heavy > fog_light",
+      "fog_heavy > fog_light > clear score mean independently on both routes"
+    ]
+  },
+  "decision": {
+    "pass": "The temporal target becomes eligible for a separate adapter-training preregistration; no training starts automatically.",
+    "fail": "Do not train the adapter. Treat temporal consistency as one component only and design a multi-source target for persistent appearance degradation."
+  },
+  "claim_boundary": "This is a native-renderer observation-signal gate, not evidence of task relevance, closed-loop safety, or VLM understanding."
+}

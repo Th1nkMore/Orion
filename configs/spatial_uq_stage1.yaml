@@ -1,0 +1,192 @@
+schema_version: spatial_uq_stage1/v2
+status: superseded_diagnostic_history_only_2026-08-26
+execution_policy:
+  formal_adapter_training_enabled: false
+  replacement: configs/observation_uq_v3.yaml
+  reason: actual failure and paired representation error are diagnostic or auxiliary, not primary observation-uncertainty labels
+
+record_contract:
+  schema_version: spatial-uq-target-contract/v2
+  error_severity_target: continuous_nonnegative
+  failure_event_target: explicit_binary_or_soft_event_probability
+  target_valid_mask: boolean_required_for_actual_targets
+  clean_targets: independently_measured_never_imputed_zero
+  component_errors:
+    axis: -1
+    names_required: true
+  legacy_v1:
+    proxy_only_auto_migration: true
+    actual_target_auto_migration: false
+
+claim:
+  output: spatial error severity; calibrated failure probability only with explicit event labels
+  density_uq_role: global_anomaly_baseline
+  corruption_mask_role: auxiliary_localization_only
+  path_risk_is_not_uq: true
+
+model:
+  d_patch: 1024
+  hidden_dim: 256
+  head: shared_patch_mlp_v1
+  camera_embedding_dim: 0
+  view_context_source: frozen_evavit_contextualized_patch_tokens
+  min_log_variance: -6.0
+  max_log_variance: 3.0
+  predict_distilled_epistemic: true
+
+targets:
+  primary:
+    - bev_perception_failure
+    - corruption_attributable_task_error
+  executable_fallback: paired_patch_cosine_representation_error
+  actual_failure_event_policy:
+    schema_version: orion.actual-failure-event-policy/v1
+    event_order:
+      - threshold_object_components
+      - project_hard_object_events_by_visible_support
+      - any_component_or_object
+    event_patch_projection: any_failed_object_with_minimum_visible_patch_support
+    minimum_patch_support: 0.01
+    support_comparison: greater_than_or_equal
+    component_comparison: greater_than_or_equal
+    event_aggregation: threshold_object_components_then_project_support_then_any
+    thresholds:
+      miss: 0.50
+      class: 0.50
+      localization: 0.50
+      motion_occupancy: 0.50
+      traffic_state: 0.50
+      false_positive: 0.50
+    severity_is_event_probability: false
+    motion_mode: orion_selected_mode
+    missing_traffic_state_gt: invalid_not_negative
+    traffic_state_v1:
+      logits: first_three_sigmoid_state_logits
+      gt_label: traffic_state_column_0
+      valid_when: loader_mask_and_affects_ego_column_1
+      affects_ego_prediction_logit: retained_for_audit_not_mixed_into_state_error
+    invalid_patch: masked_not_negative
+  object_matching_policy:
+    schema_version: class-score-distance-gated-one-to-one/v1
+    coordinate_frame: lidar
+    minimum_prediction_score: 0.50
+    maximum_center_distance_m: 4.0
+    sensitivity_maximum_center_distance_m: 2.0
+    status: preregistered_pilot_heuristic_not_calibrated_optimum
+    eligible_gt_classes:
+      dynamic_actor: [car, van, truck, bicycle, pedestrian]
+      traffic_light: loader_valid_and_affects_ego
+      excluded_from_primary_v1: [traffic_sign, traffic_cone, others]
+  auxiliary:
+    - corruption_mask
+  supervision_tensors:
+    observed:
+      - error_severity_target
+      - failure_event_target
+      - target_valid_mask
+    clean:
+      - clean_error_severity_target
+      - clean_failure_event_target
+      - clean_target_valid_mask
+    audit:
+      - component_errors
+      - component_error_names
+      - component_error_axis
+  task_errors:
+    object_miss: true
+    object_classification: true
+    object_localization: true
+    map_lane: true
+    semantic_depth_when_recorded: true
+
+corruptions:
+  train:
+    - local_blur
+    - local_dark
+    - local_glare
+    - local_occlusion
+  held_out_family:
+    - fog
+  diagnostic_only:
+    - camera_dropout
+  severities: [1, 2, 3]
+  paired_same_state: true
+  branch_temporal_histories_may_differ: true
+  require_shared_pairing_protocol_and_corruption_schedule: true
+  record_mask_seed_and_parameters: true
+
+ensemble:
+  members: 3
+  scope: independently_initialized_spatial_heads_shared_frozen_backbone
+  reporting_name: head_level_epistemic
+  distill_to_single_pass_student: true
+
+loss:
+  implemented:
+    lambda_error_nll: 1.0
+    lambda_failure_brier: 1.0
+    lambda_epistemic_distill: 0.25
+    lambda_error_ranking: 0.25
+    lambda_corruption_mask_aux: 0.05
+    lambda_clean_error_nll: 0.50
+    lambda_clean_failure_brier: 0.50
+  planned_after_record_metadata_gate:
+    lambda_counterfactual: 0.25
+    lambda_temporal: 0.10
+  ranking_requires_measured_error_increase: true
+  every_term_uses_target_valid_mask: true
+  skip_temporal_smoothing_at_event_boundaries: true
+
+path_risk:
+  implementation: fixed_auditable_aggregator
+  components:
+    - bev_failure_probability
+    - occupancy_probability
+    - route_corridor_mask
+    - ttc_weight
+  pooling: topq_mean
+  topq_fraction: 0.10
+  prohibit_global_mean_as_primary: true
+
+split:
+  unit: route_id
+  repetition_suffixes_must_share_one_route_id: true
+  town_disjoint_held_out_when_data_supports_it: true
+  train: train
+  validation: validation
+  calibration: calibration
+  held_out: held_out_town_and_corruption_family
+
+offline_gate:
+  primary_spatial_metric: error_mask_auprc
+  required_metrics:
+    - gaussian_nll
+    - brier
+    - reliability_diagram
+    - error_mask_auprc
+    - error_mask_fpr95
+    - aurc
+    - severity_spearman
+    - onset_latency
+    - recovery_latency
+    - clean_false_trigger_duration
+    - local_translation_equivariance
+  stratify_by:
+    - camera
+    - distance
+    - object_class
+    - weather
+    - town
+  baselines:
+    - brightness
+    - black_pixel_ratio
+    - blur_metric
+    - density_uq
+  corruption_mask_iou_can_pass_gate: false
+
+storage:
+  root: /public/share/lidachuan/orion_assets/spatial_uq_v1
+  save_raw_images: false
+  save_observed_patch_features_for_pilot: true
+  generate_pairs_online_for_full_training: true
+  save_targets_and_manifests: true

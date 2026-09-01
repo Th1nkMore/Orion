@@ -1,0 +1,49 @@
+{
+  "schema_version": "orion.counterfactual-evidence-input-confound-diagnostic/v1",
+  "frozen_at": "2026-08-27T20:18:00+08:00",
+  "purpose": "Checkpoint-only causal ablation of explicit temporal-change, feature-amplitude, view-identity, and temporal branches before choosing an adapter repair.",
+  "inputs": {
+    "dataset_manifest_sha256": "9c6166a44219a186f3bc52e4e40c8065ecf5a7b47d38e29c3c16a45e973148d6",
+    "checkpoint_sha256": "2d2afd451f99c415ae8b492280c6875fb1747c1d5e9116705ae15f4eb1d78d8f",
+    "training_report_sha256": "539250ed337986219aaf08a48d8dbc7c2106a2695f40e5a80815cb4e30885421",
+    "clean_tail_report_sha256": "7fbecf89c686e8366debb8bc514c3c48cd72cd4043f7ccfb7ee49a4715220ae5",
+    "checkpoint_schema": "orion.counterfactual-evidence-expanded-hurdle-checkpoint/v1",
+    "training_report_schema": "orion.counterfactual-evidence-expanded-hurdle-report/v1",
+    "clean_tail_report_schema": "orion.counterfactual-evidence-clean-tail-report/v1"
+  },
+  "population": {
+    "split": "validation",
+    "route_count": 10,
+    "record_count": 640,
+    "clean_frame_count": 160
+  },
+  "variants": [
+    "original",
+    "no_explicit_change_scalar",
+    "no_explicit_rms_scalars",
+    "no_explicit_scalars",
+    "no_view_embedding",
+    "no_temporal_branch"
+  ],
+  "evaluation_batch_size": 2,
+  "frozen_reference_gate_threshold": 0.2,
+  "reproduction_absolute_tolerance": 0.00001,
+  "diagnostic_candidate": {
+    "minimum_clean_p95_reduction_fraction": 0.2,
+    "maximum_combined_spearman_drop": 0.03,
+    "maximum_top20_auroc_drop": 0.03,
+    "maximum_within_view_auroc_drop": 0.03,
+    "positive_each_family_uplift": true
+  },
+  "scope_guards": {
+    "training": false,
+    "checkpoint_file_change": false,
+    "heldout_glare_tensor_values_read": false,
+    "heldout_split_tensor_values_read": false,
+    "native_weather_read": false,
+    "orion_finetuning": false,
+    "stage_b": false,
+    "gate_threshold_change": false,
+    "automatic_followup": false
+  }
+}

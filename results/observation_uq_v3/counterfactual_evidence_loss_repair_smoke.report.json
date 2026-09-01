@@ -1,0 +1,235 @@
+{
+  "best_epoch": 3,
+  "best_route_validation_total": 0.04998036231845617,
+  "component_scales": {
+    "persistent_direction": 0.4691108465194702,
+    "persistent_magnitude": 0.2978138327598572,
+    "transient_inconsistency": 0.48655763268470764
+  },
+  "family_uplifts_over_reference": {
+    "local_blur": 0.012629978358745575,
+    "local_dark": 0.01027362048625946
+  },
+  "gate": {
+    "checks": [
+      {
+        "metric": "combined_patch_spearman",
+        "passed": false,
+        "threshold": 0.1,
+        "value": 0.09971091896295547
+      },
+      {
+        "metric": "combined_target_top20_auroc",
+        "passed": true,
+        "threshold": 0.6,
+        "value": 0.7383590069310418
+      },
+      {
+        "metric": "median_record_within_intervened_view_target_top20_auroc",
+        "passed": true,
+        "threshold": 0.55,
+        "value": 0.6894262433052063
+      },
+      {
+        "metric": "component_spearman_pass_count",
+        "passed": true,
+        "threshold": 2.0,
+        "value": 2.0
+      },
+      {
+        "metric": "minimum_train_family_uplift",
+        "passed": true,
+        "threshold": 0.005,
+        "value": 0.01027362048625946
+      },
+      {
+        "comparison": "<=",
+        "metric": "route_validation_ranking_loss",
+        "passed": true,
+        "threshold": 0.095,
+        "value": 0.03604608636815101
+      },
+      {
+        "comparison": "<=",
+        "metric": "reference_prediction_p95",
+        "passed": false,
+        "threshold": 0.2,
+        "value": 0.3923112154006958
+      }
+    ],
+    "passed": false
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "route_validation": {
+        "observed": 0.052916033240035174,
+        "ranking": 0.03257775669917464,
+        "reference": 0.02911287631141022,
+        "total": 0.0639717597514391
+      },
+      "train": {
+        "observed": 0.04065795856128846,
+        "ranking": 0.04467211688669132,
+        "reference": 0.009096316829423553,
+        "total": 0.052735619526356456
+      }
+    },
+    {
+      "epoch": 2,
+      "route_validation": {
+        "observed": 0.04378757453523576,
+        "ranking": 0.030911605805158615,
+        "reference": 0.017295167743577623,
+        "total": 0.053244993276894095
+      },
+      "train": {
+        "observed": 0.03562751074454614,
+        "ranking": 0.019408713987961942,
+        "reference": 0.006168724438404232,
+        "total": 0.04109656168147922
+      }
+    },
+    {
+      "epoch": 3,
+      "route_validation": {
+        "observed": 0.039864066243171695,
+        "ranking": 0.03604608636815101,
+        "reference": 0.011047747830161825,
+        "total": 0.04998036231845617
+      },
+      "train": {
+        "observed": 0.03293666539580694,
+        "ranking": 0.0156516211714396,
+        "reference": 0.004971192343613698,
+        "total": 0.03734668984210917
+      }
+    },
+    {
+      "epoch": 4,
+      "route_validation": {
+        "observed": 0.04166238158941269,
+        "ranking": 0.029081977216992527,
+        "reference": 0.020372827321989462,
+        "total": 0.0509701581671834
+      },
+      "train": {
+        "observed": 0.02996625312204872,
+        "ranking": 0.014044959970384038,
+        "reference": 0.004243970171592082,
+        "total": 0.03390189007456813
+      }
+    }
+  ],
+  "inputs": {
+    "config_sha256": "98d4f0d5570e6b07ddc3d22fc272b83a0436b62f6d86146836ff537c8392bb75",
+    "feature_shard_sha256": "6381c09ae3818e35f93e5c44c29c2230a7e299f7c621316bfc21e04342bc07e5",
+    "spatial_audit_sha256": "d6907ca9c78e802b6638adf7c4de1c10d713ece61ece51243fcb4579caeec5c9",
+    "target_audit_sha256": "14d72e4dbbbe12aedbb7e1d63a5924f590b0c511289e07c264a0c111a53d0076"
+  },
+  "route_validation": {
+    "by_family": {
+      "local_blur": {
+        "score_mean": 0.11995290219783783,
+        "severity_score_spearman": 0.20622633397579193,
+        "severity_target_spearman": 0.8660423159599304,
+        "target_mean": 0.02590874210000038
+      },
+      "local_dark": {
+        "score_mean": 0.11759654432535172,
+        "severity_score_spearman": 0.1290944367647171,
+        "severity_target_spearman": 0.8660423159599304,
+        "target_mean": 0.028441298753023148
+      }
+    },
+    "by_family_severity": {
+      "local_blur/severity_1": {
+        "record_count": 80,
+        "score_mean": 0.10775484144687653,
+        "target_mean": 0.00798415020108223
+      },
+      "local_blur/severity_3": {
+        "record_count": 80,
+        "score_mean": 0.13215100765228271,
+        "target_mean": 0.04383333399891853
+      },
+      "local_dark/severity_1": {
+        "record_count": 80,
+        "score_mean": 0.11017872393131256,
+        "target_mean": 0.010416830889880657
+      },
+      "local_dark/severity_3": {
+        "record_count": 80,
+        "score_mean": 0.12501434981822968,
+        "target_mean": 0.04646576568484306
+      }
+    },
+    "by_route": {
+      "v1/CrossingBicycleFlow_Town12_Route977_Weather15": {
+        "median_within_intervened_view_patch_spearman": 0.34598615765571594,
+        "median_within_intervened_view_target_top20_auroc": 0.70709228515625,
+        "patch_spearman": 0.17448273301124573,
+        "target_top20_auroc": 0.7346374628050574
+      },
+      "v1/HighwayExit_Town06_Route312_Weather0": {
+        "median_within_intervened_view_patch_spearman": 0.24402779340744019,
+        "median_within_intervened_view_target_top20_auroc": 0.6768041849136353,
+        "patch_spearman": 0.0684230700135231,
+        "target_top20_auroc": 0.7873100436966994
+      },
+      "v1/ParkedObstacle_Town10HD_Route372_Weather8": {
+        "median_within_intervened_view_patch_spearman": 0.41404226422309875,
+        "median_within_intervened_view_target_top20_auroc": 0.7418481707572937,
+        "patch_spearman": 0.06822960823774338,
+        "target_top20_auroc": 0.7830497624134195
+      },
+      "v1/PedestrianCrossing_Town13_Route747_Weather19": {
+        "median_within_intervened_view_patch_spearman": 0.21769461035728455,
+        "median_within_intervened_view_target_top20_auroc": 0.6284106373786926,
+        "patch_spearman": 0.10931261628866196,
+        "target_top20_auroc": 0.743252393541665
+      },
+      "v1/VanillaSignalizedTurnEncounterRedLight_Town07_Route359_Weather21": {
+        "median_within_intervened_view_patch_spearman": 0.2707357406616211,
+        "median_within_intervened_view_target_top20_auroc": 0.664318859577179,
+        "patch_spearman": 0.0758485347032547,
+        "target_top20_auroc": 0.6524661995624674
+      }
+    },
+    "combined_patch_spearman": 0.09971091896295547,
+    "combined_target_top20_auroc": 0.7383590069310418,
+    "components": {
+      "persistent_direction": {
+        "mae": 0.11413925886154175,
+        "patch_spearman": 0.0966072604060173
+      },
+      "persistent_magnitude": {
+        "mae": 0.1297224909067154,
+        "patch_spearman": 0.12408424913883209
+      },
+      "transient_inconsistency": {
+        "mae": 0.1337674856185913,
+        "patch_spearman": 0.1278349757194519
+      }
+    },
+    "corruption_mask_read_for_metrics": false,
+    "median_record_within_intervened_view_target_top20_auroc": 0.6894262433052063,
+    "median_route_target_top20_auroc": 0.7432523965835571,
+    "median_route_within_intervened_view_target_top20_auroc": 0.6768041849136353,
+    "record_count": 320,
+    "reference_prediction_mean": 0.10732292383909225,
+    "reference_prediction_p95": 0.3923112154006958,
+    "target_top20_definition": "top 20% of measured intervention-responsive combined targets; unchanged cells remain negatives",
+    "within_intervened_view_definition": "view selected only from nonzero measured paired target; corruption mask and metadata are not read"
+  },
+  "schema_version": "orion.counterfactual-evidence-loss-repair-smoke-report/v1",
+  "scope_attestation": {
+    "actual_target_optimizer_weight": 0.0,
+    "automatic_full_training": false,
+    "corruption_mask_optimizer_weight": 0.0,
+    "heldout_glare_read": false,
+    "native_fog_read": false,
+    "orion_finetuning": false,
+    "stage_b": false
+  }
+}

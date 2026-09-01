@@ -1,0 +1,66 @@
+{
+  "schema": "orion.native_motion_blur_medium_postprocess_recovery.v1",
+  "timestamp": "2026-08-31T22:45:30+08:00",
+  "status": "postprocess_only_recovery_authorized",
+  "job": {
+    "job_id": 1116035,
+    "state": "FAILED",
+    "exit_code": "1:0",
+    "elapsed": "00:04:05"
+  },
+  "submission": "configs/scenario_factory/amendments/20260831_native_motion_blur_medium_recovery_submission_v2.json",
+  "failure": {
+    "stage": "CPU visual renderer after successful capture and artifact audits",
+    "symptom": "OpenCV import failed because /lib64/libGL.so.1 could not resolve _glapi_tls_Current",
+    "capture_failure": false,
+    "artifact_gate_failure": false,
+    "renderer_failure": true
+  },
+  "salvage_preconditions": {
+    "medium_front_png_count": 34,
+    "medium_bev_png_count": 34,
+    "medium_trace_line_count": 34,
+    "medium_progress_range": [0.36068657047017405, 0.4284991857656733],
+    "medium_actor_readback_status": "verified",
+    "medium_front_attributes": {
+      "motion_blur_intensity": "0.7",
+      "motion_blur_max_distortion": "0.45",
+      "motion_blur_min_object_screen_size": "0.05"
+    },
+    "medium_bev_postprocess_enabled": false,
+    "orion_loaded": false,
+    "clean_artifact_gate": {
+      "passed": true,
+      "frames": 34,
+      "suspicious_frames": 0
+    },
+    "medium_artifact_gate": {
+      "passed": true,
+      "frames": 34,
+      "suspicious_frames": 0
+    }
+  },
+  "immutable_input_sha256": {
+    "medium_trace": "cb566e56b22d594eeb616de0a97f68a3899db5c436928ece1839f86b723c346d",
+    "clean_gate_audit": "6521f8917be757a59ab9dd6a63eaff171022c2f0f360f079cab56465da63ae5e",
+    "medium_gate_audit": "0b239f70528397effad574776dac7fcca0b6a3a0f58d0cea54db537614d8832a",
+    "slurm_log": "f094708a20c8139804d20ba58f5e2db59af6808c28d1662b4e17f1761e3fb4b4",
+    "medium_evaluator_log": "f5780d6f5476b3c85550fecd05318cca2054796de11e1eb57e78d9afef807100",
+    "medium_carla_log": "34419e8bd5606bc3b7f8c2710443af3cc36e3db54d942d9f010253f6411f0ed1"
+  },
+  "authorized_action": {
+    "operation": "Replace the diagnostic-only OpenCV Laplacian variance with an equivalent NumPy five-point Laplacian, then run only the renderer against immutable completed inputs.",
+    "new_capture": false,
+    "carla_required": false,
+    "gpu_required": false,
+    "orion_loaded": false,
+    "output": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_native_motion_blur_medium_recovery_v2/visual_review"
+  },
+  "claim_boundary": "The Slurm job remains recorded as failed. Postprocessing may recover a complete visual diagnostic, but cannot turn the job into a successful model, closed-loop, or safety result.",
+  "locks": {
+    "orion_screen": false,
+    "profile_freeze": false,
+    "closed_loop": false,
+    "safety_claim": false
+  }
+}

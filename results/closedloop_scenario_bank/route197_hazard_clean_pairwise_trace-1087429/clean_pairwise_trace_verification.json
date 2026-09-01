@@ -1,0 +1,82 @@
+{
+  "checks": {
+    "all_view_grid_contract_every_frame": true,
+    "baseline_frozen_by_end": true,
+    "baseline_reaches_minimum_frames": true,
+    "brake_exact_passthrough": true,
+    "checkpoint_hash_frozen": true,
+    "condition_clean_pairwise_trace": true,
+    "corruption_never_active": true,
+    "corruption_none": true,
+    "evaluator_eligible": true,
+    "legacy_density_score_absent_every_frame": true,
+    "legacy_density_uq_disabled": true,
+    "observation_uq_every_frame": true,
+    "oracle_never_active": true,
+    "risk_intensity_always_zero": true,
+    "risk_mode_always_off": true,
+    "risk_mode_off": true,
+    "risk_score_never_applied": true,
+    "route_completion_recorded": true,
+    "source_hashes_frozen": true,
+    "steps_contiguous": true,
+    "terminal_status_recorded": true,
+    "throttle_exact_passthrough": true,
+    "uq_mode_none": true
+  },
+  "claim_boundary": "This diagnostic can show whether the frozen adapter emits a useful, non-controlling observation-evidence signal on one native failure route. It cannot show that uncertainty caused the collision, that the VLM understands uncertainty, or that uncertainty-aware control improves safety.",
+  "control_intervention": false,
+  "observation_contract_errors": {},
+  "preregistration": "/public/home/lidachuan/project/Orion/configs/closedloop_scenario_bank/clean_pairwise_trace_diagnostic_v1.json",
+  "run_dir": "/public/share/lidachuan/orion_assets/results/closedloop_route197_sidecar_oracle_v1/route197_hazard_clean_pairwise_trace-1087429",
+  "schema": "orion.clean_pairwise_trace_verification.v1",
+  "terminal": {
+    "infractions": {
+      "collisions_layout": [],
+      "collisions_pedestrian": [],
+      "collisions_vehicle": [
+        "Agent collided against object with type=vehicle.mini.cooper_s_2021 and id=189 at (x=-119.069, y=98.283, z=-0.004)"
+      ],
+      "min_speed_infractions": [
+        "Average speed is 113.09% of the surrounding traffic's one",
+        "Average speed is 352.73% of the surrounding traffic's one",
+        "Average speed is 1337.18% of the surrounding traffic's one",
+        "Average speed is 288.73% of the surrounding traffic's one",
+        "Average speed is 46.69% of the surrounding traffic's one",
+        "Average speed is 263.16% of the surrounding traffic's one",
+        "Average speed is 253.75% of the surrounding traffic's one",
+        "Average speed is 186.65% of the surrounding traffic's one",
+        "Average speed is 375.08% of the surrounding traffic's one",
+        "Average speed is 408.55% of the surrounding traffic's one",
+        "Average speed is 665.74% of the surrounding traffic's one",
+        "Average speed is 2834.82% of the surrounding traffic's one",
+        "Average speed is 832.97% of the surrounding traffic's one",
+        "Average speed is 338.92% of the surrounding traffic's one",
+        "Average speed is 246.47% of the surrounding traffic's one",
+        "Average speed is 216.87% of the surrounding traffic's one",
+        "Average speed is 151.73% of the surrounding traffic's one",
+        "Average speed is 127.64% of the surrounding traffic's one",
+        "Average speed is 129.77% of the surrounding traffic's one",
+        "Average speed is 122.64% of the surrounding traffic's one",
+        "Average speed is 122.64% of the surrounding traffic's one"
+      ],
+      "outside_route_lanes": [],
+      "red_light": [],
+      "route_dev": [],
+      "route_timeout": [],
+      "scenario_timeouts": [],
+      "stop_infraction": [],
+      "vehicle_blocked": [],
+      "yield_emergency_vehicle_infractions": []
+    },
+    "scores": {
+      "score_composed": 60.0,
+      "score_penalty": 0.6,
+      "score_route": 100
+    },
+    "status": "Completed"
+  },
+  "trace_frames": 471,
+  "trace_path": "/public/share/lidachuan/orion_assets/results/closedloop_route197_sidecar_oracle_v1/route197_hazard_clean_pairwise_trace-1087429/records_orion_traj_0/RouteScenario_26966_rep0_Town05_SignalizedJunctionRightTurn_1_10_08_29_01_44_21/control_trace.jsonl",
+  "verification_passed": true
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "orion.closedloop_runtime_amendment/v1",
+  "timestamp_local": "2026-08-29",
+  "run_id": "route147_stage2_task_context_capture_v2",
+  "slurm_job_id": "1089248",
+  "state": "failed_runtime_environment_invalid",
+  "elapsed": "00:11:57",
+  "node": "gpu4",
+  "last_completed_step": 37,
+  "last_sim_time_seconds": 1.9,
+  "watchdog_reason": "control_trace_stalled",
+  "watchdog_stall_seconds": 300,
+  "observed_runtime_state": {
+    "evaluator_process_alive": true,
+    "carla_process_alive": true,
+    "allocated_gpu_utilization_percent": 0,
+    "allocated_gpu_memory_mib": 40865,
+    "python_main_thread_wait_channel": "futex_wait_queue_me"
+  },
+  "scientific_use": "none",
+  "result_policy": "The 38 pre-calibration frames are retained only for runtime debugging. They must not be used for training, adapter evaluation, or safety claims.",
+  "replacement_run_id": "route147_stage2_task_context_capture_v3",
+  "replacement_changes": [
+    "Capture only the existing 2 Hz supervision cadence (stride 10) instead of writing four tensors every simulator frame.",
+    "Bound CARLA RPC/world-tick waits to 90 seconds and emit Python traceback diagnostics after 75 seconds.",
+    "Request four CPU cores to reduce CARLA/evaluator contention while keeping 192 GiB host memory."
+  ]
+}

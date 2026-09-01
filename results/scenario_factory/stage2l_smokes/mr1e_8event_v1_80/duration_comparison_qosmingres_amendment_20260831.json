@@ -1,0 +1,32 @@
+{
+  "schema": "orion.stage2l_mr1_duration_comparison_amendment.v1",
+  "created_at": "2026-08-31T05:34:07+08:00",
+  "scope": "technical postprocessing resource repair only",
+  "training_job_id": 1107292,
+  "trigger": {
+    "original_comparison_job_id": 1107315,
+    "scheduler_condition": "zero-GRES jobs on Nvidia_A800 remained pending with QOSMinGRES",
+    "training_restarted": false,
+    "model_or_evaluation_outcomes_used": false
+  },
+  "action": {
+    "original_pending_job_cancelled": 1107315,
+    "replacement_comparison_job_id": 1107333,
+    "partition": "Nvidia_A800",
+    "gres": "gpu:1",
+    "resource_note": "GPU allocation only satisfies QOS; the comparison reads two completed reports and launches no training."
+  },
+  "result": {
+    "replacement_state": "COMPLETED",
+    "replacement_exit_code": "0:0",
+    "output": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr1e_8event_v1_80/duration_comparison_40_vs_80.json",
+    "decision": "duration_overfit_stop"
+  },
+  "locks": {
+    "automatic_step_extension_allowed": false,
+    "automatic_retry_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "Scheduler repair and deterministic report comparison only; it changes neither training data nor model state and provides no formal generalization, planning, closed-loop or safety claim."
+}

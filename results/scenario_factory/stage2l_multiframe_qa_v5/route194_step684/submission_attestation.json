@@ -1,0 +1,48 @@
+{
+  "schema": "orion.stage2_l.formal_event_stage1_qa_cache_submission.v1",
+  "submitted_at": "2026-08-31T06:57:00+08:00",
+  "status_at_attestation": "stage1_qa_running_cache_dependency_pending",
+  "event_id": "route194_step684",
+  "route_index": 194,
+  "formal_split": "train",
+  "purpose": "Fill the only missing Stage1 output among the 18 reviewed formal-bank events, then construct v5 QA and a fresh visual cache.",
+  "inputs": {
+    "event_package_sha256": "ebae6ec949d243f58f1f14b196c687b46bbb8ccf8c5f55b0553af1ed6ffc0218",
+    "fixed_keyframe_manifest_sha256": "4a385225ed2fac71f5cef441ca6272fcca1c6b7ace1903aa42cf8b689109f07b",
+    "stage1_adapter_checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+    "v5_qa_factory_sha256": "c942d85a3ac44b551397cbb4b47172d75594d520be8258147dee1aa4a2e9b476",
+    "base_v2_qa_factory_sha256": "2236bbc84bb794abc0ce69fc3b4706b131eaa1282b2942212ef429a3b381471e"
+  },
+  "jobs": {
+    "stage1_and_v5_qa": 1108541,
+    "visual_cache_afterok": 1108542
+  },
+  "implementation": {
+    "submitter_sha256": "22d8bb9a84722ff52d2ae42a26f6875f056590e13e61e92576783610008bafc3",
+    "stage1_extractor_sha256": "5729129adf8431cb5036743efc283ce5b48457c521941b94a1fd0ec4239e1656",
+    "event_finalizer_sha256": "2704a2ac9246fbd8bcb0821c61882dd6c2c1e00f5320a0bbf7c7d641ea112d3a",
+    "visual_cache_builder_sha256": "6ff3c249bd89b550259aa027644ae33e99fe166dea3e9f92f6e760af6ee58ac4"
+  },
+  "resources_per_job": {
+    "partition": "Nvidia_A800",
+    "gpu_requested": 1,
+    "cpus": 2,
+    "host_memory": "192G",
+    "stage1_qa_time_limit": "02:30:00",
+    "visual_cache_time_limit": "01:00:00"
+  },
+  "outputs": {
+    "stage1_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage1_multiframe/route194_step684",
+    "factory_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684",
+    "visual_cache": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/orion_visual_contexts.pt"
+  },
+  "locks": {
+    "stage1_adapter_trainable": false,
+    "control_influence": false,
+    "formal_stage2l_training_started": false,
+    "stage2p_allowed": false,
+    "native_glare_used": false
+  },
+  "claim_boundary": "Offline feature and data preparation only; no VLM learning, uncertainty quality, planning, closed-loop, collision, TTC, or safety result."
+}

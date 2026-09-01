@@ -1,0 +1,144 @@
+{
+  "by_route_score_mean": {
+    "Town01/Route146": {
+      "clear": 1.6153748035430908,
+      "fog_heavy": 1.6629753112792969,
+      "fog_light": 1.6629468202590942
+    },
+    "Town04/Route203": {
+      "clear": 1.6522642374038696,
+      "fog_heavy": 1.6767159700393677,
+      "fog_light": 1.6878770589828491
+    }
+  },
+  "calibration": {
+    "example_count": 560,
+    "families": [
+      "clean"
+    ],
+    "route_count": 35,
+    "source": "temporal_raw",
+    "tail": "positive",
+    "view_position_shape": [
+      6,
+      40,
+      40
+    ]
+  },
+  "candidate_gate": {
+    "checks": [
+      {
+        "metric": "fog_light_positive_uplift",
+        "passed": true,
+        "threshold": 0.0,
+        "value": 0.04159235954284668
+      },
+      {
+        "metric": "fog_heavy_higher_than_light",
+        "passed": false,
+        "threshold": 0.0,
+        "value": -0.005566239356994629
+      },
+      {
+        "metric": "sample_severity_spearman",
+        "passed": false,
+        "threshold": 0.1,
+        "value": 0.0
+      },
+      {
+        "condition": "fog_light",
+        "metric": "score_to_paired_delta_patch_spearman",
+        "passed": true,
+        "threshold": 0.1,
+        "value": 0.11677266657352448
+      },
+      {
+        "condition": "fog_light",
+        "metric": "paired_delta_top20_patch_auroc",
+        "passed": false,
+        "threshold": 0.6,
+        "value": 0.5454023577278043
+      },
+      {
+        "condition": "fog_heavy",
+        "metric": "score_to_paired_delta_patch_spearman",
+        "passed": false,
+        "threshold": 0.1,
+        "value": 0.062294088304042816
+      },
+      {
+        "condition": "fog_heavy",
+        "metric": "paired_delta_top20_patch_auroc",
+        "passed": false,
+        "threshold": 0.6,
+        "value": 0.5184800684422622
+      },
+      {
+        "metric": "paired_delta_heavy_higher_than_light",
+        "passed": true,
+        "threshold": 0.0,
+        "value": 0.12135353684425354
+      },
+      {
+        "metric": "route_heavy_higher_than_light_higher_than_clear",
+        "passed": true,
+        "route_id": "Town01/Route146",
+        "threshold": 0.0,
+        "value": 0.047600507736206055
+      },
+      {
+        "metric": "route_heavy_higher_than_light_higher_than_clear",
+        "passed": false,
+        "route_id": "Town04/Route203",
+        "threshold": 0.0,
+        "value": 0.024451732635498047
+      }
+    ],
+    "passed": false
+  },
+  "condition_metrics": {
+    "clear": {
+      "example_count": 30,
+      "score_mean": 1.633819580078125,
+      "score_std": 0.36329054832458496,
+      "severity": 0.0
+    },
+    "fog_heavy": {
+      "example_count": 30,
+      "paired_clean_delta_mean": 0.44778382778167725,
+      "paired_delta_top20_patch_auroc": 0.5184800684422622,
+      "score_mean": 1.669845700263977,
+      "score_std": 0.3403380513191223,
+      "score_to_paired_delta_patch_spearman": 0.062294088304042816,
+      "score_uplift_over_clear": 0.03602612018585205,
+      "severity": 3.0
+    },
+    "fog_light": {
+      "example_count": 30,
+      "paired_clean_delta_mean": 0.3264302909374237,
+      "paired_delta_top20_patch_auroc": 0.5454023577278043,
+      "score_mean": 1.6754119396209717,
+      "score_std": 0.3470962345600128,
+      "score_to_paired_delta_patch_spearman": 0.11677266657352448,
+      "score_uplift_over_clear": 0.04159235954284668,
+      "severity": 1.0
+    }
+  },
+  "data_attestation": {
+    "actual_target_read": false,
+    "adapter_trained": false,
+    "paired_clean_delta_used_for_evaluation_only": true,
+    "paired_clean_delta_used_for_score_or_calibration": false,
+    "pixel_corruption_generator_used": false,
+    "stage_b_authorized": false
+  },
+  "inputs": {
+    "clean_calibration_shard": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/observation_uq_teacher560_seed20260826_r1/clean_first_features.pt",
+    "clean_calibration_shard_sha256": "ab8d16ce9ffe67aba192ae331b102bcda8ccf917b4bbe491e86e452367b5beac",
+    "native_features": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/observation_uq_native_weather_epic_seed20260826_r5_gpu4/native_weather_features.pt",
+    "native_features_sha256": "debdeac1cbb1bb72227604a79ef41f38c1be13dde6562256599055d6ea20ddda"
+  },
+  "sample_severity_spearman": 0.0,
+  "schema_version": "orion.native-weather-uq-audit/v1",
+  "score": "temporal_viewpos_z"
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": "orion.counterfactual-compact-projection-audit/v1",
+  "frozen_at": "2026-08-27T12:10:07+08:00",
+  "purpose": "No-training feasibility audit for an 8x feature-dimension reduction before increasing independent B2D route coverage.",
+  "inputs": {
+    "feature_shard_sha256": "d53ab9b7acc91b89cb061ce1ec880d05b390675f29c515337bcffceda3143499",
+    "feature_shape": [6, 40, 40, 1024],
+    "source_routes": 45,
+    "source_reference_frames": 720,
+    "source_observed_frames": 2880
+  },
+  "projection": {
+    "kind": "frozen_rademacher_johnson_lindenstrauss",
+    "input_dim": 1024,
+    "output_dim": 128,
+    "seed": 20260827,
+    "patch_batch_size": 65536,
+    "output_dtype": "float16",
+    "spatial_grid": [40, 40],
+    "fit_to_data": false
+  },
+  "sampling": {
+    "seed": 20260827,
+    "splits": ["train", "validation"],
+    "families": ["local_blur", "local_dark"],
+    "per_route_family_severity": "one deterministic four-frame-window transition record plus one deterministic stable-window record",
+    "expected_counts": {
+      "total": 320,
+      "train": 280,
+      "validation": 40,
+      "routes": 40,
+      "route_conditions": 160,
+      "transition": 160,
+      "stable": 160
+    }
+  },
+  "gates": {
+    "minimum_component_spearman": 0.85,
+    "combined_spearman": 0.9,
+    "combined_original_top20_auroc": 0.95,
+    "median_record_within_view_spearman": 0.9,
+    "median_record_within_view_original_top20_auroc": 0.95
+  },
+  "storage_rationale": {
+    "current_shard_gib": 65.92,
+    "dimension_reduction_factor": 8,
+    "projected_same_schedule_gib": 8.24,
+    "candidate_expansion": "approximately 140 routes x 32 frames while retaining all six 40x40 views",
+    "projected_candidate_gib": 51.3,
+    "full_dimension_candidate_gib": 410.2
+  },
+  "continuation": {
+    "write_compact_shard_in_this_job": false,
+    "automatic_route_expansion": false,
+    "if_pass": "freeze a separate compact-shard writer and expanded route-disjoint manifest",
+    "if_fail": "do not write a compact shard; revise representation compression before expanding routes",
+    "automatic_adapter_training": false,
+    "heldout_glare_evaluated": false,
+    "native_weather_evaluated": false,
+    "actual_target_read": false,
+    "orion_finetuning": false,
+    "stage_b": false
+  }
+}

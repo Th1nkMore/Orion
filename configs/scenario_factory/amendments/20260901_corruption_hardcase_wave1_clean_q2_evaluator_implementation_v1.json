@@ -1,0 +1,45 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_q2_evaluator_implementation_amendment.v1",
+  "created_at": "2026-09-01T05:13:43+08:00",
+  "status": "implemented_and_locally_tested_before_any_q2_terminal_result",
+  "q2_activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_clean_q2_activation_v1.json",
+    "sha256": "d76e2fa281a67fa425f159b5680eff90ca35566132c16fd7e242b6f919d45c21"
+  },
+  "implementation": {
+    "path": "scripts/evaluate_corruption_hardcase_clean_qualification.py",
+    "sha256": "8f9f0f5244eebe8ca0629975aeef50e2c09206593c4fb63ad3b685cb8db2b84b",
+    "report_schema": "orion.corruption_hardcase_clean_qualification.v1"
+  },
+  "tests": {
+    "path": "tests/test_evaluate_corruption_hardcase_clean_qualification.py",
+    "sha256": "7fd819066702ba007f7a9c5ca283891da0fe61820e751666c4de5258a4ab646e",
+    "combined_result": "10 passed",
+    "combined_scope": [
+      "Q1 evaluator regression tests",
+      "Q1 collector regression tests",
+      "Q2 submitter regression tests",
+      "Q2 hash-bound activation acceptance",
+      "Q2 run-id mismatch rejection"
+    ]
+  },
+  "frozen_q2_validation": [
+    "Require the Q2 activation schema and exact route membership.",
+    "Verify the activation's base protocol and Q1 result file hashes on disk.",
+    "Require the route in the Q1 result's q2_exact_scope.",
+    "Require manifest pilot_run_id to equal corruption_hardcase_wave1_clean_q2_v1.",
+    "Reuse every Q1 terminal, infraction, telemetry, trace, and <=8 second liveness gate without modification."
+  ],
+  "output_semantics": {
+    "passed_clean_qualification": "True only when every frozen gate passes.",
+    "qualified_for_next_clean_repeat": "Always false for Q2; retained for Q1 compatibility.",
+    "qualified_for_corruption_screen": "True only for a passing Q2 report. It does not itself authorize submission."
+  },
+  "automatic_scope_locks": {
+    "corruption": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Evaluator implementation only, frozen before terminal Q2 results. It does not report stable-clean qualification or authorize corruption jobs."
+}

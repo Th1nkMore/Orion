@@ -1,0 +1,92 @@
+{
+  "artifacts": {
+    "front_stale_review.gif": "c196ae9f288221b40b2b817a2727de6d8478a1343ebac4dcd67ee868085c3f59",
+    "index.html": "6367c7d9b54e1ca4af4447247e4a77c438f036fce989f88dd46e04fd11ca42d8",
+    "lens_waterdrop_paired_template_review.gif": "def61a5c78f6b938dd6735f5a06c99e1761b0fcda920f614266d3323036f7d31",
+    "native_motion_blur_review.gif": "f175e11622205d0d8bfaa3de8474e35590a1496a3df68a87e46c92c246242619",
+    "visual_approval_decision_sheet.png": "f9fbecc6b243f02bbe25f16d02a99bdd5176dd9641d57abda8abce8fde93dbbb"
+  },
+  "claim_boundary": "Review convenience artifact only; it does not approve any condition or support an ORION/safety claim.",
+  "families": [
+    {
+      "candidate_conditions": [
+        "delay_ms:200",
+        "delay_ms:400"
+      ],
+      "decision_status": "pending",
+      "family": "front_stale",
+      "reduction": {
+        "review_frames": 26,
+        "source_frames": 26,
+        "stride": 1,
+        "width": 960
+      },
+      "review_gif": "front_stale_review.gif",
+      "review_note": "Judge temporal lag in the GIF; a still contact sheet cannot establish stale-frame behavior.",
+      "source_contact": {
+        "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/corruption_hardcase_bakeoffs/route151_front_stale_clean_revalidation_v1/contact_clean_vs_stale.png",
+        "sha256": "83fa5d85e30007e3d5a87b694f066aed796e98d42facf79882012dfa8815b89d"
+      },
+      "source_gif": {
+        "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/corruption_hardcase_bakeoffs/route151_front_stale_clean_revalidation_v1/front_clean_vs_stale.gif",
+        "sha256": "641ac964bea0a2eb4fac598126fe29cdc9ea96973c1ac3db0c6b16322af536e3"
+      }
+    },
+    {
+      "candidate_conditions": [
+        "profile:light",
+        "profile:medium",
+        "profile:heavy"
+      ],
+      "decision_status": "pending",
+      "family": "lens_waterdrop_paired_template",
+      "reduction": {
+        "review_frames": 34,
+        "source_frames": 34,
+        "stride": 1,
+        "width": 960
+      },
+      "review_gif": "lens_waterdrop_paired_template_review.gif",
+      "review_note": "Judge whether the fixed lens-space pattern looks physically plausible and remains temporally stable.",
+      "source_contact": {
+        "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/corruption_hardcase_bakeoffs/route151_lens_waterdrop_paired_template_visual_bakeoff_v1/contact_high_resolution_crops.png",
+        "sha256": "ec01d26ba32e95460cb97cceb75dade8781510a0ed4e8cfa92016ee90a55c54f"
+      },
+      "source_gif": {
+        "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/corruption_hardcase_bakeoffs/route151_lens_waterdrop_paired_template_visual_bakeoff_v1/front_clean_vs_profiles.gif",
+        "sha256": "810d5ebeab3c04c409e60c83b1d20b57a70650798158b2c6abb19323e4cd2127"
+      }
+    },
+    {
+      "candidate_conditions": [
+        "profile:medium"
+      ],
+      "decision_status": "pending",
+      "family": "native_motion_blur",
+      "reduction": {
+        "review_frames": 17,
+        "source_frames": 17,
+        "stride": 1,
+        "width": 960
+      },
+      "review_gif": "native_motion_blur_review.gif",
+      "review_note": "Judge moving-object and edge degradation; this profile is intentionally renderer-native and visually subtle.",
+      "source_contact": {
+        "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/corruption_hardcase_bakeoffs/route151_native_motion_blur_medium_recovery_v2/contact_none_vs_medium.png",
+        "sha256": "eede871a702ec45616cab2c7c44769fee11c60344aed8445ca1c47b569f053bc"
+      },
+      "source_gif": {
+        "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/corruption_hardcase_bakeoffs/route151_native_motion_blur_medium_recovery_v2/front_none_vs_medium_review.gif",
+        "sha256": "6ae34e0423146c59ce90378c7fdc5da58e41f71ca67357fac8edfe94c6c95f73"
+      }
+    }
+  ],
+  "gate": {
+    "path": "configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json",
+    "sha256": "ddc2056dc0b0bf53c34b4758aebb7f2b783cdf940d5c81632e9f74283277b87e"
+  },
+  "gpu_jobs_submitted": 0,
+  "orion_loaded": false,
+  "schema": "orion.corruption_visual_approval_review_bundle.v1",
+  "status": "rendered_pending_explicit_human_visual_decision"
+}

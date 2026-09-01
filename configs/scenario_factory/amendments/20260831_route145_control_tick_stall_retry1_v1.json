@@ -1,0 +1,49 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T06:21:28+08:00",
+  "status": "single_exact_locked_test_runtime_retry_authorized",
+  "title": "Route145 receives one exact technical replay after a control-tick stall",
+  "scope": "runtime recovery only; frozen locked-test identity and scientific condition remain unchanged",
+  "failed_attempt": {
+    "job_id": 1107817,
+    "run_id": "stage2l_formal24_test_wave0_20260829",
+    "state": "FAILED",
+    "exit_code": "124:0",
+    "node": "gpu1",
+    "elapsed": "00:12:46",
+    "trace_frames": 3,
+    "failure": "The evaluator stalled inside ScenarioManager._tick_scenario after three committed control frames and the 300-second control-trace watchdog terminated it.",
+    "terminal_evaluator_record_present": false,
+    "runtime_or_model_result": "runtime_environment_invalid",
+    "maximum_resident_memory": "11245692K",
+    "host_oom_evidence": false,
+    "artifacts": {
+      "manifest_sha256": "34850a82aeb1030e2ee2cf9affc95260b90f7ecebfe352848195f48d07c6c934",
+      "runtime_progress_watchdog_sha256": "57bf6a41c2ca32bcaabb3bcdd2a21adc7ab883fe6be5b0f1adf60d096d538343",
+      "evaluator_endpoint_sha256": "62339586af997351e8a6051667ee679e9d4dc76dee0af04a301f2425ab97555e",
+      "control_trace_sha256": "14645a97336bf7f89cd2c739b5eea9980bbe04210374b015eca93d0877a25f60"
+    }
+  },
+  "retry_contract": {
+    "maximum_attempts": 1,
+    "same_route_index": 145,
+    "same_route_xml_sha256": "8a6d71730ead7d11d4c85ad6e604a923e98ed809b62267a0c5ed4cdd5825fcde",
+    "same_condition": "clean_off",
+    "same_variant": "hazard",
+    "same_orion_checkpoint": true,
+    "same_agent_and_sensors": true,
+    "same_stage1_stage2_density_governor_state": "all disabled",
+    "same_scoring_and_fast_screen_rules": true,
+    "exclude_failed_runtime_node": "gpu1",
+    "node_exclusion_is_scientific_condition_change": false,
+    "selection_or_route_membership_may_change_from_retry_outcome": false,
+    "automatic_second_retry_allowed": false
+  },
+  "locked_test_guards": {
+    "route_identity_remains_frozen": true,
+    "model_success_or_failure_is_not_an_exclusion_reason": true,
+    "technical_failure_may_be_recorded_as_missing_test_data": true,
+    "replacement_route_allowed": false
+  },
+  "claim_boundary": "A single exact runtime replay of an already frozen locked-test route. The failed three-frame attempt is not a model, collision, TTC, uncertainty, planning or safety result."
+}

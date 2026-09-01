@@ -1,0 +1,50 @@
+{
+  "checkpoint": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route151_v8_gradient_routed_v1_60/training/stage2l_v8_route151_smoke.pt",
+    "sha256": "42bde70e842bb6ce446c5853f72c279dc9e2dbf0c5294f8b7a28f0f3012d13c2"
+  },
+  "checks": {
+    "all_groups_attain_oracle_fraction": false,
+    "all_groups_positive_on_off_order": true,
+    "all_stance_classes_recalled": false,
+    "all_stance_variants_correct": false,
+    "exactly_one_optimizer_step_per_complete_group": true,
+    "generated_semantic_answers_exact": false,
+    "generated_semantic_fields_correct": false,
+    "generated_semantics_parse": false,
+    "generated_text_nonrepeating": false,
+    "gradient_routing_frozen": true,
+    "language_nll_decreases": true,
+    "minimum_stance_target_probability": false,
+    "relevance_background_fpr": false,
+    "relevance_foreground_recall": true,
+    "same_family_preference_improves_and_gte_0_8": false,
+    "trajectory_and_control_remain_disabled": true
+  },
+  "claim_boundary": "Independent Route151 v8 engineering-smoke integrity and gate validation only; no held-out, trajectory, closed-loop, generalization or safety evidence.",
+  "failed_checks": [
+    "all_groups_attain_oracle_fraction",
+    "all_stance_classes_recalled",
+    "all_stance_variants_correct",
+    "generated_semantic_answers_exact",
+    "generated_semantic_fields_correct",
+    "generated_semantics_parse",
+    "generated_text_nonrepeating",
+    "minimum_stance_target_probability",
+    "relevance_background_fpr",
+    "same_family_preference_improves_and_gte_0_8"
+  ],
+  "integrity_valid": true,
+  "next_action": "keep pilot locked and diagnose the v8 gate failure",
+  "report": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route151_v8_gradient_routed_v1_60/training/report.json",
+    "sha256": "111a6da08cb0b578d39e4246371804fdba3dc2d493c763b11f8c23ff3af773e4"
+  },
+  "schema": "orion.stage2l_v8_route151_independent_validation.v1",
+  "smoke_passed": false,
+  "status": "validated_failed_gate",
+  "submission_attestation": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route151_v8_gradient_routed_v1_60/submission_attestation.json",
+    "sha256": "e94a161b8c375ce1f76cfefe4b212b4f675ec37cc0835463476903b063d63a07"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "schema": "orion.corruption_hardcase_severity_freeze.v1",
+  "created_at": "2026-08-31T19:57:00+08:00",
+  "status": "revoked_visual_failure_do_not_use",
+  "revocation": {
+    "timestamp": "2026-08-31T20:08:00+08:00",
+    "superseded_original_sha256": "242bb1ba5e4264a57e0c0af9de44198d5534808db000ccb6063ab76fb9b3b1dd",
+    "reason": "Human review found pervasive black-square rendering artifacts in the clean capture and rejected lens_waterdrop_v1 as an unrealistic low-resolution radial-blur prototype.",
+    "amendment": "configs/scenario_factory/amendments/20260831_corruption_hardcase_visual_rejection_v1.json",
+    "all_retained_conditions_below_are_historical_rejected_choices": true
+  },
+  "source_result": {
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_v1/visual_review/result.json",
+    "local_path": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_v1/result.json",
+    "sha256": "a29c01cd8908613a72fde31a79cf2ab4abc0fea9ac6bcba7fd7ea65884400497",
+    "selected_frame_count": 78,
+    "orion_loaded": false
+  },
+  "retained_conditions": {
+    "front_stale": {
+      "delays_ms": [200, 400],
+      "reason": "100 ms was visually weak at the 20 Hz capture rate; 200 and 400 ms retain a moderate and strong temporal-evidence loss without replacing the image with a blank frame.",
+      "realized_delay_max_overshoot_ms": {
+        "200": 0.0000029802322387695312,
+        "400": 0.0000059604644775390625
+      }
+    },
+    "lens_waterdrop": {
+      "severity": 2,
+      "seed": 20260831,
+      "mask_fraction_mean": 0.11382824870256278,
+      "reason": "Severity 1 was too weak for a first failure-induction screen; severity 3 covered about 22 percent and risked becoming an easy synthetic-contamination detector. Severity 2 remained localized and temporally coherent."
+    },
+    "native_motion_blur": {
+      "profile": "medium",
+      "edge_variance_ratio_to_clean": 0.7560692761442138,
+      "matched_progress_abs_error_max": 0.0,
+      "reason": "Medium produced a visible motion-dependent evidence loss while preserving scene structure; heavy is retained only as a stress upper bound."
+    }
+  },
+  "non_screen_conditions": {
+    "front_stale_100ms": "weak negative/calibration only",
+    "lens_waterdrop_light": "weak negative/calibration only",
+    "lens_waterdrop_heavy": "stress upper bound only",
+    "native_motion_blur_light": "weak negative/calibration only",
+    "native_motion_blur_heavy": "stress upper bound only",
+    "native_glare": "prior smoke/negative result only; not a primary hard-case family"
+  },
+  "human_visual_review": {
+    "temporal_continuity_passed": false,
+    "actor_independent_waterdrop_placement_passed": false,
+    "stale_delay_monotonicity_passed": false,
+    "motion_blur_scene_structure_preserved": false,
+    "caveat": "The whole bake-off is visually rejected. Black-square artifacts invalidate the clean baseline, and lens_waterdrop_v1 lacks credible refraction, local inversion, crescent edges, and highlights. No severity or family is released from this artifact.",
+    "local_temporal_contacts": {
+      "front_stale": {
+        "path": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_v1/front_stale_temporal_contact.png",
+        "sha256": "7e35c11b0605935e4ca4058bacbb50941b8ec33c453c845ce666e5ef1292e288"
+      },
+      "lens_waterdrop": {
+        "path": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_v1/lens_waterdrop_temporal_contact.png",
+        "sha256": "c0cced233e4dff5e04d9ec859d275c0c5613e649b0939adf5bf584549bd234d6"
+      },
+      "native_motion_blur": {
+        "path": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_v1/native_motion_blur_temporal_contact.png",
+        "sha256": "7bbe8d08090439ceb21454f845a991d15f13fd356480babc316abfe8451f214c"
+      }
+    }
+  },
+  "execution_locks": {
+    "offline_development_screen_unlocked": false,
+    "closed_loop_route_jobs_unlocked": false,
+    "heldout_confirmation_unlocked": false,
+    "stage2p_unlocked": false,
+    "formal_200_route_evaluation_unlocked": false,
+    "severity_change_after_orion_screen": false,
+    "replacement_visual_preview_required": true
+  },
+  "claim_boundary": "Revoked visual artifact retained only for failure provenance. It must not select severity, enter ORION screening, or support any corruption-validity claim."
+}

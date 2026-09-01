@@ -7,6 +7,7 @@ set -euo pipefail
 
 PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
 PYTHON_BIN="${PYTHON_BIN:-/root/autodl-tmp/conda/envs/orion-cl/bin/python}"
+INSTALL_BUILD_HELPERS="${INSTALL_BUILD_HELPERS:-1}"
 
 if [[ ! -x "${PYTHON_BIN}" ]]; then
   echo "[FAIL] missing python binary: ${PYTHON_BIN}" >&2
@@ -19,8 +20,12 @@ echo "== Build Closed-Loop MMCV Extension =="
 echo "PROJECT_ROOT=${PROJECT_ROOT}"
 echo "PYTHON_BIN=${PYTHON_BIN}"
 
-echo "[SETUP] ensure Python-side build helpers"
-"${PYTHON_BIN}" -m pip install ninja psutil wheel setuptools
+if [[ "${INSTALL_BUILD_HELPERS}" == "1" ]]; then
+  echo "[SETUP] ensure Python-side build helpers"
+  "${PYTHON_BIN}" -m pip install ninja psutil wheel setuptools
+else
+  echo "[SKIP] Python-side build helper installation disabled"
+fi
 
 echo "[BUILD] compile mmcv._ext for the current interpreter"
 CUDA_VISIBLE_DEVICES= ORION_SKIP_POINTCLOUD_EXTS=1 \

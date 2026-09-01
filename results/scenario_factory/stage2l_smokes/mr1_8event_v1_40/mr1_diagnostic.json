@@ -1,0 +1,340 @@
+{
+  "after": {
+    "dev": {
+      "background_false_positive_rate": 0.21797923743724823,
+      "foreground_recall": 0.8490604758262634,
+      "minimum_attained_fraction": -0.1767026036977768,
+      "positive_order_fraction": 0.7,
+      "semantic_answer_exact_match": 0.8166666666666667,
+      "semantic_field_accuracy": 0.90625,
+      "stance_accuracy": 0.8,
+      "supported_class_macro_recall": 0.4470704272643331,
+      "task_field_accuracy": 0.6391304347826087,
+      "zero_uq_complete_field_accuracy": 1.0
+    },
+    "train": {
+      "background_false_positive_rate": 0.19151106476783752,
+      "foreground_recall": 0.8538458347320557,
+      "minimum_attained_fraction": -0.01252270769327879,
+      "positive_order_fraction": 0.9259259259259259,
+      "semantic_answer_exact_match": 0.9197530864197531,
+      "semantic_field_accuracy": 0.9598765432098766,
+      "stance_accuracy": 0.9012345679012346,
+      "supported_class_macro_recall": 0.7497905142979633,
+      "task_field_accuracy": 0.7874396135265701,
+      "zero_uq_complete_field_accuracy": 1.0
+    }
+  },
+  "after_per_event": {
+    "dev": {
+      "route147_step223": {
+        "background_false_positive_rate": 0.23555909097194672,
+        "foreground_recall": 0.9333333969116211,
+        "minimum_attained_fraction": -0.007287451531738043,
+        "positive_order_fraction": 0.8
+      },
+      "route195_step230": {
+        "background_false_positive_rate": 0.20039935410022736,
+        "foreground_recall": 0.7647876143455505,
+        "minimum_attained_fraction": -0.1767026036977768,
+        "positive_order_fraction": 0.6
+      }
+    },
+    "train": {
+      "route151_step218": {
+        "background_false_positive_rate": 0.27725860476493835,
+        "foreground_recall": 1.0,
+        "minimum_attained_fraction": 0.4554154872894287,
+        "positive_order_fraction": 1.0
+      },
+      "route157_step193": {
+        "background_false_positive_rate": 0.1492515355348587,
+        "foreground_recall": 0.8457247018814087,
+        "minimum_attained_fraction": 0.22613315284252167,
+        "positive_order_fraction": 1.0
+      },
+      "route158_step154": {
+        "background_false_positive_rate": 0.23098783195018768,
+        "foreground_recall": 1.0,
+        "minimum_attained_fraction": 0.46879518032073975,
+        "positive_order_fraction": 1.0
+      },
+      "route164_step522": {
+        "background_false_positive_rate": 0.09874041378498077,
+        "foreground_recall": 0.42218518257141113,
+        "minimum_attained_fraction": -0.01252270769327879,
+        "positive_order_fraction": 0.6
+      },
+      "route168_step482": {
+        "background_false_positive_rate": 0.19181500375270844,
+        "foreground_recall": 0.9285714626312256,
+        "minimum_attained_fraction": 0.4234893321990967,
+        "positive_order_fraction": 1.0
+      },
+      "route180_step696": {
+        "background_false_positive_rate": 0.21686449646949768,
+        "foreground_recall": 1.0,
+        "minimum_attained_fraction": 0.6104387044906616,
+        "positive_order_fraction": 1.0
+      }
+    }
+  },
+  "before": {
+    "dev": {
+      "background_false_positive_rate": 1.0,
+      "foreground_recall": 1.0,
+      "minimum_attained_fraction": -0.5871595740318298,
+      "positive_order_fraction": 0.3,
+      "semantic_answer_exact_match": 0.6333333333333333,
+      "semantic_field_accuracy": 0.7791666666666667,
+      "stance_accuracy": 0.5333333333333333,
+      "supported_class_macro_recall": 0.23385167464114834,
+      "task_field_accuracy": 0.24347826086956523,
+      "zero_uq_complete_field_accuracy": 0.0
+    },
+    "train": {
+      "background_false_positive_rate": 1.0,
+      "foreground_recall": 1.0,
+      "minimum_attained_fraction": -0.582474410533905,
+      "positive_order_fraction": 0.4444444444444444,
+      "semantic_answer_exact_match": 0.6234567901234568,
+      "semantic_field_accuracy": 0.7754629629629629,
+      "stance_accuracy": 0.49382716049382713,
+      "supported_class_macro_recall": 0.19005007300271434,
+      "task_field_accuracy": 0.24476650563607086,
+      "zero_uq_complete_field_accuracy": 0.0
+    }
+  },
+  "claim_boundary": "Post-hoc engineering diagnosis of one bounded smoke; no formal generalization, planning, control, or safety claim.",
+  "diagnosis": {
+    "capacity_limit_established": false,
+    "formal_generalization_established": false,
+    "loss_design_failure_established": false,
+    "optimization_not_saturated_at_step_40": true,
+    "partial_event_heldout_transfer_observed": true,
+    "train_ranking_failure_concentrated_in_route164": true
+  },
+  "failed_checks": [
+    "dev_all_groups_attain_margin",
+    "dev_all_groups_positive_order",
+    "dev_relevance_background_fpr",
+    "dev_supported_class_macro_recall",
+    "dev_task_field_accuracy",
+    "train_all_groups_attain_margin",
+    "train_all_groups_positive_order",
+    "train_relevance_background_fpr",
+    "train_relevance_foreground_recall",
+    "train_task_field_accuracy"
+  ],
+  "next_experiment": {
+    "automatic_submission": false,
+    "decision_rules": {
+      "dev_regresses_while_train_improves": "Classify as overfitting and stop duration scaling.",
+      "train_and_dev_pass": "Engineering paradigm passes; formal 24-event review/training remains separately locked.",
+      "train_passes_but_dev_stalls": "Treat data diversity and task-field coverage as the next bottleneck.",
+      "train_still_fails_after_80": "Stop increasing duration; inspect Route164 relevance objective/capacity."
+    },
+    "formal_training": false,
+    "fresh_initialization_from_original_orion": true,
+    "justified": true,
+    "must_hold_fixed": [
+      "8-event 6/2 split",
+      "all QA records and visual caches",
+      "Stage1 adapter checkpoint",
+      "architecture and loss weights",
+      "learning rates and random seed",
+      "release gates"
+    ],
+    "name": "MR1-E fresh 80-step duration diagnostic",
+    "optimizer_steps": 80,
+    "stage2p": false
+  },
+  "optimization_trend": {
+    "background_support_hinge": {
+      "first_5_mean": 0.050391991220143005,
+      "last_5_mean": 0.008998651778286635,
+      "last_to_first_ratio": 0.17857305417789557
+    },
+    "language_nll": {
+      "first_5_mean": 10.780889733632405,
+      "last_5_mean": 5.32809697786967,
+      "last_to_first_ratio": 0.49421681415105934
+    },
+    "loss": {
+      "first_5_mean": 6.869318217039108,
+      "last_5_mean": 2.839172583818436,
+      "last_to_first_ratio": 0.4133121358064277
+    },
+    "ranking_loss": {
+      "first_5_mean": 0.7798321336507797,
+      "last_5_mean": 0.12939266065756483,
+      "last_to_first_ratio": 0.16592373547344583
+    },
+    "support_aligned_relevance": {
+      "first_5_mean": 0.21637426627178985,
+      "last_5_mean": 0.08777296928068003,
+      "last_to_first_ratio": 0.4056534577472699
+    },
+    "task_field_loss": {
+      "first_5_mean": 1.4807574371496837,
+      "last_5_mean": 0.6011048316955566,
+      "last_to_first_ratio": 0.4059441584521945
+    }
+  },
+  "presentation_coverage": {
+    "language_group_steps_max": 2,
+    "language_group_steps_min": 1,
+    "language_steps_by_group": {
+      "route151_step218_saved_0018": 2,
+      "route151_step218_saved_0020": 1,
+      "route151_step218_saved_0022": 2,
+      "route151_step218_saved_0024": 1,
+      "route151_step218_saved_0026": 2,
+      "route157_step193_saved_0015": 1,
+      "route157_step193_saved_0017": 1,
+      "route157_step193_saved_0019": 2,
+      "route157_step193_saved_0021": 2,
+      "route157_step193_saved_0023": 2,
+      "route158_step154_saved_0011": 2,
+      "route158_step154_saved_0015": 1,
+      "route158_step154_saved_0017": 1,
+      "route164_step522_saved_0048": 1,
+      "route164_step522_saved_0050": 2,
+      "route164_step522_saved_0052": 2,
+      "route164_step522_saved_0054": 2,
+      "route164_step522_saved_0056": 2,
+      "route168_step482_saved_0044": 1,
+      "route168_step482_saved_0046": 1,
+      "route168_step482_saved_0048": 1,
+      "route168_step482_saved_0052": 1,
+      "route180_step696_saved_0066": 2,
+      "route180_step696_saved_0068": 1,
+      "route180_step696_saved_0070": 1,
+      "route180_step696_saved_0072": 2,
+      "route180_step696_saved_0074": 1
+    },
+    "primary_by_group": {
+      "route151_step218_saved_0018": 8,
+      "route151_step218_saved_0020": 8,
+      "route151_step218_saved_0022": 8,
+      "route151_step218_saved_0024": 8,
+      "route151_step218_saved_0026": 8,
+      "route157_step193_saved_0015": 8,
+      "route157_step193_saved_0017": 8,
+      "route157_step193_saved_0019": 8,
+      "route157_step193_saved_0021": 8,
+      "route157_step193_saved_0023": 8,
+      "route158_step154_saved_0011": 13,
+      "route158_step154_saved_0015": 13,
+      "route158_step154_saved_0017": 14,
+      "route164_step522_saved_0048": 8,
+      "route164_step522_saved_0050": 8,
+      "route164_step522_saved_0052": 8,
+      "route164_step522_saved_0054": 8,
+      "route164_step522_saved_0056": 8,
+      "route168_step482_saved_0044": 10,
+      "route168_step482_saved_0046": 10,
+      "route168_step482_saved_0048": 10,
+      "route168_step482_saved_0052": 10,
+      "route180_step696_saved_0066": 8,
+      "route180_step696_saved_0068": 8,
+      "route180_step696_saved_0070": 8,
+      "route180_step696_saved_0072": 8,
+      "route180_step696_saved_0074": 8
+    },
+    "primary_per_group_max": 14,
+    "primary_per_group_min": 8
+  },
+  "schema": "orion.stage2l_mr1_diagnostic.v1",
+  "sources": {
+    "dataset_manifest": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiroute_smokes/stage2l_mr1_8event_v5_dataset_v1/manifest.json",
+      "sha256": "9e5e84fa469951a32f87abe5516a9594b3cc8d16bd7ac54f309b44e6b8f27330"
+    },
+    "protocol": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/stage2l_mr1_training_v1.json",
+      "sha256": "25482ea60a23edc6dcf5a6ff7f4f1130821ba7a135bf0620df9fa34626618260"
+    },
+    "records": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiroute_smokes/stage2l_mr1_8event_v5_dataset_v1/records.jsonl",
+      "sha256": "373fbbb0add64c3e2e69c043a63751691a3eec2219f5625024c04ca5589761d7"
+    },
+    "report": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr1_8event_v1_40/training/report.json",
+      "sha256": "b4399676e4f5853c98fb0419a4185e211ebdbdb89aa39c9c440a9afac33887ca"
+    }
+  },
+  "status": "mr1_40step_diagnosed_no_training_launched",
+  "target_distribution": {
+    "by_split": {
+      "dev": {
+        "relevance_level": {
+          "high": 10,
+          "low": 30,
+          "not_applicable": 10
+        },
+        "risk_level": {
+          "high": 8,
+          "low": 19,
+          "medium": 3,
+          "none": 20
+        },
+        "risk_region": {
+          "lower_center": 15,
+          "lower_left": 2,
+          "lower_right": 2,
+          "middle_center": 5,
+          "middle_left": 2,
+          "middle_right": 4,
+          "none": 20
+        },
+        "risk_view": {
+          "CAM_FRONT": 22,
+          "CAM_FRONT_RIGHT": 8,
+          "none": 20
+        },
+        "stance": {
+          "maintain": 20,
+          "prepare_to_yield": 10
+        }
+      },
+      "train": {
+        "relevance_level": {
+          "high": 29,
+          "low": 79,
+          "not_applicable": 27
+        },
+        "risk_level": {
+          "high": 25,
+          "low": 52,
+          "medium": 4,
+          "none": 54
+        },
+        "risk_region": {
+          "lower_center": 30,
+          "lower_left": 2,
+          "lower_right": 8,
+          "middle_center": 29,
+          "middle_left": 8,
+          "middle_right": 4,
+          "none": 54
+        },
+        "risk_view": {
+          "CAM_BACK": 23,
+          "CAM_BACK_LEFT": 3,
+          "CAM_FRONT": 50,
+          "CAM_FRONT_LEFT": 1,
+          "CAM_FRONT_RIGHT": 4,
+          "none": 54
+        },
+        "stance": {
+          "caution": 10,
+          "maintain": 54,
+          "prepare_to_yield": 17
+        }
+      }
+    },
+    "ignored_non_task_field_qa_rows": 444,
+    "unique_task_field_variant_count": 185
+  }
+}

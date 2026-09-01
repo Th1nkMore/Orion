@@ -1,0 +1,66 @@
+{
+  "clean_reference": {
+    "collision_count": 0,
+    "eligible": true,
+    "job_id": "1082398",
+    "longest_below_0_25_mps_seconds": 0.0,
+    "low_speed_screen_scope": "trace prefix before event start_progress",
+    "route_completion": 100.0,
+    "route_index": "151",
+    "run_dir": "/Users/th1nkmore/th1nkmore_ws/Orion/results/closedloop_scenario_bank/route151_clean_1082398",
+    "status": "Completed",
+    "variant": "hazard"
+  },
+  "event": {
+    "camera": "CAM_FRONT",
+    "duration_seconds": 3.0,
+    "evidence_frames": [
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25
+    ],
+    "family": "local_glare",
+    "matched_area": 0.1925,
+    "off_path_region": [
+      0.35,
+      0.0,
+      0.9,
+      0.35
+    ],
+    "on_path_region": [
+      0.35,
+      0.5,
+      0.9,
+      0.85
+    ],
+    "rationale": "Clean frame 19 precedes pedestrian visibility; frames 21-25 show a pedestrian emerging from behind right-side parked vehicles into the ego path while native ORION decelerates and stops. The on-path patch covers this compact entry/conflict corridor during the known clean response window. The equal-area left patch lies outside that pedestrian conflict and is reserved as a later specificity control.",
+    "seed": 20260828,
+    "severity": 3,
+    "start_progress": 0.39881549704622504
+  },
+  "execution_gate": {
+    "controls_authorized_only_after_failure_induction": true,
+    "first_degraded_condition": "hazard_on_path_response_off",
+    "no_learned_or_oracle_control_yet": true
+  },
+  "files": {
+    "clean_eval": "/Users/th1nkmore/th1nkmore_ws/Orion/results/closedloop_scenario_bank/route151_clean_1082398/eval_orion_traj_0.json",
+    "clean_manifest": "/Users/th1nkmore/th1nkmore_ws/Orion/results/closedloop_scenario_bank/route151_clean_1082398/manifest.json",
+    "clean_trace": "/Users/th1nkmore/th1nkmore_ws/Orion/results/closedloop_scenario_bank/route151_clean_1082398/records_orion_traj_0/RouteScenario_24294_rep0_Town02_ParkingCrossingPedestrian_1_6_08_28_13_30_02/control_trace.jsonl",
+    "review_manifest": "/Users/th1nkmore/th1nkmore_ws/Orion/results/closedloop_scenario_bank/route151_clean_1082398/review_event/clean_event_review_manifest.json",
+    "route_xml": "/Users/th1nkmore/th1nkmore_ws/Orion/configs/closedloop_scenario_bank/routes/route_151_hazard.xml"
+  },
+  "hashes": {
+    "clean_eval_sha256": "5a1507e2a0987e02b4f2cc4abebe958c49dc1d1859b08b3a9f01dd61870b8bf3",
+    "clean_manifest_sha256": "096bbb1a2f0c7d6a38dcfb01f8c6c6ec212eb2b99873cc84f2f805f585be55b8",
+    "clean_trace_sha256": "9b6205d90cc31aa76b442ac55f02923d27fcb7a6dca74c039b0a3976321914be",
+    "review_manifest_sha256": "913745e10788bd00632b67373ab74f395274587ebe33ef6e45b25ddb2f29e021",
+    "route_xml_sha256": "ecb0fd699b3f2533e460e265f8d1137f6899ab117c32c468514e73ad3bc0d740"
+  },
+  "schema": "orion.closedloop_spatial_event_preregistration.v1",
+  "status": "frozen_before_degraded_execution"
+}

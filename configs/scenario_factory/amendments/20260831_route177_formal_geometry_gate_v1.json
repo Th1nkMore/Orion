@@ -1,0 +1,41 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T07:01:00+08:00",
+  "status": "formal_event_qa_ineligible_under_frozen_geometry_gate",
+  "title": "Route177 retains only two fixed-offset keyframes with visible ORION route support",
+  "scope": "Route177 Stage2-L data construction classification only",
+  "source": {
+    "job_id": 1108561,
+    "event_id": "route177_step276",
+    "route_index": 177,
+    "formal_split": "train",
+    "event_package_sha256": "26db5e74912de8ce2464d262a47e0c601c59c38b7bbc8859ce81ccfb48b3e08d",
+    "stage1_multiframe_sha256": "ad2d0aa88b2a98b4c7d69fd1b5b9e5c8bb162715fbef0673d1bf04e996ddde58",
+    "fixed_keyframe_manifest_sha256": "fc9a9c4621879968f4047e7ba0249847ce44787b32ae206d0bb24ba5a136e54c",
+    "submission_attestation_sha256": "27c46212546abe55d6b8f914edfe5539922da188aedadb2be84632ffac8921f0"
+  },
+  "validation": {
+    "stage1_reuse_eligible": true,
+    "stage1_reuse_validation_sha256": "8ee68f8189e4299c70a89ac0ae13a9e50e9d4f87fc332bd247decfac3e9646af",
+    "requested_fixed_keyframes": 5,
+    "retained_geometry_valid_keyframes": 2,
+    "retained_saved_frames": [24, 30],
+    "minimum_required_keyframes": 3,
+    "failure": "fewer than three fixed-offset keyframes retain visible ORION route support",
+    "job_log_sha256": "28a3e5c4ff399fc6c159e225c9e15d786cc166c95eaf4018694d79834547913e"
+  },
+  "decision": {
+    "automatic_retry_allowed": false,
+    "keyframe_reselection_allowed": false,
+    "partial_two_keyframe_qa_allowed": false,
+    "event_route_membership_changed": false,
+    "formal_data_status": "reviewed_event_missing_eligible_qa_package",
+    "partial_output_is_diagnostic_only": true
+  },
+  "locks": {
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false,
+    "model_or_qa_outcome_based_reselection_allowed": false
+  },
+  "claim_boundary": "Route177 remains a reviewed route/event identity, but it cannot contribute formal QA under the frozen 3-5 keyframe geometry contract. This is not a model, uncertainty, planning, collision, TTC, or safety result."
+}

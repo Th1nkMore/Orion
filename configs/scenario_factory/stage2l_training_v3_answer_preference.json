@@ -1,0 +1,69 @@
+{
+  "schema": "orion.stage2l_uq_language_grounding_protocol.v1",
+  "created_at": "2026-08-29T19:45:00+08:00",
+  "status": "preregistered_not_launched_route196_answer_preference_smoke_only",
+  "launch_authorization_key": "route196_answer_preference_smoke_allowed",
+  "supersedes_for_future_runs": "stage2l_training_v2_balanced_language.json",
+  "diagnostic_evidence": {
+    "failed_report": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_balanced_language_v1_240/training/report.json",
+      "sha256": "05565d2a98d735ebc73fb555afe04e898da8218cc2ba9d643d60feb882b510f7"
+    },
+    "passed": [
+      "language NLL optimization",
+      "dense relevance BCE optimization",
+      "on-path versus off-path K margin",
+      "zero-UQ target-answer preference",
+      "off-path target-answer preference"
+    ],
+    "failed": "On-path target answer NLL was 0.2812 versus 0.0280 for the incorrect maintain answer; free generation remained maintain.",
+    "uq_token_sparsity": "On-path versus zero changed 6 of 600 tokens; active-token RMS was 0.1333 while the all-token mean RMS was 0.00133."
+  },
+  "objective": "Teach the VLM to rank the matched target stance above its opposite stance while retaining free-form QA, dense task-relevance, and K-ranking objectives.",
+  "sampling": {
+    "balance_driving_stances": true,
+    "scope": "driving_implication QA only",
+    "method": "oversample each target stance to the majority count; every non-driving record remains once per epoch"
+  },
+  "losses": {
+    "qa_causal_language_modeling": 1.0,
+    "dense_soft_relevance_bce": 2.0,
+    "matched_onpath_offpath_risk_ranking": 1.0,
+    "matched_answer_preference": {
+      "weight": 2.0,
+      "margin": 0.2,
+      "scope": "driving_implication only",
+      "alternative_for_maintain": "matched on-path prepare_to_yield answer",
+      "alternative_for_caution_or_prepare": "matched zero-UQ maintain answer"
+    },
+    "trajectory": 0.0,
+    "yield_state": 0.0,
+    "direct_control": 0.0
+  },
+  "unchanged": [
+    "fresh initialization from the original ORION checkpoint",
+    "20 Route196 source QA records and all U/R/K targets",
+    "UQ tokenizer and task-relevance head architecture",
+    "ORION VLM LoRA target modules and learning rates",
+    "240-step maximum",
+    "zero/off/on NLL preference gates and K/R gates"
+  ],
+  "route196_new_objective_smoke": {
+    "maximum_steps": 240,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "single_run_only": true
+  },
+  "evaluation_gates": [
+    "all six existing optimization/NLL/K checks pass",
+    "zero-UQ free generation parses as maintain",
+    "off-path free generation parses as maintain",
+    "on-path free generation parses as the target prepare_to_yield stance"
+  ],
+  "launch_locks": {
+    "route196_answer_preference_smoke_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "stop_policy": "If the answer-preference smoke fails, stop one-event retries and implement an explicit task-map-to-language bridge before any pilot training.",
+  "claim_boundary": "One-event objective learnability repair only; no held-out generalization, trajectory, closed-loop, or safety evidence."
+}

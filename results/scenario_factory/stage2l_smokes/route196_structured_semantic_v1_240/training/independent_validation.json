@@ -1,0 +1,33 @@
+{
+  "checks": {
+    "all_generated_stances_match_targets": false,
+    "all_structured_stances_match_targets": false,
+    "off_path_prefers_maintain": true,
+    "on_path_prefers_conservative": true,
+    "on_path_risk_exceeds_off_path_by_margin": true,
+    "optimization_reduces_language_nll": true,
+    "optimization_reduces_relevance_bce": true,
+    "optimization_reduces_structured_stance_ce": true,
+    "structured_target_probability_floor": false,
+    "zero_uq_prefers_maintain": true
+  },
+  "claim_boundary": "Independent one-event report integrity and gate validation only; no held-out, trajectory, closed-loop, or safety evidence.",
+  "failed_checks": [
+    "all_generated_stances_match_targets",
+    "all_structured_stances_match_targets",
+    "structured_target_probability_floor"
+  ],
+  "integrity_valid": true,
+  "next_action": "pause Route196 iterations and review the failed discrete-language contract",
+  "report": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_structured_semantic_v1_240/training/report.json",
+    "sha256": "012e3e451293c2044855139ce5522ac504269fbab7a5fd8ab581d1459eebc3d3"
+  },
+  "schema": "orion.stage2l_route196_semantic_validation.v1",
+  "smoke_passed": false,
+  "status": "validated_failed_gate",
+  "submission_attestation": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_structured_semantic_v1_240/submission_attestation.json",
+    "sha256": "8561307538437a26065cd816634fdcd58dd07099f72d669ef8bc41b608634f50"
+  }
+}

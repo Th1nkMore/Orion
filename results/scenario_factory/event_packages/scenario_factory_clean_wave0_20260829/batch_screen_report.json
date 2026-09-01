@@ -1,0 +1,121 @@
+{
+  "actor_grounded_event_count": 2,
+  "batch_manifest": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave0_20260829/batch_manifest.json",
+    "sha256": "a8841a9f5cabb3704e99d6a56ece25772df62933a11c1f6e137e94641029d99a"
+  },
+  "claim_boundary": "Automated development-screen report awaiting human scene review; not a training-set acceptance decision or held-out result.",
+  "event_packages": [
+    {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route185/event_package.json",
+      "route_index": 185,
+      "sha256": "0bd0b2aeac3b5de75b60962061eeafc7dc3ec8818817679fbde9cae9ce95f4fa"
+    },
+    {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route160/event_package.json",
+      "route_index": 160,
+      "sha256": "100312d6468f5a2573dc1a4c587233d7c435377f2db9ce42c70a30740fe5641e"
+    }
+  ],
+  "outcome_counts": {
+    "INVALID_RUNTIME_UNPACKAGEABLE": 1,
+    "VALID_NEAR_MISS_OR_CONFLICT": 1,
+    "VALID_SEVERE_TTC": 1
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829",
+  "qa_input_ready_count": 2,
+  "results_root": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829",
+  "route_count": 3,
+  "routes": [
+    {
+      "attempts": [
+        {
+          "error": null,
+          "job_id": 1090224,
+          "package_buildable": true,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route185_hazard_clean_off-1090224",
+          "runtime_valid": true
+        }
+      ],
+      "has_actor_grounded_event": true,
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "route_index": 185,
+      "runtime_valid": true,
+      "scenario_type": "StaticCutIn",
+      "screen_role": "static_visual_hazard",
+      "selected_job_id": 1090224,
+      "selected_run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route185_hazard_clean_off-1090224",
+      "town": "Town05"
+    },
+    {
+      "attempts": [
+        {
+          "error": "RuntimeError: expected exactly one 'records_*/**/control_trace.jsonl' below /public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route158_hazard_clean_off-1090225, found 0",
+          "job_id": 1090225,
+          "package_buildable": false,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route158_hazard_clean_off-1090225",
+          "runtime_valid": false
+        },
+        {
+          "error": "RuntimeError: expected exactly one terminal evaluator record",
+          "job_id": 1090653,
+          "package_buildable": false,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route158_hazard_clean_off-1090653",
+          "runtime_valid": false
+        }
+      ],
+      "has_actor_grounded_event": false,
+      "outcome_class": "INVALID_RUNTIME_UNPACKAGEABLE",
+      "qa_input_ready": false,
+      "route_index": 158,
+      "runtime_valid": false,
+      "scenario_type": "HardBreakRoute",
+      "screen_role": "longitudinal_response_hazard",
+      "selected_job_id": null,
+      "selected_run_dir": null,
+      "town": "Town01"
+    },
+    {
+      "attempts": [
+        {
+          "error": "RuntimeError: expected exactly one 'eval_*.json' below /public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route160_hazard_clean_off-1090226, found 0",
+          "job_id": 1090226,
+          "package_buildable": false,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route160_hazard_clean_off-1090226",
+          "runtime_valid": false
+        },
+        {
+          "error": "RuntimeError: expected exactly one 'records_*/**/control_trace.jsonl' below /public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route160_hazard_clean_off-1090417, found 0",
+          "job_id": 1090417,
+          "package_buildable": false,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route160_hazard_clean_off-1090417",
+          "runtime_valid": false
+        },
+        {
+          "error": null,
+          "job_id": 1090753,
+          "package_buildable": true,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route160_hazard_clean_off-1090753",
+          "runtime_valid": true
+        }
+      ],
+      "has_actor_grounded_event": true,
+      "outcome_class": "VALID_SEVERE_TTC",
+      "qa_input_ready": true,
+      "route_index": 160,
+      "runtime_valid": true,
+      "scenario_type": "ConstructionObstacle",
+      "screen_role": "static_visual_hazard",
+      "selected_job_id": 1090753,
+      "selected_run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route160_hazard_clean_off-1090753",
+      "town": "Town04"
+    }
+  ],
+  "run_id": "scenario_factory_clean_wave0_20260829",
+  "runtime_valid_count": 2,
+  "schema": "orion.scenario_factory.batch_screen_report.v1",
+  "split": "development_screen",
+  "status": "pending_human_review",
+  "unpackageable_route_count": 1
+}

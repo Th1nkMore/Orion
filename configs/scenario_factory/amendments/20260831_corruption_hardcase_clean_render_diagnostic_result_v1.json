@@ -1,0 +1,57 @@
+{
+  "schema": "orion.corruption_hardcase_clean_render_diagnostic_result.v1",
+  "timestamp": "2026-08-31T20:48:00+08:00",
+  "status": "captures_salvaged_job_failed_renderer_failure_is_intermittent",
+  "job": {
+    "job_id": 1114570,
+    "slurm_state": "FAILED",
+    "exit_code": "1:0",
+    "elapsed": "00:13:06",
+    "max_rss": "3831628K",
+    "failure_after_all_capture_windows": "scenario-manager watchdog timeout during the third evaluator teardown"
+  },
+  "postprocess": {
+    "authorized_by": "configs/scenario_factory/amendments/20260831_corruption_hardcase_clean_render_diagnostic_postprocess_recovery_v1.json",
+    "result": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_clean_render_diagnostic_v1/visual_review/result.json",
+    "result_sha256": "23dafdfc89563732db79b05260004565088d1a56e5e8b88c39d7d917ef458574",
+    "front_contact_sha256": "b99e9c657d17410d2523fb6a74a494733e05adf69b84c3a2e3306abe3bb574e7",
+    "front_gif_sha256": "e379a1159df72f5841bface557c63b6bf6c18d711c870a08348397b48271c210"
+  },
+  "a_b_c_finding": {
+    "none_unmodified_blueprint": "artifact-free in all 34 captured frames",
+    "intensity_zero_only": "artifact-free in all 34 captured frames",
+    "clean_multi_zero_override": "artifact-free in all 34 captured frames",
+    "parameter_hypothesis": "rejected",
+    "renderer_intermitency_hypothesis": "retained",
+    "reason": "The previously bad and currently good runs have identical clean camera readback and route-native weather; no parameter condition reproduced the block artifacts."
+  },
+  "artifact_metric_calibration": {
+    "evaluator_sha256": "b38bd0ce5d6e6836500e4f0bb94002be0dc97f1d0ce226be5ba8c1496638c08f",
+    "rejected_bad_clean": {
+      "frames": 78,
+      "gate_hits": 78,
+      "audit_sha256": "b88dd6e582da8083c234a2307e46e3be7d5b627ee350689d77570f8cdf42896a"
+    },
+    "accepted_current_profiles": {
+      "frames": 102,
+      "gate_hits": 0,
+      "audit_sha256": {
+        "none": "e1bb2ec1736b5f89c46ecb19f1f140fdb41ee0c06f48f153f5e5bd91601ce37b",
+        "intensity_zero_only": "0bbaf6152b5422e1133df1dbfab0e314e7a748d3078d58d8ed4b002aeb9e239e",
+        "clean": "4a432603f173b51f0ebfede1fc6f6fc188fb6f45cb83982118e66f3c075aff96"
+      }
+    },
+    "frozen_gate": "configs/scenario_factory/corruption_hardcase_clean_render_artifact_gate_v1.json",
+    "frozen_gate_sha256": "eb1054f6d1d577e7593d750a53ed19db9a1f7ed89437e9eb22ffdc0ea608994b"
+  },
+  "decisions": {
+    "future_clean_baseline": "unmodified CARLA/Leaderboard camera blueprint (profile none)",
+    "reason": "It is the least confounded baseline even though the multi-zero override was exonerated in this run.",
+    "clean_render_gate_required": true,
+    "human_visual_review_still_required": true,
+    "lens_waterdrop_v1_reinstated": false,
+    "prior_severity_freeze_reinstated": false,
+    "orion_hardcase_screen_unlocked": false
+  },
+  "claim_boundary": "Engineering diagnosis and rejection-gate calibration only. The intermittent renderer root cause remains unidentified."
+}

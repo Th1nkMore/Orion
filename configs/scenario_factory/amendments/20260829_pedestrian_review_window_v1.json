@@ -1,0 +1,28 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "timestamp": "2026-08-29T14:17:47+08:00",
+  "base_protocol_sha256": "0df6da6276ae3002207b20c014a8de10873ebf9acf3fe81f5c68311401e997c0",
+  "affected_run_ids": [
+    "scenario_factory_clean_wave1_fallback2_20260829",
+    "future_scenario_factory_runs"
+  ],
+  "reason": "The global minimum finite actor OBB-TTC selected a route-end neighboring vehicle for Route202 PedestrianCrossing even though the trace contained a stable walker interaction near the declared scenario trigger. That window is unsuitable for human event-integrity review.",
+  "classification": "deterministic_human_review_window_selection_repair",
+  "change": {
+    "scope": "critical-event window selection for scenario packages whose explicit scenario_type contains Pedestrian",
+    "rule": "Prefer finite walker OBB-TTC or walker OBB-gap candidates; if none exist, fall back to the original all-actor minimum-TTC/minimum-gap rule.",
+    "route202_expected_selected_step": 105,
+    "route202_expected_selected_sim_time_seconds": 5.25,
+    "route202_expected_selected_actor_category": "walker"
+  },
+  "unchanged": [
+    "closed-loop route run",
+    "ORION checkpoint and control",
+    "continuous safety summaries",
+    "official evaluator result",
+    "Stage1 observation-UQ adapter",
+    "Stage2-L task-relevance geometry",
+    "QA labels and model inputs"
+  ],
+  "claim_boundary": "Scenario type is used only to choose the front/BEV segment shown to a human reviewer. It is not consumed by the uncertainty adapter or task-relevance-map construction."
+}

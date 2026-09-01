@@ -1,0 +1,31 @@
+{
+  "schema": "orion.stage2l_mr1_duration_comparison_submission.v1",
+  "submitted_at": "2026-08-31T04:59:00+08:00",
+  "training_job_id": 1107292,
+  "comparison_job_id": 1107315,
+  "dependency": "afterany:1107292",
+  "inputs": {
+    "step40_report": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr1_8event_v1_40/training/report.json",
+    "step80_report": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr1e_8event_v1_80/training/report.json"
+  },
+  "output": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr1e_8event_v1_80/duration_comparison_40_vs_80.json",
+  "implementation": {
+    "script_sha256": "db43bef3be9dfde18adc6eaeac02996cfe6d9aef773f68f83a22d26905fae888",
+    "test_sha256": "b9a9c25be90a2e9a9d47193e2b615c7bd56f8c6ed1abdb983c8880746661309a",
+    "local_tests": "8 passed including the existing MR1 analyzer tests",
+    "platform_tests": "5 passed"
+  },
+  "resources": {
+    "gpu_requested": false,
+    "cpus": 1,
+    "memory": "4G",
+    "time_limit": "00:10:00"
+  },
+  "locks": {
+    "automatic_step_extension_allowed": false,
+    "automatic_retry_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "Post-training engineering comparison only; it launches no training and provides no formal generalization, planning, closed-loop or safety claim."
+}

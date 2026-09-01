@@ -1,0 +1,210 @@
+{
+  "claim_boundary": "Development/event-discovery evidence selected from published ORION outcomes; not held-out confirmation and not evidence that observation uncertainty caused the event.",
+  "continuous_safety": {
+    "duration_seconds": 23.25,
+    "efficiency": {
+      "route_progress_delta": 0.999999268407052,
+      "slow_below_1_mps_seconds": 4.600000000000001,
+      "stopped_below_0_25_mps_seconds": 4.050000000000001,
+      "time_weighted_mean_speed_mps": 3.6492326972934017
+    },
+    "frames": 465,
+    "safety": {
+      "by_category": {
+        "vehicle": {
+          "frames_with_actor_record": 460,
+          "low_ttc_exposure_seconds": {
+            "1.0": 1.9499999999999993,
+            "2.0": 3.200000000000001,
+            "3.0": 3.8500000000000005,
+            "5.0": 5.149999999999999
+          },
+          "min_obb_separating_axis_gap_m": 0.0,
+          "min_obb_ttc_seconds": 0.0
+        },
+        "walker": {
+          "frames_with_actor_record": 0,
+          "low_ttc_exposure_seconds": {
+            "1.0": 0,
+            "2.0": 0,
+            "3.0": 0,
+            "5.0": 0
+          },
+          "min_obb_separating_axis_gap_m": null,
+          "min_obb_ttc_seconds": null
+        }
+      },
+      "critical_frame": {
+        "actor": {
+          "actor_id": 175,
+          "category": "vehicle",
+          "closest_approach_time_seconds": 0.0,
+          "closing_speed_mps": 0.0,
+          "disc_clearance_m": -1.876810298625185,
+          "disc_collision_ttc_seconds": 0.0,
+          "disc_radius_m": 2.865157122461763,
+          "extent_xy_m": [
+            2.6787397861480713,
+            1.0166014432907104
+          ],
+          "extent_z_m": 0.7053293585777283,
+          "obb_collision_ttc_seconds": 0.0,
+          "obb_separating_axis_gap_m": 0.0,
+          "position_xy": [
+            200.361083984375,
+            -312.2414855957031
+          ],
+          "position_z": 0.7210983037948608,
+          "predicted_min_disc_clearance_m": -1.876810298625185,
+          "range_m": 3.6012434054248716,
+          "relative_lateral_m": 3.599239015003352,
+          "relative_longitudinal_m": 0.1201356649535048,
+          "relative_position_xy_m": [
+            1.6753082275390625,
+            -3.187835693359375
+          ],
+          "relative_velocity_xy_mps": [
+            3.375263214111328,
+            -0.6521615982055664
+          ],
+          "type_id": "vehicle.chevrolet.impala",
+          "velocity_xy": [
+            -3.141639232635498,
+            1.2989455461502075
+          ],
+          "yaw_degrees": 132.6112518310547
+        },
+        "sim_time_seconds": 15.05,
+        "step": 301
+      },
+      "low_ttc_exposure_seconds": {
+        "1.0": 1.9499999999999993,
+        "2.0": 3.200000000000001,
+        "3.0": 3.8500000000000005,
+        "5.0": 5.149999999999999
+      },
+      "min_disc_clearance_m_diagnostic": -1.876810298625185,
+      "min_obb_separating_axis_gap_m": 0.0,
+      "min_obb_ttc_seconds": 0.0,
+      "primary_metric": "constant_velocity_fixed_orientation_obb_ttc"
+    },
+    "safety_telemetry_available_frames": 465,
+    "safety_telemetry_coverage": 1.0
+  },
+  "endpoint": {
+    "collision_count": 1,
+    "collision_entries": {
+      "collisions_layout": [],
+      "collisions_pedestrian": [],
+      "collisions_vehicle": [
+        "Agent collided against object with type=vehicle.chevrolet.impala and id=175 at (x=198.92, y=-308.985, z=0.022)"
+      ]
+    },
+    "min_speed_infractions": [
+      "Average speed is 67.08% of the surrounding traffic's one",
+      "Average speed is 170.17% of the surrounding traffic's one",
+      "Average speed is 103.86% of the surrounding traffic's one",
+      "Average speed is 22.07% of the surrounding traffic's one",
+      "Average speed is 146.78% of the surrounding traffic's one",
+      "Average speed is 213.63% of the surrounding traffic's one",
+      "Average speed is 362.49% of the surrounding traffic's one",
+      "Average speed is 1170.87% of the surrounding traffic's one",
+      "Average speed is 1845.56% of the surrounding traffic's one",
+      "Average speed is 2658.2% of the surrounding traffic's one",
+      "Average speed is 3525117.51% of the surrounding traffic's one",
+      "Average speed is 1593.93% of the surrounding traffic's one",
+      "Average speed is 202.4% of the surrounding traffic's one",
+      "Average speed is 144.7% of the surrounding traffic's one",
+      "Average speed is 118.09% of the surrounding traffic's one",
+      "Average speed is 95.92% of the surrounding traffic's one",
+      "Average speed is 115.74% of the surrounding traffic's one",
+      "Average speed is 88.37% of the surrounding traffic's one",
+      "Average speed is 88.37% of the surrounding traffic's one"
+    ],
+    "scores": {
+      "score_composed": 60.0,
+      "score_penalty": 0.6,
+      "score_route": 100
+    },
+    "serious_infraction_count": 0,
+    "serious_infraction_entries": {
+      "outside_route_lanes": [],
+      "red_light": [],
+      "route_dev": [],
+      "route_timeout": [],
+      "scenario_timeouts": [],
+      "stop_infraction": []
+    },
+    "status": "Completed"
+  },
+  "eval_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route210_hazard_clean_off-1087407/eval_orion_traj_0.json",
+  "first_geometry_contact": {
+    "actor_category": "vehicle",
+    "actor_id": 175,
+    "actor_type": "vehicle.chevrolet.impala",
+    "minimum_obb_gap_m": 0.0,
+    "minimum_obb_ttc_seconds": 0.0,
+    "route_progress": 0.5215292502638507,
+    "sim_time_seconds": 15.05,
+    "speed_mps": 4.699523606710449,
+    "step": 301
+  },
+  "manifest_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route210_hazard_clean_off-1087407/manifest.json",
+  "protocol_amendment": "native_collision_discovery_amendments_v1: low speed, legal waiting, post-contact blocking, timeout, and incomplete route progress are model/outcome diagnostics rather than automatic runtime exclusions",
+  "result_kind": "collision_reproduced",
+  "retain_as_mechanism_development_case": true,
+  "run_dir": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route210_hazard_clean_off-1087407",
+  "runtime": {
+    "checks": {
+      "condition_clean_off": true,
+      "evaluator_eligible": true,
+      "risk_mode_off": true,
+      "route_completion_recorded": true,
+      "safety_schema_v2": true,
+      "safety_telemetry_full_coverage": true,
+      "terminal_status_recorded": true,
+      "trace_steps_contiguous": true,
+      "uq_mode_none": true
+    },
+    "longest_low_speed_interval": {
+      "duration_seconds": 2.4500000000000006,
+      "end_progress": 0.2298226055550835,
+      "end_step": 175,
+      "end_time_seconds": 8.75,
+      "start_progress": 0.22943362373913465,
+      "start_step": 127,
+      "start_time_seconds": 6.35
+    },
+    "low_speed_role": "outcome diagnostic only under amendment 2026-08-28T23:26:53+08:00; not an automatic runtime exclusion",
+    "post_contact_liveness_exception_applied": false,
+    "safety_schemas": [
+      "orion.closedloop_dynamic_actor_safety.v2"
+    ],
+    "safety_telemetry_coverage": 1.0,
+    "trace_frames": 465,
+    "valid": true
+  },
+  "schema": "orion.closedloop_native_collision_discovery_result.v1",
+  "severe_ttc_surrogate": {
+    "checks": {
+      "minimum_obb_gap_m": {
+        "passed": true,
+        "required": "<=0.5",
+        "value": 0.0
+      },
+      "minimum_obb_ttc_seconds": {
+        "passed": true,
+        "required": "<=1.0",
+        "value": 0.0
+      },
+      "ttc_lte_2_exposure_seconds": {
+        "passed": true,
+        "required": ">=0.5",
+        "value": 3.200000000000001
+      }
+    },
+    "logic": "all_required",
+    "passed": true
+  },
+  "trace_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route210_hazard_clean_off-1087407/records_orion_traj_0/RouteScenario_28099_rep0_Town04_SignalizedJunctionLeftTurnEnterFlow_1_22_08_29_00_53_51/control_trace.jsonl"
+}

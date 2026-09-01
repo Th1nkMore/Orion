@@ -1,0 +1,49 @@
+{
+  "schema": "orion.scenario_factory.runtime_retry_submission_attestation.v1",
+  "submitted_at": "2026-08-31T04:45:00+08:00",
+  "run_id": "stage2l_formal24_dev_wave3_route201_retry1_20260831",
+  "route_index": 201,
+  "job_id": 1107312,
+  "invalidated_predecessor_job_id": 1107305,
+  "authorization": {
+    "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260831_route201_control_tick_stall_retry1_v1.json",
+    "sha256": "06f412ba1d49805d8dd3f8d5865c5fd003bd9ff302fdad652ad3685dc2815e05",
+    "maximum_retry_submissions": 1
+  },
+  "runtime_contract": {
+    "condition": "clean_off",
+    "variant": "hazard",
+    "stage1_adapter_control_influence": false,
+    "stage2_spatial_uq_source": "disabled",
+    "legacy_density_uq": false,
+    "risk_mode": "off",
+    "planning_response": "off",
+    "carla_quality": "Epic"
+  },
+  "resources": {
+    "gpu": 1,
+    "cpus": 2,
+    "host_memory": "192G",
+    "time_limit": "02:00:00",
+    "excluded_nodes": [
+      "gpu2",
+      "gpu5"
+    ]
+  },
+  "postprocessing": {
+    "finalize_job_id": 1107313,
+    "finalize_dependency": "afterany:1107312",
+    "review_queue_job_id": 1107314,
+    "review_dependency": "afterok:1107313",
+    "partition": "Nvidia_A800",
+    "gpu_requested": false,
+    "failed_prestart_submission": {
+      "partition": "comput",
+      "reason": "Invalid account or account/partition combination specified",
+      "job_created": false
+    }
+  },
+  "automatic_retry_allowed": false,
+  "formal_training_ready": false,
+  "claim_boundary": "One same-condition technical replay only; the predecessor remains runtime-invalid and neither run alone establishes UQ, Stage2, planning, generalization, or safety evidence."
+}

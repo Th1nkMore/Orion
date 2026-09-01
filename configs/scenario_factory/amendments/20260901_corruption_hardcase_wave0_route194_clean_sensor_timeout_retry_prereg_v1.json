@@ -1,0 +1,88 @@
+{
+  "schema": "orion.corruption_hardcase_wave0_runtime_retry_prereg.v1",
+  "created_at": "2026-09-01T01:32:26+08:00",
+  "status": "preregistered_before_exact_retry_submission",
+  "parent_submission": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_online_wave0_submission_v1.json",
+    "sha256": "36039728c0050ee59b3c2653566cc38746a6f376886e3462ef8594b58880e7ba"
+  },
+  "invalid_attempt": {
+    "job_id": 1116352,
+    "job_key": "route194_clean_off",
+    "node": "gpu4",
+    "slurm_state": "FAILED",
+    "exit_code": "127:0",
+    "evaluator_entry_status": "Crashed",
+    "evaluator_route_status": "Failed - Simulation crashed",
+    "observed_route_completion_percent_never_scientific": 35.98,
+    "error": "A sensor took too long to send data for frame 10980 (missing: SPEED)",
+    "diagnostic": {
+      "target_frame": 10980,
+      "last_speed_frame": 10979,
+      "all_other_expected_tags_at_target_frame": true,
+      "missing_tags": ["SPEED"],
+      "timeout_seconds": 60.0,
+      "strict_current_frame_semantics": true,
+      "stale_frame_reuse": false
+    },
+    "evidence": {
+      "log": {
+        "remote_path": "/public/share/lidachuan/orion_assets/logs/corruption_hardcase_online_wave0_v1/uqcl_194_hazard_clean_off-1116352.out",
+        "sha256": "7f24db2e78099b1430a49e7cc579189f59f63034bc0fbbe25c9e6004377bbf52"
+      },
+      "manifest": {
+        "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route194_hazard_clean_off-1116352/manifest.json",
+        "sha256": "56c46b87fcbab68ace789bf60ddc01058fc00aa432942403f9d15cefb6f6de43"
+      },
+      "evaluation": {
+        "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route194_hazard_clean_off-1116352/eval_orion_traj_0.json",
+        "sha256": "8518f8adf73558a3d069543905fce670a844cd7eafa8097830d6b2f6379ff05a"
+      }
+    },
+    "classification": "platform_runtime_sensor_bundle_timeout_before_terminal_route_result",
+    "permanently_excluded_from_scientific_counts": true
+  },
+  "retry_contract": {
+    "jobs": 1,
+    "job_key": "route194_clean_off",
+    "route_index": 194,
+    "condition": "clean_off",
+    "variant": "hazard",
+    "route_xml_unchanged": true,
+    "agent_config_checkpoint_and_code_unchanged": true,
+    "corruption_variables_absent": true,
+    "architecture_locks_unchanged": true,
+    "resources_unchanged": {
+      "partition": "Nvidia_A800",
+      "gpu": 1,
+      "cpus": 2,
+      "memory": "192G",
+      "time_limit": "02:00:00"
+    },
+    "excluded_nodes": ["gpu5"],
+    "gpu4_not_excluded_reason": "The failure was one missing pseudo-sensor frame after prior healthy gpu4 jobs, not a reproduced node-wide Vulkan or CARLA startup defect.",
+    "maximum_exact_retries_authorized_by_this_record": 1,
+    "failed_attempt_does_not_increase_scientific_matrix_size": true
+  },
+  "frozen_inputs": {
+    "wave": {
+      "path": "configs/scenario_factory/corruption_hardcase_online_screen_wave0_v1.json",
+      "sha256": "59429ae9fa3cb01b0639c8694399d6ea12f12cf49cf77c14c23b317da3af5186"
+    },
+    "activation": {
+      "path": "configs/scenario_factory/corruption_hardcase_online_screen_wave0_activation_v1.json",
+      "sha256": "8d6a370b99bcaab8f9d678b1545470cd9fdb1957d6cef15b36ef172fe6daca41"
+    },
+    "visual_gate": {
+      "path": "configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json",
+      "sha256": "aac9996062720f95498a85247611e0f63adf3d1cc6caea2dcb6bd55846c2e98d"
+    },
+    "submitter": {
+      "path": "scripts/submit_corruption_hardcase_online_wave.py",
+      "sha256": "a46d32bd94549df90a78e5358e0282cdadb030c62fd13c0a07b6d8e14fd3357f",
+      "test_path": "tests/test_submit_corruption_hardcase_online_wave.py",
+      "test_sha256": "a6e870aacf3ccc325334d955e2e9146c4f956aeeb6758f3735929feebae594f2"
+    }
+  },
+  "claim_boundary": "Runtime recovery only. Job 1116352 is never a clean baseline or a model result, and the retry cannot change the frozen Wave0 condition, route, gate, thresholds, or scientific matrix."
+}

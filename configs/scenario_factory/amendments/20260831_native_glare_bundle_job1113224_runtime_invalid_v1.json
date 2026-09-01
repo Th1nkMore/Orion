@@ -1,0 +1,58 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T16:17:20+08:00",
+  "status": "runtime_invalid_before_orion_load_or_experiment",
+  "title": "Route151 native-glare bundle job 1113224 Python interpreter mismatch",
+  "job": {
+    "job_id": "1113224",
+    "slurm_state": "FAILED",
+    "exit_code": "1:0",
+    "elapsed": "00:00:05",
+    "max_rss_kib": 1744,
+    "log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/native_glare_failure_induction/native_glare_route151_pair_v1-1113224.out",
+    "log_sha256": "7568bbc930e8d4bedcdefd61bde8f02cbc2f59f8f5845fa015a832352a6d0111"
+  },
+  "failure": {
+    "stage": "clean run manifest construction before CARLA or ORION startup",
+    "exception": "SyntaxError: future feature annotations is not defined",
+    "cause": "scripts/run_closedloop_uq_pilot.sh invoked the CentOS system python3 (Python 3.6) for manifest construction, which imported team_code/orion_native_glare.py containing the Python >=3.7 annotations future feature.",
+    "orion_loaded": false,
+    "carla_route_started": false,
+    "control_frames_produced": 0,
+    "clean_result_produced": false,
+    "medium_started": false,
+    "scientific_result": false
+  },
+  "preserved_partial_artifacts": {
+    "launch_attestation": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/native_glare_failure_induction/native_glare_route151_pair_v1/launch_attestation.json",
+      "sha256": "36387eccef976473eedd3264d8537fc0db0ad0abbec1342e65c0498818d8b20b"
+    },
+    "route_derivation": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/native_glare_failure_induction/native_glare_route151_pair_v1/inputs/route_derivation.json",
+      "sha256": "e9cd3a0d82abeed903733f7efc265e5f3edcae55e9f0db26b7a40cfb0b8c444d"
+    },
+    "derived_route": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/native_glare_failure_induction/native_glare_route151_pair_v1/inputs/routes/route_151_hazard.xml",
+      "sha256": "ddc102f7ebf3beece6cdf29b2239739557fe3aaf28760856a4c5ff220fbc98c1"
+    }
+  },
+  "repair": {
+    "change": "Use the frozen orion-cl-centos7 Python 3.8 interpreter for manifest construction instead of system python3.",
+    "old_runner_sha256": "293fc28633643c56bd70d8f52c0c80e4f653a030ab31e6a56cf14bc0e4adeb8f",
+    "new_runner_sha256": "d4f0c9e4996882577b7b497ceac41e60be4b55316f1ac586fa0f0dff1a71930f",
+    "new_run_id": "native_glare_route151_pair_v1_retry1",
+    "requires_full_platform_contract_retest": true,
+    "automatic_retry": false,
+    "retry_is_new_hash_bound_submission": true
+  },
+  "launch_locks": {
+    "failed_output_reuse_allowed": false,
+    "repair_retry_allowed_only_after_new_activation_amendment": true,
+    "maximum_repair_retry_submissions": 1,
+    "automatic_route_expansion_allowed": false,
+    "route203_native_glare_submission_allowed": false,
+    "formal_200_route_evaluation_allowed": false
+  },
+  "claim_boundary": "Environment/launcher failure only. Job 1113224 is excluded from every clean, glare, model, TTC, collision, completion and safety result."
+}

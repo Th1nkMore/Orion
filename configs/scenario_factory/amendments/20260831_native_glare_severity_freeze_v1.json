@@ -1,0 +1,119 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T04:34:27+08:00",
+  "status": "outcome_blind_visual_severity_freeze",
+  "title": "CARLA-native low-sun glare mechanism and severity roles after Route151 visual bake-off",
+  "authorization_basis": {
+    "user_instruction": "以后无需我审计，预实验可以直接开始",
+    "interpretation": "A bounded, outcome-blind visual preexperiment may freeze corruption mechanism and severity roles before any closed-loop result is read.",
+    "does_not_authorize": [
+      "formal Stage2-L training",
+      "Stage2-P training",
+      "a closed-loop safety matrix",
+      "adapter checkpoint selection with native glare",
+      "a collision, TTC, uncertainty, planning, or generalization claim"
+    ]
+  },
+  "source_run": {
+    "job_id": "1107304",
+    "run_id": "route151_native_glare_bakeoff_v3",
+    "route_id": "Town02/Route151",
+    "development_only": true,
+    "orion_loaded": false,
+    "adapter_loaded": false,
+    "matched_event_pose_count": 5,
+    "outcome_fields_read": [],
+    "technical_state": "COMPLETED",
+    "exit_code": "0:0"
+  },
+  "mechanism_decision": {
+    "formal_heldout_family": "carla_native_low_sun_lens_flare_bloom",
+    "legacy_local_glare_role": "regression_and_pipeline_smoke_only",
+    "cvpr2023_sun_role": "published_analytic_visual_comparator_only",
+    "albumentationsx_role": "optional_non_vendored_development_comparator",
+    "adapter_stage1_training_allowed": false,
+    "reason": "The native renderer preserves pose-level temporal coherence and avoids the rectangular white-patch boundary. The observed effect is primarily natural exposure, bloom, and atmospheric veiling rather than a strong localized ghost-flare effect."
+  },
+  "frozen_weather": {
+    "cloudiness": 5.0,
+    "precipitation": 0.0,
+    "precipitation_deposits": 50.0,
+    "wind_intensity": 10.0,
+    "sun_altitude_angle": 8.0,
+    "sun_azimuth_angle": 180.0,
+    "wetness": 0.0,
+    "fog_density": 10.0,
+    "fog_distance": 0.0,
+    "fog_falloff": 0.2,
+    "scattering_intensity": 1.0,
+    "mie_scattering_scale": 0.03,
+    "rayleigh_scattering_scale": 0.0331
+  },
+  "frozen_profile_roles": {
+    "clean_reference": {
+      "lens_flare_intensity": 0.0,
+      "bloom_intensity": 0.0,
+      "use": "pose-matched low-sun reference"
+    },
+    "light_diagnostic": {
+      "lens_flare_intensity": 0.25,
+      "bloom_intensity": 0.675,
+      "use": "mild mechanism diagnostic only"
+    },
+    "medium_primary_development": {
+      "lens_flare_intensity": 0.75,
+      "bloom_intensity": 1.5,
+      "use": "primary development severity; selected without collision or TTC outcomes"
+    },
+    "heavy_stress": {
+      "lens_flare_intensity": 1.5,
+      "bloom_intensity": 3.0,
+      "use": "prespecified stress severity; report separately from the primary severity"
+    }
+  },
+  "outcome_blind_visual_evidence": {
+    "native_effect_detected": true,
+    "candidate_impact_strictly_monotonic": true,
+    "pose_match_distance_m": 0.0,
+    "pose_match_yaw_error_degrees": 0.0,
+    "summary_by_profile": {
+      "light": {
+        "mean_absolute_pixel_delta": 12.162691342592591,
+        "hazard_roi_edge_visibility_ratio": 0.9731671168457483,
+        "hazard_roi_contrast_ratio": 1.0507527140196373,
+        "rectangular_boundary_artifact_score": 1.0195194363594056
+      },
+      "medium": {
+        "mean_absolute_pixel_delta": 17.701761805555554,
+        "hazard_roi_edge_visibility_ratio": 0.9025909052150964,
+        "hazard_roi_contrast_ratio": 1.0336054219905447,
+        "rectangular_boundary_artifact_score": 1.0275806217193604
+      },
+      "heavy": {
+        "mean_absolute_pixel_delta": 26.598531990740742,
+        "hazard_roi_edge_visibility_ratio": 0.8028927851632451,
+        "hazard_roi_contrast_ratio": 1.0052189125567872,
+        "rectangular_boundary_artifact_score": 1.027241623401642
+      }
+    }
+  },
+  "next_gate": {
+    "required_action": "Run the frozen medium primary severity on one independent route not used for glare tuning; heavy may run as a separately labelled stress condition.",
+    "selection_policy": "The confirmation route must be chosen without consulting native-glare closed-loop outcomes.",
+    "minimum_evidence_before_expansion": [
+      "technically valid clean/native pair",
+      "temporal glare effect remains coherent under a different route geometry",
+      "the corruption produces a measurable ORION task or safety-proxy degradation without requiring collision",
+      "no adapter training or checkpoint selection uses either held-out native-glare route"
+    ],
+    "matrix_expansion_allowed": false
+  },
+  "validated_sources": {
+    "configs/glare_visual_bakeoff_route151_v1.json": "0a56e6cdb71200c9eea09849ff43b6bdb18a3a2e75afc32d81d732f497409e2e",
+    "native_glare_visual_analysis.json": "861d09c69d526c2b0cc00311020b95f85f949a7949a8fe80b97b974b844f322f",
+    "glare_method_visual_bakeoff.json": "e0c529942251c20a24c1e46b69c1721ff80ba96618d131e882c178bc601b27d9",
+    "route151_native_glare_contact_sheet.png": "17493802204e95ee210628545fc24f4a16d237f76bea6b6038c2d85071e16c3f",
+    "route151_glare_methods_medium.png": "8f03d73cef5f73e0b7ec2644f1b1ea7408ae72d20a43af18db84dd78780606bc"
+  },
+  "claim_boundary": "This freezes a visual corruption mechanism and two prespecified severity roles only. It does not establish that glare causes ORION failure, that an uncertainty signal detects glare, or that uncertainty-aware behavior improves safety."
+}

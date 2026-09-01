@@ -1,0 +1,27 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T19:25:00+08:00",
+  "status": "active_for_formal_development_route_freeze",
+  "reason": "Stage2-L development data must include informative native ORION failures; requiring every development route to have a perfect published clean baseline would exclude the events needed to learn task relevance.",
+  "allowed_development_failure_routes": [201],
+  "route201": {
+    "town": "Town05",
+    "scenario_family": "EnterActorFlow",
+    "published_reference": "Completed with one vehicle collision and full route completion",
+    "selection_role": "published_failure_hard_case",
+    "formal_split": "train"
+  },
+  "guards": [
+    "Development train only; never dev or locked test.",
+    "Current clean_off replay must be preserved regardless of success or failure.",
+    "Inclusion still requires runtime/sensor integrity, actor-grounded human review, and 3-5 geometry-eligible keyframes.",
+    "Collision outcome, TTC, and scenario identity remain forbidden model inputs and QA targets."
+  ],
+  "launch_locks": {
+    "scenario_factory_clean_off_replay_allowed": true,
+    "maximum_concurrent_route_replays": 3,
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "Development hard-case selection amendment only; not a model, UQ, closed-loop, or safety result."
+}

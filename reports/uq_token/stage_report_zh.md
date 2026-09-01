@@ -1,5 +1,7 @@
 # UQ Token / Vision Adapter 阶段实验报告
 
+> **历史阶段报告（已于 2026-08-29 被新主线替代）。** 本文保留 Density UQ、显式 token 和 pre-LLM vision adapter 的阶段性证据，不再代表当前执行方案。当前状态见 [../../docs/CURRENT_STATE.md](../../docs/CURRENT_STATE.md)，当前架构契约见 [../../docs/spatial_uq_two_stage_v2.md](../../docs/spatial_uq_two_stage_v2.md)。
+
 > 日期：2026-06-22  
 > 分支：`mid-report`  
 > 目的：整理 0521 report 之后围绕“视觉骨干不确定性如何进入 ORION 规划链路”的设计、实验与下一步路线。
@@ -216,6 +218,85 @@ Route504 first 50：
 
 解释：adapter 不是偶然完全无效，因为它在两个路线片段上都表现出 correct > shuffled > none 的趋势；但它还没有泛化到更难的后半段。下一步必须做 route-balanced 训练/评估，而不是继续用顺序前 N 帧。
 
+### 4.3 Route-balanced adapter eval：平均有效，但路线级仍不稳定
+
+为了避免只看某条路线前 N 帧造成偶然性，后续使用 `pilot100.pt` 在 calibration split 上做 route-balanced evaluation：10 条路线，每条抽 50 个候选帧，其中 35 个有效 planning frame，共 350 个有效样本。输入采用 one-camera dropout severity 1，比较 `none / zero / shuffled / correct` 四种干预。
+
+整体结果：
+
+| UQ mode | ADE | FDE | Count |
+|---------|-----|-----|------:|
+| none | 1.4429 | 2.5210 | 350 |
+| zero | 1.4429 | 2.5210 | 350 |
+| shuffled | 1.2286 | 2.1969 | 350 |
+| correct | **1.1641** | **2.0955** | 350 |
+
+相对改善：
+
+| 对比 | ADE 改善 |
+|------|---------:|
+| correct vs none | +19.3% |
+| correct vs shuffled | +5.3% |
+
+![Route-balanced ADE by route](assets/route_balanced_eval/route_balanced_ade_by_route.png)
+
+Per-route 结果显示，correct 相比 none 在 10 条路线中的 9 条改善；相比 shuffled 在 8 条路线中改善。主要收益来自 `VanillaSignalizedTurnEncounterRedLight`、`OppositeVehicleRunningRedLight`、`HighwayExit`、`VehicleTurningRoute` 和 `BlockedIntersection` 等路线。`YieldToEmergencyVehicle` 基本无改善，`SignalizedJunctionLeftTurnEnterFlow` 相比 shuffled 略差。
+
+![Route-balanced correct improvement](assets/route_balanced_eval/route_balanced_correct_improvement.png)
+
+因此当前能较稳妥地说：**pre-LLM adapter 的平均效果成立，并且 correct UQ 优于 shuffled UQ；但路线级稳定性还不足，不能声称已经泛化。**
+
+### 4.4 High/low UQ 分层：没有证明收益集中在高 UQ
+
+为了检验“UQ 信息是否主要在高不确定性样本上起作用”，保存逐样本 planning 记录，并按 Density UQ score 的中位数划分 high-UQ / low-UQ 两组。
+
+| UQ group | Count | none ADE | shuffled ADE | correct ADE | correct vs none | correct vs shuffled |
+|----------|------:|---------:|-------------:|------------:|----------------:|--------------------:|
+| high-UQ | 192 | 1.673 | 1.526 | **1.502** | +10.2% | +1.6% |
+| low-UQ | 158 | 1.262 | 1.089 | **1.052** | +16.7% | +3.4% |
+
+![UQ stratified ADE](assets/route_balanced_eval/uq_stratified_ade.png)
+
+这个结果有两层含义：
+
+1. correct UQ 在 high-UQ 和 low-UQ 两组都优于 none 和 shuffled，说明 adapter 的收益不是完全来自随机扰动；
+2. 但收益并没有集中在 high-UQ，low-UQ 组的相对改善反而更大。
+
+因此，当前阶段不能把结论写成“高 UQ 场景收益更明显”。更准确的表述是：**Density UQ 已经能作为有效条件信号改善平均 planning，但 score 标量与 planning 收益强度之间的单调关系尚未建立。** 后续需要进一步做 score 校准、按路线/场景类型分层，或把 active density embedding 也注入 adapter，而不是只用 score。
+
+### 4.5 Clean safety check：ADE 基本安全，FDE 仍需约束
+
+为了确认 adapter 不会破坏正常视觉输入，又在 clean view 上跑了同样的 route-balanced 逐样本评估。
+
+| View | UQ mode | ADE | FDE | Count |
+|------|---------|-----|-----|------:|
+| clean | none | **0.8884** | **1.3707** | 350 |
+| clean | shuffled | 0.9008 | 1.4265 | 350 |
+| clean | correct | 0.8971 | 1.4248 | 350 |
+
+相对 none：
+
+| 指标 | correct 变化 |
+|------|-------------:|
+| ADE | -1.0% |
+| FDE | -3.9% |
+
+![Clean safety ADE/FDE](assets/route_balanced_eval/clean_safety_ade_fde.png)
+
+这里的负号表示退化。结论是：**clean ADE 基本安全，退化约 1.0%，低于 3% 阈值；但 clean FDE 退化约 3.9%，略高于原先设定的严格阈值。** 这说明下一轮训练需要更明确的 clean preservation loss 或 identity regularization，不能只看 corrupted-view ADE 改善。
+
+### 4.6 展示用 GIF
+
+为了展示 adapter 如何改变轨迹，已生成三条路线的 BEV trajectory GIF：
+
+| Route | 用途 | 说明 |
+|-------|------|------|
+| `VehicleTurningRoute_Town15_Route504_Weather10` | 正向样例 | route-balanced 中 correct 明显优于 none/shuffled |
+| `BlockedIntersection_Town03_Route135_Weather5` | 复杂路口样例 | route-level correct 优于 none/shuffled，但局部片段有波动 |
+| `YieldToEmergencyVehicle_Town04_Route166_Weather10` | 失败/不稳定样例 | 用于主动说明方法边界 |
+
+GIF 只用于展示“注入会改变规划行为”，不作为单独的 correct-UQ 最优证据。定量主结论仍以 route-balanced 表格为准。
+
 ## 5. 设计判断：为什么不直接回到 L2 调制
 
 用户提出的担心是成立的：直接做 L2 调制，在项目叙事上像是在“绕过大模型”。
@@ -245,10 +326,10 @@ Route504 first 50：
 
 | 阶段 | 目标 | 配置 | 预计耗时 | 通过标准 |
 |------|------|------|----------|----------|
-| P1 route-balanced eval | 验证 pilot 是否只是路线片段偶然性 | 不训练，只用 `pilot100.pt`，每条 calibration route 抽 30-50 帧 | 1-2 小时 | correct 平均优于 shuffled，且 clean 不退化 |
+| P1 route-balanced eval | 验证 pilot 是否只是路线片段偶然性 | 不训练，只用 `pilot100.pt`，每条 calibration route 抽 30-50 帧 | 已完成 | correct 平均优于 shuffled |
 | P2 route-balanced train | 修复顺序采样偏差 | 500-1000 paired samples，adapter-only，LoRA lr=0 | 2-4 小时 | route bootstrap 上 correct > shuffled |
-| P3 clean safety check | 防止 adapter 破坏正常输入 | clean view none/correct 对比 | 1 小时 | clean ADE/FDE 退化 < 3% |
-| P4 report-ready ablation | 中期报告表格 | none / zero / shuffled / correct，分 high-UQ/low-UQ | 1-2 小时 | high-UQ 子集收益更明显 |
+| P3 clean safety check | 防止 adapter 破坏正常输入 | clean view none/correct 对比 | 已完成 | ADE 退化 < 3%，FDE 略超 3% |
+| P4 report-ready ablation | 中期报告表格 | none / zero / shuffled / correct，分 high-UQ/low-UQ | 已完成 | correct 两组均优于 shuffled，但 high-UQ 更明显未成立 |
 
 推荐优先做 P1 和 P2。它们能最快回答：
 
@@ -286,4 +367,3 @@ correct UQ 是否比 shuffled UQ 更有用？
 | token 负结果 | `reports/uq_token/paired_planning_pilot.md` |
 | adapter pilot | `reports/uq_token/vision_adapter_pilot.md` |
 | 本报告图 | `reports/uq_token/assets/` |
-

@@ -1,0 +1,77 @@
+{
+  "schema": "orion.stage2l_geometry_preflight_batch.v1",
+  "status": "six_reviewed_events_geometry_eligible",
+  "definition_amendment": {
+    "path": "configs/scenario_factory/amendments/20260829_stage2l_actor_only_task_relevance_support_v1.json",
+    "sha256": "194ecc5228ac2716473697babe553f14979aa3df84d97bf6866f7b1b1f48f8ed"
+  },
+  "counts": {
+    "events": 6,
+    "eligible_events": 6,
+    "requested_keyframes": 30,
+    "retained_keyframes": 28,
+    "excluded_empty_support_keyframes": 2,
+    "actor_only_keyframes": 4
+  },
+  "events": [
+    {
+      "event_id": "route147_step223",
+      "eligible": true,
+      "retained_keyframes": 5,
+      "actor_only_keyframes": [],
+      "preflight_sha256": "923e1a5894794580012cc00914d67a80caecbf84e85788bd0c6dc70ce56d3f14"
+    },
+    {
+      "event_id": "route151_step218",
+      "eligible": true,
+      "retained_keyframes": 5,
+      "actor_only_keyframes": [],
+      "preflight_sha256": "793bf4152bbfe2a3bf2f56fedbce5911df01d46fb9e4e8569fb606fdb5ad8edb"
+    },
+    {
+      "event_id": "route157_step193",
+      "eligible": true,
+      "retained_keyframes": 5,
+      "actor_only_keyframes": [
+        19,
+        21,
+        23
+      ],
+      "preflight_sha256": "17e3e86e7d1a7ef7ba79d1ab05776ca5ed76138695e39329e3e3f27419565fcb"
+    },
+    {
+      "event_id": "route158_step154",
+      "eligible": true,
+      "retained_keyframes": 3,
+      "actor_only_keyframes": [
+        15
+      ],
+      "excluded_keyframes": [
+        13,
+        19
+      ],
+      "preflight_sha256": "db2822abf95e54e3dc1074b5e8d027b0b6d56070c0bc3f71f9767ea47568acda"
+    },
+    {
+      "event_id": "route164_step522",
+      "eligible": true,
+      "retained_keyframes": 5,
+      "actor_only_keyframes": [],
+      "preflight_sha256": "348809633b3c4d1347a77bd8823aef62ec7ac0f31321728a7bf10c12665e107e"
+    },
+    {
+      "event_id": "route195_step230",
+      "eligible": true,
+      "retained_keyframes": 5,
+      "actor_only_keyframes": [],
+      "preflight_sha256": "77e4b94a81402f9d05cef332e422d002a15439ae1a56775d0fdfb6077735a1fe"
+    }
+  ],
+  "selection_inputs": {
+    "uses_observation_uq": false,
+    "uses_stage2_outputs": false,
+    "uses_recorded_ttc": false,
+    "uses_collision_outcome": false
+  },
+  "claim_boundary": "CPU-only Stage2-L QA geometry eligibility for six reviewed events; no Stage1, language, trajectory, closed-loop, or safety evidence."
+}

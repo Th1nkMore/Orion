@@ -1,0 +1,235 @@
+{
+  "claim_boundary": "One-event engineering failure diagnosis only; no held-out, generalization, trajectory, closed-loop, or safety evidence.",
+  "failed_check_count": 10,
+  "failed_checks": [
+    "all_groups_attain_oracle_fraction",
+    "all_stance_classes_recalled",
+    "all_stance_variants_correct",
+    "generated_driving_stances_agree",
+    "generated_driving_stances_parse",
+    "generated_family_tags_match",
+    "generated_text_nonrepeating",
+    "minimum_stance_target_probability",
+    "relevance_background_fpr",
+    "same_family_preference_improves_and_gte_0_8"
+  ],
+  "findings": {
+    "capacity_interpretation": {
+      "capacity_sufficiency_for_formal_training_proven": false,
+      "insufficient_capacity_supported_by_this_smoke": false,
+      "reason": "Large improvements in ranking, language NLL, and stance show that the current modules can learn the one-event task, while the smoke cannot establish formal multi-event capacity.",
+      "saved_trainable_parameters": 23640360
+    },
+    "partial_structural_learnability": {
+      "all_groups_positive_on_off_order": true,
+      "foreground_recall": 1.0,
+      "minimum_attained_fraction": 0.6594873666763306,
+      "ranking_group_count": 5,
+      "ranking_groups_at_or_above_0_8": 4,
+      "stance_balanced_accuracy_before_after": [
+        0.3333333333333333,
+        0.6666666666666666
+      ]
+    },
+    "qa_underfit": {
+      "family_marker_subtoken_counts": {
+        "<epistemic_limitation>": 9,
+        "<observation_uncertainty>": 8,
+        "<planning_stance>": 7,
+        "<task_relevance_map>": 9
+      },
+      "family_tag_accuracy": 0.0,
+      "mean_target_nll_before_after": [
+        12.504152244991726,
+        5.682092269261678
+      ],
+      "nonrepeating_fraction": 0.5,
+      "same_family_margin_pass_before_after": [
+        0.20754716981132076,
+        0.41509433962264153
+      ],
+      "stance_parse_rate": 0.0
+    },
+    "remaining_structural_failures": {
+      "background_false_positive_rate": 0.22371888160705566,
+      "maximum_background_false_positive_rate": 0.05,
+      "minimum_stance_target_probability": 0.2364644706249237,
+      "missing_stance_classes": [
+        "caution"
+      ]
+    },
+    "runtime_or_integrity_failure": false
+  },
+  "group_trajectories": {
+    "route151_step218_saved_0018": {
+      "first_to_last": {
+        "attained_fraction": [
+          0.007291256450116634,
+          2.123945474624634
+        ],
+        "language_nll": [
+          8.228953493965996,
+          5.91030322180854
+        ],
+        "relevance_loss": [
+          0.05594387650489807,
+          0.05988479033112526
+        ],
+        "stance_loss": [
+          1.0019094944000244,
+          0.6361126899719238
+        ]
+      },
+      "optimizer_steps": [
+        5,
+        6,
+        15,
+        20
+      ],
+      "within_group_regression_observed": {
+        "attained_fraction": false,
+        "relevance_loss": true,
+        "stance_loss": false
+      }
+    },
+    "route151_step218_saved_0020": {
+      "first_to_last": {
+        "attained_fraction": [
+          0.004248837940394878,
+          1.3892234563827515
+        ],
+        "language_nll": [
+          8.557808452182346,
+          6.109413782755533
+        ],
+        "relevance_loss": [
+          0.043883927166461945,
+          0.056810855865478516
+        ],
+        "stance_loss": [
+          1.0780017375946045,
+          0.7005048990249634
+        ]
+      },
+      "optimizer_steps": [
+        4,
+        8,
+        12,
+        19
+      ],
+      "within_group_regression_observed": {
+        "attained_fraction": true,
+        "relevance_loss": true,
+        "stance_loss": false
+      }
+    },
+    "route151_step218_saved_0022": {
+      "first_to_last": {
+        "attained_fraction": [
+          -0.4384727478027344,
+          0.5005972385406494
+        ],
+        "language_nll": [
+          12.837040848202175,
+          6.417808188332453
+        ],
+        "relevance_loss": [
+          0.2454022765159607,
+          0.05922992154955864
+        ],
+        "stance_loss": [
+          1.1155869960784912,
+          1.1672769784927368
+        ]
+      },
+      "optimizer_steps": [
+        1,
+        10,
+        11,
+        16
+      ],
+      "within_group_regression_observed": {
+        "attained_fraction": true,
+        "relevance_loss": false,
+        "stance_loss": true
+      }
+    },
+    "route151_step218_saved_0024": {
+      "first_to_last": {
+        "attained_fraction": [
+          0.025504833087325096,
+          0.45320433378219604
+        ],
+        "language_nll": [
+          8.980490684509277,
+          6.184170087178547
+        ],
+        "relevance_loss": [
+          0.06380094587802887,
+          0.07887018471956253
+        ],
+        "stance_loss": [
+          1.0531305074691772,
+          0.8272137641906738
+        ]
+      },
+      "optimizer_steps": [
+        3,
+        9,
+        13,
+        18
+      ],
+      "within_group_regression_observed": {
+        "attained_fraction": false,
+        "relevance_loss": true,
+        "stance_loss": true
+      }
+    },
+    "route151_step218_saved_0026": {
+      "first_to_last": {
+        "attained_fraction": [
+          -0.01911119930446148,
+          0.8802648782730103
+        ],
+        "language_nll": [
+          9.870228343539768,
+          6.322098493576049
+        ],
+        "relevance_loss": [
+          0.08784473687410355,
+          0.08395944535732269
+        ],
+        "stance_loss": [
+          1.225989818572998,
+          0.7040853500366211
+        ]
+      },
+      "optimizer_steps": [
+        2,
+        7,
+        14,
+        17
+      ],
+      "within_group_regression_observed": {
+        "attained_fraction": false,
+        "relevance_loss": true,
+        "stance_loss": false
+      }
+    }
+  },
+  "independent_validation_status": "validated_failed_gate",
+  "next_action": "prepare and CPU-test a gradient-routed Stage2-L v8 objective and QA contract; keep all training launch locks closed",
+  "next_design_constraints": [
+    "Keep the Stage1 adapter frozen and task agnostic.",
+    "Prevent QA-language gradients from changing the R logits and stance classifier while retaining explicit structural supervision.",
+    "Separate deterministic response formatting from semantic field learning; do not count a forced or memorized family marker as understanding.",
+    "Use common-vocabulary field prefixes and score the value-bearing semantic spans directly.",
+    "Require R background FPR, every-group ranking, every stance class, semantic preference, and free-generation diagnostics to pass together.",
+    "Do not unlock the eight-event pilot and do not launch another A800 run without a new immutable amendment."
+  ],
+  "optimizer_steps": 20,
+  "passed_check_count": 6,
+  "report_status": "engineering_v7_calibrated_smoke_failed_gate",
+  "schema": "orion.stage2l_v7_route151_failure_diagnosis.v1",
+  "status": "diagnosed_v7_gate_failure"
+}

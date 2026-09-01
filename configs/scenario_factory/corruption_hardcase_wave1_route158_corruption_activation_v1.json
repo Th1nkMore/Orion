@@ -1,0 +1,117 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_route158_corruption_activation.v1",
+  "created_at": "2026-09-01T06:08:00+08:00",
+  "status": "prospectively_frozen_pending_preflight_and_submission",
+  "purpose": "Bounded native-ORION failure-induction screen on the only route that independently passed both current-code clean qualification replicates.",
+  "q2_result": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_clean_q2_result_v1.json",
+    "sha256": "94b799648266b2b388a877c447e8f2e06e4f93980c6ad13e6ec7d2dcc7952053"
+  },
+  "clean_comparator": {
+    "route_index": 158,
+    "q1_job_id": 1117509,
+    "q2_job_id": 1117849,
+    "q2_report": {
+      "path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q2_v1/analysis_v1/route158_clean_q2_qualification.json",
+      "sha256": "aa07304d0aa36efa161ea750cb4ea2a351dfdb0291e3886c66c5766d57fcf55d"
+    },
+    "required_q1_and_q2_status": "pass",
+    "same_code_contract": "No agent, checkpoint, corruption runtime, or closed-loop control source is changed between the completed Q2 clean comparator and this activation."
+  },
+  "route": {
+    "route_index": 158,
+    "town": "Town01",
+    "scenario_family": "HardBreakRoute",
+    "variant": "hazard",
+    "route_xml": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave1/route_158_hazard.xml",
+      "sha256": "cf9c723a5b3c23666aae3c8bd626723a8d0720add3e731b24c321db7311e3c6e"
+    }
+  },
+  "event_window": {
+    "source": {
+      "path": "configs/scenario_factory/corruption_hardcase_event_windows_dev8_v1.json",
+      "sha256": "f91039c4e695990231c4a495b09a29fb1292664c20bc6995f23441270f9509dd",
+      "event_id": "route158_step154"
+    },
+    "start_progress": 0.1331479129200312,
+    "end_progress_provenance": 0.17814128032808355,
+    "duration_seconds": 5.0,
+    "anchor_progress": 0.1748260697516527,
+    "schedule_note": "front_stale and waterdrop start at the frozen route progress and remain active for five simulation seconds. Native motion blur is a CARLA RGB sensor profile applied for the whole route and is not claimed to be temporally aligned."
+  },
+  "visual_approval": {
+    "gate": {
+      "path": "configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json",
+      "sha256": "aac9996062720f95498a85247611e0f63adf3d1cc6caea2dcb6bd55846c2e98d"
+    },
+    "authorization_provenance": {
+      "path": "configs/scenario_factory/amendments/20260901_corruption_visual_approval_authorization_v1.json",
+      "sha256": "6e2e34a73cf96a9e96fc5fe8d598834b8b6b711285572a07ebad3b5757a5f6db"
+    },
+    "exact_conditions": {
+      "front_stale": "delay_ms:200",
+      "lens_waterdrop_paired_template": "profile:medium",
+      "native_motion_blur": "profile:medium"
+    },
+    "severity_escalation_allowed": false
+  },
+  "waterdrop_bank": {
+    "path": "assets/waterdrop_patterns/icra2023_paired_template_v1",
+    "files": {
+      "test__syn__clean_vid__0003__000075.png": "48be6a6a92638af8eeed85cc88323f2ca6940a975f31263cfef228e1ea149869",
+      "test__syn__rainy_vid__0003__000075.png": "abd55a91481ba4d14b45c66d1b690dbb348a245031587b5bbdfc9b24851e765d",
+      "metadata.json": "a5aa16e9682b820c88ccd0dde7339378cae6b3b6fb37d6c1b2cdcb3f8d5a996f"
+    }
+  },
+  "matrix": {
+    "clean_jobs": 0,
+    "clean_comparator_job_id": 1117849,
+    "corruption_conditions": [
+      "front_stale_transient_off",
+      "lens_waterdrop_paired_template_transient_off",
+      "native_motion_blur_off"
+    ],
+    "total_jobs": 3,
+    "run_id": "corruption_hardcase_wave1_route158_corruption_v1"
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpus_per_job": 1,
+    "cpus_per_job": 2,
+    "memory_per_job": "192G",
+    "time_limit": "02:00:00",
+    "excluded_nodes": ["gpu2", "gpu5"],
+    "asset_root": "/public/share/lidachuan/orion_assets"
+  },
+  "runtime_source_contract": {
+    "team_code/orion_b2d_agent.py": "8a747cf9d83ac13c435fb76e9e36ccb670ddaaf438f54feb00dbb874be138d6b",
+    "team_code/orion_native_motion_blur.py": "8e97591833b44efc4aaccdc6e78ebfda8853390f3fd388c511bdc58a82c414b9",
+    "uq_estimator/lens_waterdrop_paired_template.py": "48195389c69dc5b3a047dd7c09d4b27cbaf798f7d43dc6a24b28fb4bdef7375f",
+    "uq_estimator/corruption_visual_approval.py": "7fc98cb3db1ac2a5aba70c31b825bce8c501c78d1d75231b36083b47fda61db2",
+    "scripts/submit_closedloop_uq_pilot.sh": "0f06279b67324565a2e70bef8d70e5f3250d98df00e99ef6d942bda357076293",
+    "scripts/run_closedloop_uq_pilot.sh": "cd7652ff1c79b21b44a394e9af41240db6d623cf7b0a754f4f2c81f5ac4948cd",
+    "scripts/run_official_closedloop_smoke.sh": "38a2fbf7c019e2e7008aee9cf89cb572d8b356a7cd0ac31f95cf793fbf2b87a9"
+  },
+  "architecture_locks": {
+    "ORION_CLOSEDLOOP_UQ_MODE": "none",
+    "ORION_CLOSEDLOOP_CONDITIONING": "none",
+    "ORION_CLOSEDLOOP_RISK_MODE": "off",
+    "ORION_PLANNING_RESPONSE_MODE": "off",
+    "ORION_STAGE2_SPATIAL_UQ_SOURCE": "disabled",
+    "legacy_density_uq": false,
+    "learned_uq_control": false,
+    "stage2_control": false
+  },
+  "execution_authority": {
+    "route158_three_condition_development_screen": true,
+    "additional_routes": false,
+    "additional_severities": false,
+    "heldout_confirmation": false,
+    "route203": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "decision_rule": "A positive candidate requires a valid terminal corrupt run and a materially worse safety/completion outcome than both valid clean replicates. A runtime failure is excluded. No governor or learned-UQ comparison is authorized by this activation.",
+  "claim_boundary": "Prospective development failure-induction screen only. Even a positive route would establish a case-study candidate, not uncertainty quality, task relevance, control benefit, held-out generalization, or benchmark improvement."
+}

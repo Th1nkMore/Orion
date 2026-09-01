@@ -1,0 +1,245 @@
+{
+  "claim_boundary": "Clean-candidate planning only; no new runtime, corruption, UQ, control, or safety result.",
+  "counts": {
+    "eligible_before_limit": 3,
+    "excluded": 15,
+    "selected": 3
+  },
+  "excluded_reviewed_events": [
+    {
+      "event_id": "route147_step223",
+      "reasons": [
+        "protected_or_non_development_split"
+      ],
+      "route_index": 147
+    },
+    {
+      "event_id": "route151_step218",
+      "reasons": [
+        "explicitly_excluded_by_prior_current_runtime_evidence"
+      ],
+      "route_index": 151
+    },
+    {
+      "event_id": "route152_step125",
+      "reasons": [
+        "clean_total_stopped_exposure_exceeds_liveness_bound",
+        "protected_or_non_development_split"
+      ],
+      "route_index": 152
+    },
+    {
+      "event_id": "route157_step193",
+      "reasons": [
+        "clean_collision",
+        "clean_critical_ttc_not_positive_finite",
+        "clean_total_stopped_exposure_exceeds_liveness_bound"
+      ],
+      "route_index": 157
+    },
+    {
+      "event_id": "route158_step154",
+      "reasons": [
+        "clean_total_stopped_exposure_exceeds_liveness_bound",
+        "explicitly_excluded_by_prior_current_runtime_evidence"
+      ],
+      "route_index": 158
+    },
+    {
+      "event_id": "route162_step277",
+      "reasons": [
+        "clean_critical_ttc_not_positive_finite",
+        "critical_actor_not_closing",
+        "protected_or_non_development_split"
+      ],
+      "route_index": 162
+    },
+    {
+      "event_id": "route164_step522",
+      "reasons": [
+        "explicitly_excluded_by_prior_current_runtime_evidence"
+      ],
+      "route_index": 164
+    },
+    {
+      "event_id": "route168_step482",
+      "reasons": [
+        "clean_collision",
+        "clean_critical_ttc_not_positive_finite",
+        "clean_total_stopped_exposure_exceeds_liveness_bound",
+        "explicitly_excluded_by_prior_current_runtime_evidence"
+      ],
+      "route_index": 168
+    },
+    {
+      "event_id": "route177_step276",
+      "reasons": [
+        "clean_total_stopped_exposure_exceeds_liveness_bound"
+      ],
+      "route_index": 177
+    },
+    {
+      "event_id": "route180_step696",
+      "reasons": [
+        "explicitly_excluded_by_prior_current_runtime_evidence"
+      ],
+      "route_index": 180
+    },
+    {
+      "event_id": "route185_step304",
+      "reasons": [
+        "explicitly_excluded_by_prior_current_runtime_evidence"
+      ],
+      "route_index": 185
+    },
+    {
+      "event_id": "route188_step139",
+      "reasons": [
+        "clean_total_stopped_exposure_exceeds_liveness_bound"
+      ],
+      "route_index": 188
+    },
+    {
+      "event_id": "route194_step684",
+      "reasons": [
+        "clean_total_stopped_exposure_exceeds_liveness_bound",
+        "explicitly_excluded_by_prior_current_runtime_evidence"
+      ],
+      "route_index": 194
+    },
+    {
+      "event_id": "route195_step230",
+      "reasons": [
+        "protected_or_non_development_split"
+      ],
+      "route_index": 195
+    },
+    {
+      "event_id": "route207_step924",
+      "reasons": [
+        "clean_total_stopped_exposure_exceeds_liveness_bound",
+        "explicitly_excluded_by_prior_current_runtime_evidence"
+      ],
+      "route_index": 207
+    }
+  ],
+  "execution_locks": {
+    "clean_submission": false,
+    "corruption_submission": false,
+    "formal_200_route_evaluation": false,
+    "heldout_read": false,
+    "learned_uq_or_control": false,
+    "severity_change": false,
+    "stage2p": false
+  },
+  "next_gate": "Freeze a separate prospective clean Q1/Q2 activation after user resumes experiments.",
+  "policy": {
+    "allowed_formal_splits": [
+      "train"
+    ],
+    "corruption_conditioned_outputs_used": false,
+    "explicitly_excluded_routes": [
+      151,
+      158,
+      164,
+      168,
+      180,
+      185,
+      194,
+      207
+    ],
+    "learned_uq_or_stage2_outputs_used": false,
+    "maximum_total_stopped_below_0_25_mps_seconds": 8.0,
+    "ranking": "ascending clean critical OBB TTC, descending closing speed, ascending route index",
+    "required_clean_endpoint": "Completed, 100% route, zero collision, zero serious infraction",
+    "required_event": "human-accepted current-runtime event with a closing vehicle or walker and positive finite OBB TTC"
+  },
+  "remaining_eligible_candidates": [],
+  "schema": "orion.corruption_hardcase_clean_candidate_plan.v1",
+  "selected_candidates": [
+    {
+      "clean_critical_actor_category": "vehicle",
+      "clean_critical_actor_type": "vehicle.ford.mustang",
+      "clean_critical_closing_speed_mps": 7.694838373040385,
+      "clean_critical_obb_gap_m": 2.489066984114425,
+      "clean_critical_obb_ttc_seconds": 0.31469298263689527,
+      "clean_job_id": 1090753,
+      "clean_outcome_class": "VALID_SEVERE_TTC",
+      "clean_total_stopped_below_0_25_mps_seconds": 2.0500000000000003,
+      "event_id": "route160_step518",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route160/event_package.json",
+        "sha256": "100312d6468f5a2573dc1a4c587233d7c435377f2db9ce42c70a30740fe5641e"
+      },
+      "formal_split": "train",
+      "route_index": 160,
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave0_20260829/route_160_hazard.xml",
+        "sha256": "f8d9aa55d09f1cb7c86f04d5d3f1ed345ebb2f072494d42ee2b62e48e4f2b95a"
+      },
+      "scenario_family": "ConstructionObstacle",
+      "screen_role": "static_visual_hazard",
+      "selection_rank": 1,
+      "selection_uses_clean_evidence_only": true,
+      "town": "Town04"
+    },
+    {
+      "clean_critical_actor_category": "vehicle",
+      "clean_critical_actor_type": "vehicle.dodge.charger_2020",
+      "clean_critical_closing_speed_mps": 2.8409119588651115,
+      "clean_critical_obb_gap_m": 0.882404491164889,
+      "clean_critical_obb_ttc_seconds": 0.46781664607273854,
+      "clean_job_id": 1091123,
+      "clean_outcome_class": "VALID_SEVERE_TTC",
+      "clean_total_stopped_below_0_25_mps_seconds": 6.450000000000001,
+      "event_id": "route165_step421",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route165/event_package.json",
+        "sha256": "a32b44dcd43402c5545a2c4870f7ff20701ab916cd4d4305c013fe8e6dd5b080"
+      },
+      "formal_split": "train",
+      "route_index": 165,
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave1_20260829/route_165_hazard.xml",
+        "sha256": "2f96a0cc8eb5572713604b4cf3baf1a95d7e063de3a896d47c12e0a7fedd7827"
+      },
+      "scenario_family": "ParkedObstacle",
+      "screen_role": "static_visual_hazard",
+      "selection_rank": 2,
+      "selection_uses_clean_evidence_only": true,
+      "town": "Town05"
+    },
+    {
+      "clean_critical_actor_category": "vehicle",
+      "clean_critical_actor_type": "vehicle.mini.cooper_s_2021",
+      "clean_critical_closing_speed_mps": 5.405451911308392,
+      "clean_critical_obb_gap_m": 4.067565553739031,
+      "clean_critical_obb_ttc_seconds": 1.0736622494968981,
+      "clean_job_id": 1091122,
+      "clean_outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "clean_total_stopped_below_0_25_mps_seconds": 1.500000000000003,
+      "event_id": "route161_step308",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_20260829/route161/event_package.json",
+        "sha256": "11ad7ddaa0de75901e73ab89fee158a35094a970266c8b00270ddfd91ead3022"
+      },
+      "formal_split": "train",
+      "route_index": 161,
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave1_20260829/route_161_hazard.xml",
+        "sha256": "5a0cf0c0188f86379d96db7e22cbc3dc7f0e13609e5e193bb1e15a0ec727f489"
+      },
+      "scenario_family": "ConstructionObstacle",
+      "screen_role": "static_visual_hazard",
+      "selection_rank": 3,
+      "selection_uses_clean_evidence_only": true,
+      "town": "Town04"
+    }
+  ],
+  "source": {
+    "event_bank_path": "results/scenario_factory/event_banks/stage2l_formal24_partial18_reviewed_v1.json",
+    "event_bank_sha256": "9b1c5b6ca9f2c544110bc096e731bcd7b7f9be2cabe94c16b5573aecb9d30d89",
+    "reviewed_event_count": 18
+  },
+  "status": "planned_not_activated_no_jobs_authorized"
+}

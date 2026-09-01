@@ -1,0 +1,826 @@
+{
+  "claim_boundary": {
+    "actual_orion_failure_is_primary_label": false,
+    "actual_orion_failure_role": "independent diagnostic or optional later auxiliary",
+    "closed_loop_safety_claim_supported_by_stage1_alone": false,
+    "corruption_is_ground_truth": false,
+    "corruption_metadata_used_by_adapter": false,
+    "corruption_metadata_used_by_teacher": false,
+    "learned_quantity": "clean-conditional feature surprise distilled to a single-pass spatial observation-insufficiency score",
+    "model_independence_claimed": false,
+    "task_relevance_is_adapter_output": false
+  },
+  "clean_scale": 0.011930784210562706,
+  "data_attestation": {
+    "actual_target_tensor_read": false,
+    "corruption_metadata_used_as_target": false,
+    "heldout_route_evaluation_families": [
+      "clean",
+      "local_glare"
+    ],
+    "student_training_families": [
+      "clean",
+      "local_blur",
+      "local_dark"
+    ],
+    "teacher_example_families": [
+      "clean"
+    ]
+  },
+  "evaluations": {
+    "heldout_route_and_family": {
+      "by_family": {
+        "clean": {
+          "example_count": 10,
+          "prediction_mean": 1.2404130697250366,
+          "severity_prediction_spearman": NaN,
+          "severity_target_spearman": NaN,
+          "teacher_target_mean": 1.277225136756897
+        },
+        "local_glare": {
+          "example_count": 30,
+          "prediction_mean": 1.8029831647872925,
+          "prediction_uplift_over_clean": 0.5625700950622559,
+          "severity_prediction_spearman": 0.6017797589302063,
+          "severity_target_spearman": 0.8647385835647583,
+          "teacher_target_mean": 4.0797624588012695
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": 0.636659562587738,
+      "distillation_mae": 2.2317800521850586,
+      "distillation_spearman": 0.5378581881523132,
+      "example_count": 40
+    },
+    "validation_heldout_family": {
+      "by_family": {
+        "clean": {
+          "example_count": 10,
+          "prediction_mean": 0.8211906552314758,
+          "severity_prediction_spearman": NaN,
+          "severity_target_spearman": NaN,
+          "teacher_target_mean": 0.8019459843635559
+        },
+        "local_glare": {
+          "example_count": 30,
+          "prediction_mean": 1.755220651626587,
+          "prediction_uplift_over_clean": 0.9340299963951111,
+          "severity_prediction_spearman": 0.6382647156715393,
+          "severity_target_spearman": 0.8629588484764099,
+          "teacher_target_mean": 3.816852331161499
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": 0.7549975514411926,
+      "distillation_mae": 2.070106029510498,
+      "distillation_spearman": 0.7590050101280212,
+      "example_count": 40
+    },
+    "validation_seen": {
+      "by_family": {
+        "clean": {
+          "example_count": 10,
+          "prediction_mean": 0.8211906552314758,
+          "severity_prediction_spearman": NaN,
+          "severity_target_spearman": NaN,
+          "teacher_target_mean": 0.8019459843635559
+        },
+        "local_blur": {
+          "example_count": 30,
+          "prediction_mean": 0.9052985906600952,
+          "prediction_uplift_over_clean": 0.08410793542861938,
+          "severity_prediction_spearman": 0.23737485706806183,
+          "severity_target_spearman": 0.2667408287525177,
+          "teacher_target_mean": 0.9057820439338684
+        },
+        "local_dark": {
+          "example_count": 30,
+          "prediction_mean": 1.2399529218673706,
+          "prediction_uplift_over_clean": 0.4187622666358948,
+          "severity_prediction_spearman": 0.7241379022598267,
+          "severity_target_spearman": 0.7481646537780762,
+          "teacher_target_mean": 1.2613650560379028
+        }
+      },
+      "corruption_mask_patch_auroc_diagnostic_only": 0.946036159992218,
+      "distillation_mae": 0.19471049308776855,
+      "distillation_spearman": 0.8388615846633911,
+      "example_count": 70
+    }
+  },
+  "history": {
+    "adapter_train": [
+      {
+        "loss": 0.09913085922598838
+      },
+      {
+        "loss": 0.08548045349972588
+      },
+      {
+        "loss": 0.05154034947710378
+      },
+      {
+        "loss": 0.03624547868967056
+      },
+      {
+        "loss": 0.03342192957976035
+      },
+      {
+        "loss": 0.02319160010665655
+      },
+      {
+        "loss": 0.01858641422752823
+      },
+      {
+        "loss": 0.01246056097692677
+      },
+      {
+        "loss": 0.010727237590721675
+      },
+      {
+        "loss": 0.008952080238876598
+      },
+      {
+        "loss": 0.008122869288282736
+      },
+      {
+        "loss": 0.00704551209429545
+      },
+      {
+        "loss": 0.006168242623763425
+      },
+      {
+        "loss": 0.004702919023111462
+      },
+      {
+        "loss": 0.004240609845146537
+      },
+      {
+        "loss": 0.004141644268695797
+      },
+      {
+        "loss": 0.003733737670284297
+      },
+      {
+        "loss": 0.0034924570670617477
+      },
+      {
+        "loss": 0.00326736937277019
+      },
+      {
+        "loss": 0.003394823777489364
+      },
+      {
+        "loss": 0.003737349794911487
+      },
+      {
+        "loss": 0.0030816551098333937
+      },
+      {
+        "loss": 0.0027391902869567273
+      },
+      {
+        "loss": 0.0025272930107478587
+      }
+    ],
+    "teacher_train": [
+      {
+        "loss": 0.508055503666401,
+        "member_max_loss": 0.5666992396116257,
+        "member_min_loss": 0.44941176772117614
+      },
+      {
+        "loss": 0.1343640886247158,
+        "member_max_loss": 0.14149729162454605,
+        "member_min_loss": 0.12723088562488555
+      },
+      {
+        "loss": 0.062032273039221764,
+        "member_max_loss": 0.06512232050299645,
+        "member_min_loss": 0.05894222557544708
+      },
+      {
+        "loss": 0.03864421397447586,
+        "member_max_loss": 0.042387737333774565,
+        "member_min_loss": 0.03490069061517716
+      },
+      {
+        "loss": 0.025590602494776248,
+        "member_max_loss": 0.027993737906217574,
+        "member_min_loss": 0.023187467083334922
+      },
+      {
+        "loss": 0.019377739913761613,
+        "member_max_loss": 0.02210036516189575,
+        "member_min_loss": 0.01665511466562748
+      },
+      {
+        "loss": 0.015700446162372827,
+        "member_max_loss": 0.017776113376021384,
+        "member_min_loss": 0.01362477894872427
+      },
+      {
+        "loss": 0.0129421666264534,
+        "member_max_loss": 0.014290791563689708,
+        "member_min_loss": 0.01159354168921709
+      },
+      {
+        "loss": 0.010488033620640635,
+        "member_max_loss": 0.011925782077014446,
+        "member_min_loss": 0.009050285164266824
+      },
+      {
+        "loss": 0.008643037639558315,
+        "member_max_loss": 0.010020145773887634,
+        "member_min_loss": 0.007265929505228997
+      },
+      {
+        "loss": 0.007274484494701028,
+        "member_max_loss": 0.008571009431034327,
+        "member_min_loss": 0.005977959558367729
+      },
+      {
+        "loss": 0.006277382001280784,
+        "member_max_loss": 0.007661205343902111,
+        "member_min_loss": 0.004893558658659458
+      }
+    ],
+    "validation_heldout_family": [
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.4853719174861908,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 0.4954971969127655,
+            "prediction_uplift_over_clean": 0.010125279426574707,
+            "severity_prediction_spearman": 0.4905450642108917,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.8851277232170105,
+        "distillation_mae": 2.6020243167877197,
+        "distillation_spearman": 0.5708563923835754,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.36544549465179443,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 0.3940332531929016,
+            "prediction_uplift_over_clean": 0.028587758541107178,
+            "severity_prediction_spearman": 0.48921024799346924,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7850432395935059,
+        "distillation_mae": 2.6831541061401367,
+        "distillation_spearman": 0.6017406582832336,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.37102776765823364,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 0.6070502996444702,
+            "prediction_uplift_over_clean": 0.23602253198623657,
+            "severity_prediction_spearman": 0.6720800995826721,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.8323419094085693,
+        "distillation_mae": 2.5308785438537598,
+        "distillation_spearman": 0.6140274405479431,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.36031025648117065,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 0.7300311326980591,
+            "prediction_uplift_over_clean": 0.3697208762168884,
+            "severity_prediction_spearman": 0.7450500726699829,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.8276911377906799,
+        "distillation_mae": 2.4695465564727783,
+        "distillation_spearman": 0.6163581013679504,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.3719242513179779,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 0.7476388216018677,
+            "prediction_uplift_over_clean": 0.37571457028388977,
+            "severity_prediction_spearman": 0.7784204483032227,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.8603331446647644,
+        "distillation_mae": 2.464689016342163,
+        "distillation_spearman": 0.5869797468185425,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.5239769816398621,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 0.8558610081672668,
+            "prediction_uplift_over_clean": 0.3318840265274048,
+            "severity_prediction_spearman": 0.5773081183433533,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.8307867646217346,
+        "distillation_mae": 2.354332447052002,
+        "distillation_spearman": 0.582338273525238,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.5614620447158813,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 0.9504880309104919,
+            "prediction_uplift_over_clean": 0.3890259861946106,
+            "severity_prediction_spearman": 0.5283648371696472,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.8049800992012024,
+        "distillation_mae": 2.3065550327301025,
+        "distillation_spearman": 0.5646561980247498,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.5985521674156189,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.0873254537582397,
+            "prediction_uplift_over_clean": 0.48877328634262085,
+            "severity_prediction_spearman": 0.5399332642555237,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7899426817893982,
+        "distillation_mae": 2.2435688972473145,
+        "distillation_spearman": 0.619635283946991,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.6327776312828064,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.090306043624878,
+            "prediction_uplift_over_clean": 0.45752841234207153,
+            "severity_prediction_spearman": 0.5265851020812988,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.8089441657066345,
+        "distillation_mae": 2.2558579444885254,
+        "distillation_spearman": 0.6578186750411987,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.6830984354019165,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.276405692100525,
+            "prediction_uplift_over_clean": 0.5933072566986084,
+            "severity_prediction_spearman": 0.5354838967323303,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7718377709388733,
+        "distillation_mae": 2.172663450241089,
+        "distillation_spearman": 0.6343811750411987,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.7647579908370972,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.3805911540985107,
+            "prediction_uplift_over_clean": 0.6158331632614136,
+            "severity_prediction_spearman": 0.5310344696044922,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7791646718978882,
+        "distillation_mae": 2.1594462394714355,
+        "distillation_spearman": 0.661577045917511,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.7188178896903992,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.38450026512146,
+            "prediction_uplift_over_clean": 0.6656823754310608,
+            "severity_prediction_spearman": 0.5813125967979431,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7431889176368713,
+        "distillation_mae": 2.1187260150909424,
+        "distillation_spearman": 0.6966530084609985,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.7179252505302429,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.454832911491394,
+            "prediction_uplift_over_clean": 0.7369076609611511,
+            "severity_prediction_spearman": 0.6071190237998962,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7807343602180481,
+        "distillation_mae": 2.1026270389556885,
+        "distillation_spearman": 0.7301661968231201,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.8413446545600891,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.6232954263687134,
+            "prediction_uplift_over_clean": 0.7819507718086243,
+            "severity_prediction_spearman": 0.6057841777801514,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7831024527549744,
+        "distillation_mae": 2.0926804542541504,
+        "distillation_spearman": 0.6954106688499451,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.8077050447463989,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.5723778009414673,
+            "prediction_uplift_over_clean": 0.7646727561950684,
+            "severity_prediction_spearman": 0.6275861859321594,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.784943163394928,
+        "distillation_mae": 2.107778310775757,
+        "distillation_spearman": 0.7103852033615112,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.8964745402336121,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.7311158180236816,
+            "prediction_uplift_over_clean": 0.8346412777900696,
+            "severity_prediction_spearman": 0.6142380237579346,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7725468873977661,
+        "distillation_mae": 2.071913957595825,
+        "distillation_spearman": 0.7627226710319519,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.7008717060089111,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.5549564361572266,
+            "prediction_uplift_over_clean": 0.8540847301483154,
+            "severity_prediction_spearman": 0.6235817670822144,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7799674868583679,
+        "distillation_mae": 2.0991036891937256,
+        "distillation_spearman": 0.7574018836021423,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.776410698890686,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.6380058526992798,
+            "prediction_uplift_over_clean": 0.8615951538085938,
+            "severity_prediction_spearman": 0.6151279211044312,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7724487781524658,
+        "distillation_mae": 2.0929534435272217,
+        "distillation_spearman": 0.7000836133956909,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.8093684911727905,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.7073906660079956,
+            "prediction_uplift_over_clean": 0.8980221748352051,
+            "severity_prediction_spearman": 0.6467185616493225,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7836881875991821,
+        "distillation_mae": 2.0390448570251465,
+        "distillation_spearman": 0.7839021682739258,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.83050936460495,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.7453346252441406,
+            "prediction_uplift_over_clean": 0.9148252606391907,
+            "severity_prediction_spearman": 0.6360400319099426,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7664167284965515,
+        "distillation_mae": 2.065573215484619,
+        "distillation_spearman": 0.7546407580375671,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.8065182566642761,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.6957050561904907,
+            "prediction_uplift_over_clean": 0.8891867995262146,
+            "severity_prediction_spearman": 0.6266963481903076,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7823176383972168,
+        "distillation_mae": 2.0902042388916016,
+        "distillation_spearman": 0.748269259929657,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.8210897445678711,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.7395106554031372,
+            "prediction_uplift_over_clean": 0.9184209108352661,
+            "severity_prediction_spearman": 0.6484983563423157,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.772469162940979,
+        "distillation_mae": 2.0624351501464844,
+        "distillation_spearman": 0.7699729800224304,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.8094956278800964,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.7523702383041382,
+            "prediction_uplift_over_clean": 0.9428746104240417,
+            "severity_prediction_spearman": 0.6449388265609741,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7374181747436523,
+        "distillation_mae": 2.072166919708252,
+        "distillation_spearman": 0.727013349533081,
+        "example_count": 40
+      },
+      {
+        "by_family": {
+          "clean": {
+            "example_count": 10,
+            "prediction_mean": 0.8211906552314758,
+            "severity_prediction_spearman": NaN,
+            "severity_target_spearman": NaN,
+            "teacher_target_mean": 0.8019459843635559
+          },
+          "local_glare": {
+            "example_count": 30,
+            "prediction_mean": 1.755220651626587,
+            "prediction_uplift_over_clean": 0.9340299963951111,
+            "severity_prediction_spearman": 0.6382647156715393,
+            "severity_target_spearman": 0.8629588484764099,
+            "teacher_target_mean": 3.816852331161499
+          }
+        },
+        "corruption_mask_patch_auroc_diagnostic_only": 0.7549975514411926,
+        "distillation_mae": 2.070106029510498,
+        "distillation_spearman": 0.7590050101280212,
+        "example_count": 40
+      }
+    ]
+  },
+  "model_config": {
+    "cross_view_geometry": "not_implemented_in_v3_mvp",
+    "feature_dim": 16,
+    "hidden_dim": 64,
+    "max_views": 2,
+    "teacher_members": 2,
+    "temporal_context": "one_previous_frame_when_available"
+  },
+  "observation_uq_schema_version": "orion.observation-uq/v3",
+  "schema_version": "orion.observation-uq-checkpoint/v3",
+  "training_config": {
+    "adapter_epochs": 24,
+    "batch_size": 8,
+    "disagreement_weight": 0.25,
+    "heldout_families": [
+      "local_glare"
+    ],
+    "learning_rate": 0.002,
+    "seed": 20260826,
+    "teacher_epochs": 12,
+    "train_families": [
+      "local_blur",
+      "local_dark"
+    ]
+  }
+}

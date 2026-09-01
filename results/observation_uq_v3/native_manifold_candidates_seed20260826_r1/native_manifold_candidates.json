@@ -1,0 +1,269 @@
+{
+  "candidate_passes": {
+    "appearance_route_knn_cosine_z": false,
+    "appearance_route_knn_standardized_l2_z": false
+  },
+  "candidates": {
+    "appearance_route_knn_cosine_z": {
+      "by_route_score_mean": {
+        "Town01/Route146": {
+          "clear": 0.5556930303573608,
+          "fog_heavy": 0.5427978038787842,
+          "fog_light": 0.5507034063339233
+        },
+        "Town04/Route203": {
+          "clear": 0.5375930070877075,
+          "fog_heavy": 0.5171231031417847,
+          "fog_light": 0.5282847881317139
+        }
+      },
+      "candidate_gate": {
+        "checks": [
+          {
+            "metric": "fog_light_positive_uplift",
+            "passed": false,
+            "threshold": 0.0,
+            "value": -0.007148921489715576
+          },
+          {
+            "metric": "fog_heavy_higher_than_light",
+            "passed": false,
+            "threshold": 0.0,
+            "value": -0.009533584117889404
+          },
+          {
+            "metric": "sample_severity_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.2216077595949173
+          },
+          {
+            "condition": "fog_light",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.07028743624687195
+          },
+          {
+            "condition": "fog_light",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": false,
+            "threshold": 0.6,
+            "value": 0.38372985667652554
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.09201424568891525
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": false,
+            "threshold": 0.6,
+            "value": 0.37445353123876784
+          },
+          {
+            "metric": "paired_delta_heavy_higher_than_light",
+            "passed": true,
+            "threshold": 0.0,
+            "value": 0.1220490038394928
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": false,
+            "route_id": "Town01/Route146",
+            "threshold": 0.0,
+            "value": -0.01289522647857666
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": false,
+            "route_id": "Town04/Route203",
+            "threshold": 0.0,
+            "value": -0.02046990394592285
+          }
+        ],
+        "passed": false
+      },
+      "condition_metrics": {
+        "clear": {
+          "example_count": 32,
+          "score_mean": 0.5466430187225342,
+          "score_std": 0.06368548423051834,
+          "severity": 0.0
+        },
+        "fog_heavy": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.4490065574645996,
+          "paired_delta_top20_patch_auroc": 0.37445353123876784,
+          "score_mean": 0.5299605131149292,
+          "score_std": 0.06489440053701401,
+          "score_to_paired_delta_patch_spearman": -0.09201424568891525,
+          "score_uplift_over_clear": -0.01668250560760498,
+          "severity": 3.0
+        },
+        "fog_light": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.3269575536251068,
+          "paired_delta_top20_patch_auroc": 0.38372985667652554,
+          "score_mean": 0.5394940972328186,
+          "score_std": 0.06578488647937775,
+          "score_to_paired_delta_patch_spearman": -0.07028743624687195,
+          "score_uplift_over_clear": -0.007148921489715576,
+          "severity": 1.0
+        }
+      },
+      "sample_severity_spearman": -0.2216077595949173,
+      "tail": "positive"
+    },
+    "appearance_route_knn_standardized_l2_z": {
+      "by_route_score_mean": {
+        "Town01/Route146": {
+          "clear": 0.6852636933326721,
+          "fog_heavy": 0.6617794036865234,
+          "fog_light": 0.6693623661994934
+        },
+        "Town04/Route203": {
+          "clear": 0.6342602372169495,
+          "fog_heavy": 0.6082053184509277,
+          "fog_light": 0.6182564496994019
+        }
+      },
+      "candidate_gate": {
+        "checks": [
+          {
+            "metric": "fog_light_positive_uplift",
+            "passed": false,
+            "threshold": 0.0,
+            "value": -0.015952587127685547
+          },
+          {
+            "metric": "fog_heavy_higher_than_light",
+            "passed": false,
+            "threshold": 0.0,
+            "value": -0.008816957473754883
+          },
+          {
+            "metric": "sample_severity_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.14886628091335297
+          },
+          {
+            "condition": "fog_light",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.09779056906700134
+          },
+          {
+            "condition": "fog_light",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": false,
+            "threshold": 0.6,
+            "value": 0.3816585534148746
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.10130728036165237
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": false,
+            "threshold": 0.6,
+            "value": 0.38044649372498196
+          },
+          {
+            "metric": "paired_delta_heavy_higher_than_light",
+            "passed": true,
+            "threshold": 0.0,
+            "value": 0.1220490038394928
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": false,
+            "route_id": "Town01/Route146",
+            "threshold": 0.0,
+            "value": -0.02348428964614868
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": false,
+            "route_id": "Town04/Route203",
+            "threshold": 0.0,
+            "value": -0.02605491876602173
+          }
+        ],
+        "passed": false
+      },
+      "condition_metrics": {
+        "clear": {
+          "example_count": 32,
+          "score_mean": 0.6597619652748108,
+          "score_std": 0.04821369796991348,
+          "severity": 0.0
+        },
+        "fog_heavy": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.4490065574645996,
+          "paired_delta_top20_patch_auroc": 0.38044649372498196,
+          "score_mean": 0.6349924206733704,
+          "score_std": 0.046266820281744,
+          "score_to_paired_delta_patch_spearman": -0.10130728036165237,
+          "score_uplift_over_clear": -0.02476954460144043,
+          "severity": 3.0
+        },
+        "fog_light": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.3269575536251068,
+          "paired_delta_top20_patch_auroc": 0.3816585534148746,
+          "score_mean": 0.6438093781471252,
+          "score_std": 0.04804607480764389,
+          "score_to_paired_delta_patch_spearman": -0.09779056906700134,
+          "score_uplift_over_clear": -0.015952587127685547,
+          "severity": 1.0
+        }
+      },
+      "sample_severity_spearman": -0.14886628091335297,
+      "tail": "positive"
+    }
+  },
+  "data_attestation": {
+    "actual_target_read": false,
+    "adapter_trained": false,
+    "candidate_training": false,
+    "clean_route_balanced_reference_only": true,
+    "corruption_metadata_used_for_candidate": false,
+    "paired_clean_used_for_candidate_or_calibration": false,
+    "paired_clean_used_for_evaluation_only": true,
+    "query_current_neighbourhood_used_as_prediction_context": false,
+    "query_previous_frame_used": false,
+    "stage_b_authorized": false
+  },
+  "inputs": {
+    "clean_calibration_shard": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/observation_uq_teacher560_seed20260826_r1/clean_first_features.pt",
+    "clean_calibration_shard_sha256": "ab8d16ce9ffe67aba192ae331b102bcda8ccf917b4bbe491e86e452367b5beac",
+    "native_features": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/observation_uq_native_weather_epic_seed20260826_r5_gpu4/native_weather_features.pt",
+    "native_features_sha256": "debdeac1cbb1bb72227604a79ef41f38c1be13dde6562256599055d6ea20ddda",
+    "preregistration": "/public/home/lidachuan/project/Orion/configs/observation_uq_native_manifold_candidates_v1.json",
+    "preregistration_sha256": "9ded13edae72a6275e6a0fc7d3dfb0fbd6b4251c8f1b7d489c3f3ae55cfa42bd"
+  },
+  "reference": {
+    "calibration": "leave_one_route_out_then_view_position_median_mad",
+    "clean_example_count": 560,
+    "clean_route_count": 35,
+    "compute_device": "cuda",
+    "native_query_reference": "all_clean_routes",
+    "nearest_route_count": 5,
+    "position_chunk_size": 16
+  },
+  "runtime_seconds": 60.57126569747925,
+  "schema_version": "orion.native-manifold-audit/v1"
+}

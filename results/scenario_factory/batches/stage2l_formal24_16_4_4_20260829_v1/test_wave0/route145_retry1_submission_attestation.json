@@ -1,0 +1,44 @@
+{
+  "schema": "orion.scenario_factory.runtime_retry_submission_attestation.v1",
+  "submitted_at": "2026-08-31T06:22:00+08:00",
+  "run_id": "stage2l_formal24_test_wave0_route145_retry1_20260831",
+  "route_index": 145,
+  "job_id": 1108121,
+  "state_at_attestation": "pending_priority",
+  "batch_manifest": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/test_wave0/route145_retry1_batch_manifest.json",
+    "sha256": "9da903436d35b3cd7763f616b906ab378405dfd025671aacf236c24ec629ac45"
+  },
+  "runtime_amendment": {
+    "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260831_route145_control_tick_stall_retry1_v1.json",
+    "sha256": "0469553570f1ae51abace7a73a32326fa622d74492cc9524faad8532f190577e"
+  },
+  "locked_test_guards": {
+    "route_identity_changed": false,
+    "route_xml_changed": false,
+    "model_or_control_condition_changed": false,
+    "outcome_used_for_selection": false,
+    "replacement_route_allowed": false,
+    "automatic_second_retry_allowed": false
+  },
+  "resources": {
+    "gpu": 1,
+    "cpus": 2,
+    "host_memory": "192G",
+    "time_limit": "02:00:00",
+    "excluded_nodes": [
+      "gpu1",
+      "gpu2",
+      "gpu5"
+    ]
+  },
+  "postprocessing": {
+    "finalize_job_id": 1108123,
+    "finalize_dependency": "afterany:1108121",
+    "review_queue_job_id": 1108124,
+    "review_dependency": "afterok:1108123",
+    "gpu_requested": true,
+    "gpu_request_reason": "Nvidia_A800 partition QOSMinGRES requires gpu:1 for packaging jobs."
+  },
+  "claim_boundary": "Single technical retry of a frozen locked-test route; no model, uncertainty, planning, collision, TTC or safety claim."
+}

@@ -1,0 +1,34 @@
+{
+  "checkpoint": {
+    "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/stage2l_smokes/route151_v6_matched_magnitude_v1_20/training/stage2l_v6_route151_smoke.pt",
+    "sha256": "41947dfe4368f03557f19a04986ce050643c75d846dd1b36ca700dc153532a53"
+  },
+  "checks": {
+    "cross_family_margin_fraction_improves": false,
+    "diagnostic_driving_targets_excluded": true,
+    "exactly_one_optimizer_step_per_complete_group": true,
+    "hard_stance_accuracy_gte_two_thirds": true,
+    "language_nll_decreases": true,
+    "on_path_exceeds_off_path": false,
+    "relevance_bce_decreases": true,
+    "trajectory_and_control_remain_disabled": true
+  },
+  "claim_boundary": "Independent Route151 engineering-smoke integrity and gate validation only; no held-out, trajectory, closed-loop, generalization, or safety evidence.",
+  "failed_checks": [
+    "cross_family_margin_fraction_improves",
+    "on_path_exceeds_off_path"
+  ],
+  "integrity_valid": true,
+  "next_action": "keep pilot locked and diagnose the failed Route151 semantic gates",
+  "report": {
+    "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/stage2l_smokes/route151_v6_matched_magnitude_v1_20/training/report.json",
+    "sha256": "ed01b5235a1c245d79cf0da0457ad7de73d84a4f8cf52ee13ad4abe8a12892cd"
+  },
+  "schema": "orion.stage2l_v6_route151_independent_validation.v1",
+  "smoke_passed": false,
+  "status": "validated_failed_gate",
+  "submission_attestation": {
+    "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/stage2l_smokes/route151_v6_matched_magnitude_v1_20/submission_attestation.json",
+    "sha256": "813eaafa5bc36286f4ae147d76f566aa5242f4d52023b69aef4df60a4e963ba2"
+  }
+}

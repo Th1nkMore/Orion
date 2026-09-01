@@ -1,0 +1,59 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T06:44:47+08:00",
+  "status": "locked_test_retry_runtime_terminated_by_preregistered_liveness_rule",
+  "title": "Route145 technical retry passed the original stall point but failed the clean liveness screen",
+  "scope": "Route145 retry1 clean_off resource termination and result classification only",
+  "source": {
+    "job_id": 1108121,
+    "run_id": "stage2l_formal24_test_wave0_route145_retry1_20260831",
+    "route_index": 145,
+    "formal_split": "test",
+    "town": "Town03",
+    "condition": "clean_off",
+    "retry_authorization_sha256": "0469553570f1ae51abace7a73a32326fa622d74492cc9524faad8532f190577e",
+    "retry_submission_attestation_sha256": "32303993908e05d0002a55b31c6275e45f7280f2cac3a0fdd3607a87d04df1e6"
+  },
+  "technical_retry_diagnosis": {
+    "original_failure_was_three_committed_frames_then_control_tick_stall": true,
+    "retry_trace_frames": 591,
+    "original_stall_point_passed": true,
+    "retry_runtime_repair_successful": true
+  },
+  "frozen_rule": {
+    "speed_threshold_mps": 0.25,
+    "maximum_stop_seconds": 8.0,
+    "ignore_before_seconds": 2.0,
+    "comparison": "strictly greater than maximum"
+  },
+  "observed_evidence_at_termination": {
+    "last_sim_time_seconds": 29.5,
+    "last_route_progress": 0.38232388173889614,
+    "longest_low_speed_duration_seconds": 9.55,
+    "low_speed_interval_start_progress": 0.3822685365008022,
+    "low_speed_interval_end_progress": 0.38232388173889614,
+    "clean_liveness_report_sha256": "0ae57db7f4afb7e685734df6f85a864e67192ba9aa41f3a4f4fad78af6297cda"
+  },
+  "action": {
+    "job_cancelled": true,
+    "scheduler_terminal_state": "CANCELLED by 2329",
+    "elapsed_wallclock": "00:19:16",
+    "stage_b_qualified": false,
+    "route_membership_changed": false,
+    "replacement_route_selected": false,
+    "second_automatic_retry_allowed": false
+  },
+  "classification": {
+    "official_safety_result": false,
+    "model_failure_result": false,
+    "collision_or_ttc_claim_allowed": false,
+    "formal_test_membership_preserved": true,
+    "formal_test_data_status": "missing_valid_runtime_due_clean_liveness_ineligibility"
+  },
+  "locks": {
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false,
+    "outcome_based_route_replacement_allowed": false
+  },
+  "claim_boundary": "The retry validates the narrow runtime repair and establishes only that Route145 clean_off is ineligible for Stage B under the preregistered liveness screen. It is not a safety, uncertainty, planning, collision, TTC, or generalization result."
+}

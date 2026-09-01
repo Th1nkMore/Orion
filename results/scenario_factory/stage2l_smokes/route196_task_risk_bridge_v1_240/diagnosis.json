@@ -1,0 +1,54 @@
+{
+  "schema": "orion.stage2l_route196_bridge_diagnosis.v1",
+  "status": "failed_gate_pause_architecture",
+  "job_id": 1094688,
+  "slurm_state": "FAILED",
+  "slurm_exit_code": "3:0",
+  "bounded_smoke": {
+    "route_index": 196,
+    "steps": 240,
+    "passes": 2,
+    "report_path": "training/report.json",
+    "report_sha256": "b43dc3369857f1766c3fbf50e9610f8d89149639dfc096ab6f032add376560aa"
+  },
+  "passed_checks": [
+    "optimization_reduces_language_nll",
+    "optimization_reduces_relevance_bce",
+    "on_path_risk_exceeds_off_path_by_margin",
+    "zero_uq_prefers_maintain",
+    "off_path_prefers_maintain",
+    "on_path_prefers_conservative",
+    "generated_zero_uq_is_maintain",
+    "generated_off_path_is_maintain"
+  ],
+  "failed_checks": [
+    "generated_on_path_matches_target"
+  ],
+  "evidence": {
+    "on_minus_off_peak_task_risk": 0.4402104914188385,
+    "zero_uq_expected_nll": 0.06520073115825653,
+    "zero_uq_counterfactual_nll": 0.5522372126579285,
+    "off_path_expected_nll": 0.0631413385272026,
+    "off_path_counterfactual_nll": 0.6062156558036804,
+    "on_path_expected_nll": 0.2237318605184555,
+    "on_path_counterfactual_nll": 0.23721690475940704,
+    "on_path_preference_margin": 0.013485044240951538,
+    "generated_zero_uq": "<task_relevance_map> The uncertainty-aware planning stance is maintain. This is a planning implication, not a direct brake or steering command.",
+    "generated_off_path_uq": "<task_relevance_map> The uncertainty-aware planning stance is maintain. This is a planning implication, not a direct brake or steering command.",
+    "generated_on_path_uq": "<task_relevance_map> The uncertainty-aware planning stance is prepare_right, and its temporal trend is rising. This is a planning implication, not a direct brake or steering command.",
+    "expected_on_path_stance": "prepare_to_yield"
+  },
+  "interpretation": [
+    "The explicit U-independent relevance pass learned the spatial task-risk ordering required by the engineering smoke.",
+    "Zero-UQ and off-path-UQ no longer default to a conservative answer.",
+    "The on-path answer moved in a conservative direction but did not stably learn the specified discrete planning stance; the result is not a parser-only false negative because the generated lexical item is not an allowed target and the NLL preference margin is small.",
+    "This is a one-event learnability result only and provides no held-out, trajectory, closed-loop, or safety evidence."
+  ],
+  "decision": {
+    "rerun_or_extend_route196": false,
+    "unlock_stage2l_pilot": false,
+    "unlock_stage2p": false,
+    "continue_route_factory": true,
+    "next_architecture_action": "pause_and_review_the_discrete_language_contract_before_any_new_training_submission"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_clean_q2_activation_v1.json",
+    "sha256": "d76e2fa281a67fa425f159b5680eff90ca35566132c16fd7e242b6f919d45c21"
+  },
+  "job_ids": [
+    {
+      "job_id": 1117849,
+      "job_key": "route158_clean_q2"
+    },
+    {
+      "job_id": 1117850,
+      "job_key": "route185_clean_q2"
+    }
+  ],
+  "jobs": [
+    {
+      "condition": "clean_off",
+      "environment": {
+        "ASSET_ROOT": "/public/share/lidachuan/orion_assets",
+        "ORION_CLOSEDLOOP_CONDITIONING": "none",
+        "ORION_CLOSEDLOOP_RISK_MODE": "off",
+        "ORION_CLOSEDLOOP_UQ_MODE": "none",
+        "ORION_ENABLE_LEGACY_DENSITY_UQ": "0",
+        "ORION_PLANNING_RESPONSE_MODE": "off",
+        "ORION_STAGE2_SPATIAL_UQ_SOURCE": "disabled",
+        "PILOT_ROUTE_FILE": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave1/route_158_hazard.xml",
+        "PILOT_ROUTE_FILE_SHA256": "cf9c723a5b3c23666aae3c8bd626723a8d0720add3e731b24c321db7311e3c6e",
+        "PILOT_RUN_ID": "corruption_hardcase_wave1_clean_q2_v1",
+        "PROJECT_ROOT": "/public/home/lidachuan/project/Orion",
+        "SLURM_CPUS_PER_TASK": "2",
+        "SLURM_EXCLUDE": "gpu2,gpu5",
+        "SLURM_MEM": "192G",
+        "SLURM_PARTITION": "Nvidia_A800",
+        "SLURM_TIME": "02:00:00"
+      },
+      "job_key": "route158_clean_q2",
+      "route_index": 158,
+      "route_xml": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave1/route_158_hazard.xml",
+      "route_xml_sha256": "cf9c723a5b3c23666aae3c8bd626723a8d0720add3e731b24c321db7311e3c6e",
+      "variant": "hazard"
+    },
+    {
+      "condition": "clean_off",
+      "environment": {
+        "ASSET_ROOT": "/public/share/lidachuan/orion_assets",
+        "ORION_CLOSEDLOOP_CONDITIONING": "none",
+        "ORION_CLOSEDLOOP_RISK_MODE": "off",
+        "ORION_CLOSEDLOOP_UQ_MODE": "none",
+        "ORION_ENABLE_LEGACY_DENSITY_UQ": "0",
+        "ORION_PLANNING_RESPONSE_MODE": "off",
+        "ORION_STAGE2_SPATIAL_UQ_SOURCE": "disabled",
+        "PILOT_ROUTE_FILE": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave0_20260829/route_185_hazard.xml",
+        "PILOT_ROUTE_FILE_SHA256": "3012f8016e396a0b2ec7f0fe5b4c7d4352421ed3280b0e227ab752f5c4a25a48",
+        "PILOT_RUN_ID": "corruption_hardcase_wave1_clean_q2_v1",
+        "PROJECT_ROOT": "/public/home/lidachuan/project/Orion",
+        "SLURM_CPUS_PER_TASK": "2",
+        "SLURM_EXCLUDE": "gpu2,gpu5",
+        "SLURM_MEM": "192G",
+        "SLURM_PARTITION": "Nvidia_A800",
+        "SLURM_TIME": "02:00:00"
+      },
+      "job_key": "route185_clean_q2",
+      "route_index": 185,
+      "route_xml": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave0_20260829/route_185_hazard.xml",
+      "route_xml_sha256": "3012f8016e396a0b2ec7f0fe5b4c7d4352421ed3280b0e227ab752f5c4a25a48",
+      "variant": "hazard"
+    }
+  ],
+  "jobs_submitted": 2,
+  "schema": "orion.corruption_hardcase_wave1_clean_q2_submission.v1",
+  "status": "submitted",
+  "submitter": {
+    "path": "/public/home/lidachuan/project/Orion/scripts/submit_corruption_hardcase_wave1_clean_q2.py",
+    "sha256": "c7ee6990215b5762e7dcfb15149a0ebe2a8e6b957e131c6fe2b479b6910c2048"
+  }
+}

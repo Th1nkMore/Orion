@@ -1,0 +1,111 @@
+{
+  "schema": "orion.closedloop_scenario_bank.v1",
+  "created_at": "2026-08-28T10:25:00+08:00",
+  "status": "route147_clean_baseline_submitted_no_degraded_jobs_submitted",
+  "research_question": "Can spatial observation uncertainty support selective conservative behavior in a safety-relevant region without causing comparable slowing for matched irrelevant uncertainty?",
+  "claims_not_supported_by_this_screen": [
+    "synthetic corruption is uncertainty ground truth",
+    "the current adapter understands task risk",
+    "a hard governor is the final learned driving policy"
+  ],
+  "primary_candidate": {
+    "route_index": 147,
+    "town": "Town02",
+    "scenario": "DynamicObjectCrossing",
+    "clean_reference": "assets/results/ORION.json",
+    "current_environment_clean_job_id": 1080799,
+    "route_pair_manifest": "configs/closedloop_scenario_bank/routes/manifest.json"
+  },
+  "execution_order": [
+    {
+      "stage": "clean_replay",
+      "conditions": ["hazard_clean_off"],
+      "gate": "Completed with route score 100, no collision or traffic-rule penalty, and no prolonged pre-hazard standstill"
+    },
+    {
+      "stage": "freeze_event",
+      "conditions": [],
+      "gate": "Using only clean front/BEV frames and route state, record one fixed route-progress trigger, finite duration, on-path region, and equal-area off-path region before viewing degraded outcomes"
+    },
+    {
+      "stage": "failure_induction",
+      "conditions": ["hazard_on_path_local_glare_severity3_off"],
+      "gate": "Compared with clean, the intervention causes a collision, traffic-rule violation, failure to complete, or a preregistered material safety-margin degradation"
+    },
+    {
+      "stage": "specificity_controls",
+      "conditions": [
+        "hazard_off_path_matched_local_glare_severity3_off",
+        "nohazard_on_path_local_glare_severity3_off"
+      ],
+      "gate": "The on-path hazard condition is worse than both matched controls; otherwise reject this event as non-specific"
+    },
+    {
+      "stage": "signal_and_mechanism",
+      "conditions": [
+        "hazard_on_path_learned_trace_no_governor",
+        "hazard_off_path_learned_trace_no_governor",
+        "hazard_on_path_oracle_relevant_governor",
+        "hazard_off_path_oracle_irrelevant_noop",
+        "nohazard_on_path_oracle_irrelevant_noop"
+      ],
+      "gate": "The adapter localizes both matched degradations at their respective image regions without being asked which is task-relevant; the relevance-aware oracle improves the on-path hazard while remaining a strict no-op for off-path/no-hazard controls."
+    },
+    {
+      "stage": "stage2_task_learning",
+      "conditions": [
+        "spatial_uq_conditioned_orion_hazard_on_path",
+        "spatial_uq_conditioned_orion_hazard_off_path",
+        "spatial_uq_conditioned_orion_nohazard_on_path"
+      ],
+      "gate": "The fine-tuned ORION/VLM learns task relevance from route, scene, and spatial-UQ context: it improves on-path safety while preserving clean/off-path/no-hazard completion and driving utility. A scalar hard governor is not accepted as this learned policy."
+    }
+  ],
+  "event_freezing_rule": {
+    "camera": "CAM_FRONT",
+    "temporal_window": "Start at the first clean frame where the relevant crossing actor or conflict zone is visibly safety-relevant; use a fixed finite duration ending no later than clean conflict resolution.",
+    "on_path_region": "A fixed normalized rectangle covering the projected ego corridor/conflict zone in the clean front view; do not optimize it using degraded results.",
+    "off_path_region": "A fixed rectangle in the same camera with identical width, height, duration, family, severity, and seed; it must not intersect the ego corridor or relevant actor and should have approximately matched clean luminance.",
+    "amendment_required": "Write the exact progress, duration, two regions, frame evidence, and file hashes before submitting any degraded job."
+  },
+  "intervention": {
+    "primary_family": "local_glare",
+    "severity": 3,
+    "reason": "A localized visibility loss is less trivial than full-camera dropout, and glare was not a training corruption family in the current adapter protocol.",
+    "excluded_from_primary_evidence": [
+      "full-camera dropout",
+      "full-route corruption",
+      "global darkening treated as uncertainty",
+      "global blur treated as uncertainty"
+    ]
+  },
+  "outcomes": {
+    "safety": [
+      "collision count and type",
+      "minimum actor/obstacle clearance when measurable",
+      "traffic-rule infractions",
+      "route completion"
+    ],
+    "utility_false_positive": [
+      "completion time",
+      "time below 0.25 m/s outside required stops",
+      "mean speed and intervention duty cycle",
+      "matched off-path and no-hazard behavior"
+    ],
+    "uncertainty_diagnostic": [
+      "onset latency after intervention",
+      "event versus pre-event score shift",
+      "within-region versus outside-region localization contrast",
+      "matched on-path/off-path uncertainty magnitude consistency",
+      "score decay after intervention"
+    ]
+  },
+  "stop_rules": [
+    "Do not run learned or oracle control if clean replay is invalid.",
+    "Do not expand controls if the on-path intervention does not induce a meaningful degradation.",
+    "If oracle cannot improve the induced failure, redesign the scene or response mechanism.",
+    "If learned UQ does not localize the degraded region, improve Stage-1 supervision before Stage-2 policy training.",
+    "Do not interpret a similar global score for matched on-path and off-path degradation as failure; Stage-1 is intentionally task-agnostic.",
+    "Do not use the scalar hard governor as evidence that ORION/VLM learned task relevance."
+  ]
+}

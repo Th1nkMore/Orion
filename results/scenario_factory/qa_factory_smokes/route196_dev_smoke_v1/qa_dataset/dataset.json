@@ -1,0 +1,3953 @@
+{
+  "audit_summary": {
+    "checks": {
+      "all_question_families_per_variant": true,
+      "all_splits_nonempty": false,
+      "counterfactual_groups_input_matched": true,
+      "counterfactual_groups_split_intact": true,
+      "event_disjoint_splits": true,
+      "map_sidecars_valid": true,
+      "map_text_consistent": true,
+      "minimum_independent_events": false,
+      "minimum_matched_counterfactual_groups": false,
+      "minimum_scenario_families": false,
+      "minimum_towns": false,
+      "no_forbidden_model_inputs": true,
+      "route_disjoint_splits": true,
+      "stage1_component_maps_present": true,
+      "unique_sample_ids": true
+    },
+    "formal_training_ready": false
+  },
+  "bundle_inventory": [
+    {
+      "event_id": "route196_step313",
+      "map_sidecar": "map_sidecars/0000_route196_step313_observed.npz",
+      "map_sidecar_sha256": "dfb0f279c95a08a4b197a7383f3e5e2a23951b58ccfa4c3b7a82387a1ca80e2f",
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_observed.json",
+      "sha256": "52ead5d7b1d5b2cd41f76b3b178ba117acdb705f4f5da69dd5dc164b44d83ade",
+      "variant": "observed"
+    },
+    {
+      "event_id": "route196_step313",
+      "map_sidecar": "map_sidecars/0001_route196_step313_zero_uq.npz",
+      "map_sidecar_sha256": "32ddc17538bd977a1c8b22b59a0ef091304924f09681b8871f923a40357e1b6a",
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_zero_uq.json",
+      "sha256": "a4324e3ccebd23c88c50941425d53840d1aa6252c749bd39806f182c3fd54008",
+      "variant": "zero_uq"
+    },
+    {
+      "event_id": "route196_step313",
+      "map_sidecar": "map_sidecars/0002_route196_step313_on_path_uq.npz",
+      "map_sidecar_sha256": "7a55d8b0f68e97f151f2fcddb09ce8d928aace8b59a9ca170b7d610ebb6b9f69",
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_on_path_uq.json",
+      "sha256": "fce3de54407e2cfa3c71eb6b1497429d9e7e26d1f34c219eea4e96a35661fd40",
+      "variant": "on_path_uq"
+    },
+    {
+      "event_id": "route196_step313",
+      "map_sidecar": "map_sidecars/0003_route196_step313_off_path_uq.npz",
+      "map_sidecar_sha256": "32ddc17538bd977a1c8b22b59a0ef091304924f09681b8871f923a40357e1b6a",
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_off_path_uq.json",
+      "sha256": "9cf9af19acc030fabf9f3a32f0d421e20d30c02b32180a2eea8e9ebd2f8e31d8",
+      "variant": "off_path_uq"
+    },
+    {
+      "event_id": "route196_step313",
+      "map_sidecar": "map_sidecars/0004_route196_step313_view_shuffled_uq.npz",
+      "map_sidecar_sha256": "8d2d67bbe91417af6cd886137d1a88de173e37d52fce0a6f346a43172a26285e",
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_view_shuffled_uq.json",
+      "sha256": "3c4413bab53fe76b751786e2ae27c148ef77bf10526aafd7a4498e7408b20647",
+      "variant": "view_shuffled_uq"
+    }
+  ],
+  "claim_boundary": "This factory prepares Stage2-L supervision. It does not establish that Stage-1 UQ is calibrated, that the VLM understands uncertainty, or that planning is safer.",
+  "config": {
+    "path": "qa_factory_config.json",
+    "sha256": "7644a03dde18ae3dc3a32c41cd7ef61abefec278a1db3687e908f25052bf85be"
+  },
+  "records": [
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "Where is the current visual observation uncertain, how strong is it, and how is it changing over time?"
+        },
+        {
+          "from": "gpt",
+          "value": "Observation uncertainty is high; its strongest region is CAM_FRONT/upper_right, and its temporal trend is stable."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "observed"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_observed.npz",
+          "sha256": "cc5e1a80d78304564c4fc24d742224509a073d935f24418a8b8fd5ac4ecf8c84",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "frozen_stage1_observation_adapter"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_observed.json",
+        "frame_bundle_sha256": "52ead5d7b1d5b2cd41f76b3b178ba117acdb705f4f5da69dd5dc164b44d83ade",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "observation_semantics",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/observed/observation_semantics",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0000_route196_step313_observed.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "dfb0f279c95a08a4b197a7383f3e5e2a23951b58ccfa4c3b7a82387a1ca80e2f",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "Observation uncertainty is high; its strongest region is CAM_FRONT/upper_right, and its temporal trend is stable.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_right",
+            "peak_score": 0.9563749432563782,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "lower_left",
+            "peak_score": 0.09978719800710678,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "What does the observation-uncertainty signal tell you, and what can it not tell you?"
+        },
+        {
+          "from": "gpt",
+          "value": "The uncertainty map identifies unreliable visual evidence at CAM_FRONT/upper_right; it does not reveal which hidden object or fact is missing. Task relevance must be inferred separately."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "observed"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_observed.npz",
+          "sha256": "cc5e1a80d78304564c4fc24d742224509a073d935f24418a8b8fd5ac4ecf8c84",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "frozen_stage1_observation_adapter"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_observed.json",
+        "frame_bundle_sha256": "52ead5d7b1d5b2cd41f76b3b178ba117acdb705f4f5da69dd5dc164b44d83ade",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "epistemic_limitation",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/observed/epistemic_limitation",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0000_route196_step313_observed.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "dfb0f279c95a08a4b197a7383f3e5e2a23951b58ccfa4c3b7a82387a1ca80e2f",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "The uncertainty map identifies unreliable visual evidence at CAM_FRONT/upper_right; it does not reveal which hidden object or fact is missing. Task relevance must be inferred separately.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_right",
+            "peak_score": 0.9563749432563782,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "lower_left",
+            "peak_score": 0.09978719800710678,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "Given the route context and spatial observation uncertainty, predict the task-relevance map and summarize which uncertain region matters."
+        },
+        {
+          "from": "gpt",
+          "value": "<task_relevance_map> The most uncertain region has low task relevance. The strongest combined task risk is low at CAM_FRONT_LEFT/lower_left."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "observed"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_observed.npz",
+          "sha256": "cc5e1a80d78304564c4fc24d742224509a073d935f24418a8b8fd5ac4ecf8c84",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "frozen_stage1_observation_adapter"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_observed.json",
+        "frame_bundle_sha256": "52ead5d7b1d5b2cd41f76b3b178ba117acdb705f4f5da69dd5dc164b44d83ade",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "task_relevance",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/observed/task_relevance",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0000_route196_step313_observed.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "dfb0f279c95a08a4b197a7383f3e5e2a23951b58ccfa4c3b7a82387a1ca80e2f",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "<task_relevance_map> The most uncertain region has low task relevance. The strongest combined task risk is low at CAM_FRONT_LEFT/lower_left.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_right",
+            "peak_score": 0.9563749432563782,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "lower_left",
+            "peak_score": 0.09978719800710678,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "How should the task-relevant observation uncertainty influence the planning stance?"
+        },
+        {
+          "from": "gpt",
+          "value": "<task_relevance_map> The uncertainty-aware planning stance is maintain. This is a planning implication, not a direct brake or steering command."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "observed"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_observed.npz",
+          "sha256": "cc5e1a80d78304564c4fc24d742224509a073d935f24418a8b8fd5ac4ecf8c84",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "frozen_stage1_observation_adapter"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_observed.json",
+        "frame_bundle_sha256": "52ead5d7b1d5b2cd41f76b3b178ba117acdb705f4f5da69dd5dc164b44d83ade",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "driving_implication",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/observed/driving_implication",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0000_route196_step313_observed.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "dfb0f279c95a08a4b197a7383f3e5e2a23951b58ccfa4c3b7a82387a1ca80e2f",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "<task_relevance_map> The uncertainty-aware planning stance is maintain. This is a planning implication, not a direct brake or steering command.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_right",
+            "peak_score": 0.9563749432563782,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "lower_left",
+            "peak_score": 0.09978719800710678,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "Where is the current visual observation uncertain, how strong is it, and how is it changing over time?"
+        },
+        {
+          "from": "gpt",
+          "value": "Observation uncertainty is low; its strongest region is CAM_FRONT/upper_left, and its temporal trend is stable."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "zero_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_zero_uq.npz",
+          "sha256": "be901a3f8526566e064d13ec6f1ed05acaf3c486fc822a48099412e46571fc1c",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_zero_uq.json",
+        "frame_bundle_sha256": "a4324e3ccebd23c88c50941425d53840d1aa6252c749bd39806f182c3fd54008",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "observation_semantics",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/zero_uq/observation_semantics",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0001_route196_step313_zero_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "32ddc17538bd977a1c8b22b59a0ef091304924f09681b8871f923a40357e1b6a",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "Observation uncertainty is low; its strongest region is CAM_FRONT/upper_left, and its temporal trend is stable.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "What does the observation-uncertainty signal tell you, and what can it not tell you?"
+        },
+        {
+          "from": "gpt",
+          "value": "The uncertainty map identifies unreliable visual evidence at CAM_FRONT/upper_left; it does not reveal which hidden object or fact is missing. Task relevance must be inferred separately."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "zero_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_zero_uq.npz",
+          "sha256": "be901a3f8526566e064d13ec6f1ed05acaf3c486fc822a48099412e46571fc1c",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_zero_uq.json",
+        "frame_bundle_sha256": "a4324e3ccebd23c88c50941425d53840d1aa6252c749bd39806f182c3fd54008",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "epistemic_limitation",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/zero_uq/epistemic_limitation",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0001_route196_step313_zero_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "32ddc17538bd977a1c8b22b59a0ef091304924f09681b8871f923a40357e1b6a",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "The uncertainty map identifies unreliable visual evidence at CAM_FRONT/upper_left; it does not reveal which hidden object or fact is missing. Task relevance must be inferred separately.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "Given the route context and spatial observation uncertainty, predict the task-relevance map and summarize which uncertain region matters."
+        },
+        {
+          "from": "gpt",
+          "value": "<task_relevance_map> The most uncertain region has low task relevance. The strongest combined task risk is low at CAM_FRONT/upper_left."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "zero_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_zero_uq.npz",
+          "sha256": "be901a3f8526566e064d13ec6f1ed05acaf3c486fc822a48099412e46571fc1c",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_zero_uq.json",
+        "frame_bundle_sha256": "a4324e3ccebd23c88c50941425d53840d1aa6252c749bd39806f182c3fd54008",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "task_relevance",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/zero_uq/task_relevance",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0001_route196_step313_zero_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "32ddc17538bd977a1c8b22b59a0ef091304924f09681b8871f923a40357e1b6a",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "<task_relevance_map> The most uncertain region has low task relevance. The strongest combined task risk is low at CAM_FRONT/upper_left.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "How should the task-relevant observation uncertainty influence the planning stance?"
+        },
+        {
+          "from": "gpt",
+          "value": "<task_relevance_map> The uncertainty-aware planning stance is maintain. This is a planning implication, not a direct brake or steering command."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "zero_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_zero_uq.npz",
+          "sha256": "be901a3f8526566e064d13ec6f1ed05acaf3c486fc822a48099412e46571fc1c",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_zero_uq.json",
+        "frame_bundle_sha256": "a4324e3ccebd23c88c50941425d53840d1aa6252c749bd39806f182c3fd54008",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "driving_implication",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/zero_uq/driving_implication",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0001_route196_step313_zero_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "32ddc17538bd977a1c8b22b59a0ef091304924f09681b8871f923a40357e1b6a",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "<task_relevance_map> The uncertainty-aware planning stance is maintain. This is a planning implication, not a direct brake or steering command.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "Where is the current visual observation uncertain, how strong is it, and how is it changing over time?"
+        },
+        {
+          "from": "gpt",
+          "value": "Observation uncertainty is high; its strongest region is CAM_FRONT_LEFT/middle_left, and its temporal trend is stable."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "on_path_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_on_path_uq.npz",
+          "sha256": "37ab46d85bb2c8d6cc39a1452fceb95b936d5e78127b22b4efde8cf5855d77e6",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_on_path_uq.json",
+        "frame_bundle_sha256": "fce3de54407e2cfa3c71eb6b1497429d9e7e26d1f34c219eea4e96a35661fd40",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "observation_semantics",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/on_path_uq/observation_semantics",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0002_route196_step313_on_path_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "7a55d8b0f68e97f151f2fcddb09ce8d928aace8b59a9ca170b7d610ebb6b9f69",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "Observation uncertainty is high; its strongest region is CAM_FRONT_LEFT/middle_left, and its temporal trend is stable.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "middle_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT_LEFT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "prepare_to_yield"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "high",
+            "score": 1.0
+          },
+          "task_risk": {
+            "level": "high",
+            "peak_region": "middle_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "What does the observation-uncertainty signal tell you, and what can it not tell you?"
+        },
+        {
+          "from": "gpt",
+          "value": "The uncertainty map identifies unreliable visual evidence at CAM_FRONT_LEFT/middle_left; it does not reveal which hidden object or fact is missing. Task relevance must be inferred separately."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "on_path_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_on_path_uq.npz",
+          "sha256": "37ab46d85bb2c8d6cc39a1452fceb95b936d5e78127b22b4efde8cf5855d77e6",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_on_path_uq.json",
+        "frame_bundle_sha256": "fce3de54407e2cfa3c71eb6b1497429d9e7e26d1f34c219eea4e96a35661fd40",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "epistemic_limitation",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/on_path_uq/epistemic_limitation",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0002_route196_step313_on_path_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "7a55d8b0f68e97f151f2fcddb09ce8d928aace8b59a9ca170b7d610ebb6b9f69",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "The uncertainty map identifies unreliable visual evidence at CAM_FRONT_LEFT/middle_left; it does not reveal which hidden object or fact is missing. Task relevance must be inferred separately.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "middle_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT_LEFT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "prepare_to_yield"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "high",
+            "score": 1.0
+          },
+          "task_risk": {
+            "level": "high",
+            "peak_region": "middle_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "Given the route context and spatial observation uncertainty, predict the task-relevance map and summarize which uncertain region matters."
+        },
+        {
+          "from": "gpt",
+          "value": "<task_relevance_map> The most uncertain region has high task relevance. The strongest combined task risk is high at CAM_FRONT_LEFT/middle_left."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "on_path_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_on_path_uq.npz",
+          "sha256": "37ab46d85bb2c8d6cc39a1452fceb95b936d5e78127b22b4efde8cf5855d77e6",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_on_path_uq.json",
+        "frame_bundle_sha256": "fce3de54407e2cfa3c71eb6b1497429d9e7e26d1f34c219eea4e96a35661fd40",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "task_relevance",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/on_path_uq/task_relevance",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0002_route196_step313_on_path_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "7a55d8b0f68e97f151f2fcddb09ce8d928aace8b59a9ca170b7d610ebb6b9f69",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "<task_relevance_map> The most uncertain region has high task relevance. The strongest combined task risk is high at CAM_FRONT_LEFT/middle_left.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "middle_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT_LEFT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "prepare_to_yield"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "high",
+            "score": 1.0
+          },
+          "task_risk": {
+            "level": "high",
+            "peak_region": "middle_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "How should the task-relevant observation uncertainty influence the planning stance?"
+        },
+        {
+          "from": "gpt",
+          "value": "<task_relevance_map> The uncertainty-aware planning stance is prepare_to_yield. This is a planning implication, not a direct brake or steering command."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "on_path_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_on_path_uq.npz",
+          "sha256": "37ab46d85bb2c8d6cc39a1452fceb95b936d5e78127b22b4efde8cf5855d77e6",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_on_path_uq.json",
+        "frame_bundle_sha256": "fce3de54407e2cfa3c71eb6b1497429d9e7e26d1f34c219eea4e96a35661fd40",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "driving_implication",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/on_path_uq/driving_implication",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0002_route196_step313_on_path_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "7a55d8b0f68e97f151f2fcddb09ce8d928aace8b59a9ca170b7d610ebb6b9f69",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "<task_relevance_map> The uncertainty-aware planning stance is prepare_to_yield. This is a planning implication, not a direct brake or steering command.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "middle_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT_LEFT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "prepare_to_yield"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "high",
+            "score": 1.0
+          },
+          "task_risk": {
+            "level": "high",
+            "peak_region": "middle_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "Where is the current visual observation uncertain, how strong is it, and how is it changing over time?"
+        },
+        {
+          "from": "gpt",
+          "value": "Observation uncertainty is high; its strongest region is CAM_FRONT/upper_left, and its temporal trend is stable."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "off_path_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_off_path_uq.npz",
+          "sha256": "af13b8a7efbf15aa80cd32026c26bc46b10e9dee3615fb71213ede70ab44b978",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_off_path_uq.json",
+        "frame_bundle_sha256": "9cf9af19acc030fabf9f3a32f0d421e20d30c02b32180a2eea8e9ebd2f8e31d8",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "observation_semantics",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/off_path_uq/observation_semantics",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0003_route196_step313_off_path_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "32ddc17538bd977a1c8b22b59a0ef091304924f09681b8871f923a40357e1b6a",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "Observation uncertainty is high; its strongest region is CAM_FRONT/upper_left, and its temporal trend is stable.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "What does the observation-uncertainty signal tell you, and what can it not tell you?"
+        },
+        {
+          "from": "gpt",
+          "value": "The uncertainty map identifies unreliable visual evidence at CAM_FRONT/upper_left; it does not reveal which hidden object or fact is missing. Task relevance must be inferred separately."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "off_path_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_off_path_uq.npz",
+          "sha256": "af13b8a7efbf15aa80cd32026c26bc46b10e9dee3615fb71213ede70ab44b978",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_off_path_uq.json",
+        "frame_bundle_sha256": "9cf9af19acc030fabf9f3a32f0d421e20d30c02b32180a2eea8e9ebd2f8e31d8",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "epistemic_limitation",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/off_path_uq/epistemic_limitation",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0003_route196_step313_off_path_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "32ddc17538bd977a1c8b22b59a0ef091304924f09681b8871f923a40357e1b6a",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "The uncertainty map identifies unreliable visual evidence at CAM_FRONT/upper_left; it does not reveal which hidden object or fact is missing. Task relevance must be inferred separately.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "Given the route context and spatial observation uncertainty, predict the task-relevance map and summarize which uncertain region matters."
+        },
+        {
+          "from": "gpt",
+          "value": "<task_relevance_map> The most uncertain region has low task relevance. The strongest combined task risk is low at CAM_FRONT/upper_left."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "off_path_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_off_path_uq.npz",
+          "sha256": "af13b8a7efbf15aa80cd32026c26bc46b10e9dee3615fb71213ede70ab44b978",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_off_path_uq.json",
+        "frame_bundle_sha256": "9cf9af19acc030fabf9f3a32f0d421e20d30c02b32180a2eea8e9ebd2f8e31d8",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "task_relevance",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/off_path_uq/task_relevance",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0003_route196_step313_off_path_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "32ddc17538bd977a1c8b22b59a0ef091304924f09681b8871f923a40357e1b6a",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "<task_relevance_map> The most uncertain region has low task relevance. The strongest combined task risk is low at CAM_FRONT/upper_left.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "How should the task-relevant observation uncertainty influence the planning stance?"
+        },
+        {
+          "from": "gpt",
+          "value": "<task_relevance_map> The uncertainty-aware planning stance is maintain. This is a planning implication, not a direct brake or steering command."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "off_path_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_off_path_uq.npz",
+          "sha256": "af13b8a7efbf15aa80cd32026c26bc46b10e9dee3615fb71213ede70ab44b978",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_off_path_uq.json",
+        "frame_bundle_sha256": "9cf9af19acc030fabf9f3a32f0d421e20d30c02b32180a2eea8e9ebd2f8e31d8",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "driving_implication",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/off_path_uq/driving_implication",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0003_route196_step313_off_path_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "32ddc17538bd977a1c8b22b59a0ef091304924f09681b8871f923a40357e1b6a",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "<task_relevance_map> The uncertainty-aware planning stance is maintain. This is a planning implication, not a direct brake or steering command.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_left",
+            "peak_score": 0.8999999761581421,
+            "peak_view": "CAM_FRONT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "maintain"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "upper_left",
+            "peak_score": 0.0,
+            "peak_view": "CAM_FRONT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "Where is the current visual observation uncertain, how strong is it, and how is it changing over time?"
+        },
+        {
+          "from": "gpt",
+          "value": "Observation uncertainty is high; its strongest region is CAM_FRONT_LEFT/upper_right, and its temporal trend is stable."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "view_shuffled_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_view_shuffled_uq.npz",
+          "sha256": "96b4f34ab4c6a90c7aa5d86d8eece7c57808d7d8f9907c893fcb86c748ed79d3",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_view_shuffled_uq.json",
+        "frame_bundle_sha256": "3c4413bab53fe76b751786e2ae27c148ef77bf10526aafd7a4498e7408b20647",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "observation_semantics",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/view_shuffled_uq/observation_semantics",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0004_route196_step313_view_shuffled_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "8d2d67bbe91417af6cd886137d1a88de173e37d52fce0a6f346a43172a26285e",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "Observation uncertainty is high; its strongest region is CAM_FRONT_LEFT/upper_right, and its temporal trend is stable.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_right",
+            "peak_score": 0.9563749432563782,
+            "peak_view": "CAM_FRONT_LEFT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "caution"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "lower_left",
+            "peak_score": 0.32284995913505554,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "What does the observation-uncertainty signal tell you, and what can it not tell you?"
+        },
+        {
+          "from": "gpt",
+          "value": "The uncertainty map identifies unreliable visual evidence at CAM_FRONT_LEFT/upper_right; it does not reveal which hidden object or fact is missing. Task relevance must be inferred separately."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "view_shuffled_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_view_shuffled_uq.npz",
+          "sha256": "96b4f34ab4c6a90c7aa5d86d8eece7c57808d7d8f9907c893fcb86c748ed79d3",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_view_shuffled_uq.json",
+        "frame_bundle_sha256": "3c4413bab53fe76b751786e2ae27c148ef77bf10526aafd7a4498e7408b20647",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "epistemic_limitation",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/view_shuffled_uq/epistemic_limitation",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0004_route196_step313_view_shuffled_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "8d2d67bbe91417af6cd886137d1a88de173e37d52fce0a6f346a43172a26285e",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "The uncertainty map identifies unreliable visual evidence at CAM_FRONT_LEFT/upper_right; it does not reveal which hidden object or fact is missing. Task relevance must be inferred separately.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_right",
+            "peak_score": 0.9563749432563782,
+            "peak_view": "CAM_FRONT_LEFT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "caution"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "lower_left",
+            "peak_score": 0.32284995913505554,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "Given the route context and spatial observation uncertainty, predict the task-relevance map and summarize which uncertain region matters."
+        },
+        {
+          "from": "gpt",
+          "value": "<task_relevance_map> The most uncertain region has low task relevance. The strongest combined task risk is low at CAM_FRONT_LEFT/lower_left."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "view_shuffled_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_view_shuffled_uq.npz",
+          "sha256": "96b4f34ab4c6a90c7aa5d86d8eece7c57808d7d8f9907c893fcb86c748ed79d3",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_view_shuffled_uq.json",
+        "frame_bundle_sha256": "3c4413bab53fe76b751786e2ae27c148ef77bf10526aafd7a4498e7408b20647",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "task_relevance",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/view_shuffled_uq/task_relevance",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0004_route196_step313_view_shuffled_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "8d2d67bbe91417af6cd886137d1a88de173e37d52fce0a6f346a43172a26285e",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "<task_relevance_map> The most uncertain region has low task relevance. The strongest combined task risk is low at CAM_FRONT_LEFT/lower_left.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_right",
+            "peak_score": 0.9563749432563782,
+            "peak_view": "CAM_FRONT_LEFT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "caution"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "lower_left",
+            "peak_score": 0.32284995913505554,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    },
+    {
+      "conversation": [
+        {
+          "from": "human",
+          "value": "How should the task-relevant observation uncertainty influence the planning stance?"
+        },
+        {
+          "from": "gpt",
+          "value": "<task_relevance_map> The uncertainty-aware planning stance is caution. This is a planning implication, not a direct brake or steering command."
+        }
+      ],
+      "counterfactual": {
+        "group_id": "route196_step313_saved_0031",
+        "variant": "view_shuffled_uq"
+      },
+      "event_id": "route196_step313",
+      "frame_id": "saved_0031",
+      "model_input": {
+        "observation": {
+          "camera_files": [
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_model_input/0031.png",
+              "sha256": "fce347c8e87ac7b9ad996f95cf0574b42b5148a1bc70227d775a476e47910280",
+              "view": "CAM_FRONT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_left/0031.png",
+              "sha256": "e58f3ee4ee7f51fa0cea5670a5b5decd8686f0037f57bda01463ef4860b58bcb",
+              "view": "CAM_FRONT_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_front_right/0031.png",
+              "sha256": "3be3406fa8dea68b7a015e35d1f86fe79101fa6cc908f8bd9f7f82817beabf21",
+              "view": "CAM_FRONT_RIGHT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back/0031.png",
+              "sha256": "ca25e7e378a3a38f47d2f5e2d19647c60ae44272e2e5ebc7c1d8241a8d21d6cd",
+              "view": "CAM_BACK"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_left/0031.png",
+              "sha256": "c189aa57204e095ea6ef612353d3416a47e9b30eac645613c75f8c297e9aa230",
+              "view": "CAM_BACK_LEFT"
+            },
+            {
+              "path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route196_hazard_clean_off-1086150/records_orion_traj_0/RouteScenario_26956_rep0_Town05_SignalizedJunctionRightTurn_1_26_08_28_23_20_06/rgb_back_right/0031.png",
+              "sha256": "947a40767e4b79580191ea704795c06e13bd3810bd89635cc264d5068b04d637",
+              "view": "CAM_BACK_RIGHT"
+            }
+          ],
+          "observation_sha256": "8fdf45a6f0999e07bf5cb2c7abcff6a6e6a8674043457b31754a698b397b4b99"
+        },
+        "route_context": {
+          "payload": {
+            "command": 2,
+            "orion_unmodified_plan_right_forward_m": [
+              [
+                0.2900223135948181,
+                0.9411832094192505
+              ],
+              [
+                0.9229959845542908,
+                2.0835366249084473
+              ],
+              [
+                2.1714236736297607,
+                3.423929452896118
+              ],
+              [
+                4.129028797149658,
+                4.921743392944336
+              ],
+              [
+                6.695147514343262,
+                6.468409538269043
+              ],
+              [
+                9.80379867553711,
+                8.120000839233398
+              ]
+            ]
+          },
+          "sha256": "da5a69bdc140534a8c4b24aaa3e3c5c56e1c080b8c2765fe0cac8aff2d620aae"
+        },
+        "stage1_observation_uq": {
+          "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+          "component_key": "uncertainty_components",
+          "component_names": [
+            "persistent_direction",
+            "persistent_magnitude",
+            "transient_inconsistency"
+          ],
+          "component_shape": [
+            4,
+            6,
+            40,
+            40,
+            3
+          ],
+          "control_influence": false,
+          "normalization": "route_prefix_robust_sigmoid_v1",
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/uq_view_shuffled_uq.npz",
+          "sha256": "96b4f34ab4c6a90c7aa5d86d8eece7c57808d7d8f9907c893fcb86c748ed79d3",
+          "shape": [
+            4,
+            6,
+            40,
+            40
+          ],
+          "source": "controlled_stage1_uq_counterfactual"
+        }
+      },
+      "provenance": {
+        "frame_bundle_path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/frame_bundle_view_shuffled_uq.json",
+        "frame_bundle_sha256": "3c4413bab53fe76b751786e2ae27c148ef77bf10526aafd7a4498e7408b20647",
+        "relevance_supervision": {
+          "geometry_manifest": {
+            "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/task_relevance_geometry.json",
+            "sha256": "a243884ab0799e4516728ab4fc7f748b818d78e361de153effae566b89131216"
+          },
+          "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v1/frame_bundles/maps/task_relevance.npz",
+          "privileged_for_supervision_only": true,
+          "sha256": "623194bdc0cdd4f543f508cc0820068d5d27db3f9ec26958694e7b99637ff4ee",
+          "shape": [
+            6,
+            40,
+            40
+          ],
+          "source": "projected_actor_route_corridor_geometry_v1",
+          "uses_corruption_label": false
+        }
+      },
+      "question_family": "driving_implication",
+      "route_id": "196",
+      "sample_id": "route196_step313/saved_0031/view_shuffled_uq/driving_implication",
+      "scenario_family": "SignalizedJunctionRightTurn",
+      "schema": "orion.uq_relevance_qa_record.v1",
+      "split": "train",
+      "target": {
+        "map_sidecar": {
+          "dense_relevance_is_authoritative": true,
+          "metadata": {
+            "camera_order": [
+              "CAM_FRONT",
+              "CAM_FRONT_LEFT",
+              "CAM_FRONT_RIGHT",
+              "CAM_BACK",
+              "CAM_BACK_LEFT",
+              "CAM_BACK_RIGHT"
+            ],
+            "relevance_definition": "task relevance independent of UQ magnitude",
+            "schema": "orion.uq_relevance_map_sidecar.v1",
+            "shape": [
+              6,
+              40,
+              40
+            ],
+            "task_risk_definition": "latest observation UQ multiplied by relevance",
+            "uncertainty_definition": "normalized frozen Stage-1 observation UQ"
+          },
+          "path": "map_sidecars/0004_route196_step313_view_shuffled_uq.npz",
+          "relevance_key": "task_relevance",
+          "schema": "orion.uq_relevance_map_sidecar.v1",
+          "sha256": "8d2d67bbe91417af6cd886137d1a88de173e37d52fce0a6f346a43172a26285e",
+          "task_risk_key": "task_risk"
+        },
+        "rendered_answer": "<task_relevance_map> The uncertainty-aware planning stance is caution. This is a planning implication, not a direct brake or steering command.",
+        "structured_summary": {
+          "observation_uncertainty": {
+            "level": "high",
+            "peak_region": "upper_right",
+            "peak_score": 0.9563749432563782,
+            "peak_view": "CAM_FRONT_LEFT",
+            "temporal_trend": "stable"
+          },
+          "planning_implication": {
+            "is_direct_control_command": false,
+            "stance": "caution"
+          },
+          "relevance_at_most_uncertain_region": {
+            "level": "low",
+            "score": 0.0
+          },
+          "task_risk": {
+            "level": "low",
+            "peak_region": "lower_left",
+            "peak_score": 0.32284995913505554,
+            "peak_view": "CAM_FRONT_LEFT"
+          }
+        }
+      },
+      "town": "Town05"
+    }
+  ],
+  "schema": "orion.uq_relevance_qa_dataset.v1",
+  "status": "engineering_interface_only"
+}

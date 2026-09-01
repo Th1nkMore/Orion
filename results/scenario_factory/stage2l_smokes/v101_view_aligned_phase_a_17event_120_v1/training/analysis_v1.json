@@ -1,0 +1,2661 @@
+{
+  "average_precision_comparison": {
+    "dev_delta": 0.18580094461883956,
+    "train_delta": 0.46988714263117,
+    "v101_dev": 0.4152420349595574,
+    "v101_train": 0.9101579694229787,
+    "v10_dev": 0.22944109034071786,
+    "v10_train": 0.4402708267918087
+  },
+  "claim_boundary": "Engineering Phase-A diagnosis only; not formal generalization, planning, closed-loop, or safety evidence.",
+  "decision": {
+    "closed_loop": false,
+    "formal_stage2l": false,
+    "next_action": "Keep later stages locked. Inspect per-event/view residuals and decide whether one targeted R-interface repair is justified.",
+    "phase_b_automatically_authorized": false,
+    "phase_c": false,
+    "route203_native_glare_submission": false,
+    "stage2p": false
+  },
+  "gate_passed": false,
+  "milestones": [
+    {
+      "dev_average_precision": 0.34031795945651283,
+      "optimizer_step": 40,
+      "passed": false,
+      "train_average_precision": 0.7852973079054499
+    },
+    {
+      "dev_average_precision": 0.3879645286975977,
+      "optimizer_step": 80,
+      "passed": false,
+      "train_average_precision": 0.8702364907056434
+    },
+    {
+      "dev_average_precision": 0.4152420349595574,
+      "optimizer_step": 120,
+      "passed": false,
+      "train_average_precision": 0.9101579694229787
+    }
+  ],
+  "optimizer_steps": 120,
+  "provenance": {
+    "final_spatial_maps": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/spatial_maps_step120.pt",
+      "sha256": "68c33b15c402c932d31b8cb4ee5531d7515ba59f288ae4051931b061d3052031"
+    },
+    "v101_report": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/report.json",
+      "sha256": "334409434e79a153496e590a27ee4db8d4e173c0af40f1682a02bfd384d08c25"
+    },
+    "v10_replay_analysis": {
+      "path": "/public/home/lidachuan/project/Orion/results/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/phase_a_replay_v1/analysis.json",
+      "sha256": "9e00884db753acf07153162000b0556e67d2a4b2b895183bfd91d22aa62a03aa"
+    }
+  },
+  "schema": "orion.stage2l_v101_phase_a_analysis.v1",
+  "status": "terminal_v101_phase_a_analyzed_later_stages_locked",
+  "stop_reason": "maximum_steps_reached",
+  "view_binding_metrics": {
+    "per_event": {
+      "route147_step223": {
+        "group_count": 5,
+        "multi_view_target_group_count": 1,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_FRONT": 5
+        },
+        "split": "dev",
+        "target_dominant_view_counts": {
+          "CAM_FRONT": 5
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 1.0
+      },
+      "route151_step218": {
+        "group_count": 5,
+        "multi_view_target_group_count": 1,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_FRONT": 5
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_FRONT": 5
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 1.0
+      },
+      "route152_step125": {
+        "group_count": 5,
+        "multi_view_target_group_count": 4,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_FRONT": 5
+        },
+        "split": "dev",
+        "target_dominant_view_counts": {
+          "CAM_BACK_LEFT": 1,
+          "CAM_FRONT": 2,
+          "CAM_FRONT_LEFT": 2
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 0.4
+      },
+      "route157_step193": {
+        "group_count": 5,
+        "multi_view_target_group_count": 4,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_FRONT": 2,
+          "CAM_FRONT_RIGHT": 3
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_FRONT": 2,
+          "CAM_FRONT_RIGHT": 3
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 1.0
+      },
+      "route158_step154": {
+        "group_count": 3,
+        "multi_view_target_group_count": 0,
+        "multi_view_top1_hit_fraction": null,
+        "prediction_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_FRONT": 2
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_FRONT": 2
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 1.0
+      },
+      "route160_step518": {
+        "group_count": 5,
+        "multi_view_target_group_count": 3,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_FRONT": 4
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_FRONT": 2,
+          "CAM_FRONT_LEFT": 2
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 0.6
+      },
+      "route161_step308": {
+        "group_count": 5,
+        "multi_view_target_group_count": 4,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_FRONT": 4
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_BACK": 2,
+          "CAM_FRONT": 2,
+          "CAM_FRONT_LEFT": 1
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 0.6
+      },
+      "route162_step277": {
+        "group_count": 5,
+        "multi_view_target_group_count": 1,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_BACK": 3,
+          "CAM_FRONT": 2
+        },
+        "split": "dev",
+        "target_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_BACK_LEFT": 1,
+          "CAM_FRONT": 3
+        },
+        "top1_hits_any_target_supported_view_fraction": 0.8,
+        "top1_matches_target_dominant_view_fraction": 0.6
+      },
+      "route164_step522": {
+        "group_count": 5,
+        "multi_view_target_group_count": 5,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_BACK": 2,
+          "CAM_FRONT": 3
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_BACK": 2,
+          "CAM_BACK_LEFT": 1,
+          "CAM_FRONT": 1,
+          "CAM_FRONT_LEFT": 1
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 0.4
+      },
+      "route165_step421": {
+        "group_count": 5,
+        "multi_view_target_group_count": 3,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_BACK_LEFT": 1,
+          "CAM_FRONT": 3
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_BACK_LEFT": 1,
+          "CAM_FRONT": 3
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 1.0
+      },
+      "route168_step482": {
+        "group_count": 4,
+        "multi_view_target_group_count": 1,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_BACK": 4
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_BACK": 4
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 1.0
+      },
+      "route180_step696": {
+        "group_count": 5,
+        "multi_view_target_group_count": 0,
+        "multi_view_top1_hit_fraction": null,
+        "prediction_dominant_view_counts": {
+          "CAM_FRONT": 5
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_FRONT": 5
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 1.0
+      },
+      "route185_step304": {
+        "group_count": 5,
+        "multi_view_target_group_count": 1,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_FRONT": 5
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_FRONT": 5
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 1.0
+      },
+      "route188_step139": {
+        "group_count": 5,
+        "multi_view_target_group_count": 2,
+        "multi_view_top1_hit_fraction": 0.5,
+        "prediction_dominant_view_counts": {
+          "CAM_FRONT": 5
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_FRONT": 3,
+          "CAM_FRONT_LEFT": 1
+        },
+        "top1_hits_any_target_supported_view_fraction": 0.6,
+        "top1_matches_target_dominant_view_fraction": 0.6
+      },
+      "route194_step684": {
+        "group_count": 3,
+        "multi_view_target_group_count": 1,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_FRONT": 3
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_FRONT": 2,
+          "CAM_FRONT_RIGHT": 1
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 0.6666666666666666
+      },
+      "route195_step230": {
+        "group_count": 5,
+        "multi_view_target_group_count": 2,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_FRONT": 5
+        },
+        "split": "dev",
+        "target_dominant_view_counts": {
+          "CAM_FRONT": 3,
+          "CAM_FRONT_RIGHT": 2
+        },
+        "top1_hits_any_target_supported_view_fraction": 0.6,
+        "top1_matches_target_dominant_view_fraction": 0.6
+      },
+      "route207_step924": {
+        "group_count": 5,
+        "multi_view_target_group_count": 0,
+        "multi_view_top1_hit_fraction": null,
+        "prediction_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_FRONT": 4
+        },
+        "split": "train",
+        "target_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_FRONT": 4
+        },
+        "top1_hits_any_target_supported_view_fraction": 1.0,
+        "top1_matches_target_dominant_view_fraction": 1.0
+      }
+    },
+    "per_group": {
+      "route147_step223_saved_0018": {
+        "event_id": "route147_step223",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 6.2080885524389e-05,
+          "CAM_BACK_LEFT": 0.001362801497364785,
+          "CAM_BACK_RIGHT": 5.4785991375483345e-08,
+          "CAM_FRONT": 5.977054873567785,
+          "CAM_FRONT_LEFT": 0.001448168052775145,
+          "CAM_FRONT_RIGHT": 1.4603762215514848e-05
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.615679261391051,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route147_step223_saved_0020": {
+        "event_id": "route147_step223",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.942680553882915e-07,
+          "CAM_BACK_LEFT": 0.003101666932550984,
+          "CAM_BACK_RIGHT": 4.2912169068154427e-08,
+          "CAM_FRONT": 5.305756080357585,
+          "CAM_FRONT_LEFT": 0.004608347747762309,
+          "CAM_FRONT_RIGHT": 7.321713695773724e-05
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.098217943275813,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route147_step223_saved_0022": {
+        "event_id": "route147_step223",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 4.295066273177911e-05,
+          "CAM_BACK_LEFT": 0.0011631468830515246,
+          "CAM_BACK_RIGHT": 9.989090514819776e-09,
+          "CAM_FRONT": 4.972590205496964,
+          "CAM_FRONT_LEFT": 0.0011797178203778458,
+          "CAM_FRONT_RIGHT": 0.00011991884974804634
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_RIGHT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 8.091276357183233,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 2.375
+        }
+      },
+      "route147_step223_saved_0024": {
+        "event_id": "route147_step223",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.012569779966228545,
+          "CAM_BACK_LEFT": 0.00059622875103571,
+          "CAM_BACK_RIGHT": 2.477591759530995e-08,
+          "CAM_FRONT": 4.661909122732485,
+          "CAM_FRONT_LEFT": 0.00045215227743256037,
+          "CAM_FRONT_RIGHT": 1.6775177931194207e-05
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 1.302882857620716,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route147_step223_saved_0026": {
+        "event_id": "route147_step223",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.00036303626870116956,
+          "CAM_BACK_LEFT": 0.0003836409952917563,
+          "CAM_BACK_RIGHT": 2.140271571776653e-08,
+          "CAM_FRONT": 6.175742629827391,
+          "CAM_FRONT_LEFT": 0.0009697753463342451,
+          "CAM_FRONT_RIGHT": 2.7881614096170182e-05
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.9676988780265674,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route151_step218_saved_0018": {
+        "event_id": "route151_step218",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.753727784499769e-07,
+          "CAM_BACK_LEFT": 0.0007610502798200969,
+          "CAM_BACK_RIGHT": 1.6572926613521444e-08,
+          "CAM_FRONT": 6.374072512320848,
+          "CAM_FRONT_LEFT": 0.00012442659476619156,
+          "CAM_FRONT_RIGHT": 2.2043011104866395e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.526439882814884,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route151_step218_saved_0020": {
+        "event_id": "route151_step218",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 7.686420295735519e-06,
+          "CAM_BACK_LEFT": 0.0005398064978123784,
+          "CAM_BACK_RIGHT": 3.3167193885449975e-08,
+          "CAM_FRONT": 4.74856451662683,
+          "CAM_FRONT_LEFT": 0.00043603899177924177,
+          "CAM_FRONT_RIGHT": 3.237299700886709e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 1.5359160457737744,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route151_step218_saved_0022": {
+        "event_id": "route151_step218",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.8151997646524984e-06,
+          "CAM_BACK_LEFT": 0.000813387895483686,
+          "CAM_BACK_RIGHT": 3.7106045427254264e-08,
+          "CAM_FRONT": 1.562012189170087,
+          "CAM_FRONT_LEFT": 0.0004494685070426385,
+          "CAM_FRONT_RIGHT": 5.841296621822423e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.5175380678847432,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route151_step218_saved_0024": {
+        "event_id": "route151_step218",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.608715577629873e-05,
+          "CAM_BACK_LEFT": 0.0010942423602386953,
+          "CAM_BACK_RIGHT": 1.6207157423411833e-08,
+          "CAM_FRONT": 5.276335072365219,
+          "CAM_FRONT_LEFT": 0.0013142121616738223,
+          "CAM_FRONT_RIGHT": 8.795016927010124e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 1.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 1.6603048625402153,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route151_step218_saved_0026": {
+        "event_id": "route151_step218",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 1.260944747819015e-05,
+          "CAM_BACK_LEFT": 0.0007638192116949938,
+          "CAM_BACK_RIGHT": 6.395593792844073e-09,
+          "CAM_FRONT": 6.794831591868954,
+          "CAM_FRONT_LEFT": 0.002008232244861574,
+          "CAM_FRONT_RIGHT": 0.00021018769468028609
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.629620913823601,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route152_step125_saved_0009": {
+        "event_id": "route152_step125",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.4756944729492462e-06,
+          "CAM_BACK_LEFT": 0.010885009432950454,
+          "CAM_BACK_RIGHT": 1.97177310650061e-07,
+          "CAM_FRONT": 8.501719228180642,
+          "CAM_FRONT_LEFT": 0.005474446829964563,
+          "CAM_FRONT_RIGHT": 0.004497074061049489
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_BACK_LEFT",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 13.5,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 7.044047700474039,
+          "CAM_FRONT_LEFT": 12.625,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route152_step125_saved_0011": {
+        "event_id": "route152_step125",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.0020988959334908817,
+          "CAM_BACK_LEFT": 0.0024184693809417013,
+          "CAM_BACK_RIGHT": 1.262890179922968e-07,
+          "CAM_FRONT": 11.534639482820204,
+          "CAM_FRONT_LEFT": 0.010826680350191964,
+          "CAM_FRONT_RIGHT": 0.040203342519362195
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT_LEFT",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.5625,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 9.232325417920947,
+          "CAM_FRONT_LEFT": 14.25,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route152_step125_saved_0012": {
+        "event_id": "route152_step125",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.018420201313195106,
+          "CAM_BACK_LEFT": 0.004296705109766208,
+          "CAM_BACK_RIGHT": 3.354800203435315e-07,
+          "CAM_FRONT": 11.920463524119805,
+          "CAM_FRONT_LEFT": 0.017185128276196338,
+          "CAM_FRONT_RIGHT": 0.111901753984057
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 4,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.75,
+          "CAM_BACK_LEFT": 1.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 12.340038173832,
+          "CAM_FRONT_LEFT": 12.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route152_step125_saved_0014": {
+        "event_id": "route152_step125",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.25890015679155115,
+          "CAM_BACK_LEFT": 0.011258376039108953,
+          "CAM_BACK_RIGHT": 3.970316041525257e-07,
+          "CAM_FRONT": 10.912728500830525,
+          "CAM_FRONT_LEFT": 0.03949597357768653,
+          "CAM_FRONT_RIGHT": 0.050049074128764914
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 7.699892990291119,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route152_step125_saved_0016": {
+        "event_id": "route152_step125",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 1.4814448554493582,
+          "CAM_BACK_LEFT": 0.01680373753299591,
+          "CAM_BACK_RIGHT": 4.2083511445772936e-07,
+          "CAM_FRONT": 12.281788887989135,
+          "CAM_FRONT_LEFT": 0.04474929346633871,
+          "CAM_FRONT_RIGHT": 0.13901163302853092
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT_LEFT",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 4.5,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 9.594345870660618,
+          "CAM_FRONT_LEFT": 41.625,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route157_step193_saved_0015": {
+        "event_id": "route157_step193",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 1.949602886357378e-05,
+          "CAM_BACK_LEFT": 0.0068683446810950954,
+          "CAM_BACK_RIGHT": 1.0078609670970129e-07,
+          "CAM_FRONT": 13.350130412253556,
+          "CAM_FRONT_LEFT": 0.0006025713986446135,
+          "CAM_FRONT_RIGHT": 0.0004211246320213746
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 8.167416101321578,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route157_step193_saved_0017": {
+        "event_id": "route157_step193",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.6699396343463078e-06,
+          "CAM_BACK_LEFT": 0.009021318477209661,
+          "CAM_BACK_RIGHT": 1.8615520990319934e-07,
+          "CAM_FRONT": 32.33297406724058,
+          "CAM_FRONT_LEFT": 0.002368669067209339,
+          "CAM_FRONT_RIGHT": 0.013463309983251293
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_RIGHT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 26.70514452480711,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 1.1875
+        }
+      },
+      "route157_step193_saved_0019": {
+        "event_id": "route157_step193",
+        "prediction_dominant_view": "CAM_FRONT_RIGHT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.304095228615078e-05,
+          "CAM_BACK_LEFT": 0.05680458875144723,
+          "CAM_BACK_RIGHT": 4.5438803865371913e-07,
+          "CAM_FRONT": 24.402326334951518,
+          "CAM_FRONT_LEFT": 0.010154088694434904,
+          "CAM_FRONT_RIGHT": 70.97635732131312
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT_RIGHT",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_RIGHT",
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 1.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 19.25,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 62.0
+        }
+      },
+      "route157_step193_saved_0021": {
+        "event_id": "route157_step193",
+        "prediction_dominant_view": "CAM_FRONT_RIGHT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.001066820392039855,
+          "CAM_BACK_LEFT": 0.05782834024216754,
+          "CAM_BACK_RIGHT": 2.794306383224754e-07,
+          "CAM_FRONT": 23.793796180670654,
+          "CAM_FRONT_LEFT": 0.022949099893594394,
+          "CAM_FRONT_RIGHT": 61.47771769937481
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT_RIGHT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_RIGHT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 21.5625,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 50.3125
+        }
+      },
+      "route157_step193_saved_0023": {
+        "event_id": "route157_step193",
+        "prediction_dominant_view": "CAM_FRONT_RIGHT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.0052950427819978,
+          "CAM_BACK_LEFT": 0.06711310851892449,
+          "CAM_BACK_RIGHT": 2.7315578714215416e-07,
+          "CAM_FRONT": 23.71037042575712,
+          "CAM_FRONT_LEFT": 0.03210391900211107,
+          "CAM_FRONT_RIGHT": 61.79425714644867
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT_RIGHT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_RIGHT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 21.5625,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 50.3125
+        }
+      },
+      "route158_step154_saved_0011": {
+        "event_id": "route158_step154",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.912722215670961e-08,
+          "CAM_BACK_LEFT": 0.003348947802507496,
+          "CAM_BACK_RIGHT": 7.050524243601419e-08,
+          "CAM_FRONT": 9.283829661183578,
+          "CAM_FRONT_LEFT": 0.0003103215591124808,
+          "CAM_FRONT_RIGHT": 1.533341696280388e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 6.661541456938721,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route158_step154_saved_0015": {
+        "event_id": "route158_step154",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.6833942954084664,
+          "CAM_BACK_LEFT": 0.012631744500140485,
+          "CAM_BACK_RIGHT": 1.4693822240896548e-07,
+          "CAM_FRONT": 0.00039273077452161437,
+          "CAM_FRONT_LEFT": 0.0006719835902799787,
+          "CAM_FRONT_RIGHT": 0.0002903280730297553
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 1.75,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.0,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route158_step154_saved_0017": {
+        "event_id": "route158_step154",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 6.897704953441608e-06,
+          "CAM_BACK_LEFT": 0.0172602628565528,
+          "CAM_BACK_RIGHT": 2.107818102004e-07,
+          "CAM_FRONT": 9.50415391534655,
+          "CAM_FRONT_LEFT": 0.0007897275485220234,
+          "CAM_FRONT_RIGHT": 0.00036005137367567386
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 7.241886785486713,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route160_step518_saved_0048": {
+        "event_id": "route160_step518",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 1.4817352712583401e-05,
+          "CAM_BACK_LEFT": 0.037061399246358206,
+          "CAM_BACK_RIGHT": 9.539706521261015e-08,
+          "CAM_FRONT": 7.518195190032507,
+          "CAM_FRONT_LEFT": 0.059894896979017176,
+          "CAM_FRONT_RIGHT": 9.921546011426585e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.11363878659904,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route160_step518_saved_0050": {
+        "event_id": "route160_step518",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.7381926641044129,
+          "CAM_BACK_LEFT": 0.04416173916081689,
+          "CAM_BACK_RIGHT": 1.3542463976612407e-07,
+          "CAM_FRONT": 8.06913319653489,
+          "CAM_FRONT_LEFT": 0.04439364279542701,
+          "CAM_FRONT_RIGHT": 6.535808190122339e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.137336625601165,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route160_step518_saved_0052": {
+        "event_id": "route160_step518",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 14.34810073152346,
+          "CAM_BACK_LEFT": 0.0818727741428571,
+          "CAM_BACK_RIGHT": 1.6612801484461315e-07,
+          "CAM_FRONT": 7.688255340263727,
+          "CAM_FRONT_LEFT": 0.044697672232189234,
+          "CAM_FRONT_RIGHT": 0.00010959304136903825
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 14.0625,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.107285176869482,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route160_step518_saved_0054": {
+        "event_id": "route160_step518",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.002196574929561247,
+          "CAM_BACK_LEFT": 0.13885520206839885,
+          "CAM_BACK_RIGHT": 1.301900212496987e-07,
+          "CAM_FRONT": 7.664342697450966,
+          "CAM_FRONT_LEFT": 0.10007863574423936,
+          "CAM_FRONT_RIGHT": 0.00012082518250622343
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT_LEFT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.0598860289901495,
+          "CAM_FRONT_LEFT": 9.625,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route160_step518_saved_0056": {
+        "event_id": "route160_step518",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.12820450322494473,
+          "CAM_BACK_LEFT": 0.013748025962389221,
+          "CAM_BACK_RIGHT": 7.4779892188237e-08,
+          "CAM_FRONT": 11.51698706134589,
+          "CAM_FRONT_LEFT": 0.38613698600636326,
+          "CAM_FRONT_RIGHT": 0.0001015926036034287
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT_LEFT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 4.088381184730679,
+          "CAM_FRONT_LEFT": 28.875,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route161_step308_saved_0027": {
+        "event_id": "route161_step308",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.711074410335354,
+          "CAM_BACK_LEFT": 0.0038843784146820326,
+          "CAM_BACK_RIGHT": 1.970340569347473e-08,
+          "CAM_FRONT": 6.751279250846411,
+          "CAM_FRONT_LEFT": 0.0025461098460937137,
+          "CAM_FRONT_RIGHT": 5.3587234072338674e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 1.875,
+          "CAM_BACK_LEFT": 2.625,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.217526369728148,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route161_step308_saved_0029": {
+        "event_id": "route161_step308",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.0015621828669452609,
+          "CAM_BACK_LEFT": 0.07128028171467804,
+          "CAM_BACK_RIGHT": 4.174473337489881e-08,
+          "CAM_FRONT": 7.4871921749222015,
+          "CAM_FRONT_LEFT": 0.001442087527266267,
+          "CAM_FRONT_RIGHT": 7.903732074154846e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.270535455783829,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route161_step308_saved_0031": {
+        "event_id": "route161_step308",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 7.475176093044181,
+          "CAM_BACK_LEFT": 1.8452681535591182,
+          "CAM_BACK_RIGHT": 2.0020398432130104e-07,
+          "CAM_FRONT": 9.119059560151356,
+          "CAM_FRONT_LEFT": 0.007374615860044287,
+          "CAM_FRONT_RIGHT": 0.0006255375760986226
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 4.875,
+          "CAM_BACK_LEFT": 0.9375,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.4614783527795225,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route161_step308_saved_0033": {
+        "event_id": "route161_step308",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 11.066637416050291,
+          "CAM_BACK_LEFT": 0.22948202917700655,
+          "CAM_BACK_RIGHT": 6.204126252185027e-07,
+          "CAM_FRONT": 7.555343813236412,
+          "CAM_FRONT_LEFT": 0.012538022965600248,
+          "CAM_FRONT_RIGHT": 0.0004742059670093113
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 9.625,
+          "CAM_BACK_LEFT": 1.4375,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.4468528195284307,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route161_step308_saved_0035": {
+        "event_id": "route161_step308",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.3494114678848654e-05,
+          "CAM_BACK_LEFT": 0.04911256615926618,
+          "CAM_BACK_RIGHT": 1.0514386649534968e-07,
+          "CAM_FRONT": 9.872737270681883,
+          "CAM_FRONT_LEFT": 0.0028636537598458744,
+          "CAM_FRONT_RIGHT": 6.943020348160189e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT_LEFT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.367276575008873,
+          "CAM_FRONT_LEFT": 4.375,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route162_step277_saved_0024": {
+        "event_id": "route162_step277",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 5.415945919138991,
+          "CAM_BACK_LEFT": 0.2858059805232642,
+          "CAM_BACK_RIGHT": 7.872115267149038e-07,
+          "CAM_FRONT": 0.7133554353001241,
+          "CAM_FRONT_LEFT": 0.011459081134034932,
+          "CAM_FRONT_RIGHT": 0.004148857654350024
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 2.625,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.0,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route162_step277_saved_0026": {
+        "event_id": "route162_step277",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.136783621187512,
+          "CAM_BACK_LEFT": 0.7850505886483461,
+          "CAM_BACK_RIGHT": 2.5128624598497185e-07,
+          "CAM_FRONT": 0.6462461514214712,
+          "CAM_FRONT_LEFT": 0.003275357492384501,
+          "CAM_FRONT_RIGHT": 0.0002811383230687525
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_BACK_LEFT",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 1.1875,
+          "CAM_BACK_LEFT": 21.9375,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.091591882519424,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route162_step277_saved_0028": {
+        "event_id": "route162_step277",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": false,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 1.8430929835231864,
+          "CAM_BACK_LEFT": 0.011829498930524096,
+          "CAM_BACK_RIGHT": 1.7117701126695417e-07,
+          "CAM_FRONT": 1.4441031034460692,
+          "CAM_FRONT_LEFT": 0.0010496503620061048,
+          "CAM_FRONT_RIGHT": 9.724590139015277e-05
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 9.21051349490881,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route162_step277_saved_0030": {
+        "event_id": "route162_step277",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.0004897270977103352,
+          "CAM_BACK_LEFT": 0.17841160095485975,
+          "CAM_BACK_RIGHT": 1.469793118984153e-07,
+          "CAM_FRONT": 4.086383315002007,
+          "CAM_FRONT_LEFT": 0.0015551926042007835,
+          "CAM_FRONT_RIGHT": 0.00015812428106443122
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.181092618731782,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route162_step277_saved_0032": {
+        "event_id": "route162_step277",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.187588518354211e-05,
+          "CAM_BACK_LEFT": 0.25810793929053943,
+          "CAM_BACK_RIGHT": 3.728220207555033e-07,
+          "CAM_FRONT": 5.7261931240483985,
+          "CAM_FRONT_LEFT": 0.003415899354422436,
+          "CAM_FRONT_RIGHT": 0.0005688917513850811
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.561070302152075,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route164_step522_saved_0048": {
+        "event_id": "route164_step522",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 10.610244982114812,
+          "CAM_BACK_LEFT": 0.22693211666566526,
+          "CAM_BACK_RIGHT": 1.2428236995098985e-07,
+          "CAM_FRONT": 18.39693509332674,
+          "CAM_FRONT_LEFT": 0.11255897325941078,
+          "CAM_FRONT_RIGHT": 0.00011831809319318154
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT_LEFT",
+        "target_supported_view_count": 4,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_LEFT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 7.25,
+          "CAM_BACK_LEFT": 0.8125,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 9.449543984374031,
+          "CAM_FRONT_LEFT": 13.0625,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route164_step522_saved_0050": {
+        "event_id": "route164_step522",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 5.191442297118965,
+          "CAM_BACK_LEFT": 0.146441698413458,
+          "CAM_BACK_RIGHT": 6.967919353312313e-08,
+          "CAM_FRONT": 6.389453130112627,
+          "CAM_FRONT_LEFT": 0.007667731529863886,
+          "CAM_FRONT_RIGHT": 9.761973885513697e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 4.5,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.622735225362703,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route164_step522_saved_0052": {
+        "event_id": "route164_step522",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 4.861755114704854,
+          "CAM_BACK_LEFT": 0.021678102422729495,
+          "CAM_BACK_RIGHT": 3.6733052714149617e-08,
+          "CAM_FRONT": 2.335933158847674,
+          "CAM_FRONT_LEFT": 0.011867157962967667,
+          "CAM_FRONT_RIGHT": 1.4092148018951534e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 3.25,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 1.4265657297801226,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route164_step522_saved_0054": {
+        "event_id": "route164_step522",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 6.383671422785256,
+          "CAM_BACK_LEFT": 0.0882317240570778,
+          "CAM_BACK_RIGHT": 4.281546340384468e-08,
+          "CAM_FRONT": 5.8443495103803755,
+          "CAM_FRONT_LEFT": 0.0784443610574499,
+          "CAM_FRONT_RIGHT": 1.3436962636559358e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK_LEFT",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 3.0,
+          "CAM_BACK_LEFT": 5.9375,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.7645776683930308,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route164_step522_saved_0056": {
+        "event_id": "route164_step522",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 8.55194445063324,
+          "CAM_BACK_LEFT": 0.06135231103962191,
+          "CAM_BACK_RIGHT": 5.95346541024111e-08,
+          "CAM_FRONT": 22.611221624982015,
+          "CAM_FRONT_LEFT": 0.019563483206184173,
+          "CAM_FRONT_RIGHT": 2.1555121039851244e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 7.4375,
+          "CAM_BACK_LEFT": 0.75,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 15.13453028537333,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route165_step421_saved_0038": {
+        "event_id": "route165_step421",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 1.9501506940324413,
+          "CAM_BACK_LEFT": 0.19793140138509457,
+          "CAM_BACK_RIGHT": 5.781959024932226e-08,
+          "CAM_FRONT": 5.230241307615404,
+          "CAM_FRONT_LEFT": 0.005036527922186451,
+          "CAM_FRONT_RIGHT": 0.00018619394458774252
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 1.125,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.1596998109016567,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route165_step421_saved_0040": {
+        "event_id": "route165_step421",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 6.7466444444778295,
+          "CAM_BACK_LEFT": 5.474241689012501,
+          "CAM_BACK_RIGHT": 1.19676754624376e-07,
+          "CAM_FRONT": 6.403556266713958,
+          "CAM_FRONT_LEFT": 0.0013308720572808852,
+          "CAM_FRONT_RIGHT": 0.00010210543929645155
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 4.125,
+          "CAM_BACK_LEFT": 2.5,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.4061248512007296,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route165_step421_saved_0042": {
+        "event_id": "route165_step421",
+        "prediction_dominant_view": "CAM_BACK_LEFT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 5.870476920698167,
+          "CAM_BACK_LEFT": 20.25563178453649,
+          "CAM_BACK_RIGHT": 1.0464571957580215e-07,
+          "CAM_FRONT": 9.261700038288826,
+          "CAM_FRONT_LEFT": 0.001356781965682785,
+          "CAM_FRONT_RIGHT": 0.0034525464220749313
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK_LEFT",
+        "target_supported_view_count": 3,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 3.4375,
+          "CAM_BACK_LEFT": 15.75,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.113750535529107,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route165_step421_saved_0044": {
+        "event_id": "route165_step421",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.00295686842688965,
+          "CAM_BACK_LEFT": 2.3211601885262922,
+          "CAM_BACK_RIGHT": 2.7321814247832643e-07,
+          "CAM_FRONT": 7.228193888804967,
+          "CAM_FRONT_LEFT": 0.0019044426857277585,
+          "CAM_FRONT_RIGHT": 0.0002342533112020817
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.342105300165713,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route165_step421_saved_0046": {
+        "event_id": "route165_step421",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 1.3415399698304964e-05,
+          "CAM_BACK_LEFT": 0.05850025098757783,
+          "CAM_BACK_RIGHT": 6.949695533116362e-08,
+          "CAM_FRONT": 7.765378276803426,
+          "CAM_FRONT_LEFT": 0.005155253823218686,
+          "CAM_FRONT_RIGHT": 0.00027119036985823186
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.251348781515844,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route168_step482_saved_0044": {
+        "event_id": "route168_step482",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.4976281651757057,
+          "CAM_BACK_LEFT": 0.025596676937723828,
+          "CAM_BACK_RIGHT": 1.0708494843983396e-07,
+          "CAM_FRONT": 0.0019483091285942425,
+          "CAM_FRONT_LEFT": 0.0017805308667107056,
+          "CAM_FRONT_RIGHT": 7.930053041982355e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.75,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.0,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route168_step482_saved_0046": {
+        "event_id": "route168_step482",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 8.513454855593501,
+          "CAM_BACK_LEFT": 0.03093490140729216,
+          "CAM_BACK_RIGHT": 1.0107719208146682e-07,
+          "CAM_FRONT": 9.003816568942992e-06,
+          "CAM_FRONT_LEFT": 0.000654947714537002,
+          "CAM_FRONT_RIGHT": 8.877428501841145e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 5.1875,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.0,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route168_step482_saved_0048": {
+        "event_id": "route168_step482",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 13.84360830871514,
+          "CAM_BACK_LEFT": 0.054235217597806695,
+          "CAM_BACK_RIGHT": 9.09724430404879e-08,
+          "CAM_FRONT": 0.0036360859745478073,
+          "CAM_FRONT_LEFT": 0.0031208781391569573,
+          "CAM_FRONT_RIGHT": 3.146586612690072e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_BACK",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 14.25,
+          "CAM_BACK_LEFT": 1.4375,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.0,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route168_step482_saved_0052": {
+        "event_id": "route168_step482",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.1761030521712486,
+          "CAM_BACK_LEFT": 0.2424428925075972,
+          "CAM_BACK_RIGHT": 1.1925634205850466e-07,
+          "CAM_FRONT": 0.00037525690217148555,
+          "CAM_FRONT_LEFT": 0.00025395967276153897,
+          "CAM_FRONT_RIGHT": 5.656669513998125e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 1.75,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.0,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route180_step696_saved_0066": {
+        "event_id": "route180_step696",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 1.0739826541282527e-05,
+          "CAM_BACK_LEFT": 0.002712321242514193,
+          "CAM_BACK_RIGHT": 6.441935366217899e-09,
+          "CAM_FRONT": 7.992437485306257,
+          "CAM_FRONT_LEFT": 0.0007276383679482024,
+          "CAM_FRONT_RIGHT": 0.00020479518939020558
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.8988258357858285,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route180_step696_saved_0068": {
+        "event_id": "route180_step696",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.0001299744243818731,
+          "CAM_BACK_LEFT": 0.0019025362267655055,
+          "CAM_BACK_RIGHT": 1.3207896847403089e-08,
+          "CAM_FRONT": 8.411274355649795,
+          "CAM_FRONT_LEFT": 0.00042047982003623474,
+          "CAM_FRONT_RIGHT": 0.00013236775423131064
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.9842686698539183,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route180_step696_saved_0070": {
+        "event_id": "route180_step696",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 6.690314645393242e-07,
+          "CAM_BACK_LEFT": 0.0015913149325843534,
+          "CAM_BACK_RIGHT": 1.1451993974648245e-08,
+          "CAM_FRONT": 7.092232190134314,
+          "CAM_FRONT_LEFT": 0.00023136098803888672,
+          "CAM_FRONT_RIGHT": 7.118928512517275e-06
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.7815687387483194,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route180_step696_saved_0072": {
+        "event_id": "route180_step696",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 1.0666743361330278e-07,
+          "CAM_BACK_LEFT": 0.0016516000997768288,
+          "CAM_BACK_RIGHT": 9.860751332656237e-09,
+          "CAM_FRONT": 7.380519360315153,
+          "CAM_FRONT_LEFT": 0.0001587669085267862,
+          "CAM_FRONT_RIGHT": 1.6688893195643262e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.071861704811454,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route180_step696_saved_0074": {
+        "event_id": "route180_step696",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 7.350263343634811e-08,
+          "CAM_BACK_LEFT": 0.00130885659900426,
+          "CAM_BACK_RIGHT": 1.394087161942642e-08,
+          "CAM_FRONT": 8.398624657494992,
+          "CAM_FRONT_LEFT": 0.0001966943412554656,
+          "CAM_FRONT_RIGHT": 4.614999077029447e-06
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.0115599487908185,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route185_step304_saved_0026": {
+        "event_id": "route185_step304",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.5779244412016747e-06,
+          "CAM_BACK_LEFT": 0.0013152767838739976,
+          "CAM_BACK_RIGHT": 1.5568353099303794e-08,
+          "CAM_FRONT": 8.549968807268804,
+          "CAM_FRONT_LEFT": 0.0003647379373887816,
+          "CAM_FRONT_RIGHT": 3.8062831708485234e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.041592231951654,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route185_step304_saved_0028": {
+        "event_id": "route185_step304",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.00028853023852401516,
+          "CAM_BACK_LEFT": 0.0004694123943096429,
+          "CAM_BACK_RIGHT": 1.484340048270305e-08,
+          "CAM_FRONT": 5.549674181267717,
+          "CAM_FRONT_LEFT": 0.0004593228179601283,
+          "CAM_FRONT_RIGHT": 2.718900988907258e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 1.836861724499613,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route185_step304_saved_0030": {
+        "event_id": "route185_step304",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.16290077328159125,
+          "CAM_BACK_LEFT": 0.0007166680888701649,
+          "CAM_BACK_RIGHT": 8.01079098455143e-09,
+          "CAM_FRONT": 5.862413156699778,
+          "CAM_FRONT_LEFT": 0.0015156247975482984,
+          "CAM_FRONT_RIGHT": 0.0009193845706931825
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 1.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.1242158855311573,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route185_step304_saved_0032": {
+        "event_id": "route185_step304",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.0019300805291990845,
+          "CAM_BACK_LEFT": 0.0012828007880578696,
+          "CAM_BACK_RIGHT": 3.7216250370515624e-08,
+          "CAM_FRONT": 9.796678549018141,
+          "CAM_FRONT_LEFT": 0.0013839906308135141,
+          "CAM_FRONT_RIGHT": 4.190125126957156e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.989793885499239,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route185_step304_saved_0034": {
+        "event_id": "route185_step304",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 8.139737078692241e-06,
+          "CAM_BACK_LEFT": 0.0014309665678977623,
+          "CAM_BACK_RIGHT": 1.3757997836035679e-08,
+          "CAM_FRONT": 8.255416149688749,
+          "CAM_FRONT_LEFT": 0.00041881394751897005,
+          "CAM_FRONT_RIGHT": 2.1314083967105546e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 4.153417634603102,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route188_step139_saved_0010": {
+        "event_id": "route188_step139",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.00021553869205108867,
+          "CAM_BACK_LEFT": 0.00481049410328005,
+          "CAM_BACK_RIGHT": 1.0234457663120533e-07,
+          "CAM_FRONT": 10.015431307089155,
+          "CAM_FRONT_LEFT": 0.01918423828652749,
+          "CAM_FRONT_RIGHT": 6.661934690121996e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 4.896514005959034,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route188_step139_saved_0012": {
+        "event_id": "route188_step139",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.60176390818209,
+          "CAM_BACK_LEFT": 0.005260495508110807,
+          "CAM_BACK_RIGHT": 1.063425154046449e-07,
+          "CAM_FRONT": 11.313265625155562,
+          "CAM_FRONT_LEFT": 0.03834944703203291,
+          "CAM_FRONT_RIGHT": 0.0002003718815934974
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 1.5625,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 6.315526591613889,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route188_step139_saved_0014": {
+        "event_id": "route188_step139",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": false,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.8144686227482287,
+          "CAM_BACK_LEFT": 0.008405571551364233,
+          "CAM_BACK_RIGHT": 3.525859843950263e-07,
+          "CAM_FRONT": 6.70443330791446,
+          "CAM_FRONT_LEFT": 0.051408502972890346,
+          "CAM_FRONT_RIGHT": 5.1474270941875844e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 1.6875,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.0,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route188_step139_saved_0016": {
+        "event_id": "route188_step139",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.37326893818977747,
+          "CAM_BACK_LEFT": 0.01841665909915946,
+          "CAM_BACK_RIGHT": 3.2382035332345627e-07,
+          "CAM_FRONT": 10.851324564599068,
+          "CAM_FRONT_LEFT": 0.06664021831193168,
+          "CAM_FRONT_RIGHT": 2.7787673913648447e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 6.6297183986753225,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route188_step139_saved_0018": {
+        "event_id": "route188_step139",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": false,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 0.3858878844212715,
+          "CAM_BACK_LEFT": 0.020736457061488522,
+          "CAM_BACK_RIGHT": 3.26429541550044e-07,
+          "CAM_FRONT": 11.025270793337002,
+          "CAM_FRONT_LEFT": 0.05775761450308892,
+          "CAM_FRONT_RIGHT": 2.4148656591505002e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT_LEFT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT_LEFT",
+          "CAM_BACK_LEFT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.5,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.0,
+          "CAM_FRONT_LEFT": 10.125,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route194_step684_saved_0068": {
+        "event_id": "route194_step684",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.1111791889544262e-06,
+          "CAM_BACK_LEFT": 0.0002431339621793427,
+          "CAM_BACK_RIGHT": 2.963114237169995e-07,
+          "CAM_FRONT": 3.728049320867796,
+          "CAM_FRONT_LEFT": 0.0010455346469200322,
+          "CAM_FRONT_RIGHT": 4.73410726287149e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT_RIGHT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_RIGHT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 1.2560557811520994,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 2.8125
+        }
+      },
+      "route194_step684_saved_0070": {
+        "event_id": "route194_step684",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.9236443909185237e-07,
+          "CAM_BACK_LEFT": 0.00011127711956504527,
+          "CAM_BACK_RIGHT": 7.785051787945196e-08,
+          "CAM_FRONT": 3.244341699488718,
+          "CAM_FRONT_LEFT": 0.00029020689493108875,
+          "CAM_FRONT_RIGHT": 7.869387027081842e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 1.2813820010051131,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route194_step684_saved_0072": {
+        "event_id": "route194_step684",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.4105445954603066e-07,
+          "CAM_BACK_LEFT": 0.0002467663518217478,
+          "CAM_BACK_RIGHT": 6.533413707612845e-08,
+          "CAM_FRONT": 6.554149860079745,
+          "CAM_FRONT_LEFT": 0.00037574112508309554,
+          "CAM_FRONT_RIGHT": 6.617301076161652e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.4633158782380633,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route195_step230_saved_0019": {
+        "event_id": "route195_step230",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 6.203849675368023e-07,
+          "CAM_BACK_LEFT": 0.0005237979819305849,
+          "CAM_BACK_RIGHT": 1.4339070195795722e-07,
+          "CAM_FRONT": 6.809516903240571,
+          "CAM_FRONT_LEFT": 0.0030679240583708633,
+          "CAM_FRONT_RIGHT": 1.7982399197258303e-05
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.90523730404675,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route195_step230_saved_0021": {
+        "event_id": "route195_step230",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 4.395070914431365e-07,
+          "CAM_BACK_LEFT": 0.0014281745840918347,
+          "CAM_BACK_RIGHT": 1.9535786992264104e-07,
+          "CAM_FRONT": 6.186021239040144,
+          "CAM_FRONT_LEFT": 0.0035130337047348803,
+          "CAM_FRONT_RIGHT": 4.053789626823345e-05
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_RIGHT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.776756153907627,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 1.1380219790153205
+        }
+      },
+      "route195_step230_saved_0023": {
+        "event_id": "route195_step230",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": false,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 7.671808328613139e-07,
+          "CAM_BACK_LEFT": 0.0011576732090929909,
+          "CAM_BACK_RIGHT": 2.4396389439879096e-07,
+          "CAM_FRONT": 4.074322152257157,
+          "CAM_FRONT_LEFT": 0.003300185860325655,
+          "CAM_FRONT_RIGHT": 0.00024297884899304734
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT_RIGHT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT_RIGHT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.0,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 2.802034682885278
+        }
+      },
+      "route195_step230_saved_0025": {
+        "event_id": "route195_step230",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": false,
+        "prediction_top1_matches_target_dominant_view": false,
+        "prediction_view_mass": {
+          "CAM_BACK": 6.837706636175778e-07,
+          "CAM_BACK_LEFT": 0.0005109460140033661,
+          "CAM_BACK_RIGHT": 9.216682335215498e-08,
+          "CAM_FRONT": 6.079720356122348,
+          "CAM_FRONT_LEFT": 0.0018807937099154515,
+          "CAM_FRONT_RIGHT": 9.122485292500926e-05
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT_RIGHT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT_RIGHT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.0,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 3.0752119737444445
+        }
+      },
+      "route195_step230_saved_0027": {
+        "event_id": "route195_step230",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.2593502864154402e-06,
+          "CAM_BACK_LEFT": 0.001960082042486988,
+          "CAM_BACK_RIGHT": 8.540373388349343e-08,
+          "CAM_FRONT": 5.099701769431817,
+          "CAM_FRONT_LEFT": 0.0010938244715816836,
+          "CAM_FRONT_RIGHT": 9.732502717696434e-05
+        },
+        "split": "dev",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 2,
+        "target_supported_views": [
+          "CAM_FRONT",
+          "CAM_FRONT_RIGHT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.089437667746097,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 1.7668068133061752
+        }
+      },
+      "route207_step924_saved_0088": {
+        "event_id": "route207_step924",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.590960524404302e-07,
+          "CAM_BACK_LEFT": 0.003252985214116322,
+          "CAM_BACK_RIGHT": 2.1886491483741333e-08,
+          "CAM_FRONT": 7.851431525003147,
+          "CAM_FRONT_LEFT": 0.0002707187940771405,
+          "CAM_FRONT_RIGHT": 3.45257081979522e-07
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 3.102661987300962,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route207_step924_saved_0090": {
+        "event_id": "route207_step924",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 1.4995397823059503e-06,
+          "CAM_BACK_LEFT": 0.0007043475313306402,
+          "CAM_BACK_RIGHT": 1.4194807077157201e-08,
+          "CAM_FRONT": 8.165055338806201,
+          "CAM_FRONT_LEFT": 0.00019759349957482186,
+          "CAM_FRONT_RIGHT": 4.545498307473306e-07
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.9759994847117923,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route207_step924_saved_0092": {
+        "event_id": "route207_step924",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 2.561153101855729e-07,
+          "CAM_BACK_LEFT": 0.0010282453391994295,
+          "CAM_BACK_RIGHT": 1.534895833609634e-08,
+          "CAM_FRONT": 6.539939082432264,
+          "CAM_FRONT_LEFT": 0.00015122071652484692,
+          "CAM_FRONT_RIGHT": 1.802461941036171e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 2.5398270742734894,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route207_step924_saved_0094": {
+        "event_id": "route207_step924",
+        "prediction_dominant_view": "CAM_FRONT",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 1.3320954149811937e-06,
+          "CAM_BACK_LEFT": 0.00032491948678625704,
+          "CAM_BACK_RIGHT": 2.2551157360765905e-08,
+          "CAM_FRONT": 1.5511590221027636,
+          "CAM_FRONT_LEFT": 0.00025358154776711217,
+          "CAM_FRONT_RIGHT": 2.2566044890481862e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_FRONT",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_FRONT"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 0.0,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.4476813576184213,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      },
+      "route207_step924_saved_0096": {
+        "event_id": "route207_step924",
+        "prediction_dominant_view": "CAM_BACK",
+        "prediction_top1_hits_any_target_supported_view": true,
+        "prediction_top1_matches_target_dominant_view": true,
+        "prediction_view_mass": {
+          "CAM_BACK": 3.2638583406841812,
+          "CAM_BACK_LEFT": 0.0011153039741316206,
+          "CAM_BACK_RIGHT": 5.892319880282382e-08,
+          "CAM_FRONT": 0.00878022336126825,
+          "CAM_FRONT_LEFT": 0.00045585306239104284,
+          "CAM_FRONT_RIGHT": 5.529981504293069e-05
+        },
+        "split": "train",
+        "target_dominant_view": "CAM_BACK",
+        "target_supported_view_count": 1,
+        "target_supported_views": [
+          "CAM_BACK"
+        ],
+        "target_view_mass": {
+          "CAM_BACK": 1.875,
+          "CAM_BACK_LEFT": 0.0,
+          "CAM_BACK_RIGHT": 0.0,
+          "CAM_FRONT": 0.0,
+          "CAM_FRONT_LEFT": 0.0,
+          "CAM_FRONT_RIGHT": 0.0
+        }
+      }
+    },
+    "per_split": {
+      "dev": {
+        "group_count": 20,
+        "multi_view_target_group_count": 8,
+        "multi_view_top1_hit_fraction": 1.0,
+        "prediction_dominant_view_counts": {
+          "CAM_BACK": 3,
+          "CAM_FRONT": 17
+        },
+        "target_dominant_view_counts": {
+          "CAM_BACK": 1,
+          "CAM_BACK_LEFT": 2,
+          "CAM_FRONT": 13,
+          "CAM_FRONT_LEFT": 2,
+          "CAM_FRONT_RIGHT": 2
+        },
+        "top1_hits_any_target_supported_view_fraction": 0.85,
+        "top1_matches_target_dominant_view_fraction": 0.65
+      },
+      "train": {
+        "group_count": 60,
+        "multi_view_target_group_count": 25,
+        "multi_view_top1_hit_fraction": 0.96,
+        "prediction_dominant_view_counts": {
+          "CAM_BACK": 11,
+          "CAM_BACK_LEFT": 1,
+          "CAM_FRONT": 45,
+          "CAM_FRONT_RIGHT": 3
+        },
+        "target_dominant_view_counts": {
+          "CAM_BACK": 13,
+          "CAM_BACK_LEFT": 2,
+          "CAM_FRONT": 36,
+          "CAM_FRONT_LEFT": 5,
+          "CAM_FRONT_RIGHT": 4
+        },
+        "top1_hits_any_target_supported_view_fraction": 0.9666666666666667,
+        "top1_matches_target_dominant_view_fraction": 0.8333333333333334
+      }
+    }
+  }
+}

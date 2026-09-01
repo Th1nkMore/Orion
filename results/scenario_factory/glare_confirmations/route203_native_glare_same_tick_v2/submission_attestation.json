@@ -1,0 +1,45 @@
+{
+  "schema": "orion.native_glare_same_tick_submission.v1",
+  "submitted_at": "2026-08-31T05:54:46+08:00",
+  "job_id": 1107746,
+  "run_id": "route203_native_glare_same_tick_v2",
+  "replaces_technical_setup_failure_job_id": 1107601,
+  "scope": "outcome-blind second-route renderer confirmation only",
+  "repair_amendment": {
+    "path": "configs/scenario_factory/amendments/20260831_route203_glare_config_path_v2.json",
+    "sha256": "47a5e22d77d4aa06d5fb2fb3a536dfee64be8e2e6dec54a580508e8b3bd600ec"
+  },
+  "route": {
+    "route_index": 203,
+    "town": "Town04",
+    "scenario_type": "PedestrianCrossing",
+    "selection_used_native_glare_or_model_outcomes": false
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gres": "gpu:1",
+    "cpus_per_task": 2,
+    "memory": "16G",
+    "time_limit": "00:45:00"
+  },
+  "execution_contract": {
+    "orion_loaded": false,
+    "adapter_loaded": false,
+    "same_tick_capture_required": true,
+    "camera_weather_route_and_visual_gates_unchanged_from_v1": true,
+    "further_automatic_retry_allowed": false,
+    "closed_loop_matrix_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false
+  },
+  "validated_sources": {
+    "configs/native_glare_independent_confirmation_route203_v1.json": "8c37d953b7d8b84fb79a2a7fae0fb3fb5fe763dc00e688de103d4213538989c0",
+    "team_code/glare_triplet_capture_agent.py": "0d329fdfcbcd83f57d0aa78899aa4ac4068f365d6ffe2f71b09d79c6b0421244",
+    "tests/test_native_glare_triplet_confirmation.py": "21f83dcd93f3bf6ac0e461d9f9b20fb3afc643e8b6f842f25498490a27d20d15"
+  },
+  "tests": {
+    "local": "11 passed, 1 skipped because the local Mac Python lacks OpenCV",
+    "platform": "15 passed"
+  },
+  "claim_boundary": "No UQ, VLM understanding, task degradation, trajectory, collision, TTC, closed-loop or safety claim."
+}

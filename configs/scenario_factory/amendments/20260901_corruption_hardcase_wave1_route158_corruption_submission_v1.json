@@ -1,0 +1,66 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_route158_corruption_submission_amendment.v1",
+  "created_at": "2026-09-01T06:16:41+08:00",
+  "status": "three_exact_route158_corruption_jobs_submitted",
+  "preregistration": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_route158_corruption_submission_prereg_v1.json",
+    "sha256": "d61539be9468fe66a6e82bbe1f8e98d3833b5e82d07508fe0d00b70b354ca22f"
+  },
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_route158_corruption_activation_v1.json",
+    "sha256": "2fbcfda30ffc22f2d3c5337368f7b012e0ffd77d663c337a7773b2dedbdb4dde"
+  },
+  "submission": {
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_wave1_route158_corruption_v1/submission.json",
+    "local_path": "results/scenario_factory/submissions/corruption_hardcase_wave1_route158_corruption_v1/submission.json",
+    "sha256": "24b7647614b7b2d813af670eae6e9265499bce0b98352c968fcd7fc203f773f7"
+  },
+  "submitted_jobs": [
+    {
+      "job_id": 1118150,
+      "condition": "front_stale_transient_off",
+      "exact_severity": "delay_ms:200",
+      "initial_state": "PENDING",
+      "initial_reason": "Priority"
+    },
+    {
+      "job_id": 1118151,
+      "condition": "lens_waterdrop_paired_template_transient_off",
+      "exact_severity": "profile:medium",
+      "initial_state": "PENDING",
+      "initial_reason": "Priority"
+    },
+    {
+      "job_id": 1118152,
+      "condition": "native_motion_blur_off",
+      "exact_severity": "profile:medium",
+      "initial_state": "PENDING",
+      "initial_reason": "Priority"
+    }
+  ],
+  "clean_comparator": {
+    "job_id": 1117849,
+    "q2_report_sha256": "aa07304d0aa36efa161ea750cb4ea2a351dfdb0291e3886c66c5766d57fcf55d",
+    "route_completion_percent": 100.0,
+    "hard_infractions": 0,
+    "longest_low_speed_interval_seconds": 5.100000000000001
+  },
+  "resource_contract": {
+    "partition": "Nvidia_A800",
+    "gpu_per_job": 1,
+    "cpus_per_job": 2,
+    "memory_per_job": "192G",
+    "time_limit": "02:00:00",
+    "excluded_nodes": ["gpu2", "gpu5"]
+  },
+  "automatic_scope_locks": {
+    "runtime_replacement": false,
+    "additional_corruption": false,
+    "learned_uq_or_governor": false,
+    "heldout_confirmation": false,
+    "route203": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Submission record only. No corruption-induced degradation or method benefit is claimed until valid terminal pair evaluation is frozen."
+}

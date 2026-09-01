@@ -1,0 +1,139 @@
+{
+    "speed": 4.466356276241311,
+    "steer": 0.0011721838964149356,
+    "throttle": 0.40023279190063477,
+    "brake": 0.0,
+    "wp_4": [
+        0.007780976127833128,
+        14.051131248474121
+    ],
+    "wp_3": [
+        0.004063810221850872,
+        10.075361251831055
+    ],
+    "wp_2": [
+        0.0031145205721259117,
+        6.155077934265137
+    ],
+    "wp_1": [
+        0.003167562885209918,
+        2.668358087539673
+    ],
+    "aim": [
+        0.003167562885209918,
+        2.668358087539673
+    ],
+    "target": [
+        -0.5858093719113605,
+        17.41032307623549
+    ],
+    "desired_speed": 5.74589991569519,
+    "angle": 0.0007556946586313301,
+    "angle_last": 0.002009717390245671,
+    "angle_target": -0.021412422043422585,
+    "angle_final": 0.0007556946586313301,
+    "delta": 0.25,
+    "agent": "only_traj",
+    "steer_traj": 0.0011721838463349774,
+    "throttle_traj": 0.75,
+    "brake_traj": 0.0,
+    "plan": [
+        [
+            0.003167562885209918,
+            2.668358087539673
+        ],
+        [
+            0.0031145205721259117,
+            6.155077934265137
+        ],
+        [
+            0.004063810221850872,
+            10.075361251831055
+        ],
+        [
+            0.007780976127833128,
+            14.051131248474121
+        ],
+        [
+            0.009992060251533985,
+            18.038169860839844
+        ],
+        [
+            0.01939227059483528,
+            21.01580238342285
+        ]
+    ],
+    "command": 4,
+    "command_near_xy": [
+        17.41228566630795,
+        0.524242419119048
+    ],
+    "local_command_xy ": [
+        -0.5858093719113605,
+        17.41032307623549
+    ],
+    "density_uq_score": 0.03484320640563965,
+    "observation_uq": {
+        "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+        "front_view_index": 0,
+        "previous_valid": true,
+        "feature_shape": [
+            1,
+            6,
+            40,
+            40,
+            1024
+        ],
+        "aggregate": {
+            "front_raw_score": 0.3726274073123932,
+            "view_raw_scores": [
+                0.3726274073123932,
+                1.0994964838027954,
+                0.6335670351982117,
+                0.43274909257888794,
+                1.6027143001556396,
+                0.6672771573066711
+            ],
+            "front_component_scores": [
+                0.31299889087677,
+                0.33987998962402344,
+                0.46500343084335327
+            ],
+            "components": [
+                "persistent_direction",
+                "persistent_magnitude",
+                "transient_inconsistency"
+            ]
+        },
+        "calibration": {
+            "raw_score": 0.3726274073123932,
+            "z_score": -2.0396288937788722,
+            "calibrated_score": 0.0023767803455271063,
+            "filtered_score": 0.007517948997129785,
+            "baseline_count": 60,
+            "baseline_frozen": true,
+            "baseline_median": 0.445547878742218,
+            "baseline_scale": 0.03575183292031288
+        }
+    },
+    "uq_mode": "none",
+    "uq_conditioning": "vision_adapter",
+    "corruption": "camera_dropout",
+    "corruption_severity": 1,
+    "corruption_views": "front",
+    "corruption_active": false,
+    "corruption_schedule_mode": "route_triggered_timed",
+    "corruption_trigger_time_seconds": null,
+    "route_progress": 0.27930455363372886,
+    "risk_governor": {
+        "mode": "aligned_learned",
+        "raw_score": 0.007517948997129785,
+        "applied_score": 0.007517948997129785,
+        "intensity": 0.0,
+        "speed_cap": 5.0,
+        "base_throttle": 0.75,
+        "base_brake": 0.0,
+        "throttle": 0.4002327928190168,
+        "brake": 0.0
+    }
+}

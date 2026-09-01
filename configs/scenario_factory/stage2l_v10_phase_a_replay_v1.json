@@ -1,0 +1,54 @@
+{
+  "schema": "orion.stage2l_v10_phase_a_replay_protocol.v1",
+  "created_at": "2026-08-31T17:05:00+08:00",
+  "status": "evaluation_only_protocol_frozen_launch_locked_pending_platform_test_and_preflight",
+  "purpose": "Distinguish threshold calibration, underfitting and wrong spatial support in the scientifically failed v10 Phase-A checkpoint without adding optimizer steps.",
+  "optimizer_steps": 0,
+  "support_fraction_of_peak": 0.1,
+  "absolute_threshold_points": 101,
+  "required_outputs": [
+    "threshold-free average precision by split, event and group",
+    "absolute threshold sweep of foreground recall, precision and background FPR",
+    "foreground and background probability quantiles",
+    "frozen target-relative threshold metrics",
+    "six-view predicted-R, continuous-target and support-overlay PNG for every group"
+  ],
+  "validated_inputs": {
+    "evaluator_sha256": "79c994cc60499cb9ba2444cc9a276993075730de65afd3099f1eb69f0b07e520",
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "orion_config_sha256": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+    "u_tokenizer_checkpoint_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "phase_a_checkpoint_sha256": "9010ee1b559bbd5a822bc78193bc88594f5d266bd64932ceefe90b2699f03443",
+    "v10_report_sha256": "8085bd52f51c491c55a5ed474ecbcef9b6912055ad433540bb08035ac2bd8783"
+  },
+  "implementation": {
+    "evaluator": "scripts/evaluate_stage2l_v10_phase_a_checkpoint.py",
+    "evaluator_sha256": "79c994cc60499cb9ba2444cc9a276993075730de65afd3099f1eb69f0b07e520",
+    "unit_test": "tests/test_evaluate_stage2l_v10_phase_a_checkpoint.py",
+    "unit_test_sha256": "107ab36aafbd3f8391ed70a2a856674dcfbee10c88fe290479455f01b0f5dc3a"
+  },
+  "resource_ceiling": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "04:00:00",
+    "exclude_nodes": ["gpu5"]
+  },
+  "decision_rule": {
+    "good_ordering_but_miscalibrated": "Create a new v10.1 calibration/objective protocol; do not reclassify v10.",
+    "wrong_spatial_support_on_weak_events": "Repair route/task conditioning or support labels before any additional training steps.",
+    "uniformly_improving_but_underfit": "A new longer Phase-A-only smoke may be proposed after this replay; v10 is never extended in place."
+  },
+  "locks": {
+    "checkpoint_update": false,
+    "phase_b": false,
+    "phase_c": false,
+    "formal_stage2l": false,
+    "stage2p": false,
+    "closed_loop": false,
+    "route203_native_glare_submission": false
+  },
+  "claim_boundary": "Evaluation-only replay of a failed engineering checkpoint. It cannot establish a passed Stage2-L gate, formal generalization, planning improvement, closed-loop improvement or safety."
+}

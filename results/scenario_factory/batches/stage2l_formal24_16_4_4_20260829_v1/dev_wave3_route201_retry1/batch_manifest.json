@@ -1,0 +1,85 @@
+{
+  "schema": "orion.scenario_factory.batch.v1",
+  "status": "prepared_no_jobs_submitted",
+  "run_id": "stage2l_formal24_dev_wave3_route201_retry1_20260831",
+  "split": "development_screen",
+  "route_count": 1,
+  "routes": [
+    {
+      "route_index": 201,
+      "xml_route_id": "27506",
+      "town": "Town05",
+      "scenario_name": "EnterActorFlow_1",
+      "scenario_type": "EnterActorFlow",
+      "route_length_m": 74.575,
+      "trigger_progress": 0.06708,
+      "priority": 84,
+      "screen_role": "dynamic_junction_conflict",
+      "development_selection_role": "published_failure_hard_case",
+      "formal_split": "train",
+      "initial_condition": "clean_off",
+      "review_status": "awaiting_current_environment_runtime_retry",
+      "source_xml": {
+        "path": "/public/share/lidachuan/orion_assets/Bench2Drive/leaderboard/data/bench2drive220_201_orion_traj.xml",
+        "sha256": "35b2d20599619b0aa254e50acc823d3dee7781419084f81db9d98a8bf980a074"
+      },
+      "hazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave3/route_201_hazard.xml",
+        "sha256": "35b2d20599619b0aa254e50acc823d3dee7781419084f81db9d98a8bf980a074"
+      },
+      "nohazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave3/route_201_nohazard.xml",
+        "sha256": "ca61cdd92a29a1305ad7932e60eaf56c8efdf0b29315a60d52514ed683690f13"
+      },
+      "published_clean_prior": {
+        "available": true,
+        "valid": false,
+        "status": "Completed",
+        "score_route": 100,
+        "score_penalty": 0.6,
+        "score_composed": 60.0,
+        "collisions": 1,
+        "completion_failures": 0
+      }
+    }
+  ],
+  "runtime_contract": {
+    "condition": "clean_off",
+    "variant": "hazard",
+    "stage2_spatial_uq_source": "disabled",
+    "stage1_adapter_control_influence": false,
+    "legacy_density_uq": false,
+    "risk_mode": "off",
+    "planning_response": "off",
+    "carla_quality": "Epic",
+    "agent_config": "adzoo/orion/configs/orion_stage3_agent_spatial_stage2.py",
+    "gpus_per_route": 1,
+    "cpus_per_route": 2,
+    "memory_per_route": "192G"
+  },
+  "lineage": {
+    "original_batch_manifest": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave3/batch_manifest.json",
+      "sha256": "83c1d2d79e8f22699d0d48c9a047276d13e43e7d5d3ac9b4cc059a73ed0262bf"
+    },
+    "runtime_retry_amendment": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260831_route201_control_tick_stall_retry1_v1.json",
+      "sha256": "06f412ba1d49805d8dd3f8d5865c5fd003bd9ff302fdad652ad3685dc2815e05"
+    },
+    "invalidated_job_id": 1107305,
+    "authorized_retry_job_id": 1107312
+  },
+  "audit": {
+    "jobs_submitted": true,
+    "technical_retry_only": true,
+    "selection_uses_partial_retry_outcome": false,
+    "formal_split_changed": false,
+    "eligible_for_locked_test_claim": false
+  },
+  "postprocessing": {
+    "event_package_schema": "orion.scenario_event_package.v1",
+    "initial_review_status": "pending_human_review",
+    "stage1_uq": "offline precomputation only; never affects clean replay control"
+  },
+  "claim_boundary": "One development-route runtime retry batch. It may supply a formal event package only after runtime, sensor, actor-event, and visual-integrity gates pass."
+}

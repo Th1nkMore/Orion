@@ -215,6 +215,133 @@ reports/uq_token/vision_adapter_pilot.md
 
 ---
 
+## 2026-06-23: Route-balanced Adapter Evaluation and Visualization
+
+Git commit:
+
+```text
+pending
+```
+
+Machine:
+
+```text
+AutoDL RTX 4090
+root@connect.weste.seetacloud.com:39408
+```
+
+Commands:
+
+```text
+python scripts/train_uq_token.py ... \
+  --conditioning vision_adapter \
+  --eval-only --eval-planning \
+  --eval-route-balanced --eval-route-samples 50 --eval-route-limit 10 \
+  --eval-corruption --corruption camera_dropout --corruption-severity 1
+
+python scripts/eval_uq_adapter_stratified.py ... \
+  --eval-route-samples 50 --eval-route-limit 10 \
+  --eval-corruption --corruption camera_dropout --corruption-severity 1 \
+  --bins median
+
+python scripts/render_uq_adapter_gifs.py ... \
+  --routes VehicleTurningRoute_Town15_Route504_Weather10 \
+           BlockedIntersection_Town03_Route135_Weather5 \
+           YieldToEmergencyVehicle_Town04_Route166_Weather10
+```
+
+Configuration:
+
+```text
+checkpoint: /root/autodl-tmp/orion_assets/checkpoints/uq_vision_adapter/pilot100.pt
+conditioning: pre-LLM vision adapter
+split: calibration
+candidate routes: 10
+candidate frames per route: 50
+valid planning frames: 350
+corruption: one-camera dropout, severity 1
+```
+
+Route-balanced result:
+
+```text
+none     ADE 1.4429, FDE 2.5210
+zero     ADE 1.4429, FDE 2.5210
+shuffled ADE 1.2286, FDE 2.1969
+correct  ADE 1.1641, FDE 2.0955
+
+correct vs none ADE:     +19.3%
+correct vs shuffled ADE: +5.3%
+```
+
+Per-route notes:
+
+```text
+correct improves over none on 9/10 routes
+correct improves over shuffled on 8/10 routes
+largest gains: VanillaSignalizedTurnEncounterRedLight, OppositeVehicleRunningRedLight,
+HighwayExit, VehicleTurningRoute, BlockedIntersection
+weak/failure routes: YieldToEmergencyVehicle, SignalizedJunctionLeftTurnEnterFlow
+```
+
+High/low UQ stratification:
+
+```text
+high-UQ: count 192
+  none 1.673, shuffled 1.526, correct 1.502 ADE
+  correct vs none +10.2%, correct vs shuffled +1.6%
+
+low-UQ: count 158
+  none 1.262, shuffled 1.089, correct 1.052 ADE
+  correct vs none +16.7%, correct vs shuffled +3.4%
+```
+
+Conclusion:
+
+The adapter has a route-balanced average gain, and correct UQ is better than
+shuffled on average. However, the high-UQ half does not show larger relative
+gain than the low-UQ half. The current result supports "UQ-conditioned visual
+evidence can improve average planning under corruption", but it does not yet
+support "higher scalar UQ implies larger planning benefit".
+
+Clean safety check:
+
+```text
+clean none     ADE 0.8884, FDE 1.3707
+clean shuffled ADE 0.9008, FDE 1.4265
+clean correct  ADE 0.8971, FDE 1.4248
+
+correct vs none:
+  ADE degradation: 1.0%
+  FDE degradation: 3.9%
+```
+
+Clean ADE passes the 3% degradation gate. Clean FDE is slightly above the
+original 3% gate, so the next training run needs a stronger clean preservation
+term or identity regularization.
+
+Artifacts:
+
+```text
+reports/uq_token/assets/route_balanced_eval/pilot100_corrupted_route10x50.json
+reports/uq_token/assets/route_balanced_eval/pilot100_corrupted_route10x50_median.json
+reports/uq_token/assets/route_balanced_eval/pilot100_clean_route10x50_median.json
+reports/uq_token/assets/route_balanced_eval/route_balanced_ade_by_route.png
+reports/uq_token/assets/route_balanced_eval/route_balanced_correct_improvement.png
+reports/uq_token/assets/route_balanced_eval/uq_stratified_ade.png
+reports/uq_token/assets/uq_adapter_gifs/
+scripts/eval_uq_adapter_stratified.py
+scripts/render_uq_adapter_gifs.py
+scripts/summarize_uq_adapter_results.py
+```
+
+Next action:
+
+Run clean route-balanced safety evaluation, then train a larger route-balanced
+adapter with score+active-embedding conditioning or stronger score calibration.
+
+---
+
 ## 2026-06-20: Primary Conditioning Strategy Changed
 
 Decision:

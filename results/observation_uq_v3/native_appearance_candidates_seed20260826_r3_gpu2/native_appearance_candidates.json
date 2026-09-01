@@ -1,0 +1,508 @@
+{
+  "calibration": {
+    "candidate_tails": {
+      "appearance_diagonal_viewpos_z": "positive",
+      "appearance_prototype_viewpos_z": "positive",
+      "feature_rms_viewpos_abs_z": "absolute",
+      "spatial_neighbor_viewpos_abs_z": "absolute"
+    },
+    "compute_device": "cuda",
+    "example_count": 560,
+    "families": [
+      "clean"
+    ],
+    "feature_shape": [
+      6,
+      40,
+      40,
+      1024
+    ],
+    "route_count": 35
+  },
+  "candidate_passes": {
+    "appearance_diagonal_viewpos_z": false,
+    "appearance_prototype_viewpos_z": false,
+    "feature_rms_viewpos_abs_z": false,
+    "spatial_neighbor_viewpos_abs_z": false
+  },
+  "candidates": {
+    "appearance_diagonal_viewpos_z": {
+      "by_route_score_mean": {
+        "Town01/Route146": {
+          "clear": 0.7699439525604248,
+          "fog_heavy": 0.7468473315238953,
+          "fog_light": 0.7533032298088074
+        },
+        "Town04/Route203": {
+          "clear": 0.6804561018943787,
+          "fog_heavy": 0.653174638748169,
+          "fog_light": 0.6608164310455322
+        }
+      },
+      "candidate_gate": {
+        "checks": [
+          {
+            "metric": "fog_light_positive_uplift",
+            "passed": false,
+            "threshold": 0.0,
+            "value": -0.018140196800231934
+          },
+          {
+            "metric": "fog_heavy_higher_than_light",
+            "passed": false,
+            "threshold": 0.0,
+            "value": -0.007048845291137695
+          },
+          {
+            "metric": "sample_severity_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.08458311855792999
+          },
+          {
+            "condition": "fog_light",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.10637716948986053
+          },
+          {
+            "condition": "fog_light",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": false,
+            "threshold": 0.6,
+            "value": 0.3821872846616639
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.10474106669425964
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": false,
+            "threshold": 0.6,
+            "value": 0.38147379176484214
+          },
+          {
+            "metric": "paired_delta_heavy_higher_than_light",
+            "passed": true,
+            "threshold": 0.0,
+            "value": 0.1220490038394928
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": false,
+            "route_id": "Town01/Route146",
+            "threshold": 0.0,
+            "value": -0.02309662103652954
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": false,
+            "route_id": "Town04/Route203",
+            "threshold": 0.0,
+            "value": -0.027281463146209717
+          }
+        ],
+        "passed": false
+      },
+      "condition_metrics": {
+        "clear": {
+          "example_count": 32,
+          "score_mean": 0.7252000570297241,
+          "score_std": 0.060863085091114044,
+          "severity": 0.0
+        },
+        "fog_heavy": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.4490065574645996,
+          "paired_delta_top20_patch_auroc": 0.38147379176484214,
+          "score_mean": 0.7000110149383545,
+          "score_std": 0.059512123465538025,
+          "score_to_paired_delta_patch_spearman": -0.10474106669425964,
+          "score_uplift_over_clear": -0.02518904209136963,
+          "severity": 3.0
+        },
+        "fog_light": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.3269575536251068,
+          "paired_delta_top20_patch_auroc": 0.3821872846616639,
+          "score_mean": 0.7070598602294922,
+          "score_std": 0.06218292936682701,
+          "score_to_paired_delta_patch_spearman": -0.10637716948986053,
+          "score_uplift_over_clear": -0.018140196800231934,
+          "severity": 1.0
+        }
+      },
+      "sample_severity_spearman": -0.08458311855792999,
+      "tail": "positive"
+    },
+    "appearance_prototype_viewpos_z": {
+      "by_route_score_mean": {
+        "Town01/Route146": {
+          "clear": 0.5548007488250732,
+          "fog_heavy": 0.5566946268081665,
+          "fog_light": 0.5538890361785889
+        },
+        "Town04/Route203": {
+          "clear": 0.4233345687389374,
+          "fog_heavy": 0.4188199043273926,
+          "fog_light": 0.42268896102905273
+        }
+      },
+      "candidate_gate": {
+        "checks": [
+          {
+            "metric": "fog_light_positive_uplift",
+            "passed": false,
+            "threshold": 0.0,
+            "value": -0.0007786452770233154
+          },
+          {
+            "metric": "fog_heavy_higher_than_light",
+            "passed": false,
+            "threshold": 0.0,
+            "value": -0.0005317330360412598
+          },
+          {
+            "metric": "sample_severity_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.0050749871879816055
+          },
+          {
+            "condition": "fog_light",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": 0.012480407021939754
+          },
+          {
+            "condition": "fog_light",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": false,
+            "threshold": 0.6,
+            "value": 0.45812410493691763
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": 0.010259183123707771
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": false,
+            "threshold": 0.6,
+            "value": 0.4576285457611084
+          },
+          {
+            "metric": "paired_delta_heavy_higher_than_light",
+            "passed": true,
+            "threshold": 0.0,
+            "value": 0.1220490038394928
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": false,
+            "route_id": "Town01/Route146",
+            "threshold": 0.0,
+            "value": 0.0018938779830932617
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": false,
+            "route_id": "Town04/Route203",
+            "threshold": 0.0,
+            "value": -0.0045146644115448
+          }
+        ],
+        "passed": false
+      },
+      "condition_metrics": {
+        "clear": {
+          "example_count": 32,
+          "score_mean": 0.4890676438808441,
+          "score_std": 0.08148616552352905,
+          "severity": 0.0
+        },
+        "fog_heavy": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.4490065574645996,
+          "paired_delta_top20_patch_auroc": 0.4576285457611084,
+          "score_mean": 0.48775726556777954,
+          "score_std": 0.08421237766742706,
+          "score_to_paired_delta_patch_spearman": 0.010259183123707771,
+          "score_uplift_over_clear": -0.0013103783130645752,
+          "severity": 3.0
+        },
+        "fog_light": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.3269575536251068,
+          "paired_delta_top20_patch_auroc": 0.45812410493691763,
+          "score_mean": 0.4882889986038208,
+          "score_std": 0.08329213410615921,
+          "score_to_paired_delta_patch_spearman": 0.012480407021939754,
+          "score_uplift_over_clear": -0.0007786452770233154,
+          "severity": 1.0
+        }
+      },
+      "sample_severity_spearman": -0.0050749871879816055,
+      "tail": "positive"
+    },
+    "feature_rms_viewpos_abs_z": {
+      "by_route_score_mean": {
+        "Town01/Route146": {
+          "clear": 0.9978611469268799,
+          "fog_heavy": 1.0017714500427246,
+          "fog_light": 0.994166374206543
+        },
+        "Town04/Route203": {
+          "clear": 0.9169016480445862,
+          "fog_heavy": 0.9218543767929077,
+          "fog_light": 0.9136051535606384
+        }
+      },
+      "candidate_gate": {
+        "checks": [
+          {
+            "metric": "fog_light_positive_uplift",
+            "passed": false,
+            "threshold": 0.0,
+            "value": -0.0034955739974975586
+          },
+          {
+            "metric": "fog_heavy_higher_than_light",
+            "passed": true,
+            "threshold": 0.0,
+            "value": 0.007927119731903076
+          },
+          {
+            "metric": "sample_severity_spearman",
+            "passed": true,
+            "threshold": 0.1,
+            "value": 0.16747456789016724
+          },
+          {
+            "condition": "fog_light",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.007118992507457733
+          },
+          {
+            "condition": "fog_light",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": false,
+            "threshold": 0.6,
+            "value": 0.596722468468878
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": 0.0555105097591877
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": true,
+            "threshold": 0.6,
+            "value": 0.6105556180079778
+          },
+          {
+            "metric": "paired_delta_heavy_higher_than_light",
+            "passed": true,
+            "threshold": 0.0,
+            "value": 0.1220490038394928
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": false,
+            "route_id": "Town01/Route146",
+            "threshold": 0.0,
+            "value": 0.0039103031158447266
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": false,
+            "route_id": "Town04/Route203",
+            "threshold": 0.0,
+            "value": 0.004952728748321533
+          }
+        ],
+        "passed": false
+      },
+      "condition_metrics": {
+        "clear": {
+          "example_count": 32,
+          "score_mean": 0.9573813676834106,
+          "score_std": 0.041798412799835205,
+          "severity": 0.0
+        },
+        "fog_heavy": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.4490065574645996,
+          "paired_delta_top20_patch_auroc": 0.6105556180079778,
+          "score_mean": 0.9618129134178162,
+          "score_std": 0.04143896326422691,
+          "score_to_paired_delta_patch_spearman": 0.0555105097591877,
+          "score_uplift_over_clear": 0.004431545734405518,
+          "severity": 3.0
+        },
+        "fog_light": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.3269575536251068,
+          "paired_delta_top20_patch_auroc": 0.596722468468878,
+          "score_mean": 0.9538857936859131,
+          "score_std": 0.04165664315223694,
+          "score_to_paired_delta_patch_spearman": -0.007118992507457733,
+          "score_uplift_over_clear": -0.0034955739974975586,
+          "severity": 1.0
+        }
+      },
+      "sample_severity_spearman": 0.16747456789016724,
+      "tail": "absolute"
+    },
+    "spatial_neighbor_viewpos_abs_z": {
+      "by_route_score_mean": {
+        "Town01/Route146": {
+          "clear": 0.8772099018096924,
+          "fog_heavy": 0.8727661371231079,
+          "fog_light": 0.879311203956604
+        },
+        "Town04/Route203": {
+          "clear": 0.771689236164093,
+          "fog_heavy": 0.7840175628662109,
+          "fog_light": 0.7754650712013245
+        }
+      },
+      "candidate_gate": {
+        "checks": [
+          {
+            "metric": "fog_light_positive_uplift",
+            "passed": true,
+            "threshold": 0.0,
+            "value": 0.0029386281967163086
+          },
+          {
+            "metric": "fog_heavy_higher_than_light",
+            "passed": true,
+            "threshold": 0.0,
+            "value": 0.0010037422180175781
+          },
+          {
+            "metric": "sample_severity_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": -0.049058206379413605
+          },
+          {
+            "condition": "fog_light",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": 0.015378984622657299
+          },
+          {
+            "condition": "fog_light",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": false,
+            "threshold": 0.6,
+            "value": 0.5614615296324094
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "score_to_paired_delta_patch_spearman",
+            "passed": false,
+            "threshold": 0.1,
+            "value": 0.03755292296409607
+          },
+          {
+            "condition": "fog_heavy",
+            "metric": "paired_delta_top20_patch_auroc",
+            "passed": false,
+            "threshold": 0.6,
+            "value": 0.5761603209045199
+          },
+          {
+            "metric": "paired_delta_heavy_higher_than_light",
+            "passed": true,
+            "threshold": 0.0,
+            "value": 0.1220490038394928
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": false,
+            "route_id": "Town01/Route146",
+            "threshold": 0.0,
+            "value": -0.004443764686584473
+          },
+          {
+            "metric": "route_heavy_higher_than_light_higher_than_clear",
+            "passed": true,
+            "route_id": "Town04/Route203",
+            "threshold": 0.0,
+            "value": 0.01232832670211792
+          }
+        ],
+        "passed": false
+      },
+      "condition_metrics": {
+        "clear": {
+          "example_count": 32,
+          "score_mean": 0.8244495391845703,
+          "score_std": 0.05470862612128258,
+          "severity": 0.0
+        },
+        "fog_heavy": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.4490065574645996,
+          "paired_delta_top20_patch_auroc": 0.5761603209045199,
+          "score_mean": 0.8283919095993042,
+          "score_std": 0.04781839996576309,
+          "score_to_paired_delta_patch_spearman": 0.03755292296409607,
+          "score_uplift_over_clear": 0.003942370414733887,
+          "severity": 3.0
+        },
+        "fog_light": {
+          "example_count": 32,
+          "paired_clean_delta_mean": 0.3269575536251068,
+          "paired_delta_top20_patch_auroc": 0.5614615296324094,
+          "score_mean": 0.8273881673812866,
+          "score_std": 0.053828198462724686,
+          "score_to_paired_delta_patch_spearman": 0.015378984622657299,
+          "score_uplift_over_clear": 0.0029386281967163086,
+          "severity": 1.0
+        }
+      },
+      "sample_severity_spearman": -0.049058206379413605,
+      "tail": "absolute"
+    }
+  },
+  "data_attestation": {
+    "actual_target_read": false,
+    "adapter_trained": false,
+    "candidate_training": false,
+    "corruption_metadata_used_for_candidate": false,
+    "paired_clean_used_for_candidate_or_calibration": false,
+    "paired_clean_used_for_evaluation_only": true,
+    "stage_b_authorized": false
+  },
+  "inputs": {
+    "clean_calibration_shard": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/observation_uq_teacher560_seed20260826_r1/clean_first_features.pt",
+    "clean_calibration_shard_sha256": "ab8d16ce9ffe67aba192ae331b102bcda8ccf917b4bbe491e86e452367b5beac",
+    "native_features": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/observation_uq_native_weather_epic_seed20260826_r5_gpu4/native_weather_features.pt",
+    "native_features_sha256": "debdeac1cbb1bb72227604a79ef41f38c1be13dde6562256599055d6ea20ddda",
+    "preregistration": "/public/home/lidachuan/project/Orion/configs/observation_uq_native_appearance_candidates_v1.json",
+    "preregistration_sha256": "5d38dd2ef936aa4a1cb97884dbc89ae4071065d59c3b2d807a86ee39a4acf456"
+  },
+  "schema_version": "orion.native-appearance-audit/v1"
+}

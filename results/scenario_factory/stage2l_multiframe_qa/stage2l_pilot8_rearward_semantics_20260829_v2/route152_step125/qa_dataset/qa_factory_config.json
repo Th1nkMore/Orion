@@ -1,0 +1,80 @@
+{
+  "schema": "orion.uq_relevance_qa_factory_config.v1",
+  "created_at": "2026-08-29T12:20:00+08:00",
+  "status": "engineering_interface_only_until_formal_gates_pass",
+  "camera_order": [
+    "CAM_FRONT",
+    "CAM_FRONT_LEFT",
+    "CAM_FRONT_RIGHT",
+    "CAM_BACK",
+    "CAM_BACK_LEFT",
+    "CAM_BACK_RIGHT"
+  ],
+  "map_contract": {
+    "stage1_uq_component_shape": "[T,V,H,W,3]",
+    "stage1_uq_scalar_summary_shape": "[T,V,H,W] or [V,H,W]",
+    "task_relevance_shape": "[V,H,W]",
+    "value_range": [0.0, 1.0],
+    "task_risk_definition": "K = U_latest * R",
+    "stage1_is_frozen": true,
+    "dense_relevance_is_authoritative": true,
+    "qa_text_is_a_consistency_constrained_summary": true
+  },
+  "level_thresholds": {
+    "medium": 0.33,
+    "high": 0.66
+  },
+  "planning_stance_thresholds": {
+    "caution": 0.25,
+    "prepare_to_yield": 0.55
+  },
+  "rearward_high_risk_stance_cap": "caution",
+  "planning_stances": [
+    "maintain",
+    "caution",
+    "prepare_to_yield"
+  ],
+  "question_families": [
+    "observation_semantics",
+    "epistemic_limitation",
+    "task_relevance",
+    "driving_implication"
+  ],
+  "counterfactual_variants": [
+    "observed",
+    "zero_uq",
+    "on_path_uq",
+    "off_path_uq",
+    "view_shuffled_uq"
+  ],
+  "forbidden_model_input_keys": [
+    "corruption",
+    "corruption_family",
+    "corruption_type",
+    "severity",
+    "synthetic_severity",
+    "ttc",
+    "collision",
+    "collision_outcome",
+    "outcome_class",
+    "oracle",
+    "privileged",
+    "answer",
+    "task_relevance_target"
+  ],
+  "formal_training_gates": {
+    "minimum_independent_events": 8,
+    "minimum_towns": 3,
+    "minimum_scenario_families": 4,
+    "minimum_matched_counterfactual_groups": 4,
+    "require_all_splits_nonempty": true,
+    "require_route_disjoint_splits": true,
+    "require_event_disjoint_splits": true,
+    "require_counterfactual_groups_split_intact": true,
+    "require_all_question_families_per_variant": true,
+    "require_stage1_component_maps": true,
+    "require_map_text_consistency": true,
+    "require_no_forbidden_model_inputs": true
+  },
+  "claim_boundary": "This factory prepares Stage2-L supervision. It does not establish that Stage-1 UQ is calibrated, that the VLM understands uncertainty, or that planning is safer."
+}

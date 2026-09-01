@@ -1,0 +1,93 @@
+{
+  "anchor_count": 90,
+  "checks": {
+    "all_records_have_supervised_tokens": true,
+    "all_supervision_is_contiguous": true,
+    "exactly_90_hard_language_anchors": true,
+    "generation_prompt_is_training_prefix": true,
+    "target_is_present_in_supervised_decode": true
+  },
+  "claim_boundary": "Token-alignment diagnostic only; it does not test learned semantics, free generation, generalization, planning, or safety.",
+  "examples": [
+    {
+      "decoded_supervision": "Observation uncertainty: uq_level=medium; uq_view=CAM_FRONT; uq_region=upper_right; uq_trend=rising.",
+      "first_supervised_index": 168,
+      "full_token_count": 210,
+      "group_id": "route151_step218_saved_0018",
+      "prompt_and_training_common_prefix": 168,
+      "prompt_is_full_sequence_prefix": true,
+      "prompt_minus_first_supervised": 0,
+      "prompt_tail": "; (0.02, 12.40); (0.02, 12.52); (0.02, 12.70).\nWhere is the current visual observation uncertain, how strong is it, and how is it changing over time? ASSISTANT:",
+      "prompt_token_count": 168,
+      "question_family": "observation_semantics",
+      "sample_id": "route151_step218/saved_0018/observed/observation_semantics",
+      "supervised_token_count": 42,
+      "supervision_contiguous": true,
+      "target": "Observation uncertainty: uq_level=medium; uq_view=CAM_FRONT; uq_region=upper_right; uq_trend=rising.",
+      "target_present_in_decoded_supervision": true,
+      "variant": "observed"
+    },
+    {
+      "decoded_supervision": "Epistemic limitation: evidence=unreliable; evidence_view=CAM_FRONT; evidence_region=upper_right; hidden_content=unknown; task_relevance=separate.",
+      "first_supervised_index": 167,
+      "full_token_count": 215,
+      "group_id": "route151_step218_saved_0018",
+      "prompt_and_training_common_prefix": 167,
+      "prompt_is_full_sequence_prefix": true,
+      "prompt_minus_first_supervised": 0,
+      "prompt_tail": "38); (0.01, 10.32); (0.02, 12.40); (0.02, 12.52); (0.02, 12.70).\nWhat does the observation-uncertainty signal tell you, and what can it not tell you? ASSISTANT:",
+      "prompt_token_count": 167,
+      "question_family": "epistemic_limitation",
+      "sample_id": "route151_step218/saved_0018/observed/epistemic_limitation",
+      "supervised_token_count": 48,
+      "supervision_contiguous": true,
+      "target": "Epistemic limitation: evidence=unreliable; evidence_view=CAM_FRONT; evidence_region=upper_right; hidden_content=unknown; task_relevance=separate.",
+      "target_present_in_decoded_supervision": true,
+      "variant": "observed"
+    },
+    {
+      "decoded_supervision": "Task relevance map: relevance_level=low; risk_level=low; risk_view=CAM_FRONT; risk_region=lower_center.",
+      "first_supervised_index": 173,
+      "full_token_count": 211,
+      "group_id": "route151_step218_saved_0018",
+      "prompt_and_training_common_prefix": 173,
+      "prompt_is_full_sequence_prefix": true,
+      "prompt_minus_first_supervised": 0,
+      "prompt_tail": "02, 12.70).\nGiven the route context and spatial observation uncertainty, predict the task-relevance map and summarize which uncertain region matters. ASSISTANT:",
+      "prompt_token_count": 173,
+      "question_family": "task_relevance",
+      "sample_id": "route151_step218/saved_0018/observed/task_relevance",
+      "supervised_token_count": 38,
+      "supervision_contiguous": true,
+      "target": "Task relevance map: relevance_level=low; risk_level=low; risk_view=CAM_FRONT; risk_region=lower_center.",
+      "target_present_in_decoded_supervision": true,
+      "variant": "observed"
+    },
+    {
+      "decoded_supervision": "Observation uncertainty: uq_level=low; uq_view=CAM_FRONT; uq_region=upper_left; uq_trend=stable.",
+      "first_supervised_index": 168,
+      "full_token_count": 209,
+      "group_id": "route151_step218_saved_0018",
+      "prompt_and_training_common_prefix": 168,
+      "prompt_is_full_sequence_prefix": true,
+      "prompt_minus_first_supervised": 0,
+      "prompt_tail": "; (0.02, 12.40); (0.02, 12.52); (0.02, 12.70).\nWhere is the current visual observation uncertain, how strong is it, and how is it changing over time? ASSISTANT:",
+      "prompt_token_count": 168,
+      "question_family": "observation_semantics",
+      "sample_id": "route151_step218/saved_0018/zero_uq/observation_semantics",
+      "supervised_token_count": 41,
+      "supervision_contiguous": true,
+      "target": "Observation uncertainty: uq_level=low; uq_view=CAM_FRONT; uq_region=upper_left; uq_trend=stable.",
+      "target_present_in_decoded_supervision": true,
+      "variant": "zero_uq"
+    }
+  ],
+  "failures": [],
+  "prompt_minus_first_supervised_histogram": {
+    "0": 90
+  },
+  "records_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa/route151_step218/qa_dataset_v4_gradient_routed_v1/records.jsonl",
+  "schema": "orion.stage2l_v8_generation_prompt_alignment.v1",
+  "status": "alignment_pass",
+  "tokenizer_path": "/public/share/lidachuan/orion_assets/checkpoints/pretrain_qformer"
+}

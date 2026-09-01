@@ -1,0 +1,135 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T09:10:09+08:00",
+  "status": "outcome_blind_orion_input_stage_severity_confirmation",
+  "title": "Route151 CARLA-native glare severity after the exact ORION pixel pipeline",
+  "amends_without_rewriting": {
+    "path": "configs/scenario_factory/amendments/20260831_native_glare_severity_freeze_v1.json",
+    "sha256": "a3d767621580830a62dac7f35c2a25f32049faa503aa6dbc60977386e63375fd"
+  },
+  "authorization_basis": {
+    "user_instruction": "以后无需我审计，预实验可以直接开始",
+    "interpretation": "This CPU-only, outcome-blind check may verify that the already frozen renderer severities survive the ORION image pipeline.",
+    "does_not_authorize": [
+      "Route203 native glare v3 submission",
+      "formal Stage2-L training",
+      "Stage2-P training",
+      "a closed-loop safety matrix",
+      "adapter training or checkpoint selection with native glare",
+      "a VLM, UQ, task-degradation, TTC, collision, or safety claim"
+    ]
+  },
+  "analysis_stage": {
+    "orion_weights_loaded": false,
+    "adapter_loaded": false,
+    "outcome_fields_read": [],
+    "matched_pose_count": 5,
+    "pipeline": [
+      "CAM_FRONT BGR sensor pixels",
+      "OpenCV JPEG quality 20 encode/decode from team_code/orion_b2d_agent.py",
+      "ResizeCropFlipRotImage with frozen inference ida_aug_conf",
+      "ResizeMultiview3D to 640x640 with keep_ratio=false",
+      "NormalizeMultiviewImage with frozen RGB mean and standard deviation",
+      "PadMultiViewImage divisor 32, which is a no-op at 640x640"
+    ],
+    "repository_transform_equivalence": {
+      "assertion": "The lightweight analyzer output is elementwise identical to the repository inference transforms for a deterministic synthetic frame.",
+      "test_result": "4 passed",
+      "comparison": "numpy.array_equal before and after normalization"
+    }
+  },
+  "mapped_geometry": {
+    "source_shape_hw": [
+      900,
+      1600
+    ],
+    "ida_resize_dims_wh": [
+      640,
+      360
+    ],
+    "ida_crop_ltrb": [
+      0,
+      40,
+      640,
+      360
+    ],
+    "model_input_shape_hw": [
+      640,
+      640
+    ],
+    "source_hazard_roi_normalized_ltrb": [
+      0.35,
+      0.5,
+      0.9,
+      0.85
+    ],
+    "mapped_model_input_roi_normalized_ltrb": [
+      0.35,
+      0.4375,
+      0.9,
+      0.83125
+    ]
+  },
+  "input_stage_evidence": {
+    "all_pose_tensor_impact_strictly_light_medium_heavy": true,
+    "aggregate_tensor_impact_strictly_light_medium_heavy": true,
+    "aggregate_mapped_roi_edge_loss_strictly_light_medium_heavy": true,
+    "input_stage_severity_order_preserved": true,
+    "summary_by_profile": {
+      "light": {
+        "normalized_tensor_mean_abs_delta": 0.227338,
+        "model_input_pixel_mean_abs_delta": 13.10792,
+        "mapped_roi_contrast_ratio": 1.053752,
+        "mapped_roi_edge_visibility_ratio": 0.987279
+      },
+      "medium": {
+        "normalized_tensor_mean_abs_delta": 0.323814,
+        "model_input_pixel_mean_abs_delta": 18.667611,
+        "mapped_roi_contrast_ratio": 1.037777,
+        "mapped_roi_edge_visibility_ratio": 0.931701
+      },
+      "heavy": {
+        "normalized_tensor_mean_abs_delta": 0.479309,
+        "model_input_pixel_mean_abs_delta": 27.62825,
+        "mapped_roi_contrast_ratio": 1.010467,
+        "mapped_roi_edge_visibility_ratio": 0.851552
+      }
+    }
+  },
+  "decision": {
+    "medium_primary_development_role_retained": true,
+    "heavy_separately_reported_stress_role_retained": true,
+    "light_diagnostic_role_retained": true,
+    "route151_renderer_rerun_required": false,
+    "route203_independent_confirmation_still_required": true,
+    "route203_submission_allowed_by_this_amendment": false,
+    "matrix_expansion_allowed": false
+  },
+  "limitations": [
+    "The fixed mapped ROI is not a projected pedestrian or hazard bounding box.",
+    "Mapped ROI contrast does not decrease; only tensor impact and edge-loss ordering are established.",
+    "The effect remains a combined low-sun, exposure, bloom, lens-flare and atmospheric-veiling condition rather than an isolated optical ghost-flare attribution.",
+    "Five pose-matched frames do not establish continuous same-tick temporal coherence on an independent route."
+  ],
+  "validated_sources": {
+    "scripts/analyze_orion_glare_input_stage.py": "d08d77ac5930b5e5053200f01a60da5199c5b7ac3a0cbf3dc8b6456d508ddb5a",
+    "tests/test_analyze_orion_glare_input_stage.py": "6fd046e69718a5138aef2b92a05de12c15c7b4a4e8b488b629bb6e662049340a",
+    "artifacts/glare_bakeoff_v4_inputs/selected_images_manifest.json": "62f2b27109650e7953a4e01bd4c610fd1ee7c3594933cecc1abe1d4d8882866c",
+    "artifacts/glare_bakeoff_v5_orion_input_stage/orion_input_stage_analysis.json": "ef6dc5eafec59d72854e4d463cff5dc02c62b8daa922f61f8bfac5f6038153a8",
+    "artifacts/glare_bakeoff_v5_orion_input_stage/route151_native_glare_orion_input_contact_sheet.png": "376ddce07d7be1f086599f18967841b965da87d2a8f74fbba3af62ad9ad30944",
+    "artifacts/glare_bakeoff_v5_orion_input_stage/route151_native_glare_orion_input.gif": "405a3d1f6e76a69a1a72659edf26b50728f711aa8aa47a233c999a4be7aec64c",
+    "adzoo/orion/configs/orion_stage3_agent.py": "5d106c4669620efbe6d48d9ab304f9e117646f9910aff673dbe7092525b745fb"
+  },
+  "analysis_time_provenance": {
+    "orion_closedloop_agent_sha256": "185ba32012718d13322efdf19f1b23d71ec64001bcd1ee57625b1904d0eeb8a6",
+    "binding": "Recorded inside the immutable analysis report before the later exact-tensor diagnostic capture change; the Q20 implementation used by this analysis is therefore not silently rebound to the newer agent file."
+  },
+  "next_gate": {
+    "required_action": "After explicit Route203 glare v3 authorization, run the already frozen same-tick clean/medium/heavy independent-route visual confirmation.",
+    "configuration": {
+      "path": "configs/native_glare_independent_confirmation_route203_v1.json",
+      "sha256": "8c37d953b7d8b84fb79a2a7fae0fb3fb5fe763dc00e688de103d4213538989c0"
+    }
+  },
+  "claim_boundary": "This confirms severity ordering after the exact ORION pixel pipeline only. It does not show that glare degrades ORION, that the adapter detects glare, or that uncertainty-aware behavior improves driving safety."
+}

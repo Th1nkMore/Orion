@@ -1,0 +1,63 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T18:20:00+08:00",
+  "status": "immutable_single_run_authorization",
+  "title": "Stage2-L MR1-E fresh 80-step duration diagnostic",
+  "authorization_basis": {
+    "user_instruction": "以后无需我审计，预实验可以直接开始",
+    "interpretation": "The machine-audited 40-step result justifies one fresh, bounded 80-step duration preexperiment without another per-run review.",
+    "diagnostic_sha256": "407cce66c0066f1cfb6165096601142f5ec3bca8337a7f755553f6a65e3c8ce2",
+    "does_not_authorize": [
+      "formal Stage2-L training",
+      "Stage2-P training",
+      "closed-loop experiment matrix",
+      "automatic retry",
+      "any further step-count extension",
+      "a safety or generalization claim"
+    ]
+  },
+  "authorized_run": {
+    "name": "stage2l_mr1e_8event_v1_80",
+    "dataset_event_count": 8,
+    "train_event_count": 6,
+    "dev_event_count": 2,
+    "maximum_submissions": 1,
+    "maximum_optimizer_steps": 80,
+    "answer_micro_batch_size": 2,
+    "language_anchors_per_step": 6,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "optimizer_state_resumed": false,
+    "automatic_retry_or_extension": false,
+    "formal_training": false,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr1e_8event_v1_80/training"
+  },
+  "validated_inputs": {
+    "trainer_sha256": "dbf03178d1d748c8b2004d82e91cedd4976bd57bd1e0b82822332229e89227d6",
+    "training_protocol_sha256": "da1e5532703976c5d0789027b61665f8c8b912ef99d8cf2a862b87f9d5735043",
+    "trainer_preflight_sha256": "bd805618f4c0254a29ed0a1dacb710410a7a3c089d1b47c17a2f88f749991c16",
+    "dataset_manifest_sha256": "9e5e84fa469951a32f87abe5516a9594b3cc8d16bd7ac54f309b44e6b8f27330",
+    "records_sha256": "373fbbb0add64c3e2e69c043a63751691a3eec2219f5625024c04ca5589761d7",
+    "aggregate_audit_sha256": "e753ce53ccf3b8c4b734e505070e87b5193612108bb20d72a10a9e2d334e5e4c",
+    "train_audit_sha256": "2d014f49f0b3e6fe7ab8299ec13f349fc0c588521922241ec7de5eb039b8f9fc",
+    "dev_audit_sha256": "852f18b5e85d82b504aca597aecb8b8c7356d0be712728256f63a1f864807ab3",
+    "reference_audit_sha256": "62f71a671fa649164e8fcda2762321df488ad7a3d3233f6781b200fa62d4868b",
+    "visual_cache_sha256_by_event": {
+      "route147_step223": "e3248361d5c9ef28184d3590797f05e1df622e162582aaa259b4f9ed7b054fe8",
+      "route151_step218": "2058b2fa86ffc900aefc38df496ac7fa7117a96641ad58cdebe019b060f16623",
+      "route157_step193": "ad518ed2ff0c08fcfacec7e086869f5785c486e248871d9090ed920b38730bb8",
+      "route158_step154": "ee46507542de24c8ed06a8a9c74239134b7bc20576eb44d1c6d56f1bf56bf557",
+      "route164_step522": "15f993466a06260f4407bbe957f988c4cd8d0549edb106c788fd6ae9c2aa15aa",
+      "route168_step482": "3a995c59b03e4a1b232721347c273fb4718eb76642dc2237ef09bb68bccb4916",
+      "route180_step696": "30214a2478684f7eb68b8ee88d7748b084d3747de0e4ac2eaa43d45345f66a4c",
+      "route195_step230": "7a73233793a51ab99cd847923d7a20b30eaa1b28878f3906f28bd837f62c48f5"
+    },
+    "orion_config_sha256": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "base_orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "launch_locks": {
+    "stage2l_mr1_bounded_preexperiment_allowed": true,
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "One fresh 80-step engineering duration diagnostic only. Its held-out metrics are diagnostic evidence, not a formal generalization or safety result."
+}

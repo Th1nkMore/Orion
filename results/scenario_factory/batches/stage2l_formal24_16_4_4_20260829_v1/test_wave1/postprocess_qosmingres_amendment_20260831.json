@@ -1,0 +1,36 @@
+{
+  "schema": "orion.scenario_factory.postprocess_amendment.v1",
+  "created_at": "2026-08-31T05:19:09+08:00",
+  "run_id": "stage2l_formal24_test_wave1_20260829",
+  "scope": "technical postprocessing resource repair only",
+  "trigger": {
+    "route_job_id": 1107307,
+    "route_technical_state": "COMPLETED",
+    "route_exit_code": "0:0",
+    "model_outcome_read": false,
+    "original_finalize_job_id": 1107310,
+    "original_review_job_id": 1107311,
+    "scheduler_reason": "QOSMinGRES",
+    "cause": "The Nvidia_A800 QOS rejects zero-GRES jobs even though packaging is CPU-only."
+  },
+  "action": {
+    "original_pending_jobs_cancelled": [
+      1107310,
+      1107311
+    ],
+    "replacement_finalize_job_id": 1107327,
+    "replacement_finalize_dependency": "afterany:1107307",
+    "replacement_review_job_id": 1107328,
+    "replacement_review_dependency": "afterok:1107327",
+    "partition": "Nvidia_A800",
+    "gres": "gpu:1",
+    "resource_note": "The GPU allocation is a scheduler/QOS compatibility requirement; packaging and review-queue code remain CPU-only."
+  },
+  "locked_test_guards": {
+    "model_outcome_read_for_resubmission": false,
+    "route_membership_changed": false,
+    "threshold_or_checkpoint_changed": false,
+    "review_outcome_may_change_membership": false
+  },
+  "claim_boundary": "Scheduler repair only; no locked-test model, UQ, trajectory, closed-loop or safety result was inspected or inferred."
+}

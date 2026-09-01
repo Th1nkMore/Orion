@@ -1,0 +1,275 @@
+{
+  "base_qa_factory_config": {
+    "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/qa_factory_v2_matched_supervision.json",
+    "sha256": "2236bbc84bb794abc0ce69fc3b4706b131eaa1282b2942212ef429a3b381471e"
+  },
+  "claim_boundary": "One reviewed event expanded from fixed temporal offsets for Stage2-L pilot construction. Geometry-invalid frames may only be dropped when neither the unmodified ORION route nor a visible conflict actor has camera support; repeated frames do not count as independent events.",
+  "event_id": "route194_step684",
+  "event_package": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave2_20260829/route194/event_package.json",
+    "sha256": "ebae6ec949d243f58f1f14b196c687b46bbb8ccf8c5f55b0553af1ed6ffc0218"
+  },
+  "excluded_keyframes": [
+    {
+      "reason": "orion_route_and_conflict_actor_support_not_visible",
+      "selected_saved_frame_index": 64,
+      "uses_actor_or_outcome_selection": false,
+      "uses_observation_uq": false,
+      "uses_stage2_outputs": false
+    },
+    {
+      "reason": "orion_route_and_conflict_actor_support_not_visible",
+      "selected_saved_frame_index": 66,
+      "uses_actor_or_outcome_selection": false,
+      "uses_observation_uq": false,
+      "uses_stage2_outputs": false
+    }
+  ],
+  "frame_reports": [
+    {
+      "frame_bundle_batch": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0068/frame_bundles/frame_bundle_batch.json",
+        "sha256": "7831b5e2be30a8e42ba08b93e92e5b9d8df52743fe2d3a1bf19270d03bdcff04"
+      },
+      "selected_saved_frame_index": 68
+    },
+    {
+      "frame_bundle_batch": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0070/frame_bundles/frame_bundle_batch.json",
+        "sha256": "305862e468a6c4fac26d8262c311aad41197ba8d07e1d84b3051addbfca1f8bf"
+      },
+      "selected_saved_frame_index": 70
+    },
+    {
+      "frame_bundle_batch": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0072/frame_bundles/frame_bundle_batch.json",
+        "sha256": "be1bcb2192793f91cdd620f20ccbdbf25514af75307642b7af294f0c64dffab6"
+      },
+      "selected_saved_frame_index": 72
+    }
+  ],
+  "geometry_eligibility_policy": {
+    "candidate_offsets_unchanged": true,
+    "minimum_retained_keyframes": 3,
+    "policy_id": "fixed_offsets_visible_route_or_conflict_actor_support_v2",
+    "support": "visible ORION route corridor union visible conflict-actor boxes",
+    "uses_actor_or_outcome_selection": false,
+    "uses_collision_outcome": false,
+    "uses_conflict_actor_geometry": true,
+    "uses_observation_uq": false,
+    "uses_recorded_ttc": false,
+    "uses_stage2_outputs": false
+  },
+  "keyframe_count": 3,
+  "qa_contract": "orion.stage2l_qa_contract.v5",
+  "qa_dataset": {
+    "audit": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/qa_dataset/audit.json",
+    "formal_training_ready": false,
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/qa_dataset/dataset.json",
+    "records": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/qa_dataset/records.jsonl",
+      "sha256": "1858c5d7d980228d2ed8901cc97d24e8208dfa4c91b455e8d3e26920c35b4ef9"
+    },
+    "sha256": "0f810b66b6abde15353ce4643cebb2c6e06982e8c1d5833ec95bdad09599f6e8"
+  },
+  "qa_factory_config": {
+    "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/qa_factory_v5_vlm_task_fields.json",
+    "sha256": "c942d85a3ac44b551397cbb4b47172d75594d520be8258147dee1aa4a2e9b476"
+  },
+  "qa_record_count": 60,
+  "qa_records_per_keyframe": 20,
+  "requested_keyframe_count": 5,
+  "schema": "orion.uq_relevance_multiframe_event_factory.v1",
+  "selected_saved_frames": [
+    68,
+    70,
+    72
+  ],
+  "stage1_multiframe_manifest": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage1_multiframe/route194_step684/stage1_observation_uq_multiframe.json",
+    "sha256": "af8f9c668a216ab1936b97ef0cae2208fe45c2e4314f1bb996adef736141f25b"
+  },
+  "status": "pending_multiframe_human_geometry_review",
+  "visualizations": [
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0068/visuals/observed/uq_relevance_contact_sheet.png",
+        "sha256": "d92bd4c0d3f7b40f916d80ede12a92f3d1b9270aaaebb5577ba90c347aeeacc1"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0068/visuals/observed/visualization_manifest.json",
+        "sha256": "409b13549f56e14dce774a1fa9b28d12e427621198be1500dc49960fc33ebf31"
+      },
+      "selected_saved_frame_index": 68,
+      "variant": "observed"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0068/visuals/zero_uq/uq_relevance_contact_sheet.png",
+        "sha256": "47989006392688484f7deb0dc41816bac27496194523ba33ea652c0947cd6977"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0068/visuals/zero_uq/visualization_manifest.json",
+        "sha256": "01a1986ac7594bf82fbbed62e1ad16a5b57b32e53fadb640925a8c07fecb7aeb"
+      },
+      "selected_saved_frame_index": 68,
+      "variant": "zero_uq"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0068/visuals/on_path_uq/uq_relevance_contact_sheet.png",
+        "sha256": "3ba38b521151adf4c9ee7e42e1acb3c721aef1753a5d421d7fc089656235342f"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0068/visuals/on_path_uq/visualization_manifest.json",
+        "sha256": "636f0246830e6df1dc5903e312c2e8721478cb83729febcaafecfd4ab0130947"
+      },
+      "selected_saved_frame_index": 68,
+      "variant": "on_path_uq"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0068/visuals/off_path_uq/uq_relevance_contact_sheet.png",
+        "sha256": "985d128da0373ab84472b6c03dc1cd4ffadf0bc09584faddaa31b49d511038e1"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0068/visuals/off_path_uq/visualization_manifest.json",
+        "sha256": "a53cf740de7fffed3a2728559620a14fdc7b26c8bd9f1c32e1740158c5816a98"
+      },
+      "selected_saved_frame_index": 68,
+      "variant": "off_path_uq"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0068/visuals/view_shuffled_uq/uq_relevance_contact_sheet.png",
+        "sha256": "990d54e5beb69b189d5b7b2e54d27b622f3376efa025b294a224f0678e987d04"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0068/visuals/view_shuffled_uq/visualization_manifest.json",
+        "sha256": "a6ed44246ed181b38459efe024e8d97c6a1e2ff581e748d9ec7300d90ec70e8f"
+      },
+      "selected_saved_frame_index": 68,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0070/visuals/observed/uq_relevance_contact_sheet.png",
+        "sha256": "ab5f7821e8777377cc2320f1ee60c265b1ab8a27736adf74c8828774d3093bb1"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0070/visuals/observed/visualization_manifest.json",
+        "sha256": "c46d39158995735e176dd4ed9a7030faafdd8660ae423d8fc3e7cc07c4f56b5e"
+      },
+      "selected_saved_frame_index": 70,
+      "variant": "observed"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0070/visuals/zero_uq/uq_relevance_contact_sheet.png",
+        "sha256": "48cc2f28c77ad149f1dae50d49f108d9768a79ca4a4243b571ac972b07e37d40"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0070/visuals/zero_uq/visualization_manifest.json",
+        "sha256": "9f39bab5535f10e69ace2bcd7e06806d6ff294fa04fedf32f6076370c57ded9c"
+      },
+      "selected_saved_frame_index": 70,
+      "variant": "zero_uq"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0070/visuals/on_path_uq/uq_relevance_contact_sheet.png",
+        "sha256": "ff7adb1328b78ad47c17c296266df6f1a3bcd6084c84f8f2b37f8a955bd23e00"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0070/visuals/on_path_uq/visualization_manifest.json",
+        "sha256": "45c3c9f01a741a75e317cd1553bb242ef638369da0ecdf93147915a54ebc8be1"
+      },
+      "selected_saved_frame_index": 70,
+      "variant": "on_path_uq"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0070/visuals/off_path_uq/uq_relevance_contact_sheet.png",
+        "sha256": "9e398e62d0e01cd746bced6da6656fd18c0ea6d6a3706c70657f988d41f371d0"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0070/visuals/off_path_uq/visualization_manifest.json",
+        "sha256": "985d5cd62a5512859f348c9b44edb27aeb89e637a7cc491b681e8e6fde57a607"
+      },
+      "selected_saved_frame_index": 70,
+      "variant": "off_path_uq"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0070/visuals/view_shuffled_uq/uq_relevance_contact_sheet.png",
+        "sha256": "fff0bef973fe588adb84b21b333aaae47a1eb35a4522eedb452d1c2192c03398"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0070/visuals/view_shuffled_uq/visualization_manifest.json",
+        "sha256": "c31f8d163cae26517eeb9b98d550e6e3b03c060652d411de8d395427bdb0956d"
+      },
+      "selected_saved_frame_index": 70,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0072/visuals/observed/uq_relevance_contact_sheet.png",
+        "sha256": "4c73a5338e7e712db9c319ec0c16676fc98fc40e6e756773e58b28615504d5a7"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0072/visuals/observed/visualization_manifest.json",
+        "sha256": "7633ee2c93e706999d9f195a3a9bcd4029aa66396d49c0271550bac618c67789"
+      },
+      "selected_saved_frame_index": 72,
+      "variant": "observed"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0072/visuals/zero_uq/uq_relevance_contact_sheet.png",
+        "sha256": "ac131afb27668fe6fabdfd3ee3833c3efbdd678f7f4373e827ab2badccf48db2"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0072/visuals/zero_uq/visualization_manifest.json",
+        "sha256": "5c58437c4f1fe854c9fd6573c3eb829f71f3b3f200ff14e18864695b5c37bf1c"
+      },
+      "selected_saved_frame_index": 72,
+      "variant": "zero_uq"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0072/visuals/on_path_uq/uq_relevance_contact_sheet.png",
+        "sha256": "777b6ab534c5e373cb3e0271dde078a1a1eebb098c091968a47139f42ffe5cff"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0072/visuals/on_path_uq/visualization_manifest.json",
+        "sha256": "eb4898532ad47e5a05d8d6625d6ac146c052f684a90c5c5418e9a7b59c16f4fd"
+      },
+      "selected_saved_frame_index": 72,
+      "variant": "on_path_uq"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0072/visuals/off_path_uq/uq_relevance_contact_sheet.png",
+        "sha256": "3785535b541e595f776a0b105e156b906b114e658f22680e9ca5824b66e36584"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0072/visuals/off_path_uq/visualization_manifest.json",
+        "sha256": "bea3ce8acf296c3e4fe795933132c16a24f99fce2b96c4f363115cfbb21d1f40"
+      },
+      "selected_saved_frame_index": 72,
+      "variant": "off_path_uq"
+    },
+    {
+      "contact_sheet": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0072/visuals/view_shuffled_uq/uq_relevance_contact_sheet.png",
+        "sha256": "aa7c6c5a557acec68b8060c0052cf8372ce3965a90c3b5e0355b7be5bfccaf92"
+      },
+      "manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa_v5/route194_step684/frame_0072/visuals/view_shuffled_uq/visualization_manifest.json",
+        "sha256": "57ce95325099039c23be464d92a9139974601ccd6181eb55e77bdb52335dabcd"
+      },
+      "selected_saved_frame_index": 72,
+      "variant": "view_shuffled_uq"
+    }
+  ]
+}

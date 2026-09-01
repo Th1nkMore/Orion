@@ -1,0 +1,100 @@
+{
+  "registered_at": "2026-08-28T04:01:14+08:00",
+  "run_id": "uqcl_p3_pairwise",
+  "study_role": "bounded operational-trigger continuation after a transparent native-fog spatial near-miss",
+  "fixed_references": {
+    "clean_job": 1057222,
+    "transient_off_job": 1057306,
+    "controlled_stop_oracle_job": 1057566
+  },
+  "signal_checkpoint": {
+    "path": "/public/home/lidachuan/orion_work/observation_uq_v3/runs/counterfactual_pairwise_native_repair_seed20260828_r1/counterfactual_evidence_pairwise_native_repair.pt",
+    "sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+    "training_report_sha256": "49ae0f0d120f1b98f9d18f62513b1125a4e799ba9204c19503e9e46964533346",
+    "unseen_glare_report_sha256": "02d2cec81c3d9e994c2d471584ac87344140e413ff054799b47c7c16911a8285",
+    "native_fog_report_sha256": "8955d43ff9fb2e458ba1b4021293bf844b95c50304a2c1b013288351ce4ddac0"
+  },
+  "near_miss_amendment": {
+    "native_fog_gate_passed": false,
+    "failed_check": "held-out heavy-fog patch AUROC 0.5903130611 < frozen 0.6000000000",
+    "passed_context": "All nine other native checks passed, including both-route clear < light < heavy means and sample severity Spearman 0.360324; unchanged local-glare gates passed on validation and held-out routes.",
+    "allowed_interpretation": "The checkpoint may be tested as a whole-front-camera operational evidence-loss trigger.",
+    "prohibited_interpretation": "The checkpoint is not validated as a semantically correct or generally reliable spatial uncertainty map."
+  },
+  "unchanged_closed_loop_event": {
+    "route": 146,
+    "variant": "hazard",
+    "town": "Town01",
+    "scenario": "DynamicObjectCrossing",
+    "corruption": "front camera dropout",
+    "start_progress": 0.3,
+    "duration_simulation_seconds": 5.0
+  },
+  "frozen_online_signal": {
+    "adapter_input": "ORION EVAViT position-level feature grid [1,6,1024,40,40] after the same model-input corruption",
+    "spatial_aggregation": "mean over all front-camera patches",
+    "component_aggregation": "mean of persistent-direction, persistent-magnitude, and transient-inconsistency scores",
+    "paired_reference_available_at_inference": false,
+    "previous_feature": "immediately preceding online control frame",
+    "baseline_collection_seconds": [
+      1.0,
+      4.0
+    ],
+    "baseline_update_after_4_seconds": false,
+    "baseline_location": "median",
+    "baseline_scale": "max(1.4826*MAD, 0.05*abs(median), 0.001)",
+    "standardized_score": "z=(raw-median)/scale",
+    "unit_interval_score": "sigmoid(z-4.0)",
+    "causal_filter": "attack alpha 0.8, release alpha 0.2",
+    "uses_known_corruption_state": false,
+    "uses_route_progress_for_signal_or_calibration": false
+  },
+  "execution_order": [
+    {
+      "condition": "front_corrupt_transient_pairwise_trace",
+      "governor": "off",
+      "purpose": "measure detection timing, false positives, camera selectivity, and recovery without changing vehicle controls"
+    },
+    {
+      "condition": "front_corrupt_transient_pairwise_stop",
+      "governor": "aligned learned controlled stop",
+      "execution_gate": "run only if the trace gate passes"
+    }
+  ],
+  "trace_gate": {
+    "minimum_baseline_frames": 40,
+    "pre_event_sustained_false_trigger_max_seconds": 0.25,
+    "trigger_threshold": 0.5,
+    "maximum_detection_latency_seconds": 0.5,
+    "minimum_event_trigger_coverage": 0.8,
+    "minimum_event_median_score": 0.8,
+    "maximum_post_event_recovery_seconds": 1.5,
+    "front_raw_uplift_must_exceed_every_nonfront_uplift": true
+  },
+  "controlled_stop_governor": {
+    "threshold": 0.5,
+    "saturation": 0.95,
+    "minimum_speed_cap_mps": 0.0,
+    "maximum_speed_cap_mps": 5.0,
+    "slowdown_margin_mps": 1.0,
+    "brake_gain": 0.5,
+    "maximum_added_brake": 0.5
+  },
+  "controlled_stop_success": "eligible terminal record, 100% route completion, zero pedestrian/vehicle/layout collisions, no blocked or timeout infraction, and score_composed strictly greater than the transient-off score 50",
+  "stop_rules": {
+    "trace_gate_fails": "Do not run learned control; treat the checkpoint only as an offline anomaly diagnostic.",
+    "learned_control_fails": "Stop without constant, shuffled, route, or seed expansion; the learned signal/control interface has not reproduced the oracle mechanism.",
+    "learned_control_passes": "Record a one-route exploratory learned mechanism success; do not yet claim spatial-UQ validity or paper-level generalization."
+  },
+  "uniform_termination_rules": {
+    "low_speed_fast_screen": "cancel and mark diagnostic-only if absolute ego speed remains below 0.25 m/s for at least 8 consecutive simulation seconds",
+    "runtime_no_progress": "cancel and mark environment-error if both trace and agent log remain unchanged for at least 8 wall-clock minutes"
+  },
+  "prohibited_expansion": [
+    "constant governor",
+    "shuffled governor",
+    "hazard/nohazard matrix",
+    "additional route",
+    "additional seed before the bounded learned controlled-stop result"
+  ]
+}

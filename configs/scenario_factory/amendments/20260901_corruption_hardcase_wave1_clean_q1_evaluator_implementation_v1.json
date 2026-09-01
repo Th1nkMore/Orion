@@ -1,0 +1,37 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_q1_evaluator_implementation.v1",
+  "created_at": "2026-09-01T03:50:43+08:00",
+  "status": "implemented_and_remote_tested_before_terminal_q1_results",
+  "protocol": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_clean_qualification_v1.json",
+    "sha256": "428549620d1393c2b9200263e038e5bbbbcca6c8ef0042fd00ad980156e72aa1"
+  },
+  "evaluator": {
+    "path": "scripts/evaluate_corruption_hardcase_clean_qualification.py",
+    "sha256": "88fc136810bb8d296a228e07956f1af036e2a36c9e5106478c0d051f87363fcd",
+    "schema": "orion.corruption_hardcase_clean_qualification.v1"
+  },
+  "tests": {
+    "path": "tests/test_evaluate_corruption_hardcase_clean_qualification.py",
+    "sha256": "903ce1db486bcda350a85c264e2a3718d1ab2df5af56e4bbe26683f94fc6bf58",
+    "combined_local_result": "8 passed",
+    "combined_remote_result": "8 passed"
+  },
+  "frozen_checks": [
+    "route identity matches the Q1 selection",
+    "clean_off with UQ none, conditioning none, risk off, planning response off, Stage2 source disabled and legacy Density UQ disabled",
+    "evaluator entry Finished and terminal status Completed",
+    "route completion exactly 100 percent",
+    "zero hard infractions including collision, red light, stop, outside-lane, route deviation, blocked, scenario timeout and route timeout",
+    "contiguous steps and strictly monotonic simulation time",
+    "dynamic-actor safety v2 telemetry on every control frame",
+    "longest post-2s absolute speed below 0.25 m/s interval at most 8.0 seconds"
+  ],
+  "immutability": {
+    "refuse_overwrite": true,
+    "q1_only": true,
+    "q2_automatic_authorization": false,
+    "corruption_automatic_authorization": false
+  },
+  "claim_boundary": "The evaluator classifies one clean replicate only. It does not establish corruption-induced degradation, stable-clean reproducibility, learned uncertainty, task relevance, or control benefit."
+}

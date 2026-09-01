@@ -1,0 +1,106 @@
+{
+  "schema": "orion.uq_relevance_qa_factory_config.v5",
+  "created_at": "2026-08-31T02:20:00+08:00",
+  "status": "vlm_task_fields_prepared_training_locked",
+  "supersedes_for_future_training_only": "configs/scenario_factory/qa_factory_v4_structured_semantics.json",
+  "architecture_boundary": {
+    "stage1_adapter": "frozen task-agnostic spatial observation uncertainty U",
+    "stage2_l": "ORION/VLM predicts dense task relevance R, fixed K=U*sigmoid(R), categorical task fields and uncertainty-response stance",
+    "task_field_inputs": [
+      "compact observation uncertainty U summary",
+      "compact task risk K summary",
+      "K bridge tokens after VLM-owned R"
+    ],
+    "trajectory_or_control_training": false,
+    "legacy_density_uq": false,
+    "hard_governor": false
+  },
+  "response_contract": {
+    "kind": "categorical_fields_with_deterministic_text_renderer",
+    "qa_language_is_auxiliary": true,
+    "free_generation_is_release_evidence": false,
+    "deterministic_renderer_is_release_interface": true,
+    "zero_observation_signal": {
+      "uq_view": "none",
+      "uq_region": "none",
+      "evidence": "not_flagged",
+      "hidden_content": "not_applicable",
+      "relevance_level": "not_applicable",
+      "risk_level": "none",
+      "risk_view": "none",
+      "risk_region": "none",
+      "stance": "maintain"
+    },
+    "zero_task_risk": {
+      "risk_level": "none",
+      "risk_view": "none",
+      "risk_region": "none"
+    },
+    "driving_fields": {
+      "direct_control": "no",
+      "response_basis": "observation_uncertainty"
+    }
+  },
+  "supervision_policy": {
+    "dense_relevance_target_owner": "VLM first-pass R head",
+    "dense_relevance_gradient_owners": [
+      "support-aligned dense map loss",
+      "geometry-normalized on/off-path ranking"
+    ],
+    "task_field_loss_backpropagates_into_dense_relevance": false,
+    "task_relevance_field_variants": [
+      "observed",
+      "zero_uq",
+      "on_path_uq",
+      "off_path_uq",
+      "view_shuffled_uq"
+    ],
+    "hard_stance_variants": [
+      "zero_uq",
+      "off_path_uq",
+      "on_path_uq"
+    ],
+    "language_auxiliary_exclusions": [
+      {
+        "variant": "observed",
+        "question_family": "driving_implication"
+      },
+      {
+        "variant": "view_shuffled_uq",
+        "question_family": "driving_implication"
+      }
+    ],
+    "counterfactual_ranking": {
+      "owner": "VLM relevance path",
+      "language_answer_preference_used": false,
+      "geometry_normalized_on_path_over_off_path": true,
+      "required_oracle_fraction": 0.8
+    },
+    "optimizer_unit": {
+      "primary_groups_per_update": 5,
+      "primary_records_per_update": 100,
+      "language_groups_per_update": 1,
+      "purpose": "prevent one matched group from being forgotten by later group updates"
+    }
+  },
+  "release_gates_for_a_future_bounded_smoke": {
+    "dense_relevance_minimum_foreground_recall": 0.95,
+    "dense_relevance_maximum_background_false_positive_rate": 0.05,
+    "positive_on_off_order_for_every_group": true,
+    "minimum_oracle_gap_fraction_for_every_group": 0.8,
+    "observed_class_task_field_accuracy": 1.0,
+    "zero_uq_absence_semantics_accuracy": 1.0,
+    "hard_stance_accuracy": 1.0,
+    "deterministic_render_parse_rate": 1.0,
+    "deterministic_render_field_accuracy": 1.0,
+    "free_language_nll_decrease": "diagnostic_only",
+    "free_generation_parse_and_style": "diagnostic_only"
+  },
+  "launch_locks": {
+    "real_orion_smoke_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false,
+    "new_immutable_amendment_required": true
+  },
+  "claim_boundary": "QA and task-field contract only; no model understanding, generalization, planning, closed-loop or safety evidence."
+}

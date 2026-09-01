@@ -1,0 +1,79 @@
+{
+  "schema": "orion.corruption_hardcase_o1_replay_readiness_and_screen_revision.v1",
+  "created_at": "2026-08-31T23:41:51+08:00",
+  "status": "o1_existing_package_replay_rejected_prospective_online_screen_selected",
+  "parent_funnel": "configs/scenario_factory/corruption_hardcase_funnel12_v1.json",
+  "trigger": "Before implementing the preregistered O1 single-load offline replay, audit the frozen eight-event development packages for temporal cadence, exact model tensors, sequential ORION state, calibration metadata, and renderer-native corruptions.",
+  "audit": {
+    "script": {
+      "path": "scripts/audit_corruption_hardcase_o1_replay_readiness.py",
+      "sha256": "03e4d7fc6fb0ce8940318fa79135eef229ec895106e154e6c7494f30246da29d"
+    },
+    "local_result": {
+      "path": "results/scenario_factory/audits/corruption_hardcase_o1_replay_readiness_v1/result.json",
+      "sha256": "83101f84b12b47488820b449e3dadff671afcd4eae40b8f51200e8b32c73bf1f"
+    },
+    "remote_result": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/audits/corruption_hardcase_o1_replay_readiness_v1/result.json",
+      "sha256": "83101f84b12b47488820b449e3dadff671afcd4eae40b8f51200e8b32c73bf1f"
+    },
+    "events": 8,
+    "event_packages_valid": 8,
+    "six_view_raw_resolution_1600x900": 8,
+    "waterdrop_visual_reapplication_ready": 8,
+    "orion_offline_replay_ready": {
+      "front_stale": 0,
+      "lens_waterdrop_paired_template": 0,
+      "native_motion_blur": 0
+    }
+  },
+  "evidence": {
+    "orion_control_interval_seconds": 0.05,
+    "saved_camera_interval_seconds": 0.5,
+    "saved_camera_policy": "one diagnostic frame every 10 model/control steps",
+    "front_stale_candidate_delays_seconds": [0.2, 0.4],
+    "exact_640x640_model_tensor_available_events": 0,
+    "missing_sequential_replay_state": [
+      "can_bus",
+      "command",
+      "ego_pose",
+      "ego_pose_inv",
+      "lidar2img",
+      "lidar2cam",
+      "cam_intrinsic"
+    ],
+    "native_motion_blur_constraint": "The selected condition is produced by CARLA RGB sensor rendering; a clean saved frame cannot be converted into the same native observation offline."
+  },
+  "decision": {
+    "implement_replay_from_current_event_packages": false,
+    "interpolate_or_duplicate_saved_frames_for_stale": false,
+    "treat_waterdrop_visual_reapplication_as_orion_replay": false,
+    "approximate_native_motion_blur_with_image_filter": false,
+    "high_rate_recapture_before_first_screen": false,
+    "replacement_near_term_stage": "prospective online native-ORION development screen after exact human visual approval",
+    "reason": "Capturing eight new full-rate sequential packages before screening would add eight ORION/CARLA route runs plus new recorder engineering. A small online development wave reaches the corruption-induced behavior question sooner and preserves the exact runtime implementation."
+  },
+  "replacement_screen_rules": {
+    "development_routes_only": true,
+    "heldout_routes_read": false,
+    "route203_used": false,
+    "same_code_clean_pair_required_before_positive_case_acceptance": true,
+    "corruption_run_may_use_existing_clean_only_as_fast_screen": true,
+    "exact_approved_condition_only": true,
+    "risk_mode": "off",
+    "planning_response_mode": "off",
+    "learned_uq_control": false,
+    "density_uq": false,
+    "initial_wave_max_routes": 3,
+    "initial_wave_selection_inputs": "frozen clean scenario family, actor dynamics, town diversity, and existing clean-valid status only; no corruption-conditioned ORION output"
+  },
+  "execution_locks": {
+    "visual_approval_received": false,
+    "orion_jobs_submitted": false,
+    "gpu_jobs_submitted": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "This amendment rejects an infeasible replay assumption and selects a future runtime path. It contains no corruption-conditioned ORION result, failure induction, uncertainty evidence, or safety claim."
+}

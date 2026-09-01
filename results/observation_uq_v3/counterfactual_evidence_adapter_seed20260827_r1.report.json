@@ -1,0 +1,938 @@
+{
+  "checkpoint_selection": {
+    "best_epoch": 1,
+    "best_value": 0.039893260691314936,
+    "heldout_family_used": false,
+    "metric": "route_validation_total_loss",
+    "native_used": false
+  },
+  "claim_boundary": {
+    "actual_orion_failure_is_primary_target": false,
+    "corruption_metadata_is_model_input": false,
+    "counterfactual_target_is_unique_uncertainty_truth": false,
+    "model_independence_claimed": false,
+    "paired_reference_is_inference_input": false,
+    "path_risk_is_output": false,
+    "quantity": "generic spatial observation evidence-loss proxy",
+    "task_relevance_is_output": false
+  },
+  "component_scales": {
+    "persistent_direction": 0.4691108465194702,
+    "persistent_magnitude": 0.2978138327598572,
+    "transient_inconsistency": 0.48655763268470764
+  },
+  "continuation": {
+    "adapter_integration_authorized": false,
+    "next_if_all_pass": "freeze and run untouched native/sensor confirmation",
+    "orion_finetuning_authorized": false,
+    "stage_b_authorized": false
+  },
+  "data_attestation": {
+    "actual_target_optimizer_weight": 0.0,
+    "corruption_mask_optimizer_weight": 0.0,
+    "corruption_mask_read_by_optimizer": false,
+    "heldout_family": "local_glare",
+    "optimizer_families": [
+      "local_blur",
+      "local_dark"
+    ],
+    "orion_finetuned": false,
+    "record_counts": {
+      "heldout_family": 320,
+      "route_validation": 320,
+      "train": 2240
+    },
+    "spatial_audit_sha256": "d6907ca9c78e802b6638adf7c4de1c10d713ece61ece51243fcb4579caeec5c9",
+    "stage_b_run": false,
+    "target_audit_sha256": "14d72e4dbbbe12aedbb7e1d63a5924f590b0c511289e07c264a0c111a53d0076"
+  },
+  "evaluations": {
+    "heldout_family_development": {
+      "by_family": {
+        "local_glare": {
+          "score_mean": 2.1471098510250641e-10,
+          "severity_score_spearman": 0.012516835704445839,
+          "severity_target_spearman": 0.866029679775238,
+          "target_mean": 0.03609635308384895
+        }
+      },
+      "by_family_severity": {
+        "local_glare/severity_1": {
+          "record_count": 160,
+          "score_mean": 2.1279464301748874e-10,
+          "target_mean": 0.016924932599067688
+        },
+        "local_glare/severity_3": {
+          "record_count": 160,
+          "score_mean": 2.1662724392079724e-10,
+          "target_mean": 0.05526777356863022
+        }
+      },
+      "by_route": {
+        "v1/Accident_Town05_Route218_Weather10": {
+          "median_within_intervened_view_patch_spearman": -0.26740774512290955,
+          "median_within_intervened_view_target_top20_auroc": 0.3741137683391571,
+          "patch_spearman": -0.0579114593565464,
+          "target_top20_auroc": 0.32539496980864424
+        },
+        "v1/CrossingBicycleFlow_Town12_Route977_Weather15": {
+          "median_within_intervened_view_patch_spearman": -0.32882460951805115,
+          "median_within_intervened_view_target_top20_auroc": 0.35963380336761475,
+          "patch_spearman": -0.07852446287870407,
+          "target_top20_auroc": 0.2917899735220547
+        },
+        "v1/DynamicObjectCrossing_Town02_Route11_Weather11": {
+          "median_within_intervened_view_patch_spearman": -0.24883094429969788,
+          "median_within_intervened_view_target_top20_auroc": 0.37669920921325684,
+          "patch_spearman": -0.04734195023775101,
+          "target_top20_auroc": 0.3645058505288486
+        },
+        "v1/HighwayExit_Town06_Route312_Weather0": {
+          "median_within_intervened_view_patch_spearman": -0.31922948360443115,
+          "median_within_intervened_view_target_top20_auroc": 0.3363085985183716,
+          "patch_spearman": 0.06507514417171478,
+          "target_top20_auroc": 0.48401889093990985
+        },
+        "v1/InvadingTurn_Town02_Route95_Weather9": {
+          "median_within_intervened_view_patch_spearman": -0.2526361644268036,
+          "median_within_intervened_view_target_top20_auroc": 0.4042602479457855,
+          "patch_spearman": 0.06445790827274323,
+          "target_top20_auroc": 0.4274785089492798
+        },
+        "v1/ParkedObstacle_Town10HD_Route372_Weather8": {
+          "median_within_intervened_view_patch_spearman": -0.34848302602767944,
+          "median_within_intervened_view_target_top20_auroc": 0.35773682594299316,
+          "patch_spearman": 0.08168565481901169,
+          "target_top20_auroc": 0.5029898354102825
+        },
+        "v1/PedestrianCrossing_Town13_Route747_Weather19": {
+          "median_within_intervened_view_patch_spearman": -0.18990033864974976,
+          "median_within_intervened_view_target_top20_auroc": 0.40910643339157104,
+          "patch_spearman": 0.10177489370107651,
+          "target_top20_auroc": 0.48839775792483625
+        },
+        "v1/StaticCutIn_Town05_Route226_Weather18": {
+          "median_within_intervened_view_patch_spearman": -0.23432086408138275,
+          "median_within_intervened_view_target_top20_auroc": 0.37751951813697815,
+          "patch_spearman": -0.06614172458648682,
+          "target_top20_auroc": 0.3485401097659407
+        },
+        "v1/TJunction_Town05_Route260_Weather0": {
+          "median_within_intervened_view_patch_spearman": -0.20143137872219086,
+          "median_within_intervened_view_target_top20_auroc": 0.3706738352775574,
+          "patch_spearman": 0.04028705134987831,
+          "target_top20_auroc": 0.4292923540904604
+        },
+        "v1/VanillaSignalizedTurnEncounterRedLight_Town07_Route359_Weather21": {
+          "median_within_intervened_view_patch_spearman": -0.24706044793128967,
+          "median_within_intervened_view_target_top20_auroc": 0.3711254894733429,
+          "patch_spearman": 0.11386197805404663,
+          "target_top20_auroc": 0.5577321790826731
+        }
+      },
+      "combined_patch_spearman": 0.021436451002955437,
+      "combined_target_top20_auroc": 0.4172169151141726,
+      "components": {
+        "persistent_direction": {
+          "mae": 0.031225154176354408,
+          "patch_spearman": 0.01884659379720688
+        },
+        "persistent_magnitude": {
+          "mae": 0.03975490853190422,
+          "patch_spearman": 0.012776661664247513
+        },
+        "transient_inconsistency": {
+          "mae": 0.03736299276351929,
+          "patch_spearman": 0.0103141525760293
+        }
+      },
+      "corruption_mask_read_for_metrics": false,
+      "median_record_within_intervened_view_target_top20_auroc": 0.3718017637729645,
+      "median_route_target_top20_auroc": 0.42747852206230164,
+      "median_route_within_intervened_view_target_top20_auroc": 0.3711254894733429,
+      "record_count": 320,
+      "reference_prediction_mean": 1.6708001648879645e-10,
+      "reference_prediction_p95": 3.670755343296913e-15,
+      "target_top20_definition": "top 20% of measured intervention-responsive combined targets; unchanged cells remain negatives",
+      "within_intervened_view_definition": "view selected only from nonzero measured paired target; corruption mask and metadata are not read"
+    },
+    "native_development": {
+      "candidate_passes": {
+        "counterfactual_evidence_adapter_total": false
+      },
+      "candidates": {
+        "counterfactual_evidence_adapter_total": {
+          "by_route_score_mean": {
+            "Town01/Route146": {
+              "clear": 9.709679588132403e-11,
+              "fog_heavy": 8.263723039192428e-11,
+              "fog_light": 9.12746059289482e-11
+            },
+            "Town04/Route203": {
+              "clear": 9.819147578360443e-11,
+              "fog_heavy": 8.225937986328091e-11,
+              "fog_light": 8.89030377093647e-11
+            }
+          },
+          "candidate_gate": {
+            "checks": [
+              {
+                "metric": "fog_light_positive_uplift",
+                "passed": false,
+                "threshold": 0.0,
+                "value": -7.555289727179115e-12
+              },
+              {
+                "metric": "fog_heavy_higher_than_light",
+                "passed": false,
+                "threshold": 0.0,
+                "value": -7.640527099894712e-12
+              },
+              {
+                "metric": "sample_severity_spearman",
+                "passed": false,
+                "threshold": 0.1,
+                "value": -0.1860828548669815
+              },
+              {
+                "condition": "fog_light",
+                "metric": "score_to_paired_delta_patch_spearman",
+                "passed": false,
+                "threshold": 0.1,
+                "value": -0.09533311426639557
+              },
+              {
+                "condition": "fog_light",
+                "metric": "paired_delta_top20_patch_auroc",
+                "passed": false,
+                "threshold": 0.6,
+                "value": 0.49045964356925753
+              },
+              {
+                "condition": "fog_heavy",
+                "metric": "score_to_paired_delta_patch_spearman",
+                "passed": false,
+                "threshold": 0.1,
+                "value": -0.06727667897939682
+              },
+              {
+                "condition": "fog_heavy",
+                "metric": "paired_delta_top20_patch_auroc",
+                "passed": false,
+                "threshold": 0.6,
+                "value": 0.5166815539201101
+              },
+              {
+                "metric": "paired_delta_heavy_higher_than_light",
+                "passed": true,
+                "threshold": 0.0,
+                "value": 0.12204909324645996
+              },
+              {
+                "metric": "route_heavy_higher_than_light_higher_than_clear",
+                "passed": false,
+                "route_id": "Town01/Route146",
+                "threshold": 0.0,
+                "value": -1.445956548939975e-11
+              },
+              {
+                "metric": "route_heavy_higher_than_light_higher_than_clear",
+                "passed": false,
+                "route_id": "Town04/Route203",
+                "threshold": 0.0,
+                "value": -1.593209592032352e-11
+              }
+            ],
+            "passed": false
+          },
+          "condition_metrics": {
+            "clear": {
+              "example_count": 32,
+              "score_mean": 9.764412889357033e-11,
+              "score_std": 3.121699565511449e-10,
+              "severity": 0.0
+            },
+            "fog_heavy": {
+              "example_count": 32,
+              "paired_clean_delta_mean": 0.4490066468715668,
+              "paired_delta_top20_patch_auroc": 0.5166815539201101,
+              "score_mean": 8.24483120664965e-11,
+              "score_std": 2.7087337928222155e-10,
+              "score_to_paired_delta_patch_spearman": -0.06727667897939682,
+              "score_uplift_over_clear": -1.5195816827073827e-11,
+              "severity": 3.0
+            },
+            "fog_light": {
+              "example_count": 32,
+              "paired_clean_delta_mean": 0.3269575536251068,
+              "paired_delta_top20_patch_auroc": 0.49045964356925753,
+              "score_mean": 9.008883916639121e-11,
+              "score_std": 2.915594987662473e-10,
+              "score_to_paired_delta_patch_spearman": -0.09533311426639557,
+              "score_uplift_over_clear": -7.555289727179115e-12,
+              "severity": 1.0
+            }
+          },
+          "sample_severity_spearman": -0.1860828548669815,
+          "tail": "positive"
+        }
+      },
+      "data_attestation": {
+        "actual_target_read": false,
+        "adapter_trained": false,
+        "candidate_training": false,
+        "corruption_metadata_used_for_candidate": false,
+        "paired_clean_used_for_candidate_or_calibration": false,
+        "paired_clean_used_for_evaluation_only": true,
+        "stage_b_authorized": false
+      },
+      "schema_version": "orion.counterfactual-evidence-native-audit/v1"
+    },
+    "route_validation": {
+      "by_family": {
+        "local_blur": {
+          "score_mean": 2.508566132597423e-10,
+          "severity_score_spearman": 0.017862122505903244,
+          "severity_target_spearman": 0.8660423159599304,
+          "target_mean": 0.02590874210000038
+        },
+        "local_dark": {
+          "score_mean": 2.5132587677667573e-10,
+          "severity_score_spearman": 0.03247658535838127,
+          "severity_target_spearman": 0.8660423159599304,
+          "target_mean": 0.028441298753023148
+        }
+      },
+      "by_family_severity": {
+        "local_blur/severity_1": {
+          "record_count": 80,
+          "score_mean": 2.493256434643598e-10,
+          "target_mean": 0.00798415020108223
+        },
+        "local_blur/severity_3": {
+          "record_count": 80,
+          "score_mean": 2.523876108107004e-10,
+          "target_mean": 0.04383333399891853
+        },
+        "local_dark/severity_1": {
+          "record_count": 80,
+          "score_mean": 2.4828517020125673e-10,
+          "target_mean": 0.010416830889880657
+        },
+        "local_dark/severity_3": {
+          "record_count": 80,
+          "score_mean": 2.543665833520947e-10,
+          "target_mean": 0.04646576568484306
+        }
+      },
+      "by_route": {
+        "v1/CrossingBicycleFlow_Town12_Route977_Weather15": {
+          "median_within_intervened_view_patch_spearman": -0.28715646266937256,
+          "median_within_intervened_view_target_top20_auroc": 0.3695752024650574,
+          "patch_spearman": -0.024864979088306427,
+          "target_top20_auroc": 0.39189241647720335
+        },
+        "v1/HighwayExit_Town06_Route312_Weather0": {
+          "median_within_intervened_view_patch_spearman": -0.31380361318588257,
+          "median_within_intervened_view_target_top20_auroc": 0.33055174350738525,
+          "patch_spearman": -0.012071746401488781,
+          "target_top20_auroc": 0.38420423544686416
+        },
+        "v1/ParkedObstacle_Town10HD_Route372_Weather8": {
+          "median_within_intervened_view_patch_spearman": -0.24674321711063385,
+          "median_within_intervened_view_target_top20_auroc": 0.3999682664871216,
+          "patch_spearman": 0.02464437671005726,
+          "target_top20_auroc": 0.4954718921513393
+        },
+        "v1/PedestrianCrossing_Town13_Route747_Weather19": {
+          "median_within_intervened_view_patch_spearman": -0.22122450172901154,
+          "median_within_intervened_view_target_top20_auroc": 0.41364747285842896,
+          "patch_spearman": 8.818528294796124e-05,
+          "target_top20_auroc": 0.4117880921528257
+        },
+        "v1/VanillaSignalizedTurnEncounterRedLight_Town07_Route359_Weather21": {
+          "median_within_intervened_view_patch_spearman": -0.19411198794841766,
+          "median_within_intervened_view_target_top20_auroc": 0.39023926854133606,
+          "patch_spearman": 0.0339692197740078,
+          "target_top20_auroc": 0.3313144834699302
+        }
+      },
+      "combined_patch_spearman": 0.005633159074932337,
+      "combined_target_top20_auroc": 0.4089530416521533,
+      "components": {
+        "persistent_direction": {
+          "mae": 0.022223062813282013,
+          "patch_spearman": 0.003469388699159026
+        },
+        "persistent_magnitude": {
+          "mae": 0.030838098376989365,
+          "patch_spearman": -0.010113521479070187
+        },
+        "transient_inconsistency": {
+          "mae": 0.028546452522277832,
+          "patch_spearman": -0.012878216803073883
+        }
+      },
+      "corruption_mask_read_for_metrics": false,
+      "median_record_within_intervened_view_target_top20_auroc": 0.3880566358566284,
+      "median_route_target_top20_auroc": 0.3918924033641815,
+      "median_route_within_intervened_view_target_top20_auroc": 0.39023926854133606,
+      "record_count": 320,
+      "reference_prediction_mean": 1.9764698211410803e-10,
+      "reference_prediction_p95": 5.0834364692111614e-15,
+      "target_top20_definition": "top 20% of measured intervention-responsive combined targets; unchanged cells remain negatives",
+      "within_intervened_view_definition": "view selected only from nonzero measured paired target; corruption mask and metadata are not read"
+    }
+  },
+  "gates": {
+    "all_passed": false,
+    "heldout_family_development": {
+      "checks": [
+        {
+          "metric": "severity_1_positive_uplift",
+          "passed": true,
+          "threshold": 0.0,
+          "value": 4.571462652869229e-11
+        },
+        {
+          "metric": "severity_3_higher_than_severity_1",
+          "passed": true,
+          "threshold": 0.0,
+          "value": 3.832600903308503e-12
+        },
+        {
+          "metric": "combined_patch_spearman",
+          "passed": false,
+          "threshold": 0.2,
+          "value": 0.021436451002955437
+        },
+        {
+          "metric": "combined_target_top20_auroc",
+          "passed": false,
+          "threshold": 0.65,
+          "value": 0.4172169151141726
+        },
+        {
+          "metric": "median_record_within_intervened_view_target_top20_auroc",
+          "passed": false,
+          "threshold": 0.6,
+          "value": 0.3718017637729645
+        }
+      ],
+      "passed": false
+    },
+    "native_development": {
+      "checks": [
+        {
+          "metric": "fog_light_positive_uplift",
+          "passed": false,
+          "threshold": 0.0,
+          "value": -7.555289727179115e-12
+        },
+        {
+          "metric": "fog_heavy_higher_than_light",
+          "passed": false,
+          "threshold": 0.0,
+          "value": -7.640527099894712e-12
+        },
+        {
+          "metric": "sample_severity_spearman",
+          "passed": false,
+          "threshold": 0.1,
+          "value": -0.1860828548669815
+        },
+        {
+          "condition": "fog_light",
+          "metric": "score_to_paired_delta_patch_spearman",
+          "passed": false,
+          "threshold": 0.1,
+          "value": -0.09533311426639557
+        },
+        {
+          "condition": "fog_light",
+          "metric": "paired_delta_top20_patch_auroc",
+          "passed": false,
+          "threshold": 0.6,
+          "value": 0.49045964356925753
+        },
+        {
+          "condition": "fog_heavy",
+          "metric": "score_to_paired_delta_patch_spearman",
+          "passed": false,
+          "threshold": 0.1,
+          "value": -0.06727667897939682
+        },
+        {
+          "condition": "fog_heavy",
+          "metric": "paired_delta_top20_patch_auroc",
+          "passed": false,
+          "threshold": 0.6,
+          "value": 0.5166815539201101
+        },
+        {
+          "metric": "paired_delta_heavy_higher_than_light",
+          "passed": true,
+          "threshold": 0.0,
+          "value": 0.12204909324645996
+        },
+        {
+          "metric": "route_heavy_higher_than_light_higher_than_clear",
+          "passed": false,
+          "route_id": "Town01/Route146",
+          "threshold": 0.0,
+          "value": -1.445956548939975e-11
+        },
+        {
+          "metric": "route_heavy_higher_than_light_higher_than_clear",
+          "passed": false,
+          "route_id": "Town04/Route203",
+          "threshold": 0.0,
+          "value": -1.593209592032352e-11
+        }
+      ],
+      "passed": false
+    },
+    "route_validation": {
+      "checks": [
+        {
+          "component": "persistent_direction",
+          "metric": "patch_spearman",
+          "passed": false,
+          "threshold": 0.3,
+          "value": 0.003469388699159026
+        },
+        {
+          "component": "persistent_magnitude",
+          "metric": "patch_spearman",
+          "passed": false,
+          "threshold": 0.3,
+          "value": -0.010113521479070187
+        },
+        {
+          "component": "transient_inconsistency",
+          "metric": "patch_spearman",
+          "passed": false,
+          "threshold": 0.3,
+          "value": -0.012878216803073883
+        },
+        {
+          "metric": "combined_target_top20_auroc",
+          "passed": false,
+          "threshold": 0.7,
+          "value": 0.4089530416521533
+        },
+        {
+          "metric": "median_route_target_top20_auroc",
+          "passed": false,
+          "threshold": 0.65,
+          "value": 0.3918924033641815
+        },
+        {
+          "metric": "median_record_within_intervened_view_target_top20_auroc",
+          "passed": false,
+          "threshold": 0.65,
+          "value": 0.3880566358566284
+        },
+        {
+          "metric": "median_route_within_intervened_view_target_top20_auroc",
+          "passed": false,
+          "threshold": 0.6,
+          "value": 0.39023926854133606
+        },
+        {
+          "comparison": "<=",
+          "metric": "reference_prediction_p95",
+          "passed": true,
+          "threshold": 0.2,
+          "value": 5.0834364692111614e-15
+        }
+      ],
+      "passed": false
+    }
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.3730598576076556e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.016954731897983168,
+        "ranking": 0.1000057667227728,
+        "reference": 0.0017706089923589389,
+        "total": 0.042841477971524
+      }
+    },
+    {
+      "epoch": 2,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.378031283260511e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015525139229638236,
+        "ranking": 0.10000000010643686,
+        "reference": 1.08719349363324e-16,
+        "total": 0.040525139256247455
+      }
+    },
+    {
+      "epoch": 3,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.3804301817901315e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015527771706027644,
+        "ranking": 0.10000000023948295,
+        "reference": 1.089494599987656e-16,
+        "total": 0.040527771692723036
+      }
+    },
+    {
+      "epoch": 4,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.3849934525275907e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015529893461747893,
+        "ranking": 0.10000000018626451,
+        "reference": 1.0921461763997741e-16,
+        "total": 0.04052989343181253
+      }
+    },
+    {
+      "epoch": 5,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.3875279060975803e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015527710524786796,
+        "ranking": 0.10000000034591981,
+        "reference": 1.0958770685044011e-16,
+        "total": 0.0405277105314391
+      }
+    },
+    {
+      "epoch": 6,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.3917566232566294e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015521535383803504,
+        "ranking": 0.1000000003193106,
+        "reference": 1.0990301945830823e-16,
+        "total": 0.04052153531728046
+      }
+    },
+    {
+      "epoch": 7,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.396158322255836e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015531260979228786,
+        "ranking": 0.10000000026609217,
+        "reference": 1.10176166222747e-16,
+        "total": 0.04053126091935805
+      }
+    },
+    {
+      "epoch": 8,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4012235461851142e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015524726640433074,
+        "ranking": 0.10000000034591981,
+        "reference": 1.1053125804865484e-16,
+        "total": 0.04052472672026072
+      }
+    },
+    {
+      "epoch": 9,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4063334163526963e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015532516977483674,
+        "ranking": 0.10000000026609217,
+        "reference": 1.1088022498288602e-16,
+        "total": 0.040532517127160515
+      }
+    },
+    {
+      "epoch": 10,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4108589035525724e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015524216159246863,
+        "ranking": 0.10000000018626451,
+        "reference": 1.112436734824847e-16,
+        "total": 0.04052421619583454
+      }
+    },
+    {
+      "epoch": 11,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4137127414105347e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015521328613561178,
+        "ranking": 0.10000000034591981,
+        "reference": 1.1157704301065527e-16,
+        "total": 0.040521328763238024
+      }
+    },
+    {
+      "epoch": 12,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.418367172530903e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015520806464233568,
+        "ranking": 0.10000000018626451,
+        "reference": 1.1187642899090928e-16,
+        "total": 0.04052080637110131
+      }
+    },
+    {
+      "epoch": 13,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4223800021481337e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015528351244782763,
+        "ranking": 0.10000000010643686,
+        "reference": 1.1224497794149307e-16,
+        "total": 0.040528351294675045
+      }
+    },
+    {
+      "epoch": 14,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.425836354974778e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015530884668364057,
+        "ranking": 0.10000000007982765,
+        "reference": 1.1252662411507844e-16,
+        "total": 0.04053088458521026
+      }
+    },
+    {
+      "epoch": 15,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4300458281500766e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.01552252969039338,
+        "ranking": 0.1000000003193106,
+        "reference": 1.1287649431007826e-16,
+        "total": 0.04052252977022103
+      }
+    },
+    {
+      "epoch": 16,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4340454958341902e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015529176902158983,
+        "ranking": 0.10000000034591981,
+        "reference": 1.1312141424360234e-16,
+        "total": 0.04052917701857431
+      }
+    },
+    {
+      "epoch": 17,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4404829505986392e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015529338829219341,
+        "ranking": 0.10000000026609217,
+        "reference": 1.1361073445950687e-16,
+        "total": 0.04052933885582856
+      }
+    },
+    {
+      "epoch": 18,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.444946978249922e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015523594820738904,
+        "ranking": 0.1000000003193106,
+        "reference": 1.1391809710532816e-16,
+        "total": 0.0405235947375851
+      }
+    },
+    {
+      "epoch": 19,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4511421259974876e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015522877419633525,
+        "ranking": 0.10000000037252903,
+        "reference": 1.1428112117364433e-16,
+        "total": 0.04052287756598422
+      }
+    },
+    {
+      "epoch": 20,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4584860814214096e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015522251703909465,
+        "ranking": 0.1,
+        "reference": 1.148730960520435e-16,
+        "total": 0.040522251637386424
+      }
+    },
+    {
+      "epoch": 21,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4627840709484883e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015527319232933223,
+        "ranking": 0.10000000039913824,
+        "reference": 1.1529041386121942e-16,
+        "total": 0.04052731938926237
+      }
+    },
+    {
+      "epoch": 22,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4702295922334453e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015520138446507709,
+        "ranking": 0.10000000018626451,
+        "reference": 1.157752425189865e-16,
+        "total": 0.04052013846646462
+      }
+    },
+    {
+      "epoch": 23,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4755381926724404e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015521265217103064,
+        "ranking": 0.1000000003193106,
+        "reference": 1.1623412211090177e-16,
+        "total": 0.04052126518051539
+      }
+    },
+    {
+      "epoch": 24,
+      "route_validation": {
+        "observed": 0.014893260668031871,
+        "ranking": 0.10000000037252903,
+        "reference": 1.4808187399271957e-16,
+        "total": 0.039893260691314936
+      },
+      "train": {
+        "observed": 0.015524467163985329,
+        "ranking": 0.10000000034591981,
+        "reference": 1.1671613387047793e-16,
+        "total": 0.04052446737353291
+      }
+    }
+  ],
+  "inputs": {
+    "feature_shard": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/counterfactual_evidence_features_seed20260826_r1/counterfactual_evidence_features.pt",
+    "feature_shard_sha256": "6381c09ae3818e35f93e5c44c29c2230a7e299f7c621316bfc21e04342bc07e5",
+    "native_features": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/observation_uq_native_weather_epic_seed20260826_r5_gpu4/native_weather_features.pt",
+    "native_features_sha256": "debdeac1cbb1bb72227604a79ef41f38c1be13dde6562256599055d6ea20ddda",
+    "spatial_audit": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/counterfactual_evidence_spatial_support_seed20260827_r1/counterfactual_evidence_spatial_support.json",
+    "spatial_audit_sha256": "d6907ca9c78e802b6638adf7c4de1c10d713ece61ece51243fcb4579caeec5c9",
+    "target_audit": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/counterfactual_evidence_target_audit_seed20260826_r2/counterfactual_evidence_target_audit.json",
+    "target_audit_sha256": "14d72e4dbbbe12aedbb7e1d63a5924f590b0c511289e07c264a0c111a53d0076",
+    "training_config": "/public/home/lidachuan/project/Orion/configs/observation_uq_counterfactual_evidence_training_run_v1.json",
+    "training_config_sha256": "9494bc67754b0dbd15f14669df374bb266e21ae7dbcf4502ef9d463726b7fe92"
+  },
+  "model_config": {
+    "components": [
+      "persistent_direction",
+      "persistent_magnitude",
+      "transient_inconsistency"
+    ],
+    "feature_dim": 1024,
+    "hidden_dim": 128,
+    "max_views": 6
+  },
+  "schema_version": "orion.counterfactual-evidence-training-report/v1"
+}

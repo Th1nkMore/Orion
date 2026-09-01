@@ -5,6 +5,7 @@ from mmcv.fileio.file_client import FileClient
 from mmcv.image import imfrombytes, imread
 from mmcv.utils import check_file_exist
 from ..builder import PIPELINES
+from .actor_id_alignment import normalize_actor_ids
 import gzip
 import json
 
@@ -251,6 +252,7 @@ class LoadAnnotations3D(LoadAnnotations):
                  poly2mask=True,
                  seg_3d_dtype='int',
                  with_light_state=False,
+                 with_actor_ids=False,
                  file_client_args=dict(backend='disk')):
         super().__init__(
             with_bbox,
@@ -267,6 +269,7 @@ class LoadAnnotations3D(LoadAnnotations):
         self.with_seg_3d = with_seg_3d
         self.seg_3d_dtype = seg_3d_dtype
         self.with_light_state = with_light_state
+        self.with_actor_ids = with_actor_ids
 
     def _load_bboxes_3d(self, results):
         """Private function to load 3D bounding box annotations.
@@ -316,6 +319,18 @@ class LoadAnnotations3D(LoadAnnotations):
             dict: The dict containing loaded label annotations.
         """
         results['attr_labels'] = results['ann_info']['attr_labels']
+        return results
+
+    def _load_actor_ids(self, results):
+        """Load the GT actor axis used by offline actual-target auditing.
+
+        The flag is disabled by default so deployed/training pipelines retain
+        their existing contract.  The dedicated target-export pipeline enables
+        it and carries the IDs through every object-axis filter.
+        """
+        results['gt_actor_ids'] = normalize_actor_ids(
+            results['ann_info']['gt_ids'], results['gt_labels_3d'].shape[0]
+        )
         return results
 
     def _load_masks_3d(self, results):
@@ -426,6 +441,8 @@ class LoadAnnotations3D(LoadAnnotations):
             results = self._load_labels_3d(results)
         if self.with_attr_label:
             results = self._load_attr_labels(results)
+        if self.with_actor_ids:
+            results = self._load_actor_ids(results)
         if self.with_mask_3d:
             results = self._load_masks_3d(results)
         if self.with_seg_3d:
@@ -447,6 +464,7 @@ class LoadAnnotations3D(LoadAnnotations):
         repr_str += f'{indent_str}with_label={self.with_label}, '
         repr_str += f'{indent_str}with_mask={self.with_mask}, '
         repr_str += f'{indent_str}with_seg={self.with_seg}, '
+        repr_str += f'{indent_str}with_actor_ids={self.with_actor_ids}, '
         repr_str += f'{indent_str}with_bbox_depth={self.with_bbox_depth}, '
         repr_str += f'{indent_str}poly2mask={self.poly2mask})'
         return repr_str

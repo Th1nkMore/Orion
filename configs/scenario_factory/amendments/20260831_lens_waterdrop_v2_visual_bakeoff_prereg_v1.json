@@ -1,0 +1,27 @@
+{
+  "schema": "orion.lens_waterdrop_v2_visual_bakeoff_prereg_amendment.v1",
+  "timestamp": "2026-08-31T21:16:00+08:00",
+  "status": "preregistered_not_yet_rendered",
+  "trigger": "User rejected lens_waterdrop_v1 and the contaminated clean capture; replacement must pass a clean-render gate and human visual review before ORION.",
+  "protocol": "configs/scenario_factory/corruption_hardcase_lens_waterdrop_v2_visual_bakeoff_route151_v1.json",
+  "supersedes_for_waterdrop_visuals": "configs/scenario_factory/corruption_hardcase_severity_freeze_v1.json",
+  "prospective_decisions": {
+    "clean_source": "Route151 diagnostic profile none, already calibrated at 0/34 black-block gate hits",
+    "input_resolution": [1600, 900],
+    "primary_mask": "D4__D4_0__D4_0950.png",
+    "profiles": ["light", "medium", "heavy"],
+    "orion_loaded": false,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_bakeoffs/route151_lens_waterdrop_v2_visual_bakeoff_v1"
+  },
+  "failure_policy": {
+    "clean_gate_failure": "abort without rendering any corruption",
+    "visual_failure": "mark v2 candidate failed and do not submit ORION",
+    "partial_output": "retain under unique output root and label incomplete; never silently overwrite"
+  },
+  "locks": {
+    "orion_screen": false,
+    "closed_loop": false,
+    "stage2_training": false
+  },
+  "claim_boundary": "This amendment authorizes only deterministic offline visual rendering from previously captured clean RGB/BEV frames."
+}

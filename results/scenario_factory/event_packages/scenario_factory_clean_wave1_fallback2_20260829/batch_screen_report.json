@@ -1,0 +1,78 @@
+{
+  "actor_grounded_event_count": 2,
+  "batch_manifest": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave1_fallback2_20260829/batch_manifest.json",
+    "sha256": "aefdf57e2838d707d8b8d171fac525cac25c3837fe4d296e7e02342079212b02"
+  },
+  "claim_boundary": "Automated development-screen report awaiting human scene review; not a training-set acceptance decision or held-out result.",
+  "event_packages": [
+    {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829/route202/event_package.json",
+      "route_index": 202,
+      "sha256": "4bf13e72cdac0db8137699fcbd6c2b85a3806a39b5b0dce91aaad2de7a98d4a3"
+    },
+    {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829/route162/event_package.json",
+      "route_index": 162,
+      "sha256": "f35b96c430ae3637c7a17f8ab3ad1248a3b8dbcc315dbb3e793fcc11ec074df7"
+    }
+  ],
+  "outcome_counts": {
+    "VALID_NEAR_MISS_OR_CONFLICT": 1,
+    "VALID_SEVERE_TTC": 1
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_fallback2_20260829",
+  "qa_input_ready_count": 2,
+  "results_root": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave1_fallback2_20260829",
+  "route_count": 2,
+  "routes": [
+    {
+      "attempts": [
+        {
+          "error": null,
+          "job_id": 1092373,
+          "package_buildable": true,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave1_fallback2_20260829/route202_hazard_clean_off-1092373",
+          "runtime_valid": true
+        }
+      ],
+      "has_actor_grounded_event": true,
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "route_index": 202,
+      "runtime_valid": true,
+      "scenario_type": "PedestrianCrossing",
+      "screen_role": "dynamic_path_conflict",
+      "selected_job_id": 1092373,
+      "selected_run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave1_fallback2_20260829/route202_hazard_clean_off-1092373",
+      "town": "Town03"
+    },
+    {
+      "attempts": [
+        {
+          "error": null,
+          "job_id": 1092374,
+          "package_buildable": true,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave1_fallback2_20260829/route162_hazard_clean_off-1092374",
+          "runtime_valid": true
+        }
+      ],
+      "has_actor_grounded_event": true,
+      "outcome_class": "VALID_SEVERE_TTC",
+      "qa_input_ready": true,
+      "route_index": 162,
+      "runtime_valid": true,
+      "scenario_type": "Accident",
+      "screen_role": "static_visual_hazard",
+      "selected_job_id": 1092374,
+      "selected_run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave1_fallback2_20260829/route162_hazard_clean_off-1092374",
+      "town": "Town03"
+    }
+  ],
+  "run_id": "scenario_factory_clean_wave1_fallback2_20260829",
+  "runtime_valid_count": 2,
+  "schema": "orion.scenario_factory.batch_screen_report.v1",
+  "split": "development_screen",
+  "status": "pending_human_review",
+  "unpackageable_route_count": 0
+}

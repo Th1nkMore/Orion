@@ -1,0 +1,60 @@
+{
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_online_screen_wave0_activation_v1.json",
+    "sha256": "8d6a370b99bcaab8f9d678b1545470cd9fdb1957d6cef15b36ef172fe6daca41"
+  },
+  "config": {
+    "path": "configs/scenario_factory/corruption_hardcase_online_screen_wave0_v1.json",
+    "sha256": "59429ae9fa3cb01b0639c8694399d6ea12f12cf49cf77c14c23b317da3af5186"
+  },
+  "excluded_nodes": [
+    "gpu4",
+    "gpu5"
+  ],
+  "job_ids": [
+    {
+      "job_id": 1116925,
+      "job_key": "route194_native_motion_blur_off"
+    }
+  ],
+  "jobs": [
+    {
+      "condition": "native_motion_blur_off",
+      "environment": {
+        "ASSET_ROOT": "/public/share/lidachuan/orion_assets",
+        "ORION_CLOSEDLOOP_CONDITIONING": "none",
+        "ORION_CLOSEDLOOP_RISK_MODE": "off",
+        "ORION_CLOSEDLOOP_UQ_MODE": "none",
+        "ORION_CORRUPTION_VISUAL_APPROVAL_GATE": "/public/home/lidachuan/project/Orion/configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json",
+        "ORION_ENABLE_LEGACY_DENSITY_UQ": "0",
+        "ORION_NATIVE_MOTION_BLUR_PROFILE": "medium",
+        "ORION_PLANNING_RESPONSE_MODE": "off",
+        "ORION_STAGE2_SPATIAL_UQ_SOURCE": "disabled",
+        "PILOT_ROUTE_FILE": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave2/route_194_hazard.xml",
+        "PILOT_ROUTE_FILE_SHA256": "e45f742233671568e57a5a0144a7fc42fcfb1d87aa66ebf54620f1db9f9e769a",
+        "PILOT_RUN_ID": "corruption_hardcase_online_wave0_v1",
+        "PROJECT_ROOT": "/public/home/lidachuan/project/Orion",
+        "SLURM_CPUS_PER_TASK": "2",
+        "SLURM_EXCLUDE": "gpu4,gpu5",
+        "SLURM_MEM": "192G",
+        "SLURM_PARTITION": "Nvidia_A800",
+        "SLURM_TIME": "02:00:00"
+      },
+      "job_key": "route194_native_motion_blur_off",
+      "route_index": 194,
+      "route_xml": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave2/route_194_hazard.xml",
+      "route_xml_sha256": "e45f742233671568e57a5a0144a7fc42fcfb1d87aa66ebf54620f1db9f9e769a",
+      "variant": "hazard"
+    }
+  ],
+  "jobs_submitted": 1,
+  "requested_job_keys": [
+    "route194_native_motion_blur_off"
+  ],
+  "schema": "orion.corruption_hardcase_online_wave_submission.v1",
+  "status": "submitted",
+  "submitter": {
+    "path": "/public/home/lidachuan/project/Orion/scripts/submit_corruption_hardcase_online_wave.py",
+    "sha256": "a46d32bd94549df90a78e5358e0282cdadb030c62fd13c0a07b6d8e14fd3357f"
+  }
+}

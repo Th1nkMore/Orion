@@ -1,0 +1,42 @@
+{
+  "registered_at": "2026-08-26T06:06:00+08:00",
+  "study_role": "second exploratory controller redesign after the 1.5 m/s-floor oracle officially failed",
+  "run_id": "uqcl_p2_safe_stop",
+  "route": {
+    "index": 146,
+    "variant": "hazard",
+    "town": "Town01",
+    "scenario": "DynamicObjectCrossing"
+  },
+  "fixed_references": {
+    "clean_job": 1057222,
+    "transient_off_job": 1057306,
+    "failed_1_5_mps_oracle_job": 1057314
+  },
+  "unchanged_event": {
+    "corruption": "front camera dropout",
+    "start_progress": 0.3,
+    "duration_simulation_seconds": 5.0
+  },
+  "single_controller_change": {
+    "condition": "front_corrupt_transient_oracle_stop",
+    "minimum_speed_cap_mps": 0.0,
+    "maximum_speed_cap_mps": 5.0,
+    "maximum_added_brake": 0.5,
+    "rationale": "A complete forward-camera dropout removes the evidence needed to justify continued forward motion. The prior positive speed floor delayed but did not prevent the collision, so this oracle upper bound performs a bounded controlled stop until the transient sensor outage ends."
+  },
+  "success_criteria": "eligible terminal record, 100% route completion, zero pedestrian/vehicle/layout collisions, no blocked or timeout infraction, and score_composed strictly greater than 50.0",
+  "failure_criteria": "any collision, blocked/timeout infraction, noncompletion, or fast-screen cancellation",
+  "uniform_termination_rules": {
+    "low_speed_fast_screen": "cancel and mark diagnostic-only if absolute ego speed remains below 0.25 m/s for at least 8 consecutive simulation seconds",
+    "runtime_no_progress": "cancel and mark environment-error if both trace and agent log remain unchanged for at least 8 wall-clock minutes"
+  },
+  "interpretation_limit": "This controller choice was made after observing the failed 1.5 m/s oracle and is exploratory. A positive result establishes only an oracle mechanism proof for transient complete sensor loss; it does not validate learned Density UQ or LLM understanding and needs held-out confirmation.",
+  "prohibited_expansion": [
+    "learned governor",
+    "constant governor",
+    "shuffled governor",
+    "hazard/nohazard matrix",
+    "additional route or seed before this oracle result"
+  ]
+}

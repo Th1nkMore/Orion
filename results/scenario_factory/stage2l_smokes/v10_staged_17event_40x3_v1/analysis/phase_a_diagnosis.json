@@ -1,0 +1,177 @@
+{
+  "diagnosis": {
+    "foreground_underactivation_supported": true,
+    "heldout_spatial_transfer_gap_supported": true,
+    "insufficient_parameter_capacity_supported": false,
+    "numerical_divergence_supported": false,
+    "pure_threshold_calibration_issue_proven": false,
+    "why_not_just_lower_gate": "The frozen gate failed and held-out ordering is weak on a subset of events; a post-hoc lower threshold would not establish that R localized the right task-relevant support."
+  },
+  "evidence": {
+    "background_suppression_healthy": true,
+    "dev_event_failure_is_heterogeneous": true,
+    "dev_events_below_0_8_positive_order_fraction": [
+      "route152_step125",
+      "route195_step230"
+    ],
+    "dev_foreground_recall": 0.341455340385437,
+    "foreground_recall_generalization_gap_train_minus_dev": 0.28711575269699097,
+    "heldout_foreground_background_gap_positive": true,
+    "logged_loss_change_step40_minus_step1": -0.8669877406209707,
+    "optimization_stable": true,
+    "train_foreground_recall": 0.628571093082428
+  },
+  "locks": {
+    "automatic_step_extension": false,
+    "formal_stage2l": false,
+    "phase_b": false,
+    "phase_c": false,
+    "stage2p": false,
+    "v10_reclassified_as_pass": false
+  },
+  "next_bounded_diagnostic": {
+    "checkpoint": "phase_a.pt",
+    "decision_after_replay": {
+      "good_ordering_but_miscalibrated": "revise calibration/objective in a new v10.1 protocol",
+      "uniformly_improving_but_underfit": "authorize a new longer Phase-A-only smoke; never extend v10 in place",
+      "wrong_spatial_support_on_weak_events": "repair route/task conditioning or support labels before more steps"
+    },
+    "kind": "evaluation_only_checkpoint_replay",
+    "optimizer_steps": 0,
+    "required_outputs": [
+      "per-event threshold sweep of recall, precision and background FPR",
+      "threshold-free average precision",
+      "foreground/background probability quantiles",
+      "R-map overlays for every held-out event",
+      "support-label overlays beside R-map overlays"
+    ]
+  },
+  "per_event": {
+    "dev": {
+      "route147_step223": {
+        "group_count": 5,
+        "mean_attained_fraction": 0.8100781132725388,
+        "mean_learned_gap": 0.13529067947506518,
+        "mean_map_loss": 0.5348785996437073,
+        "positive_order_fraction": 0.8
+      },
+      "route152_step125": {
+        "group_count": 5,
+        "mean_attained_fraction": -0.3235046535730362,
+        "mean_learned_gap": -0.06757758781313897,
+        "mean_map_loss": 0.8968365550041199,
+        "positive_order_fraction": 0.4
+      },
+      "route162_step277": {
+        "group_count": 5,
+        "mean_attained_fraction": 0.20257183609937784,
+        "mean_learned_gap": 0.058432287260620795,
+        "mean_map_loss": 0.8505996465682983,
+        "positive_order_fraction": 1.0
+      },
+      "route195_step230": {
+        "group_count": 5,
+        "mean_attained_fraction": 0.30541272895679866,
+        "mean_learned_gap": 0.10782584456619589,
+        "mean_map_loss": 0.8971178770065308,
+        "positive_order_fraction": 0.4
+      }
+    },
+    "train": {
+      "route151_step218": {
+        "group_count": 5,
+        "mean_attained_fraction": 1.7891381474910304,
+        "mean_learned_gap": 0.22211988582275807,
+        "mean_map_loss": 0.3596158683300018,
+        "positive_order_fraction": 1.0
+      },
+      "route157_step193": {
+        "group_count": 5,
+        "mean_attained_fraction": 1.0457278609275817,
+        "mean_learned_gap": 0.35338868796825407,
+        "mean_map_loss": 0.8158293902873993,
+        "positive_order_fraction": 1.0
+      },
+      "route158_step154": {
+        "group_count": 3,
+        "mean_attained_fraction": 0.5232382000540383,
+        "mean_learned_gap": 0.20141412941059875,
+        "mean_map_loss": 0.46464987099170685,
+        "positive_order_fraction": 1.0
+      },
+      "route160_step518": {
+        "group_count": 5,
+        "mean_attained_fraction": 0.7276803385261246,
+        "mean_learned_gap": 0.22640399823322924,
+        "mean_map_loss": 0.66823490858078,
+        "positive_order_fraction": 1.0
+      },
+      "route161_step308": {
+        "group_count": 5,
+        "mean_attained_fraction": 0.1795257869539455,
+        "mean_learned_gap": 0.03931537706208701,
+        "mean_map_loss": 0.652020275592804,
+        "positive_order_fraction": 0.8
+      },
+      "route164_step522": {
+        "group_count": 5,
+        "mean_attained_fraction": 0.08273416297161021,
+        "mean_learned_gap": 0.018532903703453486,
+        "mean_map_loss": 0.7515514373779297,
+        "positive_order_fraction": 0.6
+      },
+      "route165_step421": {
+        "group_count": 5,
+        "mean_attained_fraction": 0.808477807790041,
+        "mean_learned_gap": 0.20322604849934578,
+        "mean_map_loss": 0.7556724607944488,
+        "positive_order_fraction": 1.0
+      },
+      "route168_step482": {
+        "group_count": 4,
+        "mean_attained_fraction": 0.9203434959053993,
+        "mean_learned_gap": 0.18781184405088425,
+        "mean_map_loss": 0.8527224510908127,
+        "positive_order_fraction": 1.0
+      },
+      "route180_step696": {
+        "group_count": 5,
+        "mean_attained_fraction": 2.0545760869979857,
+        "mean_learned_gap": 0.4654417932033539,
+        "mean_map_loss": 0.30739127695560453,
+        "positive_order_fraction": 1.0
+      },
+      "route185_step304": {
+        "group_count": 5,
+        "mean_attained_fraction": 1.1509164517279715,
+        "mean_learned_gap": 0.29832273423671724,
+        "mean_map_loss": 0.3766069829463959,
+        "positive_order_fraction": 1.0
+      },
+      "route188_step139": {
+        "group_count": 5,
+        "mean_attained_fraction": 0.27684228262371563,
+        "mean_learned_gap": 0.0654298510157787,
+        "mean_map_loss": 0.6856119155883789,
+        "positive_order_fraction": 1.0
+      },
+      "route194_step684": {
+        "group_count": 3,
+        "mean_attained_fraction": 0.9795423644176253,
+        "mean_learned_gap": 0.11349655618156855,
+        "mean_map_loss": 0.4052942047516505,
+        "positive_order_fraction": 1.0
+      },
+      "route207_step924": {
+        "group_count": 5,
+        "mean_attained_fraction": 1.6497853181848767,
+        "mean_learned_gap": 0.19317042013572064,
+        "mean_map_loss": 0.4973493695259094,
+        "positive_order_fraction": 1.0
+      }
+    }
+  },
+  "report_sha256": "8085bd52f51c491c55a5ed474ecbcef9b6912055ad433540bb08035ac2bd8783",
+  "schema": "orion.stage2l_v10_phase_a_diagnosis.v1",
+  "terminal_status": "stopped_after_phase_a_failed_gate"
+}

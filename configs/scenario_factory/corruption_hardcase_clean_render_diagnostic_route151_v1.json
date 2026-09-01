@@ -1,0 +1,69 @@
+{
+  "schema": "orion.clean_camera_render_diagnostic.v1",
+  "created_at": "2026-08-31T20:36:00+08:00",
+  "status": "preregistered_diagnostic_only",
+  "trigger": {
+    "rejected_visual_amendment": "configs/scenario_factory/amendments/20260831_corruption_hardcase_visual_rejection_v1.json",
+    "rejected_result_sha256": "a29c01cd8908613a72fde31a79cf2ab4abc0fea9ac6bcba7fd7ea65884400497",
+    "raw_clean_frame_sha256": "118947970445c00b6d769058e8fbbaec4635c96d02b035ce28d22e784545012d",
+    "finding": "Black square artifacts are already present in the raw 1600x900 clean capture before any offline corruption or resize."
+  },
+  "route": {
+    "route_id": 151,
+    "town": "Town02",
+    "source_xml": "configs/closedloop_scenario_bank/routes/route_151_hazard.xml",
+    "capture_start_progress": 0.36,
+    "capture_end_progress": 0.43,
+    "contact_progress": 0.39881549704622504,
+    "capture_stride_simulation_steps": 1
+  },
+  "conditions": [
+    {
+      "profile": "none",
+      "meaning": "unmodified CARLA/Leaderboard RGB blueprint",
+      "front_camera_override": null
+    },
+    {
+      "profile": "intensity_zero_only",
+      "meaning": "single-attribute diagnostic",
+      "front_camera_override": {"motion_blur_intensity": 0.0}
+    },
+    {
+      "profile": "clean",
+      "meaning": "rejected bakeoff clean profile reproduced exactly",
+      "front_camera_override": {
+        "enable_postprocess_effects": true,
+        "motion_blur_intensity": 0.0,
+        "motion_blur_max_distortion": 0.0,
+        "motion_blur_min_object_screen_size": 0.0
+      },
+      "bev_override": {
+        "enable_postprocess_effects": false,
+        "motion_blur_intensity": 0.0,
+        "motion_blur_max_distortion": 0.0,
+        "motion_blur_min_object_screen_size": 0.0
+      }
+    }
+  ],
+  "controlled_variables": [
+    "same Route151 XML and route-native weather",
+    "same 1600x900 front camera geometry",
+    "same BasicAgent capture driver",
+    "same CARLA server process and Vulkan runtime",
+    "nearest route-progress matching for review"
+  ],
+  "decision_rule": {
+    "none_clean_intensity_clean_triple_bad": "The multi-attribute clean override is causal; retire it and use unmodified blueprint as clean.",
+    "none_clean_intensity_bad": "Even a zero-intensity override is unsafe in this runtime; never write zero-valued native motion-blur attributes for clean.",
+    "none_bad": "The issue precedes the motion-blur patch; inspect CARLA runtime, server logs, weather/material state, and GPU before any corruption work.",
+    "all_clean": "The prior failure was intermittent; repeat the unmodified baseline on a second job before release."
+  },
+  "render": {"width": 480, "height": 270, "fps": 10, "maximum_frames": 60},
+  "execution_locks": {
+    "orion_loaded": false,
+    "orion_hardcase_screen": false,
+    "closed_loop_route_jobs": false,
+    "severity_selection": false
+  },
+  "claim_boundary": "Engineering root-cause diagnostic only. No condition is a released corruption and no safety outcome may be used."
+}

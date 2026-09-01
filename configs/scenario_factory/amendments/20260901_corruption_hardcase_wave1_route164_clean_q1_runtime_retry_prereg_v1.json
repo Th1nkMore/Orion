@@ -1,0 +1,74 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_q1_runtime_retry_preregistration.v1",
+  "created_at": "2026-09-01T04:02:57+08:00",
+  "status": "exact_single_replacement_authorized_before_retry_submission",
+  "failed_attempt": {
+    "route_index": 164,
+    "condition": "clean_off",
+    "phase": "q1",
+    "job_id": 1117510,
+    "node": "gpu1",
+    "slurm_state": "FAILED",
+    "exit_code": "124:0",
+    "elapsed": "00:15:51",
+    "evaluator_entry_status": "Started",
+    "evaluator_progress": [0, 1],
+    "trace_frames": 190,
+    "last_trace": {
+      "step": 189,
+      "sim_time_seconds": 9.45,
+      "route_progress": 0.2592188198625996,
+      "speed_mps": 5.2473684564892835
+    },
+    "watchdog": {
+      "path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/route164_hazard_clean_off-1117510/runtime_progress_watchdog.json",
+      "sha256": "99b0951e33cc8b3285c16874e40ee6d5315d9a5e786a846f12128363a1def823",
+      "reason": "control_trace_stalled",
+      "stall_threshold_seconds": 300,
+      "scientific_classification": "runtime_environment_invalid"
+    }
+  },
+  "classification": {
+    "scientific_clean_result": false,
+    "clean_gate_evaluated": false,
+    "reason": "The evaluator never reached a terminal record and the runtime watchdog classified a stalled control trace."
+  },
+  "replacement": {
+    "maximum_attempts": 1,
+    "route_index": 164,
+    "condition": "clean_off",
+    "phase": "q1",
+    "variant": "hazard",
+    "run_id": "corruption_hardcase_wave1_clean_q1_v1",
+    "route_xml": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave1/route_164_hazard.xml",
+      "sha256": "1515c984f9489d138593748a793180354f4e7eb0807e374f1c19225a15bc1f28"
+    },
+    "resources": {
+      "partition": "Nvidia_A800",
+      "gpu": 1,
+      "cpus": 2,
+      "memory": "192G",
+      "time_limit": "02:00:00",
+      "excluded_nodes": ["gpu1", "gpu2", "gpu5"]
+    },
+    "architecture_locks": {
+      "ORION_CLOSEDLOOP_UQ_MODE": "none",
+      "ORION_CLOSEDLOOP_CONDITIONING": "none",
+      "ORION_CLOSEDLOOP_RISK_MODE": "off",
+      "ORION_PLANNING_RESPONSE_MODE": "off",
+      "ORION_STAGE2_SPATIAL_UQ_SOURCE": "disabled",
+      "legacy_density_uq": false,
+      "corruption": "none"
+    }
+  },
+  "execution_locks": {
+    "duplicate_route164_q1_retry": false,
+    "q2": false,
+    "corruption": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Runtime recovery authorization only. Neither the failed attempt nor the replacement is a clean qualification result until terminal Q1 evaluation passes."
+}

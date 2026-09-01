@@ -1,0 +1,711 @@
+{
+  "after": {
+    "bridge_global_features": {
+      "observed": [
+        [
+          0.05450373515486717,
+          0.0009250466246157885,
+          0.00476998183876276,
+          0.5186703205108643,
+          -0.04434933513402939,
+          -0.15853503346443176
+        ]
+      ],
+      "off_path_uq": [
+        [
+          0.0075147575698792934,
+          2.2756876205676235e-05,
+          0.0010590007295832038,
+          0.2886488437652588,
+          0.6208942532539368,
+          -0.5999560356140137
+        ]
+      ],
+      "on_path_uq": [
+        [
+          0.44772523641586304,
+          0.0011441156966611743,
+          0.019297845661640167,
+          0.15511876344680786,
+          -0.7463493347167969,
+          -0.5999991297721863
+        ]
+      ],
+      "view_shuffled_uq": [
+        [
+          0.08604595065116882,
+          0.0020579255651682615,
+          0.008838022127747536,
+          0.5294886231422424,
+          0.09408458322286606,
+          -0.23996300995349884
+        ]
+      ],
+      "zero_uq": [
+        [
+          0.0,
+          0.0,
+          0.0010000000474974513,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "counterfactual_answer_nll": {
+      "off_path_uq": 0.6062156558036804,
+      "on_path_uq": 0.23721690475940704,
+      "zero_uq": 0.5522372126579285
+    },
+    "expected_answer_nll": {
+      "off_path_uq": 0.0631413385272026,
+      "on_path_uq": 0.2237318605184555,
+      "zero_uq": 0.06520073115825653
+    },
+    "generated_driving_implication": {
+      "off_path_uq": "<task_relevance_map> The uncertainty-aware planning stance is maintain. This is a planning implication, not a direct brake or steering command.",
+      "on_path_uq": "<task_relevance_map> The uncertainty-aware planning stance is prepare_right, and its temporal trend is rising. This is a planning implication, not a direct brake or steering command.",
+      "zero_uq": "<task_relevance_map> The uncertainty-aware planning stance is maintain. This is a planning implication, not a direct brake or steering command."
+    },
+    "generated_stances": {
+      "off_path_uq": "maintain",
+      "on_path_uq": null,
+      "zero_uq": "maintain"
+    },
+    "mean_language_nll": 0.1881573786959052,
+    "on_minus_off_peak_task_risk": 0.4402104914188385,
+    "relevance_bce": 0.051109202206134796
+  },
+  "architecture": {
+    "bridge_token_count": 7,
+    "direct_control": false,
+    "hard_governor_used": false,
+    "legacy_density_uq_used": false,
+    "passes": 2,
+    "relevance_queries_receive_uq": false,
+    "task_risk": "K = U * sigmoid(R)",
+    "trajectory": false
+  },
+  "before": {
+    "bridge_global_features": {
+      "observed": [
+        [
+          0.47114044427871704,
+          0.03231073543429375,
+          0.0789630338549614,
+          -0.36068102717399597,
+          0.21182888746261597,
+          -0.6046101450920105
+        ]
+      ],
+      "off_path_uq": [
+        [
+          0.3195703625679016,
+          0.0008028166485019028,
+          0.013657286763191223,
+          0.1427302211523056,
+          0.7466100454330444,
+          -0.5999987721443176
+        ]
+      ],
+      "on_path_uq": [
+        [
+          0.309282511472702,
+          0.0007781283347867429,
+          0.013225572183728218,
+          0.14277109503746033,
+          -0.7462841868400574,
+          -0.5999987125396729
+        ]
+      ],
+      "view_shuffled_uq": [
+        [
+          0.4197100102901459,
+          0.03025224804878235,
+          0.07063774019479752,
+          -0.3455495238304138,
+          0.2199411690235138,
+          -0.33997416496276855
+        ]
+      ],
+      "zero_uq": [
+        [
+          0.0,
+          0.0,
+          0.0010000000474974513,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "counterfactual_answer_nll": {
+      "off_path_uq": 13.876043319702148,
+      "on_path_uq": 13.997482299804688,
+      "zero_uq": 13.884902000427246
+    },
+    "expected_answer_nll": {
+      "off_path_uq": 13.98786735534668,
+      "on_path_uq": 13.884200096130371,
+      "zero_uq": 13.99630355834961
+    },
+    "generated_driving_implication": {
+      "off_path_uq": "111111111111111111111111111111111111111111111111111111111111111111111111",
+      "on_path_uq": "111111111111111111111111111111111111111111111111111111111111111111111111",
+      "zero_uq": "111111111111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "generated_stances": {
+      "off_path_uq": null,
+      "on_path_uq": null,
+      "zero_uq": null
+    },
+    "mean_language_nll": 14.90897159576416,
+    "on_minus_off_peak_task_risk": -0.010287851095199585,
+    "relevance_bce": 0.7723497748374939
+  },
+  "checkpoint": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_task_risk_bridge_v1_240/training/stage2l_route196_bridge.pt",
+    "sha256": "3b7d21cf297ec8bd4367b53acb3620035511a4d758a430a56a213bc3b9589c39"
+  },
+  "checks": {
+    "generated_off_path_is_maintain": true,
+    "generated_on_path_matches_target": false,
+    "generated_zero_uq_is_maintain": true,
+    "off_path_prefers_maintain": true,
+    "on_path_prefers_conservative": true,
+    "on_path_risk_exceeds_off_path_by_margin": true,
+    "optimization_reduces_language_nll": true,
+    "optimization_reduces_relevance_bce": true,
+    "zero_uq_prefers_maintain": true
+  },
+  "claim_boundary": "One-event bridge learnability smoke only; no held-out, trajectory, closed-loop, or safety claim.",
+  "engineering_overfit_only": true,
+  "formal_training_ready": false,
+  "history": [
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 14.730401992797852,
+      "loss": 16.480966567993164,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.2059498280286789,
+      "relevance_bce": 0.7723078727722168,
+      "step": 1,
+      "variant": "zero_uq"
+    },
+    {
+      "answer_preference_loss": 0.11316633224487305,
+      "language_nll": 7.829620361328125,
+      "loss": 8.43802547454834,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.04688957333564758,
+      "relevance_bce": 0.16759151220321655,
+      "step": 5,
+      "variant": "zero_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 7.719090461730957,
+      "loss": 7.990303039550781,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.1356063187122345,
+      "step": 10,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 7.2720561027526855,
+      "loss": 7.482595920562744,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.10526984184980392,
+      "step": 15,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 7.608110427856445,
+      "loss": 7.821190357208252,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.10653990507125854,
+      "step": 20,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 6.230640411376953,
+      "loss": 6.419242858886719,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.0943012535572052,
+      "step": 25,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 6.5512285232543945,
+      "loss": 6.733876705169678,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.0913241058588028,
+      "step": 30,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 5.172544479370117,
+      "loss": 5.343542098999023,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.08549872040748596,
+      "step": 35,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 5.1948652267456055,
+      "loss": 5.359230041503906,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.08218245953321457,
+      "step": 40,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.4345252513885498,
+      "language_nll": 3.993105888366699,
+      "loss": 5.02152681350708,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07968530058860779,
+      "step": 45,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 4.4109721183776855,
+      "loss": 4.569002628326416,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07901521027088165,
+      "step": 50,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 3.206343173980713,
+      "loss": 3.3571646213531494,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07541075348854065,
+      "step": 55,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 4.83936071395874,
+      "loss": 4.978043556213379,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06934142112731934,
+      "step": 60,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 4.052457332611084,
+      "loss": 4.184604167938232,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.0660734474658966,
+      "step": 65,
+      "variant": "zero_uq"
+    },
+    {
+      "answer_preference_loss": 0.3037378787994385,
+      "language_nll": 2.3482699394226074,
+      "loss": 3.091524839401245,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06788960099220276,
+      "step": 70,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 1.80649995803833,
+      "loss": 1.9382026195526123,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.0658513531088829,
+      "step": 75,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 1.0118151903152466,
+      "loss": 1.1329200267791748,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06055242195725441,
+      "step": 80,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 1.6421228647232056,
+      "loss": 1.7561554908752441,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05701629817485809,
+      "step": 85,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 3.425121307373047,
+      "loss": 3.5489680767059326,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06192340329289436,
+      "step": 90,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 2.188136577606201,
+      "loss": 2.329780101776123,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07082171738147736,
+      "step": 95,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.34881043434143066,
+      "loss": 0.46586933732032776,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05852944776415825,
+      "step": 100,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.5351446866989136,
+      "loss": 0.6480671167373657,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05646120384335518,
+      "step": 105,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 1.6573121547698975,
+      "loss": 1.7594714164733887,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05107966065406799,
+      "step": 110,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 1.991041660308838,
+      "loss": 2.1018571853637695,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05540778115391731,
+      "step": 115,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.01530301570892334,
+      "language_nll": 0.9283878207206726,
+      "loss": 1.05997896194458,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.050492580980062485,
+      "step": 120,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.5966106057167053,
+      "loss": 0.6932551264762878,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.048322271555662155,
+      "step": 125,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.6838029026985168,
+      "language_nll": 0.8850815296173096,
+      "loss": 2.354501485824585,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05090709775686264,
+      "step": 130,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.18077176809310913,
+      "language_nll": 0.7098641395568848,
+      "loss": 1.218607783317566,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07360005378723145,
+      "step": 135,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.08135998249053955,
+      "language_nll": 1.0432765483856201,
+      "loss": 1.3282780647277832,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06114078685641289,
+      "step": 140,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.7182438969612122,
+      "loss": 0.8311491012573242,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05645259469747543,
+      "step": 145,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.6319875121116638,
+      "loss": 0.7412171363830566,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.054614800959825516,
+      "step": 150,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.4978760778903961,
+      "loss": 0.6006004810333252,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.051362209022045135,
+      "step": 155,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.8661284446716309,
+      "loss": 0.9671691656112671,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05052037164568901,
+      "step": 160,
+      "variant": "zero_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.7687206268310547,
+      "loss": 0.8692387342453003,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.0502590648829937,
+      "step": 165,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.4623800218105316,
+      "loss": 0.5541491508483887,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.04588457569479942,
+      "step": 170,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.25998157262802124,
+      "loss": 0.3630189299583435,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.051518674939870834,
+      "step": 175,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.4451039731502533,
+      "loss": 0.5407182574272156,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.04780714958906174,
+      "step": 180,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.5691880583763123,
+      "loss": 0.6715145707130432,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05116325989365578,
+      "step": 185,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.5818297863006592,
+      "loss": 0.6747803688049316,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.04647527635097504,
+      "step": 190,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.1760261207818985,
+      "loss": 0.2757619619369507,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.04986792802810669,
+      "step": 195,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.32072922587394714,
+      "loss": 0.4243106245994568,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05179069563746452,
+      "step": 200,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.20435012876987457,
+      "loss": 0.29940274357795715,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.04752630740404129,
+      "step": 205,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.19076257944107056,
+      "loss": 0.29087865352630615,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.050058040767908096,
+      "step": 210,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.4822310209274292,
+      "loss": 0.6048310995101929,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.061300039291381836,
+      "step": 215,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.29442307353019714,
+      "loss": 0.4010191559791565,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05329804867506027,
+      "step": 220,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.22579841315746307,
+      "loss": 0.32291731238365173,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.04855944588780403,
+      "step": 225,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.213773712515831,
+      "loss": 0.3126242458820343,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.005548883229494095,
+      "relevance_bce": 0.04665081575512886,
+      "step": 230,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.20729370415210724,
+      "loss": 0.3203233480453491,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05651481822133064,
+      "step": 235,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.10745536535978317,
+      "loss": 0.21546611189842224,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.054005369544029236,
+      "step": 240,
+      "variant": "off_path_uq"
+    }
+  ],
+  "inputs": {
+    "base_orion_checkpoint": {
+      "path": "/public/share/lidachuan/orion_assets/checkpoints/Orion.pth",
+      "sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+    },
+    "launch_amendment": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260829_stage2l_route196_task_risk_bridge_launch_v4.json",
+      "sha256": "fd443f73037820601040be3869813977e41b73ac5bf5cb958379565f4872d90f"
+    },
+    "records": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v3/qa_dataset/records.jsonl",
+      "sha256": "256e4706fbc8f3637b85a43a5a3dba9703f6ff74cd285f338fd1c3c96bd97c39"
+    },
+    "training_protocol": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/stage2l_training_v4_task_risk_bridge.json",
+      "sha256": "693a89707008a95958e683e420e56abd781203b1b2cf84469b0e14e94e5089b1"
+    },
+    "visual_cache": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_v1/orion_visual_context.pt",
+      "sha256": "048e4556ce4f881c49693f1808749006edd45f34cd0d0f2e1579216773a5532d"
+    }
+  },
+  "sampling": {
+    "balance_driving_stances": true,
+    "effective_epoch_record_count": 24,
+    "source_driving_stance_counts": {
+      "caution": 1,
+      "maintain": 3,
+      "prepare_to_yield": 1
+    }
+  },
+  "schema": "orion.stage2l_route196_bridge_smoke.v1",
+  "stage2l_pilot_training_ready": false,
+  "status": "engineering_bridge_overfit_failed_gate",
+  "steps": 240
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "orion.closedloop_runtime_watchdog_diagnostic.v1",
+  "timestamp": "2026-08-28T17:22:00+08:00",
+  "job_id": 1082517,
+  "route_index": 157,
+  "town": "Town05",
+  "scenario": "ParkingCutIn",
+  "condition": "clean_off",
+  "slurm_terminal_state": "CANCELLED by 2329",
+  "slurm_elapsed": "00:27:03",
+  "evaluator_entry_status": "Started",
+  "evaluator_eligible": false,
+  "evaluator_terminal_record_count": 0,
+  "watchdog_message": "Watchdog exception - Timeout of 601.0 seconds occured",
+  "trace": {
+    "frame_count": 384,
+    "last_step": 383,
+    "last_sim_time_seconds": 19.15,
+    "last_route_progress": 0.5813593586891356,
+    "last_speed_mps": 4.790060111103865,
+    "safety_schema": "orion.closedloop_dynamic_actor_safety.v2"
+  },
+  "diagnostic_event": {
+    "critical_actor_id": 139,
+    "critical_actor_type": "vehicle.mini.cooper_s_2021",
+    "first_zero_obb_gap_step": 189,
+    "first_zero_obb_gap_sim_time_seconds": 9.45,
+    "first_zero_obb_gap_route_progress": 0.29053167700390997,
+    "interpretation": "The clean trace contains a close pass with a stationary roadside Mini and current planar OBB overlap, but the evaluator produced no terminal record. It therefore cannot establish whether the simulator collision sensor recorded a collision."
+  },
+  "exclusion": {
+    "stage_b_qualified": false,
+    "official_safety_result": false,
+    "rule": "Retain the partial trace and front/BEV evidence only as a runtime and behavior diagnostic. Do not submit Route157 degraded, oracle, learned, constant, shuffled, off-path, no-hazard, or additional-seed jobs under the current protocol."
+  }
+}

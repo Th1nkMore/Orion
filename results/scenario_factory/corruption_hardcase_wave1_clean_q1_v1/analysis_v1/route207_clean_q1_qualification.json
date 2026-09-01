@@ -1,0 +1,80 @@
+{
+  "schema": "orion.corruption_hardcase_clean_qualification.v1",
+  "status": "clean_rejected",
+  "phase": "q1",
+  "route_index": 207,
+  "run_dir": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/route207_hazard_clean_off-1117512",
+  "protocol": {
+    "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/corruption_hardcase_wave1_clean_qualification_v1.json",
+    "sha256": "428549620d1393c2b9200263e038e5bbbbcca6c8ef0042fd00ad980156e72aa1"
+  },
+  "source_files": {
+    "manifest": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/route207_hazard_clean_off-1117512/manifest.json",
+    "evaluator": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/route207_hazard_clean_off-1117512/eval_orion_traj_0.json",
+    "control_trace": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/route207_hazard_clean_off-1117512/records_orion_traj_0/RouteScenario_28048_rep0_Town02_T_Junction_1_15_09_01_04_20_41/control_trace.jsonl",
+    "liveness_fast_screen": {
+      "path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/route207_hazard_clean_off-1117512/clean_liveness_fast_screen.json",
+      "sha256": "92013de3c55ea61eab38fe4de5215d86d4925131abe2885c62773d98d72a3d0b"
+    }
+  },
+  "runtime_terminal": {
+    "job_id": 1117512,
+    "slurm_state": "CANCELLED_BY_PREREGISTERED_FAST_SCREEN",
+    "node": "gpu4",
+    "elapsed": "00:11:47",
+    "scientific_classification": "clean_q1_rejected_by_liveness"
+  },
+  "checks": {
+    "route_index_matches": true,
+    "condition_clean_off": true,
+    "uq_mode_none": true,
+    "conditioning_none": true,
+    "risk_mode_off": true,
+    "planning_response_off": true,
+    "stage2_source_disabled": true,
+    "legacy_density_disabled": true,
+    "liveness_at_most_8s": false
+  },
+  "failed_checks": [
+    "liveness_at_most_8s"
+  ],
+  "unperformed_checks_after_early_rejection": [
+    "evaluator_entry_finished",
+    "terminal_completed",
+    "route_completion_100",
+    "zero_hard_infractions_at_terminal"
+  ],
+  "hard_infraction_counts": {
+    "collisions_layout": null,
+    "collisions_pedestrian": null,
+    "collisions_vehicle": null,
+    "red_light": null,
+    "stop_infraction": null,
+    "outside_route_lanes": null,
+    "route_dev": null,
+    "vehicle_blocked": null,
+    "scenario_timeouts": null,
+    "route_timeout": null
+  },
+  "route_completion_percent": null,
+  "observed_route_progress_percent": 0.23010043319988257,
+  "trace_frames": 235,
+  "longest_low_speed_interval": {
+    "duration_seconds": 9.75,
+    "start_step": 40,
+    "end_step": 234,
+    "start_time_seconds": 2.0,
+    "end_time_seconds": 11.7,
+    "start_progress": 0.00019638295915933845,
+    "end_progress": 0.0023010043319988257
+  },
+  "qualified_for_next_clean_repeat": false,
+  "automatic_scope_locks": {
+    "q2_submission": false,
+    "corruption_submission": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Prospective fast-screen rejection of one clean Q1 route. The partial run is not an official safety result and cannot enter Q2 or corruption experiments."
+}

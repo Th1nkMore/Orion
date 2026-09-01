@@ -1,0 +1,28 @@
+{
+  "schema": "orion.native_motion_blur_clean_revalidation_prereg_amendment.v1",
+  "timestamp": "2026-08-31T22:06:00+08:00",
+  "status": "preregistered_not_yet_submitted",
+  "trigger": "The original native-motion-blur bakeoff shared an invalid black-block-contaminated clean capture and was revoked. Recapture only unmodified none and the retained medium candidate with a fresh CARLA server per profile.",
+  "protocol": "configs/scenario_factory/corruption_hardcase_native_motion_blur_revalidation_route151_v1.json",
+  "prospective_decisions": {
+    "profiles": ["none", "medium"],
+    "capture_progress": [0.36, 0.43],
+    "source_resolution": [1600, 900],
+    "fresh_server_per_profile": true,
+    "orion_loaded": false,
+    "resource_request": "Nvidia_A800 gpu:1 cpu:2 mem:16G time:00:25:00",
+    "run_id": "route151_native_motion_blur_clean_revalidation_v1",
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_native_motion_blur_clean_revalidation_v1"
+  },
+  "abort_rules": {
+    "camera_readback_mismatch": "abort profile",
+    "black_block_gate_failure": "retain failed capture and do not freeze profile",
+    "partial_capture": "retain unique output and authorize postprocess only through a separate amendment",
+    "visual_failure": "do not submit ORION"
+  },
+  "locks": {
+    "orion_screen": false,
+    "closed_loop": false,
+    "training": false
+  }
+}

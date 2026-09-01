@@ -1,0 +1,425 @@
+{
+  "carla_used": false,
+  "config": {
+    "diffusion_enabled": false,
+    "lineage": {
+      "loader": "python-runpy-local-read-only",
+      "path": "/public/home/lidachuan/project/Orion/adzoo/orion/configs/orion_stage3_agent.py",
+      "sha256": "5d106c4669620efbe6d48d9ab304f9e117646f9910aff673dbe7092525b745fb"
+    },
+    "model_frozen": true,
+    "pipeline_audit": {
+      "collected_keys": [
+        "traffic_state",
+        "traffic_state_mask",
+        "gt_actor_ids"
+      ],
+      "custom_collect_mutation_count": 1,
+      "load_annotations_mutation_count": 1,
+      "passed": true,
+      "samples_per_gpu": 1,
+      "schema_version": "orion-stage3-agent-actual-target-pipeline/v1",
+      "source_deployment_config_mutated": false,
+      "with_actor_ids_enabled": true,
+      "with_light_state_enabled": true
+    },
+    "samples_per_gpu": 1,
+    "workers_per_gpu": 4
+  },
+  "corruption_hook": {
+    "camera_name": "CAM_FRONT",
+    "event_window_frames_inclusive": [
+      0,
+      63
+    ],
+    "family": "local_occlusion",
+    "fixed_region": "deterministically_seeded_at_first_processed_image_shape",
+    "processed_frame_count": 0,
+    "processed_frames": [],
+    "production_hook_id": "route214-front-local-occlusion-fixed-seed-full-prefix/v1",
+    "scope": "diagnostic_full_prefix_not_time_alignment_evidence",
+    "seed": 20260826,
+    "severity": 2,
+    "view_indices": [
+      0
+    ]
+  },
+  "decode_config": {
+    "class_mapping_id": "orion-stage3-nine-class-98eb6b1e078f6079/v1",
+    "max_num": 300,
+    "num_classes": 9,
+    "occupancy_rasterizer_id": "orion-selected-mode-derived-occupancy/v1",
+    "with_light_state": true
+  },
+  "execution_requested": true,
+  "hook_readiness": {
+    "audit_results": {
+      "concrete_production_branch_builder": true,
+      "decoder_parity_check": false,
+      "external_production_hook_ids_present": true,
+      "gt_axis_alignment_check": false,
+      "production_primitives_frozen": true,
+      "projection_overlay_check": false,
+      "selected_motion_mode_check": false
+    },
+    "connected": {
+      "branch_target_builder": true,
+      "corruption_transform": true,
+      "decoder_parity_check": true,
+      "gt_axis_alignment_check": true,
+      "gt_occupancy_rasterizer": true,
+      "occupancy_rasterizer": true,
+      "pairwise_bev_iou": true,
+      "patch_feature_extractor": true,
+      "project_visible_support": true,
+      "projection_overlay_check": true,
+      "record_sink": true,
+      "selected_motion_mode_check": true
+    },
+    "external_production_hook_ids": {
+      "corruption_transform": "route214-front-local-occlusion-fixed-seed-full-prefix/v1",
+      "decoder_parity_check": "route214-decoder-parity-persistent-evidence/v1",
+      "gt_axis_alignment_check": "route214-gt-axis-persistent-evidence/v1",
+      "projection_overlay_check": "route214-projection-overlay-persistent-evidence/v1",
+      "record_sink": "route214-bounded-measurement-record-sink/v1",
+      "selected_motion_mode_check": "route214-selected-mode-persistent-evidence/v1"
+    },
+    "identifiers": {
+      "decoded_box_z_origin": "center",
+      "gt_box_z_origin": "bottom",
+      "gt_occupancy_rasterizer_id": "planningmetric-gt-side-effect-free-parity/v1",
+      "occupancy_rasterizer_id": "orion-selected-mode-derived-occupancy/v1",
+      "pairwise_bev_iou_policy_id": "orion-side-effect-free-continuous-rotated-bev-iou/v1",
+      "patch_feature_hook_id": "orion-evavit-position-level-6x40x40-row-major/v1",
+      "support_projector_id": "orion.six-view-projected-visible-support/v1"
+    },
+    "integration_kind": "real_orion",
+    "real_execution_ready": false,
+    "schema_version": "orion-actual-target-runtime-hooks/v1",
+    "suspicious_identifier_values": []
+  },
+  "mode": "model_init_only",
+  "paths": {
+    "checkpoint": {
+      "exists": true,
+      "kind": "file",
+      "path": "/public/share/lidachuan/orion_assets/checkpoints/Orion.pth"
+    },
+    "config": {
+      "exists": true,
+      "kind": "file",
+      "path": "/public/home/lidachuan/project/Orion/adzoo/orion/configs/orion_stage3_agent.py"
+    },
+    "dataset_root": {
+      "exists": true,
+      "kind": "directory",
+      "path": "/public/share/lidachuan/orion_assets/data/bench2drive"
+    },
+    "infos": {
+      "exists": true,
+      "kind": "file",
+      "path": "/public/share/lidachuan/orion_assets/data/infos/b2d_infos_val.pkl"
+    },
+    "llm_path": {
+      "exists": true,
+      "kind": "directory",
+      "path": "/public/share/lidachuan/orion_assets/checkpoints/pretrain_qformer"
+    },
+    "map_file": {
+      "exists": true,
+      "kind": "file",
+      "path": "/public/share/lidachuan/orion_assets/data/infos/b2d_map_infos.pkl"
+    },
+    "map_root": {
+      "exists": true,
+      "kind": "directory",
+      "path": "/public/share/lidachuan/orion_assets/data/bench2drive/maps"
+    },
+    "pilot_manifest": {
+      "exists": true,
+      "kind": "file",
+      "path": "/public/home/lidachuan/project/Orion/configs/spatial_uq_route_manifests/b2d_val_exploratory_pilot10_seed20260826.json"
+    }
+  },
+  "plan": {
+    "audit": {
+      "pilot_manifest": {
+        "path": "/public/home/lidachuan/project/Orion/configs/spatial_uq_route_manifests/b2d_val_exploratory_pilot10_seed20260826.json",
+        "sha256": "e7fd36663901f4a85485afb13afd97bf81dbc78665fdf517878e131f55cb4270",
+        "size_bytes": 605834
+      },
+      "source_ready": true,
+      "source_verification_attempted": true,
+      "source_verification_error": null
+    },
+    "folder": "v1/OppositeVehicleTakingPriority_Town04_Route214_Weather6",
+    "forward_count_total": 128,
+    "frames_each_branch": 64,
+    "measurement_record_count": 43,
+    "plan_id": "a6fe644a136c309f42fa6b1f17ba5e6bd906434185dc4168e05f192fa235eab1"
+  },
+  "production_integration": {
+    "callables": {
+      "branch_target_builder": {
+        "evidence_path": null,
+        "production_hook_id": "orion.actual-target-production-branch-builder/v1",
+        "type": "uq_estimator.orion_actual_target_builder.ProductionActualTargetBranchBuilderV1"
+      },
+      "decoder_parity_check": {
+        "evidence_path": "/public/share/lidachuan/orion_assets/spatial_uq_v1/evidence/route214/decoder_parity.json",
+        "production_hook_id": "route214-decoder-parity-persistent-evidence/v1",
+        "type": "uq_estimator.orion_route214_production_integration.PersistentRoute214QAEvidenceV1"
+      },
+      "gt_axis_alignment_check": {
+        "evidence_path": "/public/share/lidachuan/orion_assets/spatial_uq_v1/evidence/route214/gt_axis_alignment.json",
+        "production_hook_id": "route214-gt-axis-persistent-evidence/v1",
+        "type": "uq_estimator.orion_route214_production_integration.PersistentRoute214QAEvidenceV1"
+      },
+      "projection_overlay_check": {
+        "evidence_path": "/public/share/lidachuan/orion_assets/spatial_uq_v1/evidence/route214/projection_overlay.json",
+        "production_hook_id": "route214-projection-overlay-persistent-evidence/v1",
+        "type": "uq_estimator.orion_route214_production_integration.PersistentRoute214QAEvidenceV1"
+      },
+      "selected_motion_mode_check": {
+        "evidence_path": "/public/share/lidachuan/orion_assets/spatial_uq_v1/evidence/route214/selected_motion_mode.json",
+        "production_hook_id": "route214-selected-mode-persistent-evidence/v1",
+        "type": "uq_estimator.orion_route214_production_integration.PersistentRoute214QAEvidenceV1"
+      }
+    },
+    "factory": "uq_estimator.orion_route214_production_integration:build_route214_production_integration_v1",
+    "factory_type": "uq_estimator.orion_route214_production_integration.build_route214_production_integration_v1"
+  },
+  "production_integration_error": null,
+  "record_sink": {
+    "current_record_count": 0,
+    "maximum_records": 43,
+    "output_root": "/public/share/lidachuan/orion_assets/spatial_uq_v1/runs/route214_model_init_20260826T1345",
+    "overwrite_allowed": false,
+    "persisted_frames_only": "preregistered_measurement_frames",
+    "production_hook_id": "route214-bounded-measurement-record-sink/v1"
+  },
+  "resource_contract": {
+    "cpus": 8,
+    "gpu_type": "A800",
+    "gpus": 1,
+    "memory": "220G",
+    "time_limit": "02:00:00"
+  },
+  "route": "Town04/Route214",
+  "runner_preflight": {
+    "blockers": [
+      "real_runtime_hooks_connected"
+    ],
+    "box_z_origin_audit": {
+      "checks": {
+        "base_wrapper_converts_tensor_to_bottom_origin": true,
+        "dataset_constructs_center_origin_wrapper": true,
+        "orion_targets_use_gravity_center": true,
+        "repository_wrapper_subtracts_half_height_only_after_decode": true
+      },
+      "claim": "canonical gt_bboxes_3d.tensor is bottom-origin; decoded adapter boxes remain center-origin before repository box wrapping",
+      "decoded_adapter_box_z_origin": "center",
+      "gt_box_z_origin": "bottom",
+      "passed": true,
+      "policy_id": "b2d-gt-bottom-orion-decoded-center/v1",
+      "source_lineage": [
+        {
+          "path": "/public/home/lidachuan/project/Orion/mmcv/datasets/b2d_orion_dataset.py",
+          "sha256": "9db2b204d92cdc90ec176e31af5b48a8de0ab061387f7cc46ad325e46c5e48a2"
+        },
+        {
+          "path": "/public/home/lidachuan/project/Orion/mmcv/core/bbox/structures/base_box3d.py",
+          "sha256": "a1ef94d73007eff7afebdce403130e40ed383fae9c8701d81753b8d6b24daef1"
+        },
+        {
+          "path": "/public/home/lidachuan/project/Orion/mmcv/models/dense_heads/orion_head.py",
+          "sha256": "838f41c123dac60d61ebe6261779438f539e056da4ad306ae8943394ec603e00"
+        }
+      ]
+    },
+    "carla_used": false,
+    "checks": {
+      "dedicated_pipeline_mutation_verified": true,
+      "deployment_config_not_mutated": true,
+      "distinct_gt_pred_box_z_origins_verified": true,
+      "exact_route214_prefix0_63_contract": true,
+      "exporter_supports_distinct_pred_and_gt_occupancy_ids": true,
+      "formatter_fix_verified": true,
+      "real_runtime_hooks_connected": false,
+      "source_and_files_verified": true
+    },
+    "claim_boundary": {
+      "preflight_is_g1": false,
+      "supports_safety_claim": false,
+      "supports_training": false
+    },
+    "config_lineage": {
+      "loader": "python-runpy-local-read-only",
+      "path": "/public/home/lidachuan/project/Orion/adzoo/orion/configs/orion_stage3_agent.py",
+      "sha256": "5d106c4669620efbe6d48d9ab304f9e117646f9910aff673dbe7092525b745fb"
+    },
+    "execution_ready": false,
+    "exporter_schema_audit": {
+      "branch_bundle_schema_version": "orion.actual-target-branch-bundle/v2",
+      "distinct_ids_supported_and_configured": true,
+      "gt_rasterizer_id": "planningmetric-gt-side-effect-free-parity/v1",
+      "predicted_rasterizer_id": "orion-selected-mode-derived-occupancy/v1",
+      "requires_v2": true
+    },
+    "failure_event_policy": {
+      "calibration_policy_id": "preregistered-pilot-thresholds-0p50-support-0p01/v1",
+      "claim": "preregistered pilot thresholds; not calibration-optimal",
+      "minimum_patch_support": 0.01,
+      "thresholds": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "formatter_audit": {
+      "actor_helper_path": "/public/home/lidachuan/project/Orion/mmcv/datasets/pipelines/actor_id_alignment.py",
+      "actor_helper_sha256": "d0340405d1b3fa1b9173072a5b08036382052524d22b81e4e1fd3b2e3a2e714b",
+      "actor_id_all_filter_stages_verified": true,
+      "actor_id_functional_alignment_verified": true,
+      "formatter_path": "/public/home/lidachuan/project/Orion/mmcv/datasets/pipelines/formating.py",
+      "formatter_sha256": "b96856cb8698759413b1235ef4f96093ab1227dd80f571349b5df5c2eb40d0d3",
+      "functional_alignment_fixture_verified": true,
+      "helper_path": "/public/home/lidachuan/project/Orion/mmcv/datasets/pipelines/traffic_state_alignment.py",
+      "helper_sha256": "bf01311c0ffbddf54edc219c9ce752eebdbcc8248e1d38a2885bf94fb553f4ae",
+      "loading_path": "/public/home/lidachuan/project/Orion/mmcv/datasets/pipelines/loading.py",
+      "loading_sha256": "311c8fd27b9003e5f1e6ef0ec89b61ef6f75168d1497bece6041e47398cf440b",
+      "passed": true,
+      "static_callsite_verified": true,
+      "transforms_path": "/public/home/lidachuan/project/Orion/mmcv/datasets/pipelines/transforms_3d.py",
+      "transforms_sha256": "49e1fb377b3f6ccf2732e1af2d6f4f1276b8611bb6d23555e4f9c22facca6304"
+    },
+    "gpu_used": false,
+    "job_submitted": false,
+    "object_matching_policy": {
+      "claim": "preregistered pilot heuristic; not calibration-optimal",
+      "maximum_center_distance_m": 4.0,
+      "minimum_prediction_score": 0.5,
+      "policy_id": "class-score-distance-gated-one-to-one/v1",
+      "sensitivity_maximum_center_distance_m": 2.0
+    },
+    "pipeline_audit": {
+      "collected_keys": [
+        "traffic_state",
+        "traffic_state_mask",
+        "gt_actor_ids"
+      ],
+      "custom_collect_mutation_count": 1,
+      "load_annotations_mutation_count": 1,
+      "passed": true,
+      "samples_per_gpu": 1,
+      "schema_version": "orion-stage3-agent-actual-target-pipeline/v1",
+      "source_deployment_config_mutated": false,
+      "with_actor_ids_enabled": true,
+      "with_light_state_enabled": true
+    },
+    "plan_id": "a6fe644a136c309f42fa6b1f17ba5e6bd906434185dc4168e05f192fa235eab1",
+    "runtime_hook_audit": {
+      "audit_results": {
+        "concrete_production_branch_builder": true,
+        "decoder_parity_check": false,
+        "external_production_hook_ids_present": true,
+        "gt_axis_alignment_check": false,
+        "production_primitives_frozen": true,
+        "projection_overlay_check": false,
+        "selected_motion_mode_check": false
+      },
+      "connected": {
+        "branch_target_builder": true,
+        "corruption_transform": true,
+        "decoder_parity_check": true,
+        "gt_axis_alignment_check": true,
+        "gt_occupancy_rasterizer": true,
+        "occupancy_rasterizer": true,
+        "pairwise_bev_iou": true,
+        "patch_feature_extractor": true,
+        "project_visible_support": true,
+        "projection_overlay_check": true,
+        "record_sink": true,
+        "selected_motion_mode_check": true
+      },
+      "external_production_hook_ids": {
+        "corruption_transform": "route214-front-local-occlusion-fixed-seed-full-prefix/v1",
+        "decoder_parity_check": "route214-decoder-parity-persistent-evidence/v1",
+        "gt_axis_alignment_check": "route214-gt-axis-persistent-evidence/v1",
+        "projection_overlay_check": "route214-projection-overlay-persistent-evidence/v1",
+        "record_sink": "route214-bounded-measurement-record-sink/v1",
+        "selected_motion_mode_check": "route214-selected-mode-persistent-evidence/v1"
+      },
+      "identifiers": {
+        "decoded_box_z_origin": "center",
+        "gt_box_z_origin": "bottom",
+        "gt_occupancy_rasterizer_id": "planningmetric-gt-side-effect-free-parity/v1",
+        "occupancy_rasterizer_id": "orion-selected-mode-derived-occupancy/v1",
+        "pairwise_bev_iou_policy_id": "orion-side-effect-free-continuous-rotated-bev-iou/v1",
+        "patch_feature_hook_id": "orion-evavit-position-level-6x40x40-row-major/v1",
+        "support_projector_id": "orion.six-view-projected-visible-support/v1"
+      },
+      "integration_kind": "real_orion",
+      "real_execution_ready": false,
+      "schema_version": "orion-actual-target-runtime-hooks/v1",
+      "suspicious_identifier_values": []
+    },
+    "schema_version": "orion-actual-target-runner-preflight/v1",
+    "traffic_semantics": {
+      "forbidden": "softmax over all four logits",
+      "gt_state_label": "traffic_state[:,0]",
+      "gt_validity": "traffic_state_mask & bool(traffic_state[:,1])",
+      "predicted_affects_ego": "sigmoid(all_traffic_states[...,3]) retained for audit only",
+      "predicted_state_probability": "sigmoid(all_traffic_states[...,:3])",
+      "route214_prefix_raw_annotation_audit": {
+        "affects_ego_true_count": 0,
+        "consequence": "traffic component is invalid for this prefix; never a negative label",
+        "state_affects_ego_counts": {
+          "state_0_affects_false": 1036,
+          "state_2_affects_false": 361
+        },
+        "traffic_light_record_count": 1397
+      },
+      "semantics_id": "orion-v1-affects-ego-light-state-only/v1"
+    },
+    "training_performed": false
+  },
+  "runtime_construction": {
+    "batch_size": 1,
+    "branch_batches": {
+      "branch_order": [],
+      "device": "cuda:0",
+      "img_metas_cpu_only": true,
+      "model_and_gt_tensors_device_prepared": true,
+      "production_hook_id": "route214-device-prepared-dual-loader-replay/v1"
+    },
+    "checkpoint": {
+      "checkpoint_meta_classes_present": true,
+      "path": "/public/share/lidachuan/orion_assets/checkpoints/Orion.pth",
+      "sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+    },
+    "dataset": {
+      "chronologically_sorted": true,
+      "dataset_mutation_scope": "newly_constructed_smoke_dataset_only",
+      "folder": "v1/OppositeVehicleTakingPriority_Town04_Route214_Weather6",
+      "frame_count": 64,
+      "frame_range_inclusive": [
+        0,
+        63
+      ]
+    },
+    "device": "cuda:0",
+    "model_eval": true,
+    "model_parameters_require_grad": false,
+    "shuffle": false,
+    "workers": 4
+  },
+  "schema_version": "orion-route214-production-launch/v1",
+  "slurm_job_submitted_by_this_script": false,
+  "stage": "G1_actual_target_smoke_only",
+  "stage_b": false,
+  "training_performed": false
+}

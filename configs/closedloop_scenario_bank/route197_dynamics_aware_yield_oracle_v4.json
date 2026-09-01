@@ -1,0 +1,185 @@
+{
+  "schema": "orion.route197_dynamics_aware_yield_oracle.v4",
+  "created_at": "2026-08-29T04:28:24+08:00",
+  "status": "preregistered_before_single_dynamics_aware_oracle_submission",
+  "scope": "post-hoc Route197 planning-mechanism development only; not confirmatory uncertainty evidence",
+  "scientific_question": "Can a map-safe waiting boundary plus braking-aware retiming of ORION's original path eliminate the sequential cross-traffic collision on Route197 while retaining full route completion and traffic-rule compliance?",
+  "naming_boundary": {
+    "condition_name": "native_dynamics_aware_yield_oracle",
+    "paper_name": "privileged map- and dynamics-aware yield oracle",
+    "prohibited_names": [
+      "uncertainty oracle",
+      "learned adapter control",
+      "VLM uncertainty understanding",
+      "deployable perception system",
+      "held-out confirmation"
+    ]
+  },
+  "clean_reference": {
+    "job_id": 1086450,
+    "report_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route197_hazard_clean_off-1086450/native_collision_discovery_report.json",
+    "report_sha256": "50d597f3bc35c8780387c79e7a68b0e1c79139c9eb3467e4289163ef999c6a64",
+    "official_vehicle_collisions": 1,
+    "route_completion_percent": 100,
+    "score_composed": 60.0,
+    "frozen_artifacts": [
+      ["report_path", "report_sha256"]
+    ]
+  },
+  "failed_v3_reference": {
+    "job_id": 1087469,
+    "report_path": "/public/share/lidachuan/orion_assets/results/closedloop_route197_dynamic_yield_oracle_v3/route197_hazard_native_dynamic_yield_oracle-1087469/route197_dynamic_yield_oracle_v3_result_amended_v3_1.json",
+    "report_sha256": "4971d5c8573effce6e0f693cf9a61ca6de1bcfad660ff3f13d3c7cd4d29556d6",
+    "primary_success": false,
+    "official_vehicle_collisions": 1,
+    "failure_mechanism": "The v3 target altered only distant path points, so the existing PID could accelerate again and stop inside the crossing lane.",
+    "frozen_artifacts": [
+      ["report_path", "report_sha256"]
+    ]
+  },
+  "offline_gate": {
+    "report_path": "/public/share/lidachuan/orion_assets/results/planning_mechanism_audit_v2/route197/dynamics_aware_expert_audit.json",
+    "report_sha256": "1f8a1d577b972cc6410932f1eb6b337f047f0b449f715012fb16311ea99f4235",
+    "geometry_path": "/public/share/lidachuan/orion_assets/results/planning_mechanism_audit_v2/route197/junction_geometry.json",
+    "geometry_sha256": "100e2619e197cea898ad5ae27a703d8fb7bc85993b037c9db79e041da44933a6",
+    "trace_path": "/public/share/lidachuan/orion_assets/results/closedloop_route197_dynamic_yield_oracle_v3/route197_hazard_native_dynamic_yield_oracle-1087469/records_orion_traj_0/RouteScenario_26966_rep0_Town05_SignalizedJunctionRightTurn_1_10_08_29_03_25_32/control_trace.jsonl",
+    "trace_sha256": "f2390b5628200f0417854b402e2ecfaf12c6df1ce1b3e50662b77444d58ebac8",
+    "xodr_path": "/public/share/lidachuan/orion_assets/carla/CARLA_0.9.15/CarlaUE4/Content/Carla/Maps/OpenDrive/Town05.xodr",
+    "xodr_sha256": "7edc53b0be840e177598da7a4ed9571146d7b2595ce280d154c90f92e8a48851",
+    "offline_gate_pass": true,
+    "first_actionable_conflict_time_seconds": 9.1,
+    "first_actionable_conflict_step": 182,
+    "junction_entry_path_distance_m": 5.999183920946884,
+    "safe_center_stop_distance_m": 3.0529930869014734,
+    "conservative_stopping_distance_m": 3.2451025190289,
+    "target_pid_desired_speed_mps": 2.997732284720511,
+    "projected_safe_line_margin_m": 0.893558771289074,
+    "unbounded_early_conflict_frames_preserving_native_plan": 2,
+    "boundary": "The offline replay becomes invalid after intervention. This gate proves only that the first map-bounded event is detected before entry, the first two trajectory points trigger the existing PID brake, and observed braking plus a conservative tail can stop before the safe line.",
+    "frozen_artifacts": [
+      ["report_path", "report_sha256"],
+      ["geometry_path", "geometry_sha256"],
+      ["trace_path", "trace_sha256"],
+      ["xodr_path", "xodr_sha256"]
+    ]
+  },
+  "frozen_condition": {
+    "route_index": 197,
+    "town": "Town05",
+    "scenario": "SignalizedJunctionRightTurn",
+    "corruption": "none",
+    "orion_uq_inference_mode": "none",
+    "observation_adapter_loaded": false,
+    "legacy_density_uq_enabled": false,
+    "scalar_risk_mode": "off",
+    "planning_response_mode": "privileged_dynamics_aware_yield",
+    "orion_weights_modified": false,
+    "base_candidate_source": "unmodified ORION ego_fut_preds",
+    "response_location": "six-step trajectory before the existing PID controller"
+  },
+  "frozen_planning_response": {
+    "horizons_seconds": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
+    "actor_prediction": "privileged CARLA constant velocity with fixed yaw",
+    "collision_geometry": "time-aligned fixed-orientation OBB separating-axis gap",
+    "interpolation_step_seconds": 0.1,
+    "safety_margin_m": 0.75,
+    "map_boundary": "first non-junction to junction transition on the unmodified ORION world path",
+    "map_resolution_m": 0.1,
+    "junction_front_clearance_m": 0.5,
+    "certified_deceleration_mps2": 3.0,
+    "reaction_seconds": 0.1,
+    "clearance_seconds": 1.0,
+    "release_seconds": 0.5,
+    "prepare_creep_speed_mps": 1.0,
+    "release_creep_speed_mps": 0.5,
+    "release_creep_distance_m": 1.0,
+    "states": ["go", "prepare_yield", "hold", "release"],
+    "scope_rule": "A raw conflict can intervene only when a CARLA-map junction entry lies on the current base path, the ego is already in that junction, or a previously bounded yield state is latched.",
+    "unbounded_conflict_semantics": "Exact unmodified ORION trajectory; no scalar or trajectory intervention.",
+    "safe_center_line": "junction entry path distance minus ego forward extent minus 0.5 metre front clearance",
+    "braking_gate": "hold once safe centre-line distance is no greater than v*reaction + v^2/(2*certified_deceleration)",
+    "yield_semantics": "Retiming along the same ORION path modifies the first two points so the existing PID requests braking and never advances past the safe centre line.",
+    "release_semantics": "After one conflict-free second, permit 0.5 m/s creep for at most one metre; any new conflict re-enters hold before restoring the base path.",
+    "explicitly_absent": [
+      "fixed route-progress trigger",
+      "fixed hold duration",
+      "collision actor ID lookup",
+      "Density UQ",
+      "learned observation adapter",
+      "scalar speed governor intervention",
+      "parameter sweep"
+    ]
+  },
+  "single_run_rule": {
+    "maximum_authorized_submissions": 1,
+    "no_parameter_sweep": true,
+    "no_retry_for_scientific_failure": true,
+    "runtime_only_retry_allowed": "Only an unambiguous infrastructure failure before a terminal route result may be retried without changing any frozen source or parameter."
+  },
+  "runtime": {
+    "partition": "Nvidia_A800",
+    "validated_node": "gpu4",
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "gpus_per_task": 1,
+    "carla_quality": "Epic",
+    "time_limit": "03:00:00"
+  },
+  "post_run_verification": {
+    "step_1": "Export every trace frame's junction entry from the frozen Town05 OpenDRIVE map with scripts/export_carla_junction_geometry.py.",
+    "step_2": "Run scripts/evaluate_route197_dynamics_aware_yield_oracle.py against the terminal endpoint, full trace, manifest, independent map export, clean reference, and this preregistration.",
+    "no_silent_amendment": true
+  },
+  "frozen_hashes": {
+    "route_197_hazard.xml": "a25537ab3d966cdc6d786e1c37982e040296ec95068afcf21ac193a1fc1a7cae",
+    "adzoo/orion/configs/orion_stage3_agent_uq.py": "e6fc0e941f574d3190ff52f5ae78ca0428a2c40c616cf472899b845b6264807b",
+    "team_code/orion_b2d_agent.py": "817474e2320234daf44e2953baa3d75345fd6319069bc0c06f238ae76736f254",
+    "team_code/pid_controller.py": "8b7c288ba1350b8a2a8de72e0acdefbd15786a1e004a09bcf9ddfd1aa3d23f78",
+    "mmcv/models/dense_heads/orion_head.py": "9d4e18ba4cad278635b5bd85e0fc6056d5104adda38d99701e1d087680cf2754",
+    "mmcv/models/detectors/orion.py": "9b5afa4116e117f94aa7f00d82e502c21bfbae5c5392bcbc0db806a5af05dda7",
+    "uq_estimator/online_observation_uq.py": "a8ead4304c9710933670da25d4ac821154a4c3e00410f188a8d55a5c22783fe9",
+    "uq_estimator/risk_governor.py": "23587dc31d86edfa77f8a0949c2027a292d06a4fa467c0d5975eaaa23737dcd6",
+    "uq_estimator/closedloop_safety_metrics.py": "e2404a8eab623db58fe90914a9a77047a4e769e4471e999e7fdf6f8f0c5c55c7",
+    "uq_estimator/privileged_yield_labels.py": "f9d268b0ad8651e17049800e3ecf1736c7906f78f80e82cd8b36bff2c442c4f4",
+    "uq_estimator/dynamic_yield_expert.py": "16879b84e16f45cc80f957f59fed8ae208522ac64f66a151e67486440ae7d862",
+    "scripts/run_closedloop_uq_pilot.sh": "8660d168238c97cfdde9c54f6e36e64769e9e22227f805ae37dfc597520e55a0",
+    "scripts/evaluate_route197_dynamics_aware_yield_oracle.py": "30f1bb45ec4d22a5c81c8afe92807faa5068d27c1b67f79f02e8e8f8063687d7",
+    "scripts/evaluate_native_collision_discovery.py": "227133aa7b0d8a4398c0d675bfd01ba16567615a2494817e5bcc533088b303ef",
+    "scripts/summarize_closedloop_safety.py": "5840b584f20837c2ec993debecd04adb8854c19f9217dbbcc668807149be8e41",
+    "scripts/export_carla_junction_geometry.py": "b6f51997b506938158b294adeb225b876cb257720bfdcd31da0ea6a23f21157f",
+    "scripts/audit_route197_dynamics_aware_expert.py": "f34dfa34f56759fb710841c3796d63d1061c8df2dbae33a305e58b47abdfaf27",
+    "scripts/submit_route197_dynamics_aware_yield_oracle_v4.sh": "e4edbff5cd2f42ac21cfaf85c0d389641eecf28e0183d4e19e6821fd2fed813e"
+  },
+  "primary_success_rule_all_required": {
+    "runtime_valid_terminal_endpoint": true,
+    "official_collision_count": 0,
+    "route_completion_percent": 100,
+    "new_serious_infraction_count": 0,
+    "legacy_density_and_observation_adapter_absent_every_frame": true,
+    "scalar_governor_exact_passthrough_every_frame": true,
+    "raw_and_effective_conflicts_exactly_recomputable": true,
+    "map_scope_matches_independent_frozen_xodr_export": true,
+    "braking_geometry_state_targets_and_residuals_exactly_recomputable": true,
+    "map_scoped_conflict_and_hold_observed": true,
+    "trajectory_intervention_observed": true
+  },
+  "secondary_outcomes": [
+    "score_composed",
+    "minimum OBB TTC",
+    "TTC threshold exposure",
+    "minimum OBB gap",
+    "state counts and transitions",
+    "release-to-hold re-entry count",
+    "unbounded raw-conflict passthrough count",
+    "stopped time and mean speed",
+    "minimum-speed infraction count",
+    "route completion and all traffic infractions"
+  ],
+  "decision_rule": {
+    "if_primary_success": "The planning-response mechanism has a privileged upper bound on this development event. Permit Stage-2 label generation, but keep the learned observation adapter non-controlling until its independent generalization and localization gates improve.",
+    "if_collision_zero_but_completion_or_rules_fail": "Reject blanket stopping or invalid control as a mechanism proof and redesign the planner objective.",
+    "if_collision_remains": "Reject this map/dynamics response and do not train Stage-2 against it.",
+    "no_learned_matrix_expansion": "A single development-route success does not authorize learned-UQ closed-loop matrices; first build training data and freeze a separate route/seed confirmation protocol."
+  },
+  "claim_boundary": "This privileged oracle reads simulator actor state and CARLA map topology unavailable to the learned driving system. Even complete success proves only that a map- and dynamics-aware trajectory response can solve this development event. It does not validate the Stage-1 adapter, learned task relevance, VLM understanding, real-world generalization, or deployability."
+}

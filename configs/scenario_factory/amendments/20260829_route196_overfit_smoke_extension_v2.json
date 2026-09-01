@@ -1,0 +1,38 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T16:55:00+08:00",
+  "status": "active_final_engineering_smoke_amendment",
+  "purpose": "Run one final unchanged-hyperparameter Route196 capacity check because the 240-step on-path driving-implication loss was still decreasing monotonically but had not crossed the maintain-answer decision boundary.",
+  "prior_runs": [
+    {
+      "slurm_job_id": 1092495,
+      "steps": 120,
+      "status": "engineering_overfit_failed_gate"
+    },
+    {
+      "slurm_job_id": 1092547,
+      "steps": 240,
+      "status": "engineering_overfit_failed_gate",
+      "on_path_driving_nll_first_observation": 6.2720,
+      "on_path_driving_nll_last_observation": 0.4672,
+      "on_path_expected_answer_nll": 0.23585,
+      "on_path_maintain_answer_nll": 0.06909
+    }
+  ],
+  "final_run": {
+    "maximum_steps": 480,
+    "epochs_over_20_records": 24,
+    "starts_from_original_orion_checkpoint": true,
+    "qa_records_are_unchanged": true,
+    "visual_cache_is_reused": true,
+    "sampling_is_unchanged": true,
+    "loss_weights_are_unchanged": true,
+    "learning_rates_are_unchanged": true
+  },
+  "stop_policy": {
+    "if_on_path_language_gate_still_fails": "Pause Route196 optimization and diagnose UQ-token-to-language attention or introduce a separately preregistered balanced/preference objective; do not add more epochs implicitly.",
+    "formal_stage2l_pilot_unlocked_by_this_smoke": false,
+    "generalization_claim_permitted": false,
+    "safety_claim_permitted": false
+  }
+}

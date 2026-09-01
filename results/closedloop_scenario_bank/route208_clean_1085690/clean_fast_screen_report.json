@@ -1,0 +1,38 @@
+{
+  "schema": "orion.closedloop_clean_fast_screen.v1",
+  "timestamp": "2026-08-28T22:29:01+08:00",
+  "job_id": "1085690",
+  "run_dir": "/public/share/lidachuan/orion_assets/results/closedloop_hard_case_bank_clean_v2/route208_hazard_clean_off-1085690",
+  "route_index": "208",
+  "variant": "hazard",
+  "town": "Town04",
+  "scenario": "NonSignalizedJunctionLeftTurnEnterFlow",
+  "slurm_terminal_state": "CANCELLED by 2329",
+  "classification": "clean_baseline_fast_screen_ineligible",
+  "official_safety_outcome": false,
+  "trace": {
+    "frames": 635,
+    "steps_contiguous": true,
+    "last_step": 634,
+    "last_sim_time_seconds": 31.7,
+    "last_route_progress": 0.3163774897253998,
+    "longest_continuous_speed_below_0_25_mps_seconds": 21.75000000000031,
+    "longest_stop_start": {
+      "step": 200,
+      "sim_time_seconds": 10.0,
+      "route_progress": 0.31319007333567017
+    },
+    "longest_stop_end": {
+      "step": 634,
+      "sim_time_seconds": 31.7,
+      "route_progress": 0.3163774897253998
+    }
+  },
+  "frozen_clean_liveness_rule": {
+    "metric": "longest continuous speed below 0.25 m/s",
+    "maximum_seconds": 8.0,
+    "passed": false
+  },
+  "interpretation": "The uncorrupted ORION baseline remained essentially stationary at the non-signalized junction for more than 21.75 simulation seconds. Because this irreversibly exceeds the pre-existing 8 s clean liveness limit, the run was cancelled to release the A800. It is not a completion, collision, blocked, or traffic-rule result and cannot authorize a corruption event.",
+  "next_action": "Exclude Route208 from Stage B under the current route/model setup. Do not retry, retune an event, or submit any Route208 degraded/control condition."
+}

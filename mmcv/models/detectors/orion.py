@@ -131,6 +131,11 @@ class Orion(MVXTwoStageDetector):
                  uq_vision_adapter_dim = 256,
                  use_bev_uncertainty = False,  # [UQ] spatial uncertainty cost
                  bev_lambda = 0.5,
+                 use_stage2_spatial_uq = False,
+                 stage2_spatial_uq_source = 'disabled',
+                 stage1_spatial_uq_checkpoint = '',
+                 stage1_spatial_uq_checkpoint_sha256 = '',
+                 stage1_spatial_uq_warmup_frames = 60,
                  ):
         super(Orion, self).__init__(pts_voxel_layer, pts_voxel_encoder,
                              pts_middle_encoder, pts_fusion_layer,
@@ -232,6 +237,76 @@ class Orion(MVXTwoStageDetector):
             self.uq_grounding_head = UQGroundingHead(
                 input_dim=self.lm_head.config.hidden_size
             )
+
+        # The new spatial Stage-1/Stage-2 path has a separate name and contract
+        # from every legacy scalar Density conditioning mechanism above.
+        self.use_stage2_spatial_uq = bool(use_stage2_spatial_uq)
+        self.stage2_spatial_uq_source = str(stage2_spatial_uq_source)
+        self.stage1_spatial_uq_checkpoint_sha256 = str(
+            stage1_spatial_uq_checkpoint_sha256 or ''
+        )
+        self.stage1_spatial_uq_runtime = None
+        self.stage1_spatial_uq_runtime_output = None
+        if self.use_stage2_spatial_uq:
+            if self.stage2_spatial_uq_source not in {
+                'external_oracle', 'learned_adapter', 'precomputed_adapter'
+            }:
+                raise ValueError(
+                    'Stage-2 spatial UQ source must be external_oracle, '
+                    'learned_adapter, or precomputed_adapter'
+                )
+            density_head_enabled = bool(
+                getattr(self.pts_bbox_head, 'use_uncertainty', False)
+            )
+            if any((
+                density_head_enabled,
+                bool(use_uq_token),
+                bool(use_uq_vision_adapter),
+                bool(use_uncertainty_l2),
+                bool(use_bev_uncertainty),
+            )):
+                raise ValueError(
+                    'Stage-2 spatial UQ requires every legacy Density/scalar UQ path off'
+                )
+            if not bool(getattr(self.pts_bbox_head, 'use_stage2_spatial_uq', False)):
+                raise ValueError('ORION head has not enabled Stage-2 spatial UQ fusion')
+            if lm_head is None:
+                raise ValueError('Stage-2 spatial UQ requires the ORION VLM head')
+            if self.stage2_spatial_uq_source == 'learned_adapter':
+                if not stage1_spatial_uq_checkpoint:
+                    raise ValueError(
+                        'learned_adapter source requires a frozen Stage-1 checkpoint'
+                    )
+                from uq_estimator.spatial_uq_runtime import (
+                    FrozenSpatialObservationUQRuntime,
+                )
+                self.stage1_spatial_uq_runtime = FrozenSpatialObservationUQRuntime(
+                    stage1_spatial_uq_checkpoint,
+                    expected_sha256=(
+                        stage1_spatial_uq_checkpoint_sha256 or None
+                    ),
+                    warmup_frames=int(stage1_spatial_uq_warmup_frames),
+                )
+            elif self.stage2_spatial_uq_source == 'precomputed_adapter':
+                if stage1_spatial_uq_checkpoint:
+                    raise ValueError(
+                        'precomputed_adapter must not load Stage-1 inside ORION'
+                    )
+                if len(self.stage1_spatial_uq_checkpoint_sha256) != 64:
+                    raise ValueError(
+                        'precomputed_adapter requires an attested Stage-1 SHA256'
+                    )
+            elif stage1_spatial_uq_checkpoint or self.stage1_spatial_uq_checkpoint_sha256:
+                raise ValueError(
+                    'external_oracle source must not claim a learned Stage-1 checkpoint'
+                )
+        elif (
+            self.stage2_spatial_uq_source != 'disabled'
+            or stage1_spatial_uq_checkpoint
+            or self.stage1_spatial_uq_checkpoint_sha256
+            or bool(getattr(self.pts_bbox_head, 'use_stage2_spatial_uq', False))
+        ):
+            raise ValueError('disabled Stage-2 spatial UQ has inconsistent configuration')
         if use_gen_token:
             add_special_token([EGO_WAYPOINT_TOKEN], tokenizer = self.tokenizer, model = self.lm_head)
             self.lm_head.config.waypoint_token_idx = self.tokenizer(EGO_WAYPOINT_TOKEN, add_special_tokens=False).input_ids[0]
@@ -406,6 +481,12 @@ class Orion(MVXTwoStageDetector):
 
         img_feats_reshaped = img_feats[self.position_level].view(B, int(BN/B), C, H, W)
 
+        # The standalone Stage-1 adapter is intentionally outside ORION and
+        # reads the same frozen EVAViT grid after the forward pass.  Capture is
+        # opt-in so ordinary training/inference retains no extra tensor.
+        if getattr(self, 'capture_observation_uq_features', False):
+            self.observation_uq_features = img_feats_reshaped.detach()
+
 
         return img_feats_reshaped
 
@@ -414,6 +495,55 @@ class Orion(MVXTwoStageDetector):
         """Extract features from images and points."""
         img_feats = self.extract_img_feat(img)
         return img_feats
+
+    def reset_stage2_spatial_uq_state(self):
+        """Reset causal Stage-1 history at an explicit route boundary."""
+        if self.stage1_spatial_uq_runtime is not None:
+            self.stage1_spatial_uq_runtime.reset()
+        self.stage1_spatial_uq_runtime_output = None
+        if hasattr(self.pts_bbox_head, 'stage2_planning_context'):
+            self.pts_bbox_head.stage2_planning_context = None
+            self.pts_bbox_head.stage2_observation_uq = None
+            self.pts_bbox_head.stage2_task_context = None
+            self.pts_bbox_head.stage2_selected_uq_tokens = None
+            self.pts_bbox_head.stage2_task_output = None
+
+    def _attach_stage2_spatial_uq(self, data):
+        """Attach either an oracle map or the frozen learned Stage-1 map."""
+        if not self.use_stage2_spatial_uq:
+            return
+        if self.stage2_spatial_uq_source == 'learned_adapter':
+            if self.training:
+                raise RuntimeError(
+                    'stateful learned_adapter runtime is forbidden in shuffled '
+                    'training batches; Stage-2B must use attested precomputed_adapter maps'
+                )
+            if 'stage2_spatial_uq' in data:
+                raise RuntimeError(
+                    'learned_adapter mode refuses an externally supplied oracle map'
+                )
+            output = self.stage1_spatial_uq_runtime(data['img_feats'])
+            self.stage1_spatial_uq_runtime_output = output
+            data['stage2_spatial_uq'] = output.calibrated_score
+        else:
+            observation_uq = data.get('stage2_spatial_uq')
+            if observation_uq is None:
+                raise RuntimeError(
+                    '%s mode requires stage2_spatial_uq in the batch'
+                    % self.stage2_spatial_uq_source
+                )
+            if not isinstance(observation_uq, torch.Tensor):
+                observation_uq = torch.as_tensor(
+                    observation_uq,
+                    device=data['img_feats'].device,
+                    dtype=data['img_feats'].dtype,
+                )
+            if observation_uq.ndim == 4:
+                observation_uq = observation_uq.unsqueeze(0)
+            data['stage2_spatial_uq'] = observation_uq.detach().to(
+                device=data['img_feats'].device,
+                dtype=data['img_feats'].dtype,
+            )
 
     def prepare_location(self, img_metas, **data):
         pad_h, pad_w, _ = img_metas[0]['pad_shape'][0]
@@ -547,6 +677,7 @@ class Orion(MVXTwoStageDetector):
         img_metas = [img_meta[0] for img_meta in img_metas]
 
         data['img_feats'] = self.extract_feat(data['img'])
+        self._attach_stage2_spatial_uq(data)
         losses = self.forward_pts_train(gt_bboxes_3d, gt_labels_3d, gt_attr_labels,map_gt_bboxes_3d, map_gt_labels_3d, img_metas,input_ids, vlm_labels, vlm_attn_mask, ego_fut_trajs,**data)
 
         return losses
@@ -561,6 +692,14 @@ class Orion(MVXTwoStageDetector):
         """Append explicit density uncertainty tokens to the LLM visual input."""
         if not self.use_uq_token:
             return vision_tokens
+        inference_mode = getattr(self, 'uq_inference_mode', 'correct')
+        inference_conditioning = getattr(
+            self, 'uq_inference_conditioning', 'token'
+        )
+        if not self.training and inference_conditioning == 'vision_adapter':
+            return vision_tokens
+        if not self.training and inference_mode == 'none':
+            return vision_tokens
         if uncertainty_embedding is None or uncertainty_score is None:
             raise RuntimeError("UQ token conditioning requires density UQ outputs")
 
@@ -572,6 +711,9 @@ class Orion(MVXTwoStageDetector):
             )
         if active_embedding is None:
             active_embedding = uncertainty_embedding[:, :self.uq_active_dim]
+        if not self.training and inference_mode == 'zero':
+            uncertainty_score = torch.zeros_like(uncertainty_score)
+            active_embedding = torch.zeros_like(active_embedding)
 
         uq_tokens = self.uq_token_projector(
             active_embedding,
@@ -586,8 +728,18 @@ class Orion(MVXTwoStageDetector):
         """Condition pre-LLM visual queries without changing sequence length."""
         if not self.use_uq_vision_adapter:
             return vision_tokens
+        inference_mode = getattr(self, 'uq_inference_mode', 'correct')
+        inference_conditioning = getattr(
+            self, 'uq_inference_conditioning', 'vision_adapter'
+        )
+        if not self.training and inference_conditioning == 'token':
+            return vision_tokens
+        if not self.training and inference_mode == 'none':
+            return vision_tokens
         if uncertainty_score is None:
             raise RuntimeError("Vision adapter requires density UQ scores")
+        if not self.training and inference_mode == 'zero':
+            uncertainty_score = torch.zeros_like(uncertainty_score)
         adapted = self.uq_vision_adapter(
             vision_tokens, uncertainty_score
         )
@@ -813,6 +965,7 @@ class Orion(MVXTwoStageDetector):
                 self.pts_bbox_head.reset_memory()
             if self.with_map_head:
                 self.map_head.reset_memory()
+            self.reset_stage2_spatial_uq_state()
             self.test_flag = True
         for var, name in [(img_metas, 'img_metas')]:
             if not isinstance(var, list):
@@ -1127,6 +1280,7 @@ class Orion(MVXTwoStageDetector):
     def simple_test(self, img_metas, **data):
         """Test function without augmentaiton."""
         data['img_feats'] = self.extract_feat(data['img'])
+        self._attach_stage2_spatial_uq(data)
         bbox_list = [dict() for i in range(len(img_metas))]
         if data['img'].dim() == 4: # (6,3,640,640)
             data['img'] = data['img'].unsqueeze(0)

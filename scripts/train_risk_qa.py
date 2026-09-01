@@ -75,8 +75,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--answer-style",
-        choices=("structured", "natural", "level_only", "synthesis"),
+        choices=("structured", "natural", "level_only", "synthesis", "localization", "localization_x"),
         default="level_only",
+    )
+    parser.add_argument("--localization-labels", default=None)
+    parser.add_argument(
+        "--use-active-embedding",
+        action="store_true",
+        help="Train UQ tokens with Density-UQ active embeddings instead of score-only tokens.",
     )
     parser.add_argument("--out", required=True)
     return parser.parse_args()
@@ -116,7 +122,24 @@ def risk_qa_tokens(
         converted = preprocess(sources, tokenizer, has_image=True)
         labels = mask_to_final_supervised_span(converted["labels"][0])
         return converted["input_ids"][0], labels
-    if answer_style == "level_only":
+    if answer_style == "localization_x":
+        task = (
+            "Use the injected UQ token to identify the most visually "
+            "unreliable front-camera column. Choose exactly one region from: "
+            "left, center, right. Do not describe traffic objects or driving "
+            "actions. Answer exactly: Most unreliable front-camera region is "
+            "REGION."
+        )
+    elif answer_style == "localization":
+        task = (
+            "Use the injected UQ token to identify the most visually "
+            "unreliable front-camera region. Choose exactly one region from: "
+            "upper-left, upper-center, upper-right, middle-left, "
+            "middle-center, middle-right, lower-left, lower-center, "
+            "lower-right. Do not describe traffic objects or driving actions. "
+            "Answer exactly: Most unreliable front-camera region is REGION."
+        )
+    elif answer_style == "level_only":
         task = RELIABILITY_QA_QUESTION
     else:
         task = (
@@ -150,6 +173,17 @@ def freeze_for_risk_qa(model):
     if not groups["projector"] or not groups["lora"]:
         raise RuntimeError("Risk QA requires projector and LoRA parameters")
     return groups
+
+
+def render_localization_answer(region: str) -> str:
+    return f"Most unreliable front-camera region is {region}."
+
+
+def load_localization_labels(path: str | None) -> dict[str, dict]:
+    if not path:
+        return {}
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    return payload.get("labels", payload)
 
 
 def language_loss(
@@ -226,6 +260,52 @@ def build_density_score_lookup(
     return score_lookup
 
 
+def build_shuffled_uq_lookup_with_source(
+    descriptor_cache: str,
+    density_checkpoint,
+    assignment: dict[str, str],
+    split: str,
+    seed: int,
+    allowed_sample_ids: set[str] | None = None,
+) -> dict[str, tuple[torch.Tensor, torch.Tensor, str]]:
+    cache = torch.load(
+        descriptor_cache, map_location="cpu", weights_only=True
+    )
+    density = DensityUQEstimator.from_checkpoint(density_checkpoint).eval()
+    selected = [
+        index for index, route in enumerate(cache["routes"])
+        if assignment.get(route) == split
+        and (
+            allowed_sample_ids is None
+            or cache["filenames"][index] in allowed_sample_ids
+        )
+    ]
+    descriptors = cache["descriptors"][selected].float()
+    active_parts = []
+    score_parts = []
+    with torch.no_grad():
+        for chunk in descriptors.split(512):
+            _, score, _, active = density.encode_descriptor(chunk)
+            active_parts.append(active)
+            score_parts.append(score)
+    active = torch.cat(active_parts)
+    score = torch.cat(score_parts)
+
+    generator = torch.Generator().manual_seed(seed)
+    order = torch.randperm(len(selected), generator=generator)
+    source = torch.roll(order, shifts=1)
+    lookup = {}
+    for target_position, source_position in zip(order.tolist(), source.tolist()):
+        filename = cache["filenames"][selected[target_position]]
+        source_filename = cache["filenames"][selected[source_position]]
+        lookup[filename] = (
+            active[source_position].clone(),
+            score[source_position].clone(),
+            source_filename,
+        )
+    return lookup
+
+
 def main() -> None:
     args = parse_args()
     set_random_seed(args.seed, deterministic=True)
@@ -236,6 +316,7 @@ def main() -> None:
     with open(args.ann_file, "rb") as handle:
         infos = pickle.load(handle)
     info_lookup = {info_sample_id(info): info for info in infos}
+    localization_labels = load_localization_labels(args.localization_labels)
 
     cfg = Config.fromfile(args.config)
     cfg.model.train_cfg = None
@@ -278,13 +359,37 @@ def main() -> None:
         shuffle=True,
         nonshuffler_sampler=cfg.data.nonshuffler_sampler,
     )
-    shuffled_lookup = build_shuffled_uq_lookup(
-        args.descriptor_cache,
-        args.density_checkpoint,
-        assignment,
-        args.split,
-        args.seed,
-    )
+    if args.answer_style in ("localization", "localization_x"):
+        allowed_ids = set(localization_labels)
+        shuffled_lookup = build_shuffled_uq_lookup_with_source(
+            args.descriptor_cache,
+            args.density_checkpoint,
+            assignment,
+            args.split,
+            args.seed,
+            allowed_sample_ids=allowed_ids,
+        )
+        dataset.data_infos = [
+            info for info in dataset.data_infos
+            if info_sample_id(info) in allowed_ids
+        ]
+        dataset.flag = np.zeros(len(dataset), dtype=np.uint8)
+        loader = build_dataloader(
+            dataset,
+            samples_per_gpu=1,
+            workers_per_gpu=args.workers,
+            dist=False,
+            shuffle=True,
+            nonshuffler_sampler=cfg.data.nonshuffler_sampler,
+        )
+    else:
+        shuffled_lookup = build_shuffled_uq_lookup(
+            args.descriptor_cache,
+            args.density_checkpoint,
+            assignment,
+            args.split,
+            args.seed,
+        )
     print(f"[RiskQA] matched={matched}, training_samples={len(dataset)}")
 
     model = build_model(cfg.model, test_cfg=cfg.get("test_cfg"))
@@ -344,7 +449,12 @@ def main() -> None:
                 info["gt_names"],
             )
             context = prepare_visual_context(model, batch)
-            shuffled_active, shuffled_score = shuffled_lookup[name]
+            shuffled_entry = shuffled_lookup[name]
+            if args.answer_style in ("localization", "localization_x"):
+                shuffled_active, shuffled_score, shuffled_name = shuffled_entry
+            else:
+                shuffled_active, shuffled_score = shuffled_entry
+                shuffled_name = None
             shuffled_uq = (
                 shuffled_active.unsqueeze(0).cuda(),
                 shuffled_score.unsqueeze(0).cuda(),
@@ -354,17 +464,22 @@ def main() -> None:
                 *context,
                 mode="correct",
                 shuffled_uq=shuffled_uq,
+                use_active_embedding=args.use_active_embedding,
             )
             shuffled_vision = apply_uq_mode(
                 model,
                 *context,
                 mode="shuffled",
                 shuffled_uq=shuffled_uq,
+                use_active_embedding=args.use_active_embedding,
             )
             render_answer = (
                 render_risk_synthesis_answer
                 if args.answer_style == "synthesis"
                 else (
+                    render_localization_answer
+                    if args.answer_style in ("localization", "localization_x")
+                    else (
                     render_reliability_answer
                     if args.answer_style == "level_only"
                     else (
@@ -373,15 +488,23 @@ def main() -> None:
                         else render_risk_qa_answer
                     )
                 )
+                )
             )
-            correct_risk = build_risk_qa_answer(
-                float(context[2].item()), objects
-            )
-            shuffled_risk = build_risk_qa_answer(
-                float(shuffled_score.item()), objects
-            )
-            correct_answer = render_answer(correct_risk)
-            shuffled_answer = render_answer(shuffled_risk)
+            if args.answer_style in ("localization", "localization_x"):
+                correct_answer = render_answer(localization_labels[name]["region"])
+                shuffled_answer = render_answer(
+                    localization_labels[shuffled_name]["region"]
+                )
+                correct_risk = shuffled_risk = None
+            else:
+                correct_risk = build_risk_qa_answer(
+                    float(context[2].item()), objects
+                )
+                shuffled_risk = build_risk_qa_answer(
+                    float(shuffled_score.item()), objects
+                )
+                correct_answer = render_answer(correct_risk)
+                shuffled_answer = render_answer(shuffled_risk)
             correct_loss = language_loss(
                 model,
                 correct_vision,
@@ -389,7 +512,10 @@ def main() -> None:
                 correct_answer,
                 args.answer_style,
                 critical_objects=objects,
-                reliability_answer=render_reliability_answer(correct_risk),
+                reliability_answer=(
+                    None if correct_risk is None
+                    else render_reliability_answer(correct_risk)
+                ),
             )
             shuffled_loss = language_loss(
                 model,
@@ -398,7 +524,10 @@ def main() -> None:
                 shuffled_answer,
                 args.answer_style,
                 critical_objects=objects,
-                reliability_answer=render_reliability_answer(shuffled_risk),
+                reliability_answer=(
+                    None if shuffled_risk is None
+                    else render_reliability_answer(shuffled_risk)
+                ),
             )
             loss = 0.5 * (correct_loss + shuffled_loss)
             (loss / args.grad_accum).backward()

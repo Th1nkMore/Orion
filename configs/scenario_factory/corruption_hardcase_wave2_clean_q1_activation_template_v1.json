@@ -1,0 +1,28 @@
+{
+  "schema": "orion.corruption_hardcase_wave2_clean_q1_activation_template.v1",
+  "created_at": "2026-09-01T08:10:29+08:00",
+  "status": "template_not_authorized",
+  "base_prereg": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave2_clean_qualification_prereg_v1.json",
+    "sha256": "024e3cc6d4db4d77e7f8f88565163bb1283eda90fc3771e3c4eb0f34d1820f2c"
+  },
+  "scope": {
+    "routes": [160, 165, 161],
+    "condition": "clean_off",
+    "runs_per_route": 1,
+    "run_id": "corruption_hardcase_wave2_clean_q1_v1"
+  },
+  "authorization": {
+    "q1_clean_submission": false,
+    "user_resume_recorded": false,
+    "q2_clean_submission": false,
+    "corruption_submission": false,
+    "heldout_confirmation": false,
+    "severity_change": false,
+    "learned_uq_or_governor": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "activation_instructions": "Do not edit this template in place. After an explicit user resume, create a new hash-bound activation with schema orion.corruption_hardcase_wave2_clean_q1_activation.v1, status authorized_after_user_resume, and only q1_clean_submission/user_resume_recorded set true.",
+  "claim_boundary": "Non-authorizing template only. The Wave2 submitter must reject this file."
+}

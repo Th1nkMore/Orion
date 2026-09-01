@@ -1,0 +1,66 @@
+{
+  "completed_phases": [],
+  "decision": "stop_and_revise_spatial_R_objective_or_support_labels",
+  "phases": {
+    "A_map_pretrain": {
+      "checks": {
+        "dev_background_fpr": true,
+        "dev_foreground_recall": false,
+        "dev_probability_gap_positive": true,
+        "train_background_fpr": true,
+        "train_foreground_recall": false
+      },
+      "checks_passed": 3,
+      "checks_total": 5,
+      "optimizer_steps_completed": 40,
+      "status": "failed_gate",
+      "trends": {
+        "loss": {
+          "absolute_change": -0.8669877406209707,
+          "all_finite_flags_true": true,
+          "available": true,
+          "first": 1.470748171210289,
+          "last": 0.6037604305893183,
+          "maximum": 1.470748171210289,
+          "minimum": 0.46626674197614193,
+          "relative_change": -0.5894875530645878
+        },
+        "map_loss": {
+          "absolute_change": -0.8669877029382264,
+          "all_finite_flags_true": true,
+          "available": true,
+          "first": 1.4707481127518873,
+          "last": 0.603760409813661,
+          "maximum": 1.4707481127518873,
+          "minimum": 0.4662667214870453,
+          "relative_change": -0.5894875508737
+        },
+        "ranking_loss": {
+          "absolute_change": 0.0,
+          "all_finite_flags_true": true,
+          "available": true,
+          "first": 0.0,
+          "last": 0.0,
+          "maximum": 0.0,
+          "minimum": 0.0,
+          "relative_change": null
+        }
+      }
+    }
+  },
+  "provenance": {
+    "frozen_u_tokenizer_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "protocol_sha256": "9c59849afe81fa4fa0f3ff7b185ebaa6969ef882d5b714a504189a5f6897dcf1",
+    "report_sha256": "8085bd52f51c491c55a5ed474ecbcef9b6912055ad433540bb08035ac2bd8783",
+    "trainer_sha256": "03093c10b1f68b3f9c1a068a8aaaa680be8aa466d53b1e6bf0bc474fa4b31d02"
+  },
+  "schema": "orion.stage2l_v10_staged_analysis.v1",
+  "status": "stopped_after_phase_a_failed_gate",
+  "unlocks": {
+    "closed_loop_matrix": false,
+    "formal_stage2l": false,
+    "one_clean_corrupt_engineering_interface_smoke": false,
+    "safety_claim": false,
+    "stage2p": false
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "schema": "orion.corruption_hardcase_orion_screen_preflight.v2",
+  "created_at": "2026-08-31T23:35:00+08:00",
+  "status": "dry_run_validated_submission_locked_pending_human_visual_approval",
+  "purpose": "Prepare the smallest corruption-conditioned native-ORION screen without submitting CARLA, ORION, or GPU work before exact visual conditions are approved.",
+  "parents": {
+    "funnel": {
+      "path": "configs/scenario_factory/corruption_hardcase_funnel12_v1.json",
+      "sha256": "ca02d56b905cbc9e7901d244238b659ba3169467f7db9b238f74a7a1ff99f7cb"
+    },
+    "development_event_windows": {
+      "path": "configs/scenario_factory/corruption_hardcase_event_windows_dev8_v1.json",
+      "sha256": "f91039c4e695990231c4a495b09a29fb1292664c20bc6995f23441270f9509dd"
+    },
+    "visual_approval_gate": "configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json"
+  },
+  "scope": {
+    "route_role": "development_only",
+    "route_indices": [151, 158, 164, 168, 180, 185, 194, 207],
+    "positive_case_eligible": [151, 158, 164, 180, 185, 194, 207],
+    "negative_control_only": [168],
+    "heldout_routes_included": false,
+    "route203_included": false
+  },
+  "candidate_runtime_conditions": [
+    {
+      "pilot_condition": "front_stale_transient_off",
+      "candidate_exact_conditions": ["delay_ms:200", "delay_ms:400"],
+      "runtime_schedule": "frozen route-progress trigger plus fixed duration",
+      "submission_enabled": false
+    },
+    {
+      "pilot_condition": "lens_waterdrop_paired_template_transient_off",
+      "candidate_exact_conditions": ["profile:light", "profile:medium", "profile:heavy"],
+      "runtime_schedule": "frozen route-progress trigger plus fixed duration",
+      "submission_enabled": false
+    },
+    {
+      "pilot_condition": "native_motion_blur_off",
+      "candidate_exact_conditions": ["profile:medium"],
+      "runtime_schedule": "whole-route native sensor profile; not a temporal-alignment claim",
+      "submission_enabled": false
+    }
+  ],
+  "architecture_locks": {
+    "ORION_CLOSEDLOOP_UQ_MODE": "none",
+    "ORION_CLOSEDLOOP_CONDITIONING": "none",
+    "ORION_CLOSEDLOOP_RISK_MODE": "off",
+    "ORION_PLANNING_RESPONSE_MODE": "off",
+    "density_uq": false,
+    "legacy_governor": false,
+    "stage1_adapter_used_for_ranking": false,
+    "stage2_outputs_used_for_ranking": false
+  },
+  "launch_contract": {
+    "pre_sbatch": "scripts/preflight_corruption_hardcase_orion_screen.py",
+    "in_allocation_recheck": "scripts/run_closedloop_uq_pilot.sh",
+    "runtime_fail_closed": "team_code/orion_b2d_agent.py",
+    "minimum_host_memory": "192G",
+    "gpu": "1x A800",
+    "cpu_default": 2,
+    "output_root": "/public/share/lidachuan/orion_assets",
+    "personal_home_artifacts": false
+  },
+  "execution_locks": {
+    "human_visual_approval_received": false,
+    "severity_frozen": false,
+    "orion_offline_screen": false,
+    "orion_closed_loop_screen": false,
+    "slurm_jobs_submitted": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "This is an executable wiring and fail-closed preflight record only. It contains no ORION response, failure-induction result, uncertainty claim, or safety evidence."
+}

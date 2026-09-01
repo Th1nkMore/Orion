@@ -1,0 +1,189 @@
+{
+  "automatically_excluded": [
+    {
+      "actor_grounded_event": false,
+      "automatic_exclusion_reasons": [
+        "runtime_invalid",
+        "event_package_unbuildable"
+      ],
+      "automatic_status": "excluded_before_human_review",
+      "continuous_safety_summary": {},
+      "critical_event": null,
+      "event_id": "route158_unpackageable_runtime",
+      "event_package": null,
+      "official_endpoint": {},
+      "outcome_class": "INVALID_RUNTIME_UNPACKAGEABLE",
+      "qa_input_ready": false,
+      "route_index": 158,
+      "runtime_attempts": [
+        {
+          "error": "RuntimeError: expected exactly one 'records_*/**/control_trace.jsonl' below /public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route158_hazard_clean_off-1090225, found 0",
+          "job_id": 1090225,
+          "package_buildable": false,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route158_hazard_clean_off-1090225",
+          "runtime_valid": false
+        },
+        {
+          "error": "RuntimeError: expected exactly one terminal evaluator record",
+          "job_id": 1090653,
+          "package_buildable": false,
+          "run_dir": "/public/share/lidachuan/orion_assets/results/scenario_factory_clean_wave0_20260829/route158_hazard_clean_off-1090653",
+          "runtime_valid": false
+        }
+      ],
+      "runtime_valid": false,
+      "scenario_family": "HardBreakRoute",
+      "screen_role": "longitudinal_response_hazard",
+      "split_origin": "development_screen",
+      "town": "Town01",
+      "visual_artifacts": []
+    }
+  ],
+  "automatically_excluded_count": 1,
+  "candidate_count": 3,
+  "claim_boundary": "Queue priority is for review efficiency only. Human acceptance establishes event integrity, not UQ validity or closed-loop benefit.",
+  "human_review_contract": {
+    "decision_values": [
+      "accept",
+      "reject",
+      "pending"
+    ],
+    "locked_test_rejection_must_be_technical_only": true,
+    "prohibited_rejection_basis": [
+      "learned UQ behavior",
+      "Stage2 behavior",
+      "whether ORION succeeded or failed"
+    ],
+    "required_checks": [
+      "visual_stream_integrity",
+      "actor_event_semantics",
+      "front_bev_temporal_alignment",
+      "no_actor_disappearance_or_spawn_artifact"
+    ]
+  },
+  "human_review_count": 2,
+  "review_order": [
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.09863450766600868,
+        "min_obb_ttc_seconds": 0.31469298263689527,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 201,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 2.489066984114425,
+          "obb_ttc_seconds": 0.31469298263689527,
+          "type_id": "vehicle.ford.mustang"
+        },
+        "route_progress": 0.6646881362401295,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 25.9,
+        "speed_mps": 4.783824322215619,
+        "step": 518,
+        "window_seconds": [
+          22.9,
+          27.9
+        ]
+      },
+      "event_id": "route160_step518",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route160/event_package.json",
+        "sha256": "100312d6468f5a2573dc1a4c587233d7c435377f2db9ce42c70a30740fe5641e"
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_SEVERE_TTC",
+      "qa_input_ready": true,
+      "review_rank": 1,
+      "route_index": 160,
+      "runtime_valid": true,
+      "scenario_family": "ConstructionObstacle",
+      "screen_role": "static_visual_hazard",
+      "split_origin": "development_screen",
+      "town": "Town04",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route160/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route160/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route160/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 0.8445393803253043,
+        "min_obb_ttc_seconds": 1.311140492879237,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 156,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 9.439139411388723,
+          "obb_ttc_seconds": 1.311140492879237,
+          "type_id": "vehicle.chevrolet.impala"
+        },
+        "route_progress": 0.4986020145615517,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 15.2,
+        "speed_mps": -0.005766302109082125,
+        "step": 304,
+        "window_seconds": [
+          12.2,
+          17.2
+        ]
+      },
+      "event_id": "route185_step304",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route185/event_package.json",
+        "sha256": "0bd0b2aeac3b5de75b60962061eeafc7dc3ec8818817679fbde9cae9ce95f4fa"
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 2,
+      "route_index": 185,
+      "runtime_valid": true,
+      "scenario_family": "StaticCutIn",
+      "screen_role": "static_visual_hazard",
+      "split_origin": "development_screen",
+      "town": "Town05",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route185/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route185/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route185/visuals/raw_front.gif"
+      ]
+    }
+  ],
+  "schema": "orion.scenario_event_review_queue.v1",
+  "source_batch_reports": [
+    {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/batch_screen_report.json",
+      "sha256": "818ad64479e073cfc4e98883fd69e644f06507d6583b123c84600b65289b8941"
+    }
+  ],
+  "status": "pending_human_event_review"
+}

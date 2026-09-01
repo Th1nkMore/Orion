@@ -1,0 +1,275 @@
+{
+  "schema": "orion.closedloop_native_collision_discovery_amendments.v1",
+  "base_protocol": "configs/closedloop_scenario_bank/native_collision_discovery_v1.json",
+  "amendments": [
+    {
+      "timestamp": "2026-08-28T23:22:43+08:00",
+      "applies_prospectively_from_job_id": "1086150",
+      "title": "Do not censor post-contact model failures with the pre-event liveness screen",
+      "triggering_observation": {
+        "job_id": "1086149",
+        "route_index": 179,
+        "first_zero_obb_gap_step": 477,
+        "first_zero_obb_gap_sim_time_seconds": 23.85,
+        "first_zero_obb_gap_route_progress": 0.7264696604941411,
+        "first_zero_obb_gap_speed_mps": 4.9467908728563375,
+        "actor_type": "vehicle.lincoln.mkz_2020",
+        "ttc_lte_2_exposure_seconds_at_cancellation": 5.150000000000002,
+        "post_contact_continuous_speed_below_0_25_mps_seconds_at_cancellation": 8.399999999999999
+      },
+      "problem": "The original unconditional 8-second clean liveness screen was designed to reject routes where ORION stalls before reaching the hazard. Applying it after a contact-like event censors the most severe model outcomes, because collision-induced blocking is itself an outcome rather than an environment failure.",
+      "prospective_rule": {
+        "pre_contact_or_no_contact": "If the ego remains below 0.25 m/s for more than 8.0 continuous simulation seconds before any zero-gap OBB contact or other serious safety event, cancel and classify the replay as clean-liveness invalid.",
+        "after_serious_geometry_or_evaluator_event": "Do not cancel using the liveness fast screen. Allow the evaluator to terminate naturally or reach the Slurm wall-time. Record collision, blocking, timeout, route completion and traffic infractions as model outcomes.",
+        "runtime_environment_invalidity": "Sensor timeout, CARLA/RPC failure, missing map, process crash, Slurm OOM, or unavailable safety telemetry remain environment/runtime invalid and are not model outcomes.",
+        "event_discovery_validity": "A terminal eligible evaluator record is required for an official endpoint. Route completion of 100 percent and absence of blocking are not prerequisites when the purpose is discovering native model failures.",
+        "paired_experiment_eligibility": "A retained failure route still requires a separately frozen paired protocol; this amendment alone does not make it confirmation evidence."
+      },
+      "retrospective_boundary": "Job 1086149 remains a partial, nonterminal diagnostic under the original rule and is not relabeled as an official collision. It may motivate one explicitly labeled confirmation replay under this amended rule."
+    },
+    {
+      "timestamp": "2026-08-28T23:26:53+08:00",
+      "applies_prospectively_from_job_id": "1086150",
+      "title": "Treat low speed as an outcome diagnostic rather than an automatic cancellation rule in native difficulty discovery",
+      "triggering_observation": {
+        "job_id": "1086150",
+        "route_index": 196,
+        "scenario": "SignalizedJunctionRightTurn",
+        "route_progress": 0.182999059578523,
+        "speed_mps": 0.03599964108019981,
+        "visual_context": "Ego is queued behind vehicles at a red traffic signal; low speed is lawful and expected in this scene."
+      },
+      "problem": "A context-free low-speed threshold confounds environment failure with legal signal waiting, collision-induced blocking, and model-induced false stops. All three latter behaviors are relevant closed-loop outcomes for the present discovery objective.",
+      "superseding_rule": {
+        "low_speed": "Record longest continuous speed below 0.25 m/s, total stopped time, route progress and official blocked/timeout infractions, but do not automatically cancel a native difficulty-discovery route for low speed alone.",
+        "runtime_environment_invalidity": "Cancel or exclude only for sensor timeout, CARLA/RPC failure, missing map, process crash, Slurm OOM, unavailable safety telemetry, or another explicit infrastructure error.",
+        "model_outcomes": "Collision, traffic-rule violation, legal waiting, false stopping, vehicle_blocked, scenario timeout, route timeout and incomplete route progress remain evaluator/model outcomes.",
+        "terminal_requirement": "An eligible terminal evaluator record is required for an official endpoint; nonterminal partial traces remain diagnostic only."
+      },
+      "retrospective_boundary": "This rule does not relabel cancelled job 1086149. It applies to Route196 job 1086150, Route201 job 1086151 and the queued Route179 confirmation replay job 1086170."
+    },
+    {
+      "timestamp": "2026-08-28T23:56:12+08:00",
+      "applies_prospectively_after_job_id": "1086170",
+      "title": "Activate the preregistered reserve routes as additional clean native-event discovery cases",
+      "triggering_observation": {
+        "platform_state": "Route196 completed with a valid evaluator endpoint, Route201 continued to advance normally, and the validated gpu4 node remained stable enough to queue additional work.",
+        "resource_boundary": "Only gpu4 is currently validated for the required CARLA Vulkan runtime. Apparent idle accelerator capacity on other nodes is not treated as usable without a successful runtime validation.",
+        "scientific_reason": "Additional native-event geometries are useful for separating frontal, crossing, and junction-interaction failures and for avoiding control conclusions from a single retained collision case."
+      },
+      "prospective_rule": {
+        "activated_routes_in_frozen_order": [
+          197,
+          209,
+          210
+        ],
+        "condition": "clean_off only",
+        "uq_mode": "none",
+        "risk_mode": "off",
+        "corruption": "none",
+        "node": "gpu4",
+        "submission_policy": "The jobs may be queued together so Slurm can backfill genuine capacity, but their scientific order remains the preregistered reserve order. No learned, constant, shuffled, oracle, hazard/nohazard matrix, or adapter-controlled condition is activated by this amendment.",
+        "evaluation": "Use the same terminal evaluator and continuous TTC/gap diagnostics defined by the base protocol and the preceding low-speed amendment."
+      },
+      "submission_record": {
+        "invalid_fail_fast_jobs": {
+          "1086446": 197,
+          "1086447": 209,
+          "1086448": 210
+        },
+        "invalid_reason": "PILOT_ROUTE_DIR was omitted at submission, so each job failed in one second before CARLA startup while looking in the unrelated default pilot route directory.",
+        "replacement_jobs_with_correct_native_route_dir": {
+          "1086450": 197,
+          "1086451": 209,
+          "1086452": 210
+        },
+        "scientific_status": "The fail-fast jobs are submission-configuration errors and produce no experimental result."
+      },
+      "claim_boundary": "These routes remain mechanism-development and native-event-discovery cases selected from published ORION reference failures. They are not held-out confirmation evidence and do not show that any failure was caused by observation uncertainty."
+    },
+    {
+      "timestamp": "2026-08-29T00:03:36+08:00",
+      "applies_prospectively_after_job_id": "1086151",
+      "title": "Add a control-trace progress watchdog after a mid-route CARLA tick stall",
+      "triggering_observation": {
+        "job_id": "1086151",
+        "route_index": 201,
+        "last_complete_control_step": 440,
+        "last_complete_sim_time_seconds": 22.0,
+        "last_complete_route_progress": 0.5074551892518555,
+        "last_complete_speed_mps": 4.993530772036566,
+        "control_trace_frames": 441,
+        "failure_signature": "The agent log and control trace stopped advancing after a real control frame, evaluator GPU utilization remained at zero, the Python evaluator waited, and the CARLA process continued without producing another tick for more than seven minutes.",
+        "slurm_final_state": "CANCELLED by user after confirmed no-progress interval"
+      },
+      "classification": "CARLA/tick runtime environment failure; nonterminal diagnostic only",
+      "prospective_runtime_rule": {
+        "watch_source": "control_trace.jsonl modification time",
+        "startup_grace_seconds": 900,
+        "post_trace_stall_threshold_seconds": 300,
+        "poll_seconds": 15,
+        "on_trigger": "Terminate the evaluator, let the outer runner clean up CARLA, write runtime_progress_watchdog.json, and exit nonzero with code 124.",
+        "scientific_separation": "The watchdog observes frame production only. It does not inspect ego speed, TTC, route progress, collisions, traffic lights, UQ, or control values, so lawful waiting, false stopping, and collision-induced blocking remain model/evaluator outcomes as long as control frames continue."
+      },
+      "retry_policy": "Job 1086151 is not a Route201 result and may receive one explicitly labeled runtime retry after the watchdog is deployed.",
+      "runtime_retry_submission": {
+        "invalid_pending_job_id": "1086449",
+        "invalid_pending_reason": "Cancelled before start because it inherited the same omitted PILOT_ROUTE_DIR submission error.",
+        "replacement_job_id": "1086453",
+        "replacement_condition": "clean_off with the correct native-collision-discovery route directory and the deployed progress watchdog"
+      },
+      "retrospective_boundary": "The partial trace may be summarized for diagnostics but is ineligible for retention, endpoint comparison, or any safety claim."
+    },
+    {
+      "timestamp": "2026-08-29T00:43:23+08:00",
+      "applies_to_job_id": "1086170",
+      "title": "Classify the Route179 confirmation as collision-positive but runtime-invalid and stop further retries",
+      "observed_result": {
+        "route_index": 179,
+        "slurm_state": "FAILED",
+        "slurm_exit_code": "127:0",
+        "evaluator_eligible": false,
+        "evaluator_status": "Failed - Simulation crashed",
+        "route_completion_percent": 70.73,
+        "evaluator_vehicle_collision_count": 1,
+        "collision_actor_type": "vehicle.lincoln.mkz_2020",
+        "collision_actor_id": 167,
+        "first_zero_gap_sim_time_seconds": 25.7,
+        "first_zero_gap_route_progress": 0.7064648724930963,
+        "last_complete_sim_time_seconds": 59.3,
+        "last_complete_route_progress": 0.7076,
+        "runtime_failure": "SPEED sensor missing for strict current frame 4666 after all other sensor tags arrived; 60-second sensor bundle timeout raised SensorReceivedNoData."
+      },
+      "classification": "Strong collision-reproduction diagnostic with evaluator/geometry actor agreement, but not a runtime-valid official endpoint because the evaluator marked the run ineligible after an infrastructure sensor failure.",
+      "retry_decision": "Do not run a third Route179 replay. Route197 job 1086450 already supplies a runtime-valid 100-percent-complete, evaluator-aligned native collision for mechanism development, so another 192G/A800 Route179 retry has no necessary incremental role.",
+      "claim_boundary": "Jobs 1086149 and 1086170 together show repeatable contact-like behavior on Route179, but neither may be counted in the official retained endpoint set. Their traces and GIFs remain diagnostic only."
+    },
+    {
+      "timestamp": "2026-08-29T01:02:00+08:00",
+      "applies_prospectively_after_job_id": "1086453",
+      "title": "Isolate concurrent CARLA instances with non-overlapping ten-port lanes",
+      "triggering_observation": {
+        "invalid_jobs": {
+          "1086452": 210,
+          "1086453": 201
+        },
+        "failure_stage": "CARLA startup before the first control frame",
+        "failure_signature": "bind: Address already in use",
+        "concurrent_job": "Route209 job 1086451 was already using RPC port 26451; CARLA also occupies adjacent streaming and secondary ports, so assigning 26452 and 26453 to the next jobs caused overlap."
+      },
+      "classification": "Runtime port-allocation error; both jobs produced no experimental result.",
+      "prospective_runtime_rule": {
+        "carla_rpc_port": "20000 + (slurm_job_id modulo 1000) * 10",
+        "traffic_manager_port": "40000 + (slurm_job_id modulo 1000) * 10",
+        "lane_width_ports": 10,
+        "scientific_separation": "Port selection depends only on the Slurm job id and is independent of route, model outputs, safety telemetry, UQ and controls."
+      },
+      "retry_policy": "Route210 clean_off and the already-authorized Route201 runtime retry may each be resubmitted once with the isolated port scheme. No additional experimental condition is activated.",
+      "replacement_jobs": {
+        "1087407": 210,
+        "1087408": 201
+      }
+    },
+    {
+      "timestamp": "2026-08-29T01:12:00+08:00",
+      "applies_to_job_id": "1087407",
+      "title": "Retain Route210 as a second runtime-valid native crossing-collision development case",
+      "observed_result": {
+        "route_index": 210,
+        "scenario": "SignalizedJunctionLeftTurnEnterFlow",
+        "weather": "native night and rain; clean observation condition, not a corruption label",
+        "slurm_state": "COMPLETED",
+        "evaluator_eligible": true,
+        "route_completion_percent": 100,
+        "evaluator_vehicle_collision_count": 1,
+        "score_composed": 60.0,
+        "collision_actor_type": "vehicle.chevrolet.impala",
+        "collision_actor_id": 175,
+        "first_zero_gap_sim_time_seconds": 15.05,
+        "first_zero_gap_route_progress": 0.5215292502638507,
+        "first_zero_gap_speed_mps": 4.699523606710449,
+        "minimum_obb_ttc_seconds": 0.0,
+        "ttc_lte_2_exposure_seconds": 3.200000000000001,
+        "serious_noncollision_infraction_count": 0
+      },
+      "causal_direction_diagnostic": "The retained actor approached from approximately 50.7 m ahead, developed a finite predicted OBB collision at about t=13.0 s, crossed laterally into the ego left-turn path, and contacted at t=15.05 s while ego speed remained about 4.70 m/s. Earlier bounded slowing is therefore directionally plausible rather than obviously adverse.",
+      "global_density_uq_diagnostic": {
+        "threshold": 0.4,
+        "first_post_baseline_trigger_seconds": 12.45,
+        "lead_to_contact_seconds": 2.6000000000000014,
+        "first_robust_z4_trigger_seconds": 12.7,
+        "robust_z4_lead_to_contact_seconds": 2.3500000000000014,
+        "maximum_score": 0.989547073841095,
+        "clean_post_baseline_threshold_exposure_seconds": 4.100000000000001,
+        "threshold_exposure_without_near_term_obb_conflict_seconds": 0.8500000000000014,
+        "interpretation": "Operational global anomaly lead with measurable clean-scene activation burden; not evidence of spatial localization, task relevance, semantic UQ correctness, or uncertainty causation."
+      },
+      "selection_and_execution_boundary": "Retain Route210 as a secondary task-event oracle candidate and clean-night specificity diagnostic. Route197 remains the first frozen oracle case. This observed result does not authorize a Route210 oracle, learned governor, constant, shuffled, corruption, or matrix job without a new prospective amendment after the Route197 mechanism result."
+    },
+    {
+      "timestamp": "2026-08-29T01:21:00+08:00",
+      "applies_to_job_id": "1086451",
+      "title": "Classify Route209 as an overconservative partial diagnostic followed by a watchdog-confirmed runtime failure",
+      "observed_result": {
+        "route_index": 209,
+        "scenario": "NonSignalizedJunctionLeftTurnEnterFlow",
+        "slurm_state": "FAILED",
+        "slurm_exit_code": "124:0",
+        "terminal_evaluator_record": false,
+        "trace_frames": 1667,
+        "last_sim_time_seconds": 83.3,
+        "last_route_progress": 0.37439352325871667,
+        "longest_continuous_speed_below_0_25_mps_seconds": 72.3,
+        "minimum_obb_gap_m": 7.036128774069859,
+        "minimum_obb_ttc_seconds": 4.355326329202588,
+        "zero_gap_contact_frames": 0,
+        "maximum_density_uq_score_after_baseline": 0.38675957918167114,
+        "density_uq_threshold_0_4_exposure_seconds": 0
+      },
+      "runtime_failure": {
+        "reason": "control_trace_stalled",
+        "last_trace_sim_time_seconds": 83.35,
+        "stall_threshold_seconds": 300,
+        "watchdog_schema": "orion.closedloop_runtime_progress_watchdog.v1",
+        "watchdog_scientific_classification": "runtime_environment_invalid"
+      },
+      "classification": "The prolonged clean low-speed behavior is an overconservative/blocked diagnostic, not an official blocked endpoint. The subsequent CARLA tick stall makes the replay runtime-invalid and ineligible for a safety endpoint or route-completion comparison.",
+      "retry_decision": "Do not retry Route209. Runtime-valid native vehicle collisions are already retained on Route197 and Route210, while Route209 contributes a useful specificity/overconservatism diagnostic but no necessary additional mechanism test worth another 192G/A800 replay.",
+      "claim_boundary": "Route209 may be used to illustrate that low global Density UQ does not guarantee progress and that uncertainty-triggered slowing cannot fix every planning failure. It may not be counted as a completed no-collision route, an official blocked result, or evidence of improved safety."
+    },
+    {
+      "timestamp": "2026-08-29T01:33:00+08:00",
+      "applies_to_job_id": "1087408",
+      "title": "Retain the Route201 runtime retry as a valid native actor-flow collision",
+      "retry_lineage": {
+        "original_runtime_invalid_job": "1086151",
+        "invalid_prestart_jobs": [
+          "1086449",
+          "1086453"
+        ],
+        "successful_runtime_retry_job": "1087408"
+      },
+      "observed_result": {
+        "route_index": 201,
+        "scenario": "EnterActorFlow",
+        "slurm_state": "COMPLETED",
+        "evaluator_eligible": true,
+        "route_completion_percent": 100,
+        "evaluator_vehicle_collision_count": 1,
+        "score_composed": 60.0,
+        "collision_actor_type": "vehicle.ford.mustang",
+        "collision_actor_id": 211,
+        "first_zero_gap_sim_time_seconds": 22.2,
+        "first_zero_gap_route_progress": 0.49522809462433676,
+        "first_zero_gap_speed_mps": 7.111325207139009,
+        "minimum_obb_ttc_seconds": 0.0,
+        "ttc_lte_2_exposure_seconds": 4.499999999999998,
+        "serious_noncollision_infraction_count": 0,
+        "safety_telemetry_coverage": 1.0
+      },
+      "classification": "Runtime-valid, evaluator/geometry-aligned native vehicle collision retained for mechanism development and future route-level replication; not held-out confirmation.",
+      "clean_discovery_stop_rule": "The frozen clean native-discovery batch is complete. Route197, Route210 and Route201 provide runtime-valid 100-percent-complete native vehicle collisions, so no further clean discovery routes are submitted before the separated adapter sidecar and task-event oracle are evaluated.",
+      "claim_boundary": "The collision establishes a native interaction failure and severe TTC exposure. It does not establish observation uncertainty as the cause, adapter correctness, or uncertainty-aware safety improvement."
+    }
+  ]
+}

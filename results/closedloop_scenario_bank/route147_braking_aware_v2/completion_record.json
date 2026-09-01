@@ -1,0 +1,49 @@
+{
+  "schema": "orion.route147_braking_aware_v2_completion_record.v1",
+  "completed_at": "2026-08-29T07:20:51+08:00",
+  "base_preregistration": "configs/closedloop_scenario_bank/route147_braking_aware_v2.json",
+  "base_preregistration_sha256": "65a5efa4a764eb6983c0175a231841ea0f758a914c52f758c29baba56e0c8c5f",
+  "runtime_amendment": "configs/closedloop_scenario_bank/route147_braking_aware_v2_runtime_amendment_20260829.json",
+  "invalid_attempt": {
+    "job_id": 1088319,
+    "classification": "runtime_environment_invalid",
+    "official_safety_result": false
+  },
+  "valid_attempt": {
+    "job_id": 1088701,
+    "run_id": "closedloop_route147_braking_aware_oracle_v2_retry1",
+    "slurm_state": "COMPLETED",
+    "exit_code": "0:0",
+    "node": "gpu4",
+    "elapsed": "00:20:38",
+    "artifacts": {
+      "control_trace.jsonl": "2016f206c4ca7a45e5cb0250626c25532e24eb6ff0a6cd962008b2adaa8d53c4",
+      "eval_orion_traj_0.json": "0ae42f78d66189b0fcf30e4b1c6f0e3fd95b94d152749e4a52c38270fabab702",
+      "manifest.json": "4682fefae2971159191b94afe9607b026c5f35e34d6c61fe0d66f8eae082e8e5",
+      "slurm_log": "6911f1be841c25c00b6a9d7e3bd94d0f8ea2d08efd570ed810d9b304aadbfd24"
+    }
+  },
+  "evaluation": {
+    "path": "results/closedloop_scenario_bank/route147_braking_aware_v2/route147_braking_aware_v2_result.json",
+    "sha256": "c21f20e3e5ed21218cab3e99fcfc14a217244b8d7eb6b5d32e0ecdb9e0f3ac06",
+    "schema": "orion.route147_braking_aware_v2_result.v1",
+    "primary_success": true,
+    "stage2_eligible": true,
+    "decision": "unlock_new_spatial_adapter_stage2_task_training",
+    "walker_minimum_ttc_seconds": {
+      "clean": 0.8605841826380108,
+      "oracle": 1.2917053702161136,
+      "gain": 0.4311211875781028
+    },
+    "walker_ttc_lte_1_exposure_seconds": {
+      "clean": 0.5,
+      "oracle": 0.0,
+      "reduction": 0.5
+    },
+    "route_duration_delta_seconds": -0.05000000000000071,
+    "both_full_route_completion": true,
+    "both_zero_collisions": true,
+    "both_zero_serious_infractions": true
+  },
+  "claim_boundary": "The result validates the privileged task-level response mechanism only. It unlocks Stage2 training with the new spatial adapter but is not evidence that the learned adapter improves safety. Density UQ was absent."
+}

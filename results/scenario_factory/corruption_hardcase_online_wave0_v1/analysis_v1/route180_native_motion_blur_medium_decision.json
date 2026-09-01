@@ -1,0 +1,95 @@
+{
+  "actor_category": "vehicle",
+  "claim_boundary": "Development failure-induction screen only. A positive case shows native ORION degradation under the frozen corruption; it does not show uncertainty estimation or method benefit.",
+  "comparison_scope": "whole_route",
+  "condition": "native_motion_blur_medium",
+  "continuous_safety_margin": {
+    "checks": {
+      "gap_drop_gate": false,
+      "ttc_drop_gate": false
+    },
+    "clean_min_obb_gap_m": 0.0,
+    "clean_min_obb_ttc_seconds": 0.0,
+    "degraded": false,
+    "degraded_min_obb_gap_m": 0.945065010375473,
+    "degraded_min_obb_ttc_seconds": 1.1438303568797141,
+    "observed_gap_drop_m": -0.945065010375473,
+    "observed_ttc_drop_seconds": -1.1438303568797141,
+    "required_gap_drop_m": 0.5,
+    "required_ttc_drop_seconds": 0.3
+  },
+  "decision": {
+    "eligible_for_heldout_confirmation": false,
+    "evidence_tier": "invalid",
+    "positive_case": false,
+    "retain_for_case_study": false
+  },
+  "hard_endpoint": {
+    "checks": {
+      "new_hard_infraction": false,
+      "route_completion_drop_at_least_10pp": false
+    },
+    "clean_route_completion_percent": 100.0,
+    "degraded": false,
+    "degraded_route_completion_percent": 100.0,
+    "infraction_count_delta_degraded_minus_clean": {
+      "collisions_layout": 0,
+      "collisions_pedestrian": 0,
+      "collisions_vehicle": -1,
+      "outside_route_lanes": 0,
+      "red_light": 0,
+      "route_dev": 0,
+      "route_timeout": 0,
+      "scenario_timeouts": 0,
+      "stop_infraction": 0,
+      "vehicle_blocked": 0
+    },
+    "route_completion_drop_percentage_points": 0.0
+  },
+  "paired_event": null,
+  "route_index": "180",
+  "schema": "orion.corruption_hardcase_wave_pair_decision.v1",
+  "source_files": {
+    "clean_eval": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route180_hazard_clean_off-1116939/eval_orion_traj_0.json",
+    "clean_manifest": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route180_hazard_clean_off-1116939/manifest.json",
+    "clean_trace": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route180_hazard_clean_off-1116939/records_orion_traj_0/RouteScenario_25955_rep0_Town05_HazardAtSideLaneTwoWays_1_11_09_01_02_21_57/control_trace.jsonl",
+    "degraded_eval": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route180_hazard_native_motion_blur_off-1116351/eval_orion_traj_0.json",
+    "degraded_manifest": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route180_hazard_native_motion_blur_off-1116351/manifest.json",
+    "degraded_render_readback": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route180_hazard_native_motion_blur_off-1116351/render_condition_readback.json",
+    "degraded_trace": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route180_hazard_native_motion_blur_off-1116351/records_orion_traj_0/RouteScenario_25955_rep0_Town05_HazardAtSideLaneTwoWays_1_11_09_01_00_42_42/control_trace.jsonl"
+  },
+  "validity": {
+    "checks": {
+      "architecture_locks": true,
+      "clean_finished": true,
+      "clean_liveness_fast_screen_passed": true,
+      "clean_no_hard_infraction": false,
+      "clean_safety_telemetry_complete": true,
+      "conditions_match": true,
+      "degraded_finished": true,
+      "degraded_safety_telemetry_complete": true,
+      "exact_corruption_condition_realized": true,
+      "route_indices_match": true,
+      "route_xml_hash_matches": true,
+      "same_code_hashes": true
+    },
+    "clean_longest_low_speed_interval": {
+      "duration_seconds": 0.2000000000000064,
+      "end_progress": 0.9255470792149725,
+      "end_step": 679,
+      "end_time_seconds": 33.95,
+      "start_progress": 0.9254874195250712,
+      "start_step": 676,
+      "start_time_seconds": 33.8
+    },
+    "exact_condition_checks": {
+      "bev_motion_blur_disabled": true,
+      "front_motion_blur_exact": true,
+      "manifest_profile_medium": true,
+      "readback_profile_medium": true,
+      "readback_status_verified": true,
+      "trace_has_no_synthetic_event": true
+    },
+    "valid": false
+  }
+}

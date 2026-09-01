@@ -1,0 +1,53 @@
+{
+  "schema": "orion.scenario_event_review_decisions.v1",
+  "status": "reviewed_accept_all_three",
+  "reviewed_at": "2026-08-29T20:44:46+08:00",
+  "reviewer": "codex_assisted_visual_review",
+  "review_method": "Inspected the original model-input-front and external-BEV GIFs plus deterministic 2 fps contact sheets over each fixed event window.",
+  "review_queue": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/stage2l_formal24_dev_wave0_20260829/scenario_event_review_queue.json",
+    "sha256": "74489a62b9213e3947602de24800c80e417bfeeae4accb9ac37a36b4ed63b566"
+  },
+  "decisions": [
+    {
+      "event_id": "route147_step223",
+      "event_package_sha256": "b76d7fb10c8e19bda6154526821367c34b7445d1fa310d26cab5558ff2775320",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "notes": "The pedestrian emerges continuously from the right sidewalk/rock-side shelter region and crosses the ego path during t=10.5-13.0 s. Front and BEV motion agree; the opposite-direction vehicle is also temporally continuous.",
+      "rejection_basis": null
+    },
+    {
+      "event_id": "route195_step230",
+      "event_package_sha256": "e4fa058a0c7f0e954a9cb03f12340df9b9807b65e14ac26d23d8beda6adf2274",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "notes": "The police vehicle enters from the right and traverses the junction continuously during t=11.5-13.0 s. Front and rotating ego-centric BEV views remain aligned. Native night illumination is treated as clean context, not corruption or a rejection reason.",
+      "rejection_basis": null
+    },
+    {
+      "event_id": "route151_step218",
+      "event_package_sha256": "c2cb277b5ce3ec2f3af5b3139b35bfd26de38c4584e20d46a5f43ff5c9503cd2",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "notes": "The pedestrian emerges continuously from occlusion beside the parked police vehicle and crosses the ego lane during t=10.5-12.5 s. Front and BEV views agree and show no spawn/disappearance artifact.",
+      "rejection_basis": null
+    }
+  ],
+  "claim_boundary": "Acceptance confirms event and visualization integrity only; it is not evidence of UQ correctness, Stage2 behavior, or closed-loop safety benefit."
+}

@@ -1,0 +1,81 @@
+{
+  "schema": "orion.stage2l_uq_language_grounding_protocol.v1",
+  "created_at": "2026-08-29T23:07:16+08:00",
+  "status": "preregistered_not_launched_route196_structured_semantic_smoke_only",
+  "launch_authorization_key": "route196_structured_semantic_smoke_allowed",
+  "triggering_diagnosis": {
+    "path": "results/scenario_factory/stage2l_smokes/route196_task_risk_bridge_v1_240/diagnosis.json",
+    "sha256": "079c860f9f903ed1ac033e7073781b8fa8e864b6bcc6c7a3c659d4329d1504c8",
+    "report_sha256": "b43dc3369857f1766c3fbf50e9610f8d89149639dfc096ab6f032add376560aa",
+    "finding": "The explicit K bridge learned R/K ordering and zero/off-path behavior, but on-path free generation produced the unsupported lexical fusion prepare_right instead of prepare_to_yield, with only a 0.0135 NLL preference margin."
+  },
+  "objective": "Test whether an explicit predicted planning-semantics bottleneck makes the VLM's task-risk interpretation stable and inspectable without moving task relevance into Stage1 UQ or adding direct control.",
+  "task_risk_language_bridge": {
+    "passes": 2,
+    "pass_1": "ORION visual tokens plus route text and 600 U-independent spatial relevance queries predict R.",
+    "relevance_queries_receive_uq": false,
+    "fusion": "K = U * sigmoid(R)",
+    "pass_2": "ORION visual tokens plus 600 Stage1-UQ tokens plus seven compact K tokens plus one predicted semantic token generate QA text.",
+    "bridge_token_count": 7,
+    "zero_uq_contract": "K tokens and the predicted semantic token are independent of R when U is identically zero.",
+    "is_direct_control": false
+  },
+  "structured_semantic_bottleneck": {
+    "classes": [
+      "maintain",
+      "caution",
+      "prepare_to_yield"
+    ],
+    "input": "global compact K bridge token only",
+    "classifier": "LayerNorm-MLP three-way logits",
+    "semantic_token_count": 1,
+    "semantic_token": "softmax-weighted learned stance embedding",
+    "ground_truth_stance_enters_forward": false,
+    "ground_truth_scope": "cross-entropy loss and evaluation only",
+    "language_conditioning_uses_predicted_distribution": true,
+    "is_direct_control": false
+  },
+  "sampling": {
+    "balance_driving_stances": true,
+    "scope": "driving_implication QA only",
+    "method": "oversample each target stance to the majority count; every non-driving record remains once per epoch"
+  },
+  "losses": {
+    "qa_causal_language_modeling": 1.0,
+    "dense_soft_relevance_bce": 2.0,
+    "matched_onpath_offpath_risk_ranking": 1.0,
+    "structured_stance_cross_entropy": 2.0,
+    "matched_answer_preference": {
+      "weight": 2.0,
+      "margin": 0.2,
+      "scope": "driving_implication only"
+    },
+    "trajectory": 0.0,
+    "yield_state": 0.0,
+    "direct_control": 0.0
+  },
+  "route196_structured_semantic_smoke": {
+    "maximum_steps": 240,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "single_run_only": true,
+    "reuse_same_20_qa_records": true,
+    "reuse_same_u_r_k_targets": true,
+    "reuse_failed_bridge_checkpoint": false
+  },
+  "evaluation_gates": [
+    "language NLL, dense R BCE, and structured stance CE all improve",
+    "all five driving-implication variants have the correct structured stance argmax",
+    "the minimum target stance probability across the five variants is at least 0.55",
+    "on-path K exceeds matched off-path K by at least 0.2",
+    "zero-UQ and off-path target answers outrank the matched conservative answer",
+    "on-path target answer outranks the matched maintain answer",
+    "free generation exactly matches the target stance for all five variants"
+  ],
+  "launch_locks": {
+    "route196_structured_semantic_smoke_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "stop_policy": "No GPU launch until the new entry point, source hashes, and fail-closed wrapper pass preflight. Exactly one fresh 240-step submission may be activated by a separate amendment. Failure pauses further Route196 iterations; success unlocks only migration review for the held-out 8-event pilot.",
+  "claim_boundary": "One-event structured semantic architecture learnability test only; no held-out generalization, trajectory, closed-loop, or safety evidence."
+}

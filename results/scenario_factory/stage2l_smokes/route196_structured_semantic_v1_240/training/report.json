@@ -1,0 +1,932 @@
+{
+  "after": {
+    "bridge_global_features": {
+      "observed": [
+        [
+          0.050418075174093246,
+          0.000996203045360744,
+          0.004709857515990734,
+          0.5031388998031616,
+          -0.06320799142122269,
+          -0.20116186141967773
+        ]
+      ],
+      "off_path_uq": [
+        [
+          0.0676359012722969,
+          0.000276144448434934,
+          0.0038902899250388145,
+          0.16940158605575562,
+          0.661990225315094,
+          -0.5999963879585266
+        ]
+      ],
+      "on_path_uq": [
+        [
+          0.5571135878562927,
+          0.0014018520014360547,
+          0.02386159636080265,
+          0.1467646062374115,
+          -0.7432035207748413,
+          -0.5999993085861206
+        ]
+      ],
+      "view_shuffled_uq": [
+        [
+          0.12521100044250488,
+          0.0025675061624497175,
+          0.010577423498034477,
+          0.4874228835105896,
+          0.09405490010976791,
+          -0.32184934616088867
+        ]
+      ],
+      "zero_uq": [
+        [
+          0.0,
+          0.0,
+          0.0010000000474974513,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "counterfactual_answer_nll": {
+      "off_path_uq": 0.4156646728515625,
+      "on_path_uq": 0.28178223967552185,
+      "zero_uq": 0.3756352663040161
+    },
+    "expected_answer_nll": {
+      "off_path_uq": 0.1650882214307785,
+      "on_path_uq": 0.24092306196689606,
+      "zero_uq": 0.17061148583889008
+    },
+    "generated_driving_implication": {
+      "observed": "<task_relevance_map> The uncertainty map identifies unreliable visual evidence at CAM_FRONT/upper_right, and its temporal trend is rising.",
+      "off_path_uq": "<task_relevance_map> The uncertainty map identifies unreliable visual evidence at CAM_FRONT/upper_left; it does not reveal which hidden object or fact is missing. Task relevance. Task relevance. Task relevance.",
+      "on_path_uq": "<task_relevance_map> The uncertainty map identifies unreliable visual evidence at CAM_FRONT/upper_left; it does not reveal which hidden object or fact is missing. Task relevance. Task relevance. Task relevance. Task relevance.",
+      "view_shuffled_uq": "<task_relevance_map> The uncertainty-aware planning stance is caution. This is a planning implication, not a direct brake or steering command.",
+      "zero_uq": "<task_relevance_map> The uncertainty map identifies unreliable visual evidence at CAM_FRONT/upper_left; it does not reveal which hidden object or fact is missing. Task relevance. Task relevance. Task relevance."
+    },
+    "generated_stance_accuracy": 0.2,
+    "generated_stances": {
+      "observed": null,
+      "off_path_uq": null,
+      "on_path_uq": null,
+      "view_shuffled_uq": "caution",
+      "zero_uq": null
+    },
+    "mean_language_nll": 0.21278494223952293,
+    "mean_structured_stance_ce": 0.8207617998123169,
+    "minimum_structured_target_probability": 0.05226803198456764,
+    "on_minus_off_peak_task_risk": 0.4894776940345764,
+    "relevance_bce": 0.06321897357702255,
+    "structured_stance_accuracy": 0.6,
+    "structured_stance_predictions": {
+      "observed": "caution",
+      "off_path_uq": "caution",
+      "on_path_uq": "prepare_to_yield",
+      "view_shuffled_uq": "caution",
+      "zero_uq": "maintain"
+    },
+    "structured_stance_probabilities": {
+      "observed": {
+        "caution": 0.933987021446228,
+        "maintain": 0.05226803198456764,
+        "prepare_to_yield": 0.01374492421746254
+      },
+      "off_path_uq": {
+        "caution": 0.5692288875579834,
+        "maintain": 0.4291567802429199,
+        "prepare_to_yield": 0.0016142968088388443
+      },
+      "on_path_uq": {
+        "caution": 0.00016062271606642753,
+        "maintain": 5.1209986850153655e-05,
+        "prepare_to_yield": 0.9997881054878235
+      },
+      "view_shuffled_uq": {
+        "caution": 0.937680721282959,
+        "maintain": 0.049738772213459015,
+        "prepare_to_yield": 0.012580503709614277
+      },
+      "zero_uq": {
+        "caution": 0.2090998888015747,
+        "maintain": 0.7850973606109619,
+        "prepare_to_yield": 0.0058027710765600204
+      }
+    },
+    "structured_target_probabilities": {
+      "observed": 0.05226803198456764,
+      "off_path_uq": 0.4291567802429199,
+      "on_path_uq": 0.9997881054878235,
+      "view_shuffled_uq": 0.937680721282959,
+      "zero_uq": 0.7850973606109619
+    },
+    "target_stances": {
+      "observed": "maintain",
+      "off_path_uq": "maintain",
+      "on_path_uq": "prepare_to_yield",
+      "view_shuffled_uq": "caution",
+      "zero_uq": "maintain"
+    }
+  },
+  "architecture": {
+    "bridge_token_count": 7,
+    "direct_control": false,
+    "ground_truth_stance_enters_forward": false,
+    "hard_governor_used": false,
+    "legacy_density_uq_used": false,
+    "passes": 2,
+    "planning_stances": [
+      "maintain",
+      "caution",
+      "prepare_to_yield"
+    ],
+    "relevance_queries_receive_uq": false,
+    "semantic_token_count": 1,
+    "semantic_token_uses_predicted_distribution": true,
+    "task_risk": "K = U * sigmoid(R)",
+    "trajectory": false
+  },
+  "before": {
+    "bridge_global_features": {
+      "observed": [
+        [
+          0.47114044427871704,
+          0.03231073543429375,
+          0.0789630338549614,
+          -0.36068102717399597,
+          0.21182888746261597,
+          -0.6046101450920105
+        ]
+      ],
+      "off_path_uq": [
+        [
+          0.3195703625679016,
+          0.0008028166485019028,
+          0.013657286763191223,
+          0.1427302211523056,
+          0.7466100454330444,
+          -0.5999987721443176
+        ]
+      ],
+      "on_path_uq": [
+        [
+          0.309282511472702,
+          0.0007781283347867429,
+          0.013225572183728218,
+          0.14277109503746033,
+          -0.7462841868400574,
+          -0.5999987125396729
+        ]
+      ],
+      "view_shuffled_uq": [
+        [
+          0.4197100102901459,
+          0.03025224804878235,
+          0.07063774019479752,
+          -0.3455495238304138,
+          0.2199411690235138,
+          -0.33997416496276855
+        ]
+      ],
+      "zero_uq": [
+        [
+          0.0,
+          0.0,
+          0.0010000000474974513,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "counterfactual_answer_nll": {
+      "off_path_uq": 13.843928337097168,
+      "on_path_uq": 13.972488403320312,
+      "zero_uq": 13.853495597839355
+    },
+    "expected_answer_nll": {
+      "off_path_uq": 13.962329864501953,
+      "on_path_uq": 13.852566719055176,
+      "zero_uq": 13.971359252929688
+    },
+    "generated_driving_implication": {
+      "observed": "211111111111111111111111111111111111111111111111111111111111111111111111",
+      "off_path_uq": "111111111111111111111111111111111111111111111111111111111111111111111111",
+      "on_path_uq": "111111111111111111111111111111111111111111111111111111111111111111111111",
+      "view_shuffled_uq": "211111111111111111111111111111111111111111111111111111111111111111111111",
+      "zero_uq": "111111111111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "generated_stance_accuracy": 0.0,
+    "generated_stances": {
+      "observed": null,
+      "off_path_uq": null,
+      "on_path_uq": null,
+      "view_shuffled_uq": null,
+      "zero_uq": null
+    },
+    "mean_language_nll": 14.868884372711182,
+    "mean_structured_stance_ce": 1.162103295326233,
+    "minimum_structured_target_probability": 0.26684021949768066,
+    "on_minus_off_peak_task_risk": -0.010287851095199585,
+    "relevance_bce": 0.7723497748374939,
+    "structured_stance_accuracy": 0.2,
+    "structured_stance_predictions": {
+      "observed": "caution",
+      "off_path_uq": "caution",
+      "on_path_uq": "caution",
+      "view_shuffled_uq": "caution",
+      "zero_uq": "caution"
+    },
+    "structured_stance_probabilities": {
+      "observed": {
+        "caution": 0.44384849071502686,
+        "maintain": 0.28621870279312134,
+        "prepare_to_yield": 0.2699328064918518
+      },
+      "off_path_uq": {
+        "caution": 0.4355911910533905,
+        "maintain": 0.29712793231010437,
+        "prepare_to_yield": 0.26728084683418274
+      },
+      "on_path_uq": {
+        "caution": 0.44346505403518677,
+        "maintain": 0.28969475626945496,
+        "prepare_to_yield": 0.26684021949768066
+      },
+      "view_shuffled_uq": {
+        "caution": 0.4420030117034912,
+        "maintain": 0.287728488445282,
+        "prepare_to_yield": 0.2702684700489044
+      },
+      "zero_uq": {
+        "caution": 0.4420969784259796,
+        "maintain": 0.29868051409721375,
+        "prepare_to_yield": 0.25922250747680664
+      }
+    },
+    "structured_target_probabilities": {
+      "observed": 0.28621870279312134,
+      "off_path_uq": 0.29712793231010437,
+      "on_path_uq": 0.26684021949768066,
+      "view_shuffled_uq": 0.4420030117034912,
+      "zero_uq": 0.29868051409721375
+    },
+    "target_stances": {
+      "observed": "maintain",
+      "off_path_uq": "maintain",
+      "on_path_uq": "prepare_to_yield",
+      "view_shuffled_uq": "caution",
+      "zero_uq": "maintain"
+    }
+  },
+  "checkpoint": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_structured_semantic_v1_240/training/stage2l_route196_structured_semantic.pt",
+    "sha256": "b9c4b93ef8ffafdc307c47a20db095ee530405673788bca14318a1375ab03bcf"
+  },
+  "checks": {
+    "all_generated_stances_match_targets": false,
+    "all_structured_stances_match_targets": false,
+    "off_path_prefers_maintain": true,
+    "on_path_prefers_conservative": true,
+    "on_path_risk_exceeds_off_path_by_margin": true,
+    "optimization_reduces_language_nll": true,
+    "optimization_reduces_relevance_bce": true,
+    "optimization_reduces_structured_stance_ce": true,
+    "structured_target_probability_floor": false,
+    "zero_uq_prefers_maintain": true
+  },
+  "claim_boundary": "One-event structured semantic learnability smoke only; no held-out, trajectory, closed-loop, or safety claim.",
+  "engineering_overfit_only": true,
+  "formal_training_ready": false,
+  "history": [
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 14.781858444213867,
+      "loss": 16.53242301940918,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.2059498280286789,
+      "relevance_bce": 0.7723078727722168,
+      "step": 1,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "zero_uq"
+    },
+    {
+      "answer_preference_loss": 0.006244659423828125,
+      "language_nll": 7.726907253265381,
+      "loss": 8.202108383178711,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0467238575220108,
+      "relevance_bce": 0.16753415763378143,
+      "step": 5,
+      "structured_stance_ce": 0.04045956954360008,
+      "target_stance": "maintain",
+      "variant": "zero_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 7.7348127365112305,
+      "loss": 8.018200874328613,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.14169390499591827,
+      "step": 10,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 7.747391700744629,
+      "loss": 7.971792221069336,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.1122003048658371,
+      "step": 15,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 7.549333095550537,
+      "loss": 7.788564205169678,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.11961544305086136,
+      "step": 20,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 6.385936737060547,
+      "loss": 6.592601299285889,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.10333217680454254,
+      "step": 25,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 6.4073166847229,
+      "loss": 6.590421199798584,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.09155220538377762,
+      "step": 30,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.1194295883178711,
+      "language_nll": 5.944540977478027,
+      "loss": 8.720181465148926,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.0904516875743866,
+      "step": 35,
+      "structured_stance_ce": 1.1779389381408691,
+      "target_stance": "prepare_to_yield",
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 5.65142822265625,
+      "loss": 5.835601329803467,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.09208661317825317,
+      "step": 40,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.338895320892334,
+      "language_nll": 5.079183101654053,
+      "loss": 6.271965980529785,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.08710595220327377,
+      "step": 45,
+      "structured_stance_ce": 0.1703900694847107,
+      "target_stance": "prepare_to_yield",
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 4.3570942878723145,
+      "loss": 4.528205871582031,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.08555572479963303,
+      "step": 50,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 3.358128786087036,
+      "loss": 3.5205745697021484,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.08122284710407257,
+      "step": 55,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 4.3547563552856445,
+      "loss": 4.519083023071289,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.08216338604688644,
+      "step": 60,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 3.307586431503296,
+      "loss": 3.4669857025146484,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07969965785741806,
+      "step": 65,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "zero_uq"
+    },
+    {
+      "answer_preference_loss": 0.26898956298828125,
+      "language_nll": 3.879459857940674,
+      "loss": 4.726324081420898,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.08793140947818756,
+      "step": 70,
+      "structured_stance_ce": 0.06651106476783752,
+      "target_stance": "prepare_to_yield",
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.10444974899291992,
+      "language_nll": 3.6907050609588623,
+      "loss": 5.496736526489258,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07483314722776413,
+      "step": 75,
+      "structured_stance_ce": 0.7237329483032227,
+      "target_stance": "maintain",
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 2.602886915206909,
+      "loss": 4.786893367767334,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.02871856652200222,
+      "relevance_bce": 0.08340700715780258,
+      "step": 80,
+      "structured_stance_ce": 0.9942368865013123,
+      "target_stance": "caution",
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 1.8715139627456665,
+      "loss": 2.0361647605895996,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.08232541382312775,
+      "step": 85,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 3.5187339782714844,
+      "loss": 3.680304765701294,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.0807853639125824,
+      "step": 90,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 2.3302714824676514,
+      "loss": 2.4793179035186768,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07452317327260971,
+      "step": 95,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 1.2345050573349,
+      "loss": 1.962859869003296,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.0691952258348465,
+      "step": 100,
+      "structured_stance_ce": 0.2949821949005127,
+      "target_stance": "caution",
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 1.0099856853485107,
+      "loss": 1.182480812072754,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.0664089173078537,
+      "step": 105,
+      "structured_stance_ce": 0.0198386050760746,
+      "target_stance": "prepare_to_yield",
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 1.6262967586517334,
+      "loss": 1.7596827745437622,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06669300049543381,
+      "step": 110,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 2.167444944381714,
+      "loss": 2.313096046447754,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07282549887895584,
+      "step": 115,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.28916871547698975,
+      "language_nll": 1.259875774383545,
+      "loss": 3.5377767086029053,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.009932875633239746,
+      "relevance_bce": 0.08194126188755035,
+      "step": 120,
+      "structured_stance_ce": 0.7628740072250366,
+      "target_stance": "maintain",
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.03212296962738037,
+      "language_nll": 1.002345323562622,
+      "loss": 2.3500664234161377,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.09831232577562332,
+      "step": 125,
+      "structured_stance_ce": 0.5434253215789795,
+      "target_stance": "maintain",
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.6547803282737732,
+      "language_nll": 1.3749865293502808,
+      "loss": 2.902522563934326,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.09378818422555923,
+      "step": 130,
+      "structured_stance_ce": 0.015199434012174606,
+      "target_stance": "prepare_to_yield",
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.31096768379211426,
+      "language_nll": 1.1224428415298462,
+      "loss": 1.9667222499847412,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.08136898279190063,
+      "step": 135,
+      "structured_stance_ce": 0.029803065583109856,
+      "target_stance": "prepare_to_yield",
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 1.1796828508377075,
+      "loss": 2.848897933959961,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06816831231117249,
+      "step": 140,
+      "structured_stance_ce": 0.7664392590522766,
+      "target_stance": "maintain",
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.5861320495605469,
+      "loss": 0.7248304486274719,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06934919208288193,
+      "step": 145,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.2795603275299072,
+      "language_nll": 0.9191199541091919,
+      "loss": 4.39304780960083,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.10076266527175903,
+      "step": 150,
+      "structured_stance_ce": 1.3566409349441528,
+      "target_stance": "maintain",
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.3795321583747864,
+      "loss": 0.5533872842788696,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.08692755550146103,
+      "step": 155,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.6820223331451416,
+      "loss": 0.8151165246963501,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06654708832502365,
+      "step": 160,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "zero_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.8181787729263306,
+      "loss": 0.973639965057373,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07773060351610184,
+      "step": 165,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.728912889957428,
+      "loss": 3.7663869857788086,
+      "question_family": "driving_implication",
+      "ranking_loss": 1.6739126294851303e-05,
+      "relevance_bce": 0.06501125544309616,
+      "step": 170,
+      "structured_stance_ce": 1.4537174701690674,
+      "target_stance": "maintain",
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.41832613945007324,
+      "loss": 0.5556520223617554,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06393756717443466,
+      "step": 175,
+      "structured_stance_ce": 0.004725360777229071,
+      "target_stance": "prepare_to_yield",
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.4149358570575714,
+      "loss": 0.5435530543327332,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06430859863758087,
+      "step": 180,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.4029862582683563,
+      "loss": 0.5603548288345337,
+      "question_family": "task_relevance",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07868427783250809,
+      "step": 185,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.3553042709827423,
+      "loss": 0.47383344173431396,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.00411143247038126,
+      "relevance_bce": 0.05720886215567589,
+      "step": 190,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.22425387799739838,
+      "loss": 0.8091744780540466,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.07321686297655106,
+      "step": 195,
+      "structured_stance_ce": 0.21924343705177307,
+      "target_stance": "caution",
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.236712247133255,
+      "loss": 0.35772958397865295,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06050867214798927,
+      "step": 200,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.269696980714798,
+      "loss": 0.4066261053085327,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.06846456229686737,
+      "step": 205,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.23036512732505798,
+      "language_nll": 0.5133898258209229,
+      "loss": 5.6906232833862305,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.060392431914806366,
+      "step": 210,
+      "structured_stance_ce": 2.2978591918945312,
+      "target_stance": "maintain",
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.3425283133983612,
+      "loss": 0.4657176733016968,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.061594679951667786,
+      "step": 215,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "on_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.18899871408939362,
+      "loss": 0.2984805703163147,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05474092438817024,
+      "step": 220,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "off_path_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.2259596586227417,
+      "loss": 0.3284215033054352,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05123092234134674,
+      "step": 225,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.22017039358615875,
+      "loss": 0.3207901418209076,
+      "question_family": "epistemic_limitation",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05030987411737442,
+      "step": 230,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "observed"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.21231642365455627,
+      "loss": 0.3071801960468292,
+      "question_family": "observation_semantics",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.047431882470846176,
+      "step": 235,
+      "structured_stance_ce": 0.0,
+      "target_stance": null,
+      "variant": "view_shuffled_uq"
+    },
+    {
+      "answer_preference_loss": 0.0,
+      "language_nll": 0.22144384682178497,
+      "loss": 2.3791658878326416,
+      "question_family": "driving_implication",
+      "ranking_loss": 0.0,
+      "relevance_bce": 0.05713175609707832,
+      "step": 240,
+      "structured_stance_ce": 1.0217292308807373,
+      "target_stance": "maintain",
+      "variant": "off_path_uq"
+    }
+  ],
+  "inputs": {
+    "base_orion_checkpoint": {
+      "path": "/public/share/lidachuan/orion_assets/checkpoints/Orion.pth",
+      "sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+    },
+    "launch_amendment": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260829_stage2l_route196_structured_semantic_launch_v2.json",
+      "sha256": "9200b7eaa031f6b3372c3f7533705bb6cb3f1adc29a3caf287796bf61a068792"
+    },
+    "records": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/qa_factory_smokes/route196_dev_smoke_v3/qa_dataset/records.jsonl",
+      "sha256": "256e4706fbc8f3637b85a43a5a3dba9703f6ff74cd285f338fd1c3c96bd97c39"
+    },
+    "training_protocol": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/stage2l_training_v5_structured_semantic_bottleneck.json",
+      "sha256": "6fd48d4b3b446aefe83b9d2fdab7e5dd3db1228a65a145cd24a9f4c80e05c0e5"
+    },
+    "visual_cache": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_v1/orion_visual_context.pt",
+      "sha256": "048e4556ce4f881c49693f1808749006edd45f34cd0d0f2e1579216773a5532d"
+    }
+  },
+  "sampling": {
+    "balance_driving_stances": true,
+    "effective_epoch_record_count": 24,
+    "source_driving_stance_counts": {
+      "caution": 1,
+      "maintain": 3,
+      "prepare_to_yield": 1
+    }
+  },
+  "schema": "orion.stage2l_route196_structured_semantic_smoke.v1",
+  "stage2l_pilot_migration_review_ready": false,
+  "stage2l_pilot_training_ready": false,
+  "stage2p_ready": false,
+  "status": "engineering_structured_semantic_overfit_failed_gate",
+  "steps": 240
+}

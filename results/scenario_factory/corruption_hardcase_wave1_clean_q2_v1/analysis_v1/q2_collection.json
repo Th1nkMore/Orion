@@ -1,0 +1,51 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_q2_collection.v1",
+  "created_at": "2026-09-01T06:02:56+08:00",
+  "status": "q2_collection_complete_one_stable_clean_one_runtime_inconclusive",
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_clean_q2_activation_v1.json",
+    "sha256": "d76e2fa281a67fa425f159b5680eff90ca35566132c16fd7e242b6f919d45c21"
+  },
+  "q1_result": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_clean_q1_result_v1.json",
+    "sha256": "95f12f2888e2d60d99ce943edeee4f9e03692480e17f3106da42025b0ade56c6"
+  },
+  "expected_routes": [158, 185],
+  "routes": [
+    {
+      "route_index": 158,
+      "q1_status": "pass",
+      "q1_report_sha256": "ce6fbbd74fc3ae3d9fae5f6433a6eedc2fe82f9f1ea8958c205d00a5f903086b",
+      "q2_status": "pass",
+      "q2_effective_job_id": 1117849,
+      "q2_report": "results/scenario_factory/corruption_hardcase_wave1_clean_q2_v1/analysis_v1/route158_clean_q2_qualification.json",
+      "q2_report_sha256": "aa07304d0aa36efa161ea750cb4ea2a351dfdb0291e3886c66c5766d57fcf55d",
+      "route_completion_percent": 100.0,
+      "hard_infractions": 0,
+      "longest_low_speed_interval_seconds": 5.100000000000001,
+      "stable_clean_qualified": true
+    },
+    {
+      "route_index": 185,
+      "q1_status": "pass",
+      "q1_report_sha256": "88a73c3c5d1eeb215cd094115dbdc88a8152dc9fd05b349c466829e6fac0b53f",
+      "q2_status": "runtime_inconclusive",
+      "q2_invalid_job_ids": [1117850, 1117862],
+      "q2_runtime_report": "results/scenario_factory/corruption_hardcase_wave1_clean_q2_v1/analysis_v1/route185_clean_q2_runtime_inconclusive.json",
+      "q2_runtime_report_sha256": "189a78849b9d5f84d5c4ebf5d0bef164b5ad34298ae6e84bd625dffc527c7bbe",
+      "stable_clean_qualified": false,
+      "scientific_result": null
+    }
+  ],
+  "stable_clean_routes": [158],
+  "runtime_inconclusive_routes": [185],
+  "clean_rejected_routes": [],
+  "decision": {
+    "corruption_candidate_routes": [158],
+    "route185_corruption_authorized": false,
+    "additional_q2_retry_authorized": false,
+    "corruption_submission_automatically_authorized": false,
+    "required_before_corruption": "Freeze a prospective corruption activation binding Route158, the three user-approved severity profiles, fixed event windows, and exact job/resource settings."
+  },
+  "claim_boundary": "Stable-clean qualification for Route158 only. Route185 is runtime inconclusive, not a model pass or failure. No corruption, UQ, control, held-out, or benchmark benefit is claimed."
+}

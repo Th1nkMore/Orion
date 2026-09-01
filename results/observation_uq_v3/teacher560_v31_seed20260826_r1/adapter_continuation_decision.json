@@ -1,0 +1,59 @@
+{
+  "actual_target_training_authorized": false,
+  "adapter_authorized_by_config": true,
+  "checks": [
+    {
+      "metric": "corruption_mask_patch_auroc_diagnostic_only",
+      "passed": false,
+      "split": "validation_heldout_family",
+      "threshold": 0.55,
+      "value": 0.43148394944258245
+    },
+    {
+      "family": "local_glare",
+      "metric": "teacher_score_uplift_over_clean",
+      "passed": false,
+      "split": "validation_heldout_family",
+      "threshold": 0.005,
+      "value": 0.0005244612693786621
+    },
+    {
+      "family": "local_glare",
+      "metric": "severity_teacher_score_spearman",
+      "passed": false,
+      "split": "validation_heldout_family",
+      "threshold": 0.1,
+      "value": 0.06206785514950752
+    },
+    {
+      "metric": "corruption_mask_patch_auroc_diagnostic_only",
+      "passed": false,
+      "split": "heldout_route_and_family",
+      "threshold": 0.55,
+      "value": 0.3702387040826166
+    },
+    {
+      "family": "local_glare",
+      "metric": "teacher_score_uplift_over_clean",
+      "passed": false,
+      "split": "heldout_route_and_family",
+      "threshold": 0.005,
+      "value": 0.000818789005279541
+    },
+    {
+      "family": "local_glare",
+      "metric": "severity_teacher_score_spearman",
+      "passed": false,
+      "split": "heldout_route_and_family",
+      "threshold": 0.1,
+      "value": 0.04659264162182808
+    }
+  ],
+  "config": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/observation_uq_teacher560_v31_seed20260826_r1/continue_adapter_on_pass.json",
+  "config_sha256": "609189a3b3a486785426f5420604ea90e96dc885719528edd2ef63c01dbe6695",
+  "passed": false,
+  "policy": "all pre-registered development checks must pass",
+  "schema_version": "orion.observation-uq-continuation-decision/v3.1",
+  "stage_b_authorized": false,
+  "teacher_checkpoint": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/observation_uq_teacher560_v31_seed20260826_r1/teacher_v31.pt"
+}

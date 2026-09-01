@@ -1,0 +1,70 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_q2_submission_amendment.v1",
+  "created_at": "2026-09-01T05:08:59+08:00",
+  "status": "two_exact_clean_repeats_submitted",
+  "preregistration": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_clean_q2_submission_prereg_v1.json",
+    "sha256": "ee20f4581d1c24264e50aae9854b9ea5eae134214b82a7e94e2c366b1479a9e4"
+  },
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_clean_q2_activation_v1.json",
+    "sha256": "d76e2fa281a67fa425f159b5680eff90ca35566132c16fd7e242b6f919d45c21"
+  },
+  "q1_result": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_clean_q1_result_v1.json",
+    "sha256": "95f12f2888e2d60d99ce943edeee4f9e03692480e17f3106da42025b0ade56c6"
+  },
+  "validated_plan": {
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_wave1_clean_q2_v1/plan.json",
+    "local_path": "results/scenario_factory/submissions/corruption_hardcase_wave1_clean_q2_v1/plan.json",
+    "sha256": "53211278541851a6cf3e5ed06fa2fbe6ec33c1eb043e234a7fd321fd8bca7f24"
+  },
+  "submission": {
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_wave1_clean_q2_v1/submission.json",
+    "local_path": "results/scenario_factory/submissions/corruption_hardcase_wave1_clean_q2_v1/submission.json",
+    "sha256": "6c4086afb167cc7ce12bd25011fc08131311c69371733abd07d5e7f7c495f1d0"
+  },
+  "submitted_jobs": [
+    {
+      "route_index": 158,
+      "condition": "clean_off",
+      "qualification_phase": "q2",
+      "job_id": 1117849,
+      "initial_state": "PENDING",
+      "initial_reason": "Priority"
+    },
+    {
+      "route_index": 185,
+      "condition": "clean_off",
+      "qualification_phase": "q2",
+      "job_id": 1117850,
+      "initial_state": "PENDING",
+      "initial_reason": "Priority"
+    }
+  ],
+  "resource_contract": {
+    "partition": "Nvidia_A800",
+    "gpus_per_job": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "02:00:00",
+    "excluded_nodes": ["gpu2", "gpu5"]
+  },
+  "scientific_contract": {
+    "orion_model": "frozen_native",
+    "condition": "clean_off",
+    "density_uq": false,
+    "legacy_governor": false,
+    "stage2_control": false,
+    "qualification_rule": "A route is stable-clean qualified only if both its Q1 and Q2 clean runs independently pass the frozen evaluator.",
+    "runtime_failure_rule": "A runtime environment failure is excluded scientifically and may receive only a prospectively recorded exact replacement.",
+    "liveness_rule": "The preregistered continuous low-speed fast-screen remains active."
+  },
+  "automatic_scope_locks": {
+    "corruption": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "This amendment records submission only. It contains no stable-clean, corruption, uncertainty, or safety-benefit result."
+}

@@ -1,0 +1,101 @@
+{
+  "gate": {
+    "checks": [
+      {
+        "metric": "minimum_component_spearman",
+        "passed": false,
+        "threshold": 0.85,
+        "value": 0.5537194609642029
+      },
+      {
+        "metric": "combined_spearman",
+        "passed": false,
+        "threshold": 0.9,
+        "value": 0.6995534300804138
+      },
+      {
+        "metric": "combined_original_top20_auroc",
+        "passed": true,
+        "threshold": 0.95,
+        "value": 0.9994530428366555
+      },
+      {
+        "metric": "median_record_within_view_spearman",
+        "passed": true,
+        "threshold": 0.9,
+        "value": 0.9686890840530396
+      },
+      {
+        "metric": "median_record_within_view_original_top20_auroc",
+        "passed": true,
+        "threshold": 0.95,
+        "value": 0.9977197051048279
+      }
+    ],
+    "passed": false
+  },
+  "inputs": {
+    "config_sha256": "2e4f16f095e29c48e53217bec0d8ad04e0654bf5d80cb8b9acc9ef392862717f",
+    "feature_shard_sha256": "d53ab9b7acc91b89cb061ce1ec880d05b390675f29c515337bcffceda3143499"
+  },
+  "metrics": {
+    "combined_original_top20_auroc": 0.9994530428366555,
+    "combined_spearman": 0.6995534300804138,
+    "components": {
+      "persistent_direction": {
+        "mean_ratio": 1.0040963888168335,
+        "original_top20_auroc": 0.999929314873203,
+        "spearman": 0.5537194609642029
+      },
+      "persistent_magnitude": {
+        "mean_ratio": 1.0092564821243286,
+        "original_top20_auroc": 0.9971993555927421,
+        "spearman": 0.9988055229187012
+      },
+      "transient_inconsistency": {
+        "mean_ratio": 1.0105321407318115,
+        "original_top20_auroc": 0.9981529712643246,
+        "spearman": 0.9985532760620117
+      }
+    },
+    "median_record_within_view_original_top20_auroc": 0.9977197051048279,
+    "median_record_within_view_spearman": 0.9686890840530396,
+    "minimum_component_spearman": 0.5537194609642029
+  },
+  "projection": {
+    "fit_to_data": false,
+    "input_dim": 1024,
+    "kind": "frozen_rademacher_johnson_lindenstrauss",
+    "matrix_sha256": "e1bd22b6bb327dfc10628f10bfd203337d9c196f9083197b3a2320c06fb755b0",
+    "output_dim": 128,
+    "output_dtype": "float16",
+    "patch_batch_size": 65536,
+    "schema_version": "orion.counterfactual-compact-projection/v1",
+    "seed": 20260827,
+    "spatial_grid": [
+      40,
+      40
+    ]
+  },
+  "sample_counts": {
+    "route_conditions": 160,
+    "routes": 40,
+    "stable": 160,
+    "total": 320,
+    "train": 280,
+    "transition": 160,
+    "validation": 40
+  },
+  "schema_version": "orion.counterfactual-compact-projection-audit/v1",
+  "scope_attestation": {
+    "actual_target_read": false,
+    "corruption_mask_read": false,
+    "heldout_glare_evaluated": false,
+    "native_weather_evaluated": false,
+    "optimizer_steps": 0,
+    "orion_finetuning": false,
+    "output_feature_shard_written": false,
+    "spatial_grid_changed": false,
+    "stage_b": false
+  }
+}

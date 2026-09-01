@@ -1,0 +1,50 @@
+{
+  "checkpoint": {
+    "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/stage2l_smokes/route151_v7_calibrated_v1_20/training/stage2l_v7_route151_smoke.pt",
+    "sha256": "84114b33f5e9d1851167d279e92277d3b123b3eb615d9a0a954f7f429be4b624"
+  },
+  "checks": {
+    "all_groups_attain_oracle_fraction": false,
+    "all_groups_positive_on_off_order": true,
+    "all_stance_classes_recalled": false,
+    "all_stance_variants_correct": false,
+    "diagnostic_driving_targets_excluded": true,
+    "exactly_one_optimizer_step_per_complete_group": true,
+    "generated_driving_stances_agree": false,
+    "generated_driving_stances_parse": false,
+    "generated_family_tags_match": false,
+    "generated_text_nonrepeating": false,
+    "language_nll_decreases": true,
+    "minimum_stance_target_probability": false,
+    "relevance_background_fpr": false,
+    "relevance_foreground_recall": true,
+    "same_family_preference_improves_and_gte_0_8": false,
+    "trajectory_and_control_remain_disabled": true
+  },
+  "claim_boundary": "Independent Route151 v7 engineering-smoke integrity and gate validation only; no held-out, trajectory, closed-loop, generalization or safety evidence.",
+  "failed_checks": [
+    "all_groups_attain_oracle_fraction",
+    "all_stance_classes_recalled",
+    "all_stance_variants_correct",
+    "generated_driving_stances_agree",
+    "generated_driving_stances_parse",
+    "generated_family_tags_match",
+    "generated_text_nonrepeating",
+    "minimum_stance_target_probability",
+    "relevance_background_fpr",
+    "same_family_preference_improves_and_gte_0_8"
+  ],
+  "integrity_valid": true,
+  "next_action": "keep pilot locked and diagnose the failed v7 semantic gates",
+  "report": {
+    "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/stage2l_smokes/route151_v7_calibrated_v1_20/training/report.json",
+    "sha256": "18e05deb9cc7c2002cd20ffc864c87e2636ab558dc50c23d60fb359def27e790"
+  },
+  "schema": "orion.stage2l_v7_route151_independent_validation.v1",
+  "smoke_passed": false,
+  "status": "validated_failed_gate",
+  "submission_attestation": {
+    "path": "/Users/th1nkmore/th1nkmore_ws/Orion/results/scenario_factory/stage2l_smokes/route151_v7_calibrated_v1_20/submission_attestation.json",
+    "sha256": "2e3416179f13e7b06370ee3258ed3b228b954acff8970712094179b6e2657d91"
+  }
+}

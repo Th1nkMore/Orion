@@ -1,0 +1,235 @@
+{
+  "best_epoch": 1,
+  "best_route_validation_total": 1.0474660769104958,
+  "completed_epochs": 1,
+  "component_scales": {
+    "persistent_direction": 0.4742482006549835,
+    "persistent_magnitude": 0.2956540882587433,
+    "transient_inconsistency": 0.43105176091194153
+  },
+  "early_stopped": false,
+  "family_uplifts_over_reference": {
+    "local_blur": 0.010503143072128296,
+    "local_dark": 0.008776485919952393
+  },
+  "gate": {
+    "checks": [
+      {
+        "metric": "combined_patch_spearman",
+        "passed": false,
+        "threshold": 0.1,
+        "value": 0.07756920903921127
+      },
+      {
+        "metric": "combined_target_top20_auroc",
+        "passed": true,
+        "threshold": 0.6,
+        "value": 0.7237311567139658
+      },
+      {
+        "metric": "median_record_within_intervened_view_target_top20_auroc",
+        "passed": true,
+        "threshold": 0.55,
+        "value": 0.685534656047821
+      },
+      {
+        "metric": "component_spearman_pass_count",
+        "passed": true,
+        "threshold": 2.0,
+        "value": 2.0
+      },
+      {
+        "metric": "minimum_train_family_uplift",
+        "passed": true,
+        "threshold": 0.005,
+        "value": 0.008776485919952393
+      },
+      {
+        "metric": "high_support_presence_auroc_pass_count",
+        "passed": true,
+        "threshold": 2.0,
+        "value": 3.0
+      },
+      {
+        "comparison": "<=",
+        "metric": "route_validation_ranking_loss",
+        "passed": true,
+        "threshold": 0.095,
+        "value": 0.05205943705514073
+      },
+      {
+        "comparison": "<=",
+        "metric": "reference_prediction_p95",
+        "passed": false,
+        "threshold": 0.2,
+        "value": 0.5077413320541382
+      }
+    ],
+    "passed": false
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "route_validation": {
+        "magnitude": 0.057795765716582535,
+        "presence": 0.6314069427549839,
+        "ranking": 0.05205943705514073,
+        "reference_presence": 0.6734101511538029,
+        "reference_score": 0.017086862778523938,
+        "total": 1.0474660769104958
+      },
+      "train": {
+        "magnitude": 0.06174766047458564,
+        "presence": 0.7098204387085778,
+        "ranking": 0.08411828722538693,
+        "reference_presence": 0.34736980368782366,
+        "reference_score": 0.003041324811368083,
+        "total": 0.9678032383322716
+      }
+    }
+  ],
+  "hurdle_diagnostics": {
+    "components": {
+      "persistent_direction": {
+        "background_presence_mean": 0.4084281325340271,
+        "presence_auroc": 0.7724826553827107,
+        "responsive_conditional_magnitude_mae": 0.5187780261039734,
+        "responsive_presence_mean": 0.6894031763076782
+      },
+      "persistent_magnitude": {
+        "background_presence_mean": 0.4293452799320221,
+        "presence_auroc": 0.7232317477550755,
+        "responsive_conditional_magnitude_mae": 0.582965612411499,
+        "responsive_presence_mean": 0.6414961218833923
+      },
+      "transient_inconsistency": {
+        "background_presence_mean": 0.43610402941703796,
+        "presence_auroc": 0.7095130604375995,
+        "responsive_conditional_magnitude_mae": 0.47475507855415344,
+        "responsive_presence_mean": 0.6266533732414246
+      }
+    },
+    "corruption_mask_read": false,
+    "reference_presence_mean": 0.4179767668247223,
+    "reference_presence_p95": 0.8590299487113953,
+    "support_definition": "target > frozen train-responsive q80 per component",
+    "support_thresholds": {
+      "persistent_direction": 0.08465629070997238,
+      "persistent_magnitude": 0.17118555307388306,
+      "transient_inconsistency": 0.1837892383337021
+    }
+  },
+  "inputs": {
+    "config_sha256": "f9e884f9365d8ccd9c72a6c05aa9b9eb1e7ce7bb49819a378a0355dd43def448",
+    "feature_shard_sha256": "d53ab9b7acc91b89cb061ce1ec880d05b390675f29c515337bcffceda3143499",
+    "spatial_audit_sha256": "c3bf88254b2dc61b6ab08b6622acb6a6e3b1fd0e324be45d25f27eed0afdff81",
+    "target_audit_sha256": "83715249c5ab5de24e8e83e8fd7166a13c5f7ef8cf8d0cd3cf0645a3b56a2fae"
+  },
+  "route_validation": {
+    "by_family": {
+      "local_blur": {
+        "score_mean": 0.16668923199176788,
+        "severity_score_spearman": 0.1829514354467392,
+        "severity_target_spearman": 0.8660423159599304,
+        "target_mean": 0.0284959115087986
+      },
+      "local_dark": {
+        "score_mean": 0.16496257483959198,
+        "severity_score_spearman": 0.12990634143352509,
+        "severity_target_spearman": 0.8657717108726501,
+        "target_mean": 0.030575677752494812
+      }
+    },
+    "by_family_severity": {
+      "local_blur/severity_1": {
+        "record_count": 80,
+        "score_mean": 0.15755504369735718,
+        "target_mean": 0.008616059087216854
+      },
+      "local_blur/severity_3": {
+        "record_count": 80,
+        "score_mean": 0.175823375582695,
+        "target_mean": 0.04837576299905777
+      },
+      "local_dark/severity_1": {
+        "record_count": 80,
+        "score_mean": 0.15955671668052673,
+        "target_mean": 0.013224700465798378
+      },
+      "local_dark/severity_3": {
+        "record_count": 80,
+        "score_mean": 0.17036843299865723,
+        "target_mean": 0.047926656901836395
+      }
+    },
+    "by_route": {
+      "v1/CrossingBicycleFlow_Town12_Route977_Weather15": {
+        "median_within_intervened_view_patch_spearman": 0.38368141651153564,
+        "median_within_intervened_view_target_top20_auroc": 0.685534656047821,
+        "patch_spearman": 0.06362725794315338,
+        "target_top20_auroc": 0.7343729170096971
+      },
+      "v1/HighwayExit_Town06_Route312_Weather0": {
+        "median_within_intervened_view_patch_spearman": 0.3953571021556854,
+        "median_within_intervened_view_target_top20_auroc": 0.7049926519393921,
+        "patch_spearman": 0.09005949646234512,
+        "target_top20_auroc": 0.7636332320799306
+      },
+      "v1/ParkedObstacle_Town10HD_Route372_Weather8": {
+        "median_within_intervened_view_patch_spearman": 0.3624316155910492,
+        "median_within_intervened_view_target_top20_auroc": 0.6983642578125,
+        "patch_spearman": 0.1412244439125061,
+        "target_top20_auroc": 0.7907339732978615
+      },
+      "v1/PedestrianCrossing_Town13_Route747_Weather19": {
+        "median_within_intervened_view_patch_spearman": 0.3533251881599426,
+        "median_within_intervened_view_target_top20_auroc": 0.6970043778419495,
+        "patch_spearman": 0.09707971662282944,
+        "target_top20_auroc": 0.7438308807448656
+      },
+      "v1/VanillaSignalizedTurnEncounterRedLight_Town07_Route359_Weather21": {
+        "median_within_intervened_view_patch_spearman": 0.20780034363269806,
+        "median_within_intervened_view_target_top20_auroc": 0.6218896508216858,
+        "patch_spearman": 0.01861639693379402,
+        "target_top20_auroc": 0.6333482597375475
+      }
+    },
+    "combined_patch_spearman": 0.07756920903921127,
+    "combined_target_top20_auroc": 0.7237311567139658,
+    "components": {
+      "persistent_direction": {
+        "mae": 0.16494835913181305,
+        "patch_spearman": 0.07396519929170609
+      },
+      "persistent_magnitude": {
+        "mae": 0.17697158455848694,
+        "patch_spearman": 0.10351673513650894
+      },
+      "transient_inconsistency": {
+        "mae": 0.1730092316865921,
+        "patch_spearman": 0.10415526479482651
+      }
+    },
+    "corruption_mask_read_for_metrics": false,
+    "median_record_within_intervened_view_target_top20_auroc": 0.685534656047821,
+    "median_route_target_top20_auroc": 0.7438308596611023,
+    "median_route_within_intervened_view_target_top20_auroc": 0.6970043778419495,
+    "record_count": 320,
+    "reference_prediction_mean": 0.1561860889196396,
+    "reference_prediction_p95": 0.5077413320541382,
+    "target_top20_definition": "top 20% of measured intervention-responsive combined targets; unchanged cells remain negatives",
+    "within_intervened_view_definition": "view selected by maximum measured persistent direction-plus-magnitude target mass; transient response, corruption mask, and intervention metadata are not used for view selection"
+  },
+  "schema_version": "orion.counterfactual-evidence-high-support-hurdle-smoke-report/v1",
+  "scope_attestation": {
+    "actual_target_optimizer_weight": 0.0,
+    "automatic_full_training": false,
+    "corruption_mask_optimizer_weight": 0.0,
+    "exact_nonzero_presence_label": false,
+    "heldout_glare_read": false,
+    "native_fog_read": false,
+    "orion_finetuning": false,
+    "stage_b": false,
+    "support_supervision": "frozen train-responsive q80 per component"
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "claim_boundary": "Fixed-offset temporal sampling for Stage2-L QA construction only; keyframe selection is not learned-UQ or closed-loop evidence.",
+  "critical_event_center": {
+    "actor_id": 110,
+    "control_step": 230,
+    "sim_time_seconds": 11.5
+  },
+  "event_id": "route195_step230",
+  "keyframes": [
+    {
+      "critical_actor_snapshot": {
+        "actor_id": 110,
+        "obb_separating_axis_gap_m": null,
+        "obb_ttc_seconds": null,
+        "present": false
+      },
+      "requested_offset_seconds": -2.0,
+      "requested_sim_time_seconds": 9.5,
+      "route_progress": 0.36431223791689293,
+      "selected_control_step": 190,
+      "selected_saved_frame_index": 19,
+      "selected_sim_time_seconds": 9.5,
+      "selection_time_error_seconds": 0.0,
+      "speed_mps": 1.6705853837638749
+    },
+    {
+      "critical_actor_snapshot": {
+        "actor_id": 110,
+        "obb_separating_axis_gap_m": null,
+        "obb_ttc_seconds": null,
+        "present": false
+      },
+      "requested_offset_seconds": -1.0,
+      "requested_sim_time_seconds": 10.5,
+      "route_progress": 0.4021583162660566,
+      "selected_control_step": 210,
+      "selected_saved_frame_index": 21,
+      "selected_sim_time_seconds": 10.5,
+      "selection_time_error_seconds": 0.0,
+      "speed_mps": 4.793703755938747
+    },
+    {
+      "critical_actor_snapshot": {
+        "actor_id": 110,
+        "obb_separating_axis_gap_m": 23.90183543884767,
+        "obb_ttc_seconds": 1.6552124302146025,
+        "present": true
+      },
+      "requested_offset_seconds": 0.0,
+      "requested_sim_time_seconds": 11.5,
+      "route_progress": 0.4571617207492187,
+      "selected_control_step": 230,
+      "selected_saved_frame_index": 23,
+      "selected_sim_time_seconds": 11.5,
+      "selection_time_error_seconds": 0.0,
+      "speed_mps": 3.6417443538304384
+    },
+    {
+      "critical_actor_snapshot": {
+        "actor_id": 110,
+        "obb_separating_axis_gap_m": 7.7352261668513,
+        "obb_ttc_seconds": null,
+        "present": true
+      },
+      "requested_offset_seconds": 1.0,
+      "requested_sim_time_seconds": 12.5,
+      "route_progress": 0.4746837381233463,
+      "selected_control_step": 250,
+      "selected_saved_frame_index": 25,
+      "selected_sim_time_seconds": 12.5,
+      "selection_time_error_seconds": 0.0,
+      "speed_mps": 1.4519065328860266
+    },
+    {
+      "critical_actor_snapshot": {
+        "actor_id": 110,
+        "obb_separating_axis_gap_m": 6.5153724828704895,
+        "obb_ttc_seconds": null,
+        "present": true
+      },
+      "requested_offset_seconds": 2.0,
+      "requested_sim_time_seconds": 13.5,
+      "route_progress": 0.5150690761735468,
+      "selected_control_step": 270,
+      "selected_saved_frame_index": 27,
+      "selected_sim_time_seconds": 13.5,
+      "selection_time_error_seconds": 0.0,
+      "speed_mps": 4.873112571119
+    }
+  ],
+  "provenance": {
+    "control_trace": {
+      "path": "/public/share/lidachuan/orion_assets/results/stage2l_formal24_dev_wave0_20260829/route195_hazard_clean_off-1094361/records_orion_traj_0/RouteScenario_26950_rep0_Town03_OppositeVehicleRunningRedLight_1_19_08_29_20_05_47/control_trace.jsonl",
+      "sha256": "da89640129beaad557593de5b42e5ed5afa55b92940010c0a02510bba89e98d1"
+    },
+    "event_package": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route195/event_package.json",
+      "sha256": "e4fa058a0c7f0e954a9cb03f12340df9b9807b65e14ac26d23d8beda6adf2274"
+    }
+  },
+  "route_index": 195,
+  "schema": "orion.scenario_event_keyframes.v1",
+  "selection_policy": {
+    "distinct_frames_required": true,
+    "nearest_aligned_saved_frame": true,
+    "offsets_seconds": [
+      -2.0,
+      -1.0,
+      0.0,
+      1.0,
+      2.0
+    ],
+    "policy_id": "fixed_offsets_around_actor_grounded_event_v1",
+    "uses_closed_loop_improvement": false,
+    "uses_learned_uq": false,
+    "uses_qa_answers": false,
+    "uses_stage2_outputs": false
+  },
+  "status": "fixed_temporal_keyframes_selected"
+}

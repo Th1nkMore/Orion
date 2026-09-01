@@ -1,0 +1,36 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_route185_clean_q2_runtime_retry_submission_amendment.v1",
+  "created_at": "2026-09-01T05:26:42+08:00",
+  "status": "single_exact_runtime_replacement_submitted",
+  "preregistration": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_route185_clean_q2_runtime_retry_prereg_v1.json",
+    "sha256": "0d7a11f5cf59c277a33584c9871f8b7959041705afc44ee59580122baf2044ab"
+  },
+  "invalid_attempt": {
+    "job_id": 1117850,
+    "classification": "runtime_environment_invalid",
+    "scientific_use": "excluded"
+  },
+  "replacement": {
+    "job_id": 1117862,
+    "route_index": 185,
+    "phase": "q2",
+    "condition": "clean_off",
+    "initial_state": "PENDING",
+    "initial_reason": "Priority",
+    "node_exclusions": ["gpu1", "gpu2", "gpu5"]
+  },
+  "submission": {
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_wave1_clean_q2_v1/route185_runtime_retry1_submission.json",
+    "local_path": "results/scenario_factory/submissions/corruption_hardcase_wave1_clean_q2_v1/route185_runtime_retry1_submission.json",
+    "sha256": "1b27aa37beb3951ab688ab064fc65f397f3460de51ef4c5cf89720d71e8462b5"
+  },
+  "automatic_scope_locks": {
+    "additional_runtime_replacement": false,
+    "corruption": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Submission record only. The replacement has no scientific status until it reaches a valid terminal Q2 result and passes the frozen evaluator."
+}

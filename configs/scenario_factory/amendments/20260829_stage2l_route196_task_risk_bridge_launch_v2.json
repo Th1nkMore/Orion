@@ -1,0 +1,40 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T20:35:26+08:00",
+  "status": "prepared_validated_not_active_task_risk_bridge_smoke",
+  "supersedes_prepared_amendment": {
+    "path": "configs/scenario_factory/amendments/20260829_stage2l_route196_task_risk_bridge_launch_v1.json",
+    "sha256": "95aeef8cd9894d0a4e9fcd18639ef1b7ace2073f7e4d28de3da1639a16adea64",
+    "reason": "The pure two-pass runtime contract and its tests were added after v1; v1 remains an immutable preparation record."
+  },
+  "validated_inputs": {
+    "training_protocol_sha256": "693a89707008a95958e683e420e56abd781203b1b2cf84469b0e14e94e5089b1",
+    "trainer_sha256": "defca776603dd528ac52ef2fecce9e76e5f36e13d440bdfb8ed42f5681b6960d",
+    "uq_relevance_bridge_sha256": "2e04bbfdf7fc9fd20ab4c1d8cf6fd8f02c655f350d33599e80c8d92a6d858be7",
+    "two_pass_runtime_sha256": "30533e5f8683cf0d10491a3eaacc65820a864f2aa43a3a7eade1aafcab9d53c1",
+    "uq_relevance_tests_sha256": "ec7cf40121145f82672ca80c5d3cff8bf58b672ed087f8a25d758367fdf408af",
+    "two_pass_runtime_tests_sha256": "75d9db89ef0c92eefcbe5103a0871abad32ac232b8c8c876d57dc3b226d41a6b",
+    "unit_tests": "16 passed",
+    "interface_contracts": [
+      "expanded relevance-query hidden span is exact",
+      "language pass concatenates ORION + 600 UQ + 7 K bridge tokens",
+      "zero-U conditioning is exactly invariant to R",
+      "zero-U bridge backward gradients are finite"
+    ],
+    "inactive_launch_preflight": "rejected before CUDA/model load and created no output"
+  },
+  "authorized_run": {
+    "event_id": "route196_step313",
+    "maximum_submissions": 0,
+    "maximum_steps": 240,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_task_risk_bridge_v1_240"
+  },
+  "launch_locks": {
+    "route196_task_risk_bridge_smoke_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "activation_requirement": "Perform one read-only code/protocol audit, then create a new immutable active single-run amendment if and only if the architecture boundary remains correct. Do not edit this prepared record in place.",
+  "claim_boundary": "Validated preparation record only; it does not authorize a GPU run."
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "orion.scenario_factory.postprocess_amendment.v1",
+  "created_at": "2026-08-31T05:19:09+08:00",
+  "run_id": "stage2l_formal24_dev_wave3_route201_retry1_20260831",
+  "scope": "technical postprocessing resource repair only",
+  "trigger": {
+    "dependency_jobs": [1107312],
+    "original_finalize_job_id": 1107313,
+    "original_review_job_id": 1107314,
+    "scheduler_condition": "zero-GRES jobs on Nvidia_A800 would become QOSMinGRES after dependencies",
+    "model_or_safety_outcomes_used": false
+  },
+  "action": {
+    "original_pending_jobs_cancelled": [1107313, 1107314],
+    "replacement_finalize_job_id": 1107331,
+    "replacement_finalize_dependency": "afterany:1107312",
+    "replacement_review_job_id": 1107332,
+    "replacement_review_dependency": "afterok:1107331",
+    "partition": "Nvidia_A800",
+    "gres": "gpu:1",
+    "resource_note": "GPU allocation only satisfies QOS; packaging remains CPU-only."
+  },
+  "retry_guard": {
+    "this_is_not_a_second_route_retry": true,
+    "additional_route_retry_authorized": false
+  },
+  "claim_boundary": "Scheduler repair only; no Route201 model or safety conclusion is created."
+}

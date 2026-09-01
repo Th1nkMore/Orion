@@ -1,0 +1,332 @@
+{
+  "claim_boundary": "One-event engineering failure diagnosis only; no held-out, generalization, trajectory, closed-loop, or safety evidence.",
+  "decision": {
+    "next_architecture": "Keep Stage1 U frozen and task agnostic. Let the VLM predict explicit categorical semantic fields and the dense R map; render QA text deterministically from those predicted fields for the next learnability test. Free-form explanation remains auxiliary until field accuracy passes.",
+    "retry_or_epoch_extension_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "failed_check_count": 10,
+  "failed_checks": [
+    "all_groups_attain_oracle_fraction",
+    "all_stance_classes_recalled",
+    "all_stance_variants_correct",
+    "generated_semantic_answers_exact",
+    "generated_semantic_fields_correct",
+    "generated_semantics_parse",
+    "generated_text_nonrepeating",
+    "minimum_stance_target_probability",
+    "relevance_background_fpr",
+    "same_family_preference_improves_and_gte_0_8"
+  ],
+  "findings": {
+    "capacity_interpretation": {
+      "capacity_sufficiency_proven": false,
+      "insufficient_parameter_count_supported": false,
+      "reason": "R ranking, relevance recall, stance balanced accuracy, and teacher-forced NLL all improved substantially with 23.64M saved trainable parameters. The evidence instead points first to objective interference, sparse caution supervision, an inconsistent zero-UQ semantic contract, and unconstrained autoregressive field generation."
+    },
+    "label_contract": {
+      "hard_language_by_family": {
+        "driving_implication": 15,
+        "epistemic_limitation": 25,
+        "observation_semantics": 25,
+        "task_relevance": 25
+      },
+      "hard_language_by_variant": {
+        "observed": 15,
+        "off_path_uq": 20,
+        "on_path_uq": 20,
+        "view_shuffled_uq": 15,
+        "zero_uq": 20
+      },
+      "hard_language_record_count": 90,
+      "interpretation": "Zero-UQ examples use argmax placeholder locations and still label evidence as unreliable/hidden content as unknown. These are not valid semantic targets for demonstrating that the VLM understands absence of flagged observation uncertainty.",
+      "semantic_contract_self_consistent": false,
+      "zero_uq_epistemic_answers_claiming_unreliable_unknown": 5,
+      "zero_uq_group_count": 5,
+      "zero_uq_hard_record_count": 20,
+      "zero_uq_records_with_arbitrary_non_none_location": 20,
+      "zero_uq_task_risk_answers_with_arbitrary_non_none_location": 5
+    },
+    "language_result": {
+      "free_generation_semantics_learned": false,
+      "interpretation": "The aligned teacher-forced objective became much easier, but greedy generation learned no parseable semantic fields. This is a real autoregressive semantic/decoding failure, not a prompt-prefix or label-mask bug.",
+      "nonrepeating_text_fraction": 0.3333333333333333,
+      "prompt_or_label_alignment_failure": false,
+      "same_family_margin_pass_before_after": [
+        0.1320754716981132,
+        0.49056603773584906
+      ],
+      "semantic_answer_exact_match": 0.0,
+      "semantic_field_accuracy": 0.0,
+      "semantic_parse_rate": 0.0,
+      "teacher_forced_target_nll_before_after": [
+        14.537868075900608,
+        1.5508202678627439
+      ]
+    },
+    "partial_structural_learnability": {
+      "background_false_positive_rate": 0.1623908281326294,
+      "foreground_recall": 1.0,
+      "minimum_attained_fraction": 0.37988683581352234,
+      "minimum_stance_target_probability": 0.11501605808734894,
+      "positive_order_fraction": 1.0,
+      "ranking_group_count": 5,
+      "ranking_groups_at_or_above_0_8": 4,
+      "stance_balanced_accuracy_before_after": [
+        0.3333333333333333,
+        0.8333333333333334
+      ],
+      "stance_class_recall": {
+        "caution": 0.5,
+        "maintain": 1.0,
+        "prepare_to_yield": 1.0
+      }
+    },
+    "runtime_integrity_and_checkpoint": {
+      "all_saved_tensors_finite": true,
+      "independent_integrity_valid": true,
+      "optimizer_steps": 60,
+      "runtime_or_oom_failure": false,
+      "saved_trainable_parameters": 23640360
+    }
+  },
+  "group_trajectories": {
+    "route151_step218_saved_0018": {
+      "first_to_last": {
+        "attained_fraction": [
+          0.014785242266952991,
+          1.0561436414718628
+        ],
+        "language_nll": [
+          8.696052074432373,
+          1.8441159394052293
+        ],
+        "ranking_loss": [
+          0.7852147817611694,
+          0.0
+        ],
+        "relevance_loss": [
+          0.05370152369141579,
+          0.018139949068427086
+        ],
+        "stance_loss": [
+          0.9843605756759644,
+          0.09354593604803085
+        ]
+      },
+      "optimizer_steps": [
+        5,
+        6,
+        15,
+        20,
+        24,
+        27,
+        31,
+        38,
+        44,
+        50,
+        53,
+        57
+      ],
+      "visit_count": 12,
+      "within_group_regression_observed": {
+        "attained_fraction": true,
+        "relevance_loss": true,
+        "stance_loss": true
+      }
+    },
+    "route151_step218_saved_0020": {
+      "first_to_last": {
+        "attained_fraction": [
+          0.006250093225389719,
+          0.7103568911552429
+        ],
+        "language_nll": [
+          9.159761958652073,
+          1.7315213746494718
+        ],
+        "ranking_loss": [
+          0.7937499284744263,
+          0.08964312076568604
+        ],
+        "relevance_loss": [
+          0.04265191778540611,
+          0.01709926873445511
+        ],
+        "stance_loss": [
+          1.0451934337615967,
+          0.1401473730802536
+        ]
+      },
+      "optimizer_steps": [
+        4,
+        8,
+        12,
+        19,
+        22,
+        30,
+        34,
+        37,
+        45,
+        49,
+        51,
+        59
+      ],
+      "visit_count": 12,
+      "within_group_regression_observed": {
+        "attained_fraction": true,
+        "relevance_loss": true,
+        "stance_loss": true
+      }
+    },
+    "route151_step218_saved_0022": {
+      "first_to_last": {
+        "attained_fraction": [
+          -0.4384727478027344,
+          1.039901852607727
+        ],
+        "language_nll": [
+          14.99833493762546,
+          1.662757972876231
+        ],
+        "ranking_loss": [
+          1.2384727001190186,
+          0.0
+        ],
+        "relevance_loss": [
+          0.2454022765159607,
+          0.012459736317396164
+        ],
+        "stance_loss": [
+          1.3047598600387573,
+          1.8513621091842651
+        ]
+      },
+      "optimizer_steps": [
+        1,
+        10,
+        11,
+        16,
+        23,
+        29,
+        32,
+        39,
+        41,
+        47,
+        52,
+        60
+      ],
+      "visit_count": 12,
+      "within_group_regression_observed": {
+        "attained_fraction": true,
+        "relevance_loss": true,
+        "stance_loss": true
+      }
+    },
+    "route151_step218_saved_0024": {
+      "first_to_last": {
+        "attained_fraction": [
+          0.024951808154582977,
+          0.8649351000785828
+        ],
+        "language_nll": [
+          9.712583382924398,
+          1.8631767266326482
+        ],
+        "ranking_loss": [
+          0.7750481963157654,
+          0.0
+        ],
+        "relevance_loss": [
+          0.06344294548034668,
+          0.02649582177400589
+        ],
+        "stance_loss": [
+          1.2553761005401611,
+          0.06486934423446655
+        ]
+      },
+      "optimizer_steps": [
+        3,
+        9,
+        13,
+        18,
+        21,
+        28,
+        35,
+        40,
+        43,
+        46,
+        54,
+        58
+      ],
+      "visit_count": 12,
+      "within_group_regression_observed": {
+        "attained_fraction": true,
+        "relevance_loss": true,
+        "stance_loss": true
+      }
+    },
+    "route151_step218_saved_0026": {
+      "first_to_last": {
+        "attained_fraction": [
+          -0.01916687749326229,
+          1.1872329711914062
+        ],
+        "language_nll": [
+          11.044741736518011,
+          1.853877219888899
+        ],
+        "ranking_loss": [
+          0.819166898727417,
+          0.0
+        ],
+        "relevance_loss": [
+          0.08790288120508194,
+          0.03834625333547592
+        ],
+        "stance_loss": [
+          1.1973813772201538,
+          0.08126868307590485
+        ]
+      },
+      "optimizer_steps": [
+        2,
+        7,
+        14,
+        17,
+        25,
+        26,
+        33,
+        36,
+        42,
+        48,
+        55,
+        56
+      ],
+      "visit_count": 12,
+      "within_group_regression_observed": {
+        "attained_fraction": true,
+        "relevance_loss": true,
+        "stance_loss": true
+      }
+    }
+  },
+  "independent_validation_status": "validated_failed_gate",
+  "next_action": "revise the zero-UQ QA contract and implement a VLM-owned structured field head plus deterministic renderer; CPU-test all contracts while keeping training locks closed",
+  "next_design_constraints": [
+    "Replace zero-UQ argmax locations with explicit none/not_applicable sentinels and do not label zero-UQ evidence as unreliable hidden content.",
+    "Keep R and path/task relevance VLM-owned; do not move task relevance into the Stage1 adapter.",
+    "Supervise value-bearing semantic fields with explicit categorical heads before rendering human-readable QA text.",
+    "Retain greedy free generation only as a diagnostic until structured field prediction passes.",
+    "Add an explicit background precision term or calibrated support threshold for R without sacrificing foreground recall.",
+    "Increase genuine caution support across events; do not rely on reweighting only two caution labels in one event.",
+    "Require every-group ranking, every stance class, R precision/recall, field accuracy, and zero-UQ invariance to pass before the eight-event pilot.",
+    "Do not launch another A800 run without a new immutable amendment after CPU-only implementation and label audits pass."
+  ],
+  "passed_check_count": 6,
+  "report_status": "engineering_v8_gradient_routed_smoke_failed_gate",
+  "schema": "orion.stage2l_v8_route151_failure_diagnosis.v1",
+  "status": "diagnosed_v8_gate_failure"
+}

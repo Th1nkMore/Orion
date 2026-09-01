@@ -1,0 +1,65 @@
+{
+  "experiment_id": "uqcl_p0",
+  "purpose": "First separate oracle uncertainty-aware risk response from the ability of the existing learned Density score to approximate that oracle, with the ORION planner frozen.",
+  "routes": [
+    {
+      "index": 25,
+      "scenario": "VanillaSignalizedTurnEncounterRedLight",
+      "town": "Town12"
+    },
+    {
+      "index": 113,
+      "scenario": "PedestrianCrossing",
+      "town": "Town12"
+    },
+    {
+      "index": 148,
+      "scenario": "Accident",
+      "town": "Town10HD"
+    }
+  ],
+  "corruption": {
+    "type": "camera_dropout",
+    "views": "front",
+    "severity": 1,
+    "schedule": "full route"
+  },
+  "planner_conditioning": "none",
+  "risk_governor": {
+    "threshold": 0.4,
+    "saturation": 0.8,
+    "min_speed_mps": 1.5,
+    "max_speed_mps": 5.0,
+    "slowdown_margin_mps": 1.0,
+    "brake_gain": 0.5,
+    "max_brake": 0.5
+  },
+  "screening_conditions": [
+    "clean_off",
+    "front_corrupt_off"
+  ],
+  "current_scope": "minimal_stage_a_only",
+  "next_condition_if_stage_a_qualifies": "front_corrupt_oracle",
+  "deferred_conditions": [
+    "front_corrupt_constant",
+    "front_corrupt_shuffled",
+    "front_corrupt_aligned_learned"
+  ],
+  "negative_control_variants": [
+    "hazard",
+    "nohazard"
+  ],
+  "shuffle_seed": 20260825,
+  "selection_rule": "Carry a route into the causal matrix only if clean_off is valid and corrupt_off worsens a safety outcome. If fewer than two hazard families pass, repeat severity 2 on all three routes before adding routes.",
+  "primary_outcomes": [
+    "collision_count",
+    "traffic_infraction_count"
+  ],
+  "efficiency_guardrails": [
+    "route_completion",
+    "mean_speed",
+    "mobility_infraction_count",
+    "intervention_rate"
+  ],
+  "interpretation_limit": "The learned Density score is a time-aligned anomaly trigger, not known semantically correct UQ. No result here is evidence that the LLM understands uncertainty."
+}

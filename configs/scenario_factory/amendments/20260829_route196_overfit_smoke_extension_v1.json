@@ -1,0 +1,43 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T16:34:00+08:00",
+  "status": "active_engineering_smoke_amendment",
+  "purpose": "Extend the one-event Route196 Stage2-L implementation smoke after the preregistered 120-step run learned the dense relevance and two of three language counterfactual gates but did not yet prefer the conservative answer for on-path UQ.",
+  "base_schedule": {
+    "path": "configs/scenario_factory/stage2l_schedule_v1.json",
+    "is_modified": false
+  },
+  "first_run": {
+    "slurm_job_id": 1092495,
+    "steps": 120,
+    "epochs_over_20_records": 6,
+    "status": "engineering_overfit_failed_gate",
+    "passed_checks": [
+      "optimization_reduces_language_nll",
+      "optimization_reduces_relevance_bce",
+      "on_path_risk_exceeds_off_path_by_margin",
+      "zero_uq_prefers_nonconservative_answer",
+      "off_path_prefers_nonconservative_answer"
+    ],
+    "failed_checks": [
+      "on_path_prefers_conservative_answer"
+    ]
+  },
+  "second_run": {
+    "slurm_job_id": 1092547,
+    "maximum_steps": 240,
+    "epochs_over_20_records": 12,
+    "starts_from_original_orion_checkpoint": true,
+    "reuses_frozen_visual_cache": true,
+    "qa_records_are_unchanged": true,
+    "loss_weights_are_unchanged": true,
+    "learning_rates_are_unchanged": true
+  },
+  "decision_policy": {
+    "formal_stage2l_pilot_unlocked_by_this_smoke": false,
+    "success_means": "The implementation can overfit the intended on-path, off-path, and zero-UQ semantics on one event.",
+    "failure_means": "Inspect conditioning capacity, prompt-family interference, or optimization before changing labels or starting the multi-event LoRA pilot.",
+    "generalization_claim_permitted": false,
+    "safety_claim_permitted": false
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "orion.scenario_factory.submission_attestation.v1",
+  "submitted_at": "2026-08-31T18:50:00+08:00",
+  "run_id": "stage2l_formal24_test_wave1_20260829",
+  "batch_manifest": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/test_wave1/batch_manifest.json",
+    "sha256": "d229ab6a1bd9cf1e40a7fe3459bad9660e2b9aeb85d000b9ee46cc8dba9a0cde"
+  },
+  "locked_test_guards": {
+    "published_orion_outcome_read_for_selection": false,
+    "current_orion_outcome_read_before_submission": false,
+    "learned_uq_or_stage2_outcome_read": false,
+    "post_replay_model_failure_can_exclude_route": false
+  },
+  "runtime_contract": {
+    "condition": "clean_off",
+    "variant": "hazard",
+    "stage1_adapter_control_influence": false,
+    "stage2_spatial_uq_source": "disabled",
+    "legacy_density_uq": false,
+    "risk_mode": "off",
+    "planning_response": "off"
+  },
+  "runtime_repair": {
+    "external_runner_sha256": "c8cc9348502e7af0b413ebf59ac105c43b28124cb0037b9327bbf2b467b121b3",
+    "amendment_sha256": "21dd4fa149db386c5222344a4c0a74d4e71de160856ca07d6db6b77abbec5ab8",
+    "scope": "Map-load ordering only; model, sensors, route, control, and scoring are unchanged."
+  },
+  "route_jobs": [
+    {
+      "route_index": 212,
+      "job_id": 1107307,
+      "state_at_attestation": "pending_priority"
+    }
+  ],
+  "resources_per_route": {
+    "gpu": 1,
+    "cpus": 2,
+    "host_memory": "192G",
+    "time_limit": "02:00:00",
+    "excluded_nodes": [
+      "gpu2",
+      "gpu5"
+    ]
+  },
+  "postprocessing": {
+    "finalize_job_id": 1107310,
+    "finalize_dependency": "afterany:1107307",
+    "review_queue_job_id": 1107311,
+    "review_dependency": "afterok:1107310",
+    "gpu_requested": false
+  },
+  "claim_boundary": "Locked-test data construction only; replay outcome cannot change route membership and provides no model or safety claim."
+}

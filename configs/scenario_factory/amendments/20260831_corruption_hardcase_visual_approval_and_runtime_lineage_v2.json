@@ -1,0 +1,75 @@
+{
+  "schema": "orion.corruption_hardcase_visual_approval_and_runtime_lineage_amendment.v2",
+  "created_at": "2026-08-31T23:32:14+08:00",
+  "status": "implementation_and_preflight_verified_orion_submission_locked_pending_human_review",
+  "trigger": "The first waterdrop visual prototype and its direct-silhouette replacement were rejected. Audit then found that the active ORION agent and closed-loop runner could still resolve the retired lens_waterdrop alias, so approval lineage and runtime selection had to become fail-closed before any hard-case screen.",
+  "scientific_scope": {
+    "current_stage": "visual validation and executable wiring only",
+    "orion_loaded_by_this_amendment": false,
+    "gpu_jobs_submitted_by_this_amendment": 0,
+    "learned_uq_used": false,
+    "density_uq_used": false,
+    "risk_governor_used": false,
+    "stage2_outputs_used": false,
+    "safety_claim": false
+  },
+  "implemented_contract": {
+    "visual_gate": "configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json",
+    "screen_preflight_manifest": "configs/scenario_factory/corruption_hardcase_orion_screen_preflight_v2.json",
+    "pre_sbatch_check": "scripts/preflight_corruption_hardcase_orion_screen.py",
+    "in_allocation_check": "scripts/run_closedloop_uq_pilot.sh",
+    "agent_runtime_check": "team_code/orion_b2d_agent.py",
+    "fail_closed_rule": "An exact condition must be approved by an explicit user-message amendment, and implementation, integration, result, and review-artifact hashes must still match.",
+    "retired_alias_rule": "lens_waterdrop and lens_waterdrop_transient_off fail immediately and cannot silently select the failed v1 prototype.",
+    "paired_template_application": "Apply the stable paired waterdrop template to the unmodified 1600x900 CAM_FRONT RGB frame before the ORION inference pipeline, while retaining raw clean and exact 640x640 model-tensor artifacts separately.",
+    "shared_artifact_policy": "Small runtime-verifiable approval evidence lives under /public/share/lidachuan/orion_assets; large local GIFs may be marked runtime-optional but remain hash-pinned for human review."
+  },
+  "source_sha256": {
+    "team_code/orion_b2d_agent.py": "8a747cf9d83ac13c435fb76e9e36ccb670ddaaf438f54feb00dbb874be138d6b",
+    "uq_estimator/corruption_visual_approval.py": "7fc98cb3db1ac2a5aba70c31b825bce8c501c78d1d75231b36083b47fda61db2",
+    "uq_estimator/lens_waterdrop_paired_template.py": "48195389c69dc5b3a047dd7c09d4b27cbaf798f7d43dc6a24b28fb4bdef7375f",
+    "uq_estimator/temporal_corruptions.py": "5d2f7b2b2579e4bd0e4af68d7316b04bf0c56ae9dcc487e41e860feacf0109bb",
+    "team_code/orion_native_motion_blur.py": "8e97591833b44efc4aaccdc6e78ebfda8853390f3fd388c511bdc58a82c414b9",
+    "configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json": "ddc2056dc0b0bf53c34b4758aebb7f2b783cdf940d5c81632e9f74283277b87e",
+    "configs/scenario_factory/corruption_hardcase_orion_screen_preflight_v2.json": "12ade420fc4438bea720d84799772b4275c00595ff9804ef538ba0d51294164d",
+    "scripts/verify_corruption_hardcase_visual_approval.py": "443a977c9769769c740acad585591a36e82abbf80511794c05a6bf4a58decbc5",
+    "scripts/preflight_corruption_hardcase_orion_screen.py": "f0b4c904c2ac6008ff68f3b9e73cea86280178b7029ab43bf46a16ec809dbab0",
+    "scripts/run_closedloop_uq_pilot.sh": "dca64d5dc8dce329af2e22d12d0e9fce820002badc9274c02e65a2abee408e28",
+    "scripts/submit_closedloop_uq_pilot.sh": "e44a50ef43f7897516766e9810b29ae3945b600d2206df96673f352f876beb4e",
+    "tests/test_corruption_hardcase_visual_approval.py": "ce6f73509c0af0e53da09f7df0a88f4c7b36bdedc036e7181fc7d441d2803cca",
+    "tests/test_orion_hardcase_corruption_approval_runtime.py": "89a986f3815c81d74d7e2c7967a639755253fd99166d7f91e77a4666873db74f",
+    "tests/test_corruption_hardcase_orion_preflight.py": "8098ea4e70a7b0879ccd79d4e29d53a96f60330601ca9e73b2dec715968acede",
+    "tests/test_lens_waterdrop_paired_template.py": "c461ce77a165093ed063e488ee43bf482d71c300bb3f6c8ea1290db5a7b6297b"
+  },
+  "shared_evidence_sha256": {
+    "/public/share/lidachuan/orion_assets/scenario_factory/visual_approval_evidence_v2/front_stale/result.json": "06a2c5cbbc5de8c2e4f6c82fe00bf2a9de7f82c99f198f1a7d2bd1f221c78696",
+    "/public/share/lidachuan/orion_assets/scenario_factory/visual_approval_evidence_v2/front_stale/contact_clean_vs_stale.png": "83fa5d85e30007e3d5a87b694f066aed796e98d42facf79882012dfa8815b89d",
+    "/public/share/lidachuan/orion_assets/scenario_factory/visual_approval_evidence_v2/lens_waterdrop_paired_template/result.json": "aa1d958592b46318c8cf002eb432b8f5701e487d6a6c4fe6868b7340e6a35b80",
+    "/public/share/lidachuan/orion_assets/scenario_factory/visual_approval_evidence_v2/lens_waterdrop_paired_template/contact_alpha.png": "59098c6245efe5fe0a5807282fb99f26ac44a3d92251546d93eb7e617efd2ed9",
+    "/public/share/lidachuan/orion_assets/scenario_factory/visual_approval_evidence_v2/lens_waterdrop_paired_template/contact_high_resolution_crops.png": "ec01d26ba32e95460cb97cceb75dade8781510a0ed4e8cfa92016ee90a55c54f",
+    "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_native_motion_blur_medium_recovery_v2/visual_review/result.json": "5b8f93912813076162a14dcfaf4882642349f42ec94fb6dfe28c523c1407521b",
+    "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_native_motion_blur_medium_recovery_v2/visual_review/contact_none_vs_medium.png": "eede871a702ec45616cab2c7c44769fee11c60344aed8445ca1c47b569f053bc",
+    "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_native_motion_blur_medium_recovery_v2/visual_review/front_none_vs_medium_review.gif": "6ae34e0423146c59ce90378c7fdc5da58e41f71ca67357fac8edfe94c6c95f73"
+  },
+  "verification": {
+    "remote_python": "/public/share/lidachuan/orion_assets/envs/orion-cl-centos7/bin/python",
+    "remote_tests": {
+      "count": 32,
+      "result": "passed",
+      "duration_seconds": 13.97
+    },
+    "bash_syntax": "passed for run_closedloop_uq_pilot.sh and submit_closedloop_uq_pilot.sh",
+    "pending_lineage_preflight": "passed for front_stale delay_ms:200, lens_waterdrop_paired_template profile:medium, and native_motion_blur profile:medium",
+    "strict_preflight": "all three conditions rejected with exit code 2 because human approval is pending",
+    "submit_wrapper_probe": "route151 front_stale_transient_off rejected before sbatch with exit code 2",
+    "squeue_after_probe": "empty"
+  },
+  "current_decision": {
+    "front_stale": "pending human visual approval; ORION locked",
+    "lens_waterdrop_paired_template": "pending human visual approval; ORION locked",
+    "native_motion_blur": "pending human visual approval; ORION locked",
+    "severity_freeze": false,
+    "next_authorized_action": "Record exact approved condition(s) only after an explicit user message, update the gate with a hash-pinned authorization amendment, then run the smallest development-only ORION screen."
+  },
+  "claim_boundary": "This amendment proves implementation lineage, shared evidence integrity, and fail-closed execution behavior. It does not approve any corruption or report an ORION, uncertainty, failure-induction, or safety result."
+}

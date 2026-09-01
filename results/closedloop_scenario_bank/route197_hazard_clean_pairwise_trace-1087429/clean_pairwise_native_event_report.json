@@ -1,0 +1,853 @@
+{
+  "claim_boundary": "The event time is supplied independently from evaluator/safety evidence. View or spatial uplift is task-agnostic observation evidence, not proof of task relevance, causal responsibility, or VLM understanding.",
+  "observation_uq": {
+    "approach_uplift_view_ranking": [
+      "CAM_BACK_RIGHT",
+      "CAM_FRONT",
+      "CAM_FRONT_RIGHT",
+      "CAM_BACK_LEFT",
+      "CAM_BACK",
+      "CAM_FRONT_LEFT"
+    ],
+    "calibration": {
+      "absolute_scale_floor": 0.001,
+      "future_frames_used": false,
+      "method": "fixed pre-event median/MAD per view and per grid position",
+      "relative_scale_floor": 0.05,
+      "z_center": 4.0
+    },
+    "camera_reports": {
+      "CAM_BACK": {
+        "approach_raw_mean_uplift_from_baseline": 0.08613013252615931,
+        "baseline_robust_mad": 0.035961493849754333,
+        "baseline_robust_median": 0.35937175154685974,
+        "baseline_robust_scale": 0.05331651078164577,
+        "first_pre_event_calibrated_trigger": {
+          "calibrated_score": 0.6442709960227329,
+          "lead_to_event_seconds": 0.40000000000000036,
+          "route_progress": 0.45242414217090005,
+          "sim_time_seconds": 13.6,
+          "step": 272
+        },
+        "windows": {
+          "approach": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.6622265577316284,
+              "mean": 0.45028760358691217,
+              "median": 0.39990904927253723,
+              "minimum": 0.3446614146232605
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.8429468095094488,
+              "mean": 0.19818519641767177,
+              "median": 0.03775176640677633,
+              "minimum": 0.01370890599009881
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 1.0,
+              "mean": 1.0,
+              "median": 1.0,
+              "minimum": 1.0
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.446755554210838,
+              "mean": 0.27448964051350677,
+              "median": 0.2382094424846924,
+              "minimum": 0.18182298292108282
+            },
+            "spatial_window_maximum_cell": 1.0
+          },
+          "baseline": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.46130648255348206,
+              "mean": 0.36415747106075286,
+              "median": 0.35937175154685974,
+              "minimum": 0.29829636216163635
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.11025679490883074,
+              "mean": 0.027475927663483217,
+              "median": 0.01802447779217735,
+              "minimum": 0.00579167701462261
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 0.9998427260487078,
+              "mean": 0.5158798381132058,
+              "median": 0.4443974798230945,
+              "minimum": 0.03714859487661735
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.13297324198050306,
+              "mean": 0.05279396240637816,
+              "median": 0.04794149684404406,
+              "minimum": 0.012533886884890726
+            },
+            "spatial_window_maximum_cell": 0.9998427260487078
+          },
+          "lead": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.45711833238601685,
+              "mean": 0.315740829706192,
+              "median": 0.29957012832164764,
+              "minimum": 0.23663508892059326
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.10278340986218429,
+              "mean": 0.013984659215727696,
+              "median": 0.005931041509036925,
+              "minimum": 0.0018292130573952152
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 1.0,
+              "mean": 1.0,
+              "median": 1.0,
+              "minimum": 1.0
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.25890817980886616,
+              "mean": 0.1670294429406364,
+              "median": 0.16079754692590598,
+              "minimum": 0.113680712501119
+            },
+            "spatial_window_maximum_cell": 1.0
+          },
+          "post_event": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.9732153415679932,
+              "mean": 0.7343553230166435,
+              "median": 0.7029948830604553,
+              "minimum": 0.5529538989067078
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.9994544655066605,
+              "mean": 0.8670466378205747,
+              "median": 0.9201921936962989,
+              "minimum": 0.40873688231291805
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 1.0,
+              "mean": 1.0,
+              "median": 1.0,
+              "minimum": 1.0
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.6647402357061182,
+              "mean": 0.5317561813251357,
+              "median": 0.5293413211468961,
+              "minimum": 0.42456368171741504
+            },
+            "spatial_window_maximum_cell": 1.0
+          }
+        }
+      },
+      "CAM_BACK_LEFT": {
+        "approach_raw_mean_uplift_from_baseline": 0.09376431951920194,
+        "baseline_robust_mad": 0.061152875423431396,
+        "baseline_robust_median": 0.7398671507835388,
+        "baseline_robust_scale": 0.09066525310277938,
+        "first_pre_event_calibrated_trigger": null,
+        "windows": {
+          "approach": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.9362491965293884,
+              "mean": 0.8341773375868797,
+              "median": 0.8531410396099091,
+              "minimum": 0.6802403926849365
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.13776389955234197,
+              "mean": 0.061131703657060346,
+              "median": 0.06005471460592768,
+              "minimum": 0.009399467484197455
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 0.9999687484955949,
+              "mean": 0.9992161635881736,
+              "median": 0.9997247887309182,
+              "minimum": 0.9947652191443299
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.1998704939864933,
+              "mean": 0.15341603810258778,
+              "median": 0.1556269881978822,
+              "minimum": 0.1020704478409904
+            },
+            "spatial_window_maximum_cell": 0.9999687484955949
+          },
+          "baseline": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.8682214617729187,
+              "mean": 0.7404130180676778,
+              "median": 0.7398671507835388,
+              "minimum": 0.598061740398407
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.07015535520919579,
+              "mean": 0.0239610203586996,
+              "median": 0.017986955992688097,
+              "minimum": 0.0038185652306251244
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 0.4394798994095498,
+              "mean": 0.17103077495728192,
+              "median": 0.1590009254172955,
+              "minimum": 0.03277449189817159
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.053148968882956504,
+              "mean": 0.027454408729032716,
+              "median": 0.025632150704484297,
+              "minimum": 0.009798002748566603
+            },
+            "spatial_window_maximum_cell": 0.4394798994095498
+          },
+          "lead": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.9745811223983765,
+              "mean": 0.7798582434654235,
+              "median": 0.7750884890556335,
+              "minimum": 0.6276798844337463
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.1960444442603917,
+              "mean": 0.04018678571257554,
+              "median": 0.02630351509827722,
+              "minimum": 0.005286076744252785
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 0.9997440792201445,
+              "mean": 0.9887737942388172,
+              "median": 0.9943409619473232,
+              "minimum": 0.9105216225417158
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.19522540180725875,
+              "mean": 0.12845079071355098,
+              "median": 0.1270822482431845,
+              "minimum": 0.07361226301871222
+            },
+            "spatial_window_maximum_cell": 0.9997440792201445
+          },
+          "post_event": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.7519375681877136,
+              "mean": 0.5903276331722737,
+              "median": 0.5927646160125732,
+              "minimum": 0.39487120509147644
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.020494961203368467,
+              "mean": 0.005844490951393029,
+              "median": 0.0036026786977705824,
+              "minimum": 0.0004074594212164531
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 0.9999997820624758,
+              "mean": 0.9993246714813854,
+              "median": 0.9999751773083843,
+              "minimum": 0.9797506253445911
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.18597821396512743,
+              "mean": 0.12222953803740708,
+              "median": 0.13540524117040986,
+              "minimum": 0.04876276338122174
+            },
+            "spatial_window_maximum_cell": 0.9999997820624758
+          }
+        }
+      },
+      "CAM_BACK_RIGHT": {
+        "approach_raw_mean_uplift_from_baseline": 0.2935396661361058,
+        "baseline_robust_mad": 0.027754411101341248,
+        "baseline_robust_median": 0.43072669208049774,
+        "baseline_robust_scale": 0.04114868989884853,
+        "first_pre_event_calibrated_trigger": {
+          "calibrated_score": 0.5316903116648937,
+          "lead_to_event_seconds": 2.0500000000000007,
+          "route_progress": 0.4098151638096928,
+          "sim_time_seconds": 11.95,
+          "step": 239
+        },
+        "windows": {
+          "approach": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.8622414469718933,
+              "mean": 0.7164767503738403,
+              "median": 0.6996466219425201,
+              "minimum": 0.5736807584762573
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.9984787783393346,
+              "mean": 0.8775856772935654,
+              "median": 0.9265513882252001,
+              "minimum": 0.3714702660770408
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 0.9999998871074213,
+              "mean": 0.999121183414788,
+              "median": 0.9999252672462648,
+              "minimum": 0.9873089835989933
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.5423904421610297,
+              "mean": 0.4228279007103999,
+              "median": 0.41618691272062097,
+              "minimum": 0.2632549825860801
+            },
+            "spatial_window_maximum_cell": 0.9999998871074213
+          },
+          "baseline": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.5211076736450195,
+              "mean": 0.42293708423773446,
+              "median": 0.43072669208049774,
+              "minimum": 0.3146756589412689
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.14141930271397837,
+              "mean": 0.025202104743799202,
+              "median": 0.017986623296511968,
+              "minimum": 0.0010902199428248773
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 0.6621873328022597,
+              "mean": 0.2821769927210141,
+              "median": 0.24139043169040914,
+              "minimum": 0.03837059022565928
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.07097828928678776,
+              "mean": 0.03549572496226277,
+              "median": 0.03588663990654429,
+              "minimum": 0.01046439864103441
+            },
+            "spatial_window_maximum_cell": 0.6621873328022597
+          },
+          "lead": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.6005445122718811,
+              "mean": 0.47443185100952784,
+              "median": 0.4709347188472748,
+              "minimum": 0.3686690926551819
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.5316903116648937,
+              "mean": 0.10637381390781547,
+              "median": 0.04643784206851727,
+              "minimum": 0.004037312184120587
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 0.9999410459783179,
+              "mean": 0.9602368766272817,
+              "median": 0.9821699714572031,
+              "minimum": 0.7178466250755738
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.31447709805087243,
+              "mean": 0.14931832956856753,
+              "median": 0.14298329984463576,
+              "minimum": 0.046058865789702697
+            },
+            "spatial_window_maximum_cell": 0.9999410459783179
+          },
+          "post_event": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.8514034152030945,
+              "mean": 0.7170401155948639,
+              "median": 0.749089390039444,
+              "minimum": 0.5176599025726318
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.9980212951899181,
+              "mean": 0.8218116069661484,
+              "median": 0.9766891603384453,
+              "minimum": 0.13154811209803688
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 0.9999993114203839,
+              "mean": 0.9990520023652489,
+              "median": 0.9999738893249864,
+              "minimum": 0.9853807449614299
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.5397335544546658,
+              "mean": 0.399662876173687,
+              "median": 0.43935373163485913,
+              "minimum": 0.1812548465236038
+            },
+            "spatial_window_maximum_cell": 0.9999993114203839
+          }
+        }
+      },
+      "CAM_FRONT": {
+        "approach_raw_mean_uplift_from_baseline": 0.2613378127415975,
+        "baseline_robust_mad": 0.0433480441570282,
+        "baseline_robust_median": 0.34287701547145844,
+        "baseline_robust_scale": 0.06426781026721,
+        "first_pre_event_calibrated_trigger": {
+          "calibrated_score": 0.544039344503606,
+          "lead_to_event_seconds": 2.5,
+          "route_progress": 0.40836723644714684,
+          "sim_time_seconds": 11.5,
+          "step": 230
+        },
+        "windows": {
+          "approach": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.7235894203186035,
+              "mean": 0.6101952120661736,
+              "median": 0.613229513168335,
+              "minimum": 0.4816347360610962
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.8725663428463212,
+              "mean": 0.5299475320090778,
+              "median": 0.5513542371864903,
+              "minimum": 0.13693953706547687
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 1.0,
+              "mean": 1.0,
+              "median": 1.0,
+              "minimum": 1.0
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.4846626141535498,
+              "mean": 0.39398948260633193,
+              "median": 0.3932884860399942,
+              "minimum": 0.29440646001898907
+            },
+            "spatial_window_maximum_cell": 1.0
+          },
+          "baseline": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.4510761499404907,
+              "mean": 0.34885739932457605,
+              "median": 0.34287701547145844,
+              "minimum": 0.26976531744003296
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.08977106252638378,
+              "mean": 0.02636124870124287,
+              "median": 0.017999136277599352,
+              "minimum": 0.0058374311626549925
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 0.9999999173914423,
+              "mean": 0.3609080972102381,
+              "median": 0.2137142439770113,
+              "minimum": 0.02920252860353636
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.16862584556727558,
+              "mean": 0.04497826952477677,
+              "median": 0.02573183291551536,
+              "minimum": 0.009601813444604996
+            },
+            "spatial_window_maximum_cell": 0.9999999173914423
+          },
+          "lead": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.7512774467468262,
+              "mean": 0.4573136602838834,
+              "median": 0.4164460599422455,
+              "minimum": 0.2737944424152374
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.9133043459628248,
+              "mean": 0.1776638048670184,
+              "median": 0.05440934733827961,
+              "minimum": 0.006212764462815572
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 1.0,
+              "mean": 0.9999909099222158,
+              "median": 1.0,
+              "minimum": 0.9997127846294303
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.5679326126563367,
+              "mean": 0.26770899987959396,
+              "median": 0.2509211520115108,
+              "minimum": 0.0816093897566776
+            },
+            "spatial_window_maximum_cell": 1.0
+          },
+          "post_event": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.9015275239944458,
+              "mean": 0.6924519062042236,
+              "median": 0.6905602812767029,
+              "minimum": 0.5219094753265381
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.9909198231277941,
+              "mean": 0.7468153413665328,
+              "median": 0.8037449191407726,
+              "minimum": 0.22894555188042168
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 1.0,
+              "mean": 1.0,
+              "median": 1.0,
+              "minimum": 1.0
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.6708117823568762,
+              "mean": 0.4862026438350225,
+              "median": 0.489722290703165,
+              "minimum": 0.35549263528428426
+            },
+            "spatial_window_maximum_cell": 1.0
+          }
+        }
+      },
+      "CAM_FRONT_LEFT": {
+        "approach_raw_mean_uplift_from_baseline": -0.21531836663683246,
+        "baseline_robust_mad": 0.024958312511444092,
+        "baseline_robust_median": 0.767072856426239,
+        "baseline_robust_scale": 0.038353642821311956,
+        "first_pre_event_calibrated_trigger": null,
+        "windows": {
+          "approach": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.766039252281189,
+              "mean": 0.5492145858705044,
+              "median": 0.539946973323822,
+              "minimum": 0.45592692494392395
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.017516344210837368,
+              "mean": 0.0007938226553460605,
+              "median": 4.908709942859581e-05,
+              "minimum": 5.490134831955805e-06
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 0.9980383490279778,
+              "mean": 0.9644106062755021,
+              "median": 0.9759153681146504,
+              "minimum": 0.8060456097037386
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.14537925865015172,
+              "mean": 0.08657469707188596,
+              "median": 0.08466005815916886,
+              "minimum": 0.04650228947379533
+            },
+            "spatial_window_maximum_cell": 0.9980383490279778
+          },
+          "baseline": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.8413036465644836,
+              "mean": 0.7645329525073369,
+              "median": 0.767072856426239,
+              "minimum": 0.671836793422699
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.1125884199189171,
+              "mean": 0.026082410679035602,
+              "median": 0.017986256226429416,
+              "minimum": 0.0015267234968873002
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 0.6183264075539509,
+              "mean": 0.21713773310312365,
+              "median": 0.18692703941936298,
+              "minimum": 0.03755053998774015
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.06159521586570195,
+              "mean": 0.029899038862639084,
+              "median": 0.029018993008419678,
+              "minimum": 0.011045120755131123
+            },
+            "spatial_window_maximum_cell": 0.6183264075539509
+          },
+          "lead": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.8583322167396545,
+              "mean": 0.7152331689993541,
+              "median": 0.7349199056625366,
+              "minimum": 0.5046017169952393
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.16512466483621802,
+              "mean": 0.025607031153533234,
+              "median": 0.009234840535858366,
+              "minimum": 1.953179340745329e-05
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 0.9997540719724946,
+              "mean": 0.9645497850722572,
+              "median": 0.9755953891819694,
+              "minimum": 0.8308510746708027
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.16670470928931644,
+              "mean": 0.11502169175376914,
+              "median": 0.11612633878787415,
+              "minimum": 0.06066623856087788
+            },
+            "spatial_window_maximum_cell": 0.9997540719724946
+          },
+          "post_event": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.845407247543335,
+              "mean": 0.5932180196046829,
+              "median": 0.5621911883354187,
+              "minimum": 0.49186035990715027
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.1237295927200284,
+              "mean": 0.007165338303481544,
+              "median": 8.809205117774544e-05,
+              "minimum": 1.4010987862974832e-05
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 0.9999998560435986,
+              "mean": 0.8611395718657178,
+              "median": 0.9645260725642213,
+              "minimum": 0.44200876815903656
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.23811788427560987,
+              "mean": 0.08288183711699933,
+              "median": 0.04814890198797071,
+              "minimum": 0.017693949484484
+            },
+            "spatial_window_maximum_cell": 0.9999998560435986
+          }
+        }
+      },
+      "CAM_FRONT_RIGHT": {
+        "approach_raw_mean_uplift_from_baseline": 0.09702184746662773,
+        "baseline_robust_mad": 0.05132476985454559,
+        "baseline_robust_median": 0.37602564692497253,
+        "baseline_robust_scale": 0.07609410378634929,
+        "first_pre_event_calibrated_trigger": null,
+        "windows": {
+          "approach": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.5567349195480347,
+              "mean": 0.4581670381128788,
+              "median": 0.4542708396911621,
+              "minimum": 0.37529072165489197
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.16449077155527275,
+              "mean": 0.062447132417710806,
+              "median": 0.04872158640502491,
+              "minimum": 0.017816413373203086
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 0.9999994466764948,
+              "mean": 0.9901400439919155,
+              "median": 0.999517060480806,
+              "minimum": 0.8684677205492933
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.2746484287894287,
+              "mean": 0.19661017129526548,
+              "median": 0.1885112050103065,
+              "minimum": 0.11402269902505498
+            },
+            "spatial_window_maximum_cell": 0.9999994466764948
+          },
+          "baseline": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.5510842204093933,
+              "mean": 0.36114519064625106,
+              "median": 0.37602564692497253,
+              "minimum": 0.21139317750930786
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.15453759784716753,
+              "mean": 0.02416736098986882,
+              "median": 0.017990788896061698,
+              "minimum": 0.0021003729066270353
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 0.5143592972346299,
+              "mean": 0.18230732891110588,
+              "median": 0.17513295683117341,
+              "minimum": 0.02726401668140365
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.11055946273049853,
+              "mean": 0.03168130610079941,
+              "median": 0.027744398086024538,
+              "minimum": 0.007406295492708901
+            },
+            "spatial_window_maximum_cell": 0.5143592972346299
+          },
+          "lead": {
+            "raw": {
+              "frames": 60,
+              "maximum": 0.5281315445899963,
+              "mean": 0.4134978195031484,
+              "median": 0.40934543311595917,
+              "minimum": 0.30759474635124207
+            },
+            "scalar_calibrated": {
+              "frames": 60,
+              "maximum": 0.11908939872864237,
+              "mean": 0.03823297753933601,
+              "median": 0.02760528313274677,
+              "minimum": 0.007396729794409439
+            },
+            "spatial_frame_maximum": {
+              "frames": 60,
+              "maximum": 0.9998945203076275,
+              "mean": 0.9493059948235629,
+              "median": 0.9958750512455853,
+              "minimum": 0.5566604342853422
+            },
+            "spatial_frame_mean": {
+              "frames": 60,
+              "maximum": 0.2839691875802114,
+              "mean": 0.17544251391249052,
+              "median": 0.18509693123598409,
+              "minimum": 0.04468936562647641
+            },
+            "spatial_window_maximum_cell": 0.9998945203076275
+          },
+          "post_event": {
+            "raw": {
+              "frames": 40,
+              "maximum": 0.8852323889732361,
+              "mean": 0.6112167336046695,
+              "median": 0.6095053851604462,
+              "minimum": 0.3517191410064697
+            },
+            "scalar_calibrated": {
+              "frames": 40,
+              "maximum": 0.9365412137369377,
+              "mean": 0.39057202387165135,
+              "median": 0.2826473032107728,
+              "minimum": 0.013132743417398954
+            },
+            "spatial_frame_maximum": {
+              "frames": 40,
+              "maximum": 0.9999999891749122,
+              "mean": 0.9998679311974652,
+              "median": 0.9999993583477247,
+              "minimum": 0.9976534642067293
+            },
+            "spatial_frame_mean": {
+              "frames": 40,
+              "maximum": 0.6443174403047799,
+              "mean": 0.3301334249532253,
+              "median": 0.2920343765917309,
+              "minimum": 0.12602343315356623
+            },
+            "spatial_window_maximum_cell": 0.9999999891749122
+          }
+        }
+      }
+    },
+    "event_time_seconds": 14.0,
+    "largest_approach_uplift_camera": "CAM_BACK_RIGHT",
+    "windows": {
+      "approach_seconds": 2.0,
+      "baseline_frames": 60,
+      "baseline_seconds": [
+        1.0,
+        4.0
+      ],
+      "lead_seconds": 5.0,
+      "post_seconds": 2.0
+    }
+  },
+  "run_dir": "/public/share/lidachuan/orion_assets/results/closedloop_route197_sidecar_oracle_v1/route197_hazard_clean_pairwise_trace-1087429",
+  "schema": "orion.clean_pairwise_native_event_analysis.v1",
+  "trace_path": "/public/share/lidachuan/orion_assets/results/closedloop_route197_sidecar_oracle_v1/route197_hazard_clean_pairwise_trace-1087429/records_orion_traj_0/RouteScenario_26966_rep0_Town05_SignalizedJunctionRightTurn_1_10_08_29_01_44_21/control_trace.jsonl"
+}

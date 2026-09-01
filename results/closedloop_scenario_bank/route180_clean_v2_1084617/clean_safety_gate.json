@@ -1,0 +1,222 @@
+{
+  "checks": [
+    {
+      "expected": "clean_off",
+      "metric": "manifest.pilot_condition",
+      "passed": true,
+      "value": "clean_off"
+    },
+    {
+      "expected": "Epic",
+      "metric": "manifest.carla_quality_level",
+      "passed": true,
+      "value": "Epic"
+    },
+    {
+      "expected": "off",
+      "metric": "manifest.risk_mode",
+      "passed": true,
+      "value": "off"
+    },
+    {
+      "expected": "none",
+      "metric": "manifest.uq_mode",
+      "passed": true,
+      "value": "none"
+    },
+    {
+      "expected": "1",
+      "metric": "manifest.safety_telemetry",
+      "passed": true,
+      "value": "1"
+    },
+    {
+      "expected": true,
+      "metric": "evaluator.eligible",
+      "passed": true,
+      "value": true
+    },
+    {
+      "expected": "Completed",
+      "metric": "evaluator.status",
+      "passed": true,
+      "value": "Completed"
+    },
+    {
+      "expected": 100.0,
+      "metric": "evaluator.score_route",
+      "passed": true,
+      "value": 100.0
+    },
+    {
+      "expected": 1.0,
+      "metric": "evaluator.score_penalty",
+      "passed": true,
+      "value": 1.0
+    },
+    {
+      "expected": 0,
+      "metric": "evaluator.hard_infraction_count",
+      "passed": true,
+      "value": 0
+    },
+    {
+      "expected": true,
+      "metric": "trace.steps_contiguous",
+      "passed": true,
+      "value": true
+    },
+    {
+      "expected": true,
+      "metric": "trace.times_monotonic",
+      "passed": true,
+      "value": true
+    },
+    {
+      "expected": true,
+      "metric": "trace.safety_all_frames_available",
+      "passed": true,
+      "value": true
+    },
+    {
+      "expected": [
+        "orion.closedloop_dynamic_actor_safety.v2"
+      ],
+      "metric": "trace.safety_schemas",
+      "passed": true,
+      "value": [
+        "orion.closedloop_dynamic_actor_safety.v2"
+      ]
+    },
+    {
+      "expected": "<=8.0",
+      "metric": "trace.longest_stop_below_0_25_mps_seconds",
+      "passed": true,
+      "value": 0.6500000000000092
+    }
+  ],
+  "eval_path": "/public/share/lidachuan/orion_assets/results/closedloop_hard_case_bank_clean_v2/route180_hazard_clean_off-1084617/eval_orion_traj_0.json",
+  "gate_passed": true,
+  "manifest_path": "/public/share/lidachuan/orion_assets/results/closedloop_hard_case_bank_clean_v2/route180_hazard_clean_off-1084617/manifest.json",
+  "official_diagnostics": {
+    "gate_role": "reported as an efficiency diagnostic; not counted as a hard collision or traffic-rule failure",
+    "min_speed_infraction_count": 20,
+    "min_speed_infractions": [
+      "Average speed is 95.83% of the surrounding traffic's one",
+      "Average speed is 153.87% of the surrounding traffic's one",
+      "Average speed is 124.75% of the surrounding traffic's one",
+      "Average speed is 101.41% of the surrounding traffic's one",
+      "Average speed is 121.91% of the surrounding traffic's one",
+      "Average speed is 88.41% of the surrounding traffic's one",
+      "Average speed is 68.16% of the surrounding traffic's one",
+      "Average speed is 101.96% of the surrounding traffic's one",
+      "Average speed is 111.2% of the surrounding traffic's one",
+      "Average speed is 119.44% of the surrounding traffic's one",
+      "Average speed is 180.8% of the surrounding traffic's one",
+      "Average speed is 90.97% of the surrounding traffic's one",
+      "Average speed is 148.84% of the surrounding traffic's one",
+      "Average speed is 103.07% of the surrounding traffic's one",
+      "Average speed is 106.16% of the surrounding traffic's one",
+      "Average speed is 141.42% of the surrounding traffic's one",
+      "Average speed is 155.96% of the surrounding traffic's one",
+      "Average speed is 122.04% of the surrounding traffic's one",
+      "Average speed is 111.29% of the surrounding traffic's one",
+      "Average speed is 111.29% of the surrounding traffic's one"
+    ]
+  },
+  "run_dir": "/public/share/lidachuan/orion_assets/results/closedloop_hard_case_bank_clean_v2/route180_hazard_clean_off-1084617",
+  "schema": "orion.closedloop_clean_safety_gate.v1",
+  "summary": {
+    "duration_seconds": 37.5,
+    "efficiency": {
+      "route_progress_delta": 0.9923271472652007,
+      "slow_below_1_mps_seconds": 3.6999999999999984,
+      "stopped_below_0_25_mps_seconds": 1.5499999999999985,
+      "time_weighted_mean_speed_mps": 3.5971174685607425
+    },
+    "frames": 750,
+    "safety": {
+      "by_category": {
+        "vehicle": {
+          "frames_with_actor_record": 750,
+          "low_ttc_exposure_seconds": {
+            "1.0": 0.4499999999999993,
+            "2.0": 3.649999999999996,
+            "3.0": 7.200000000000003,
+            "5.0": 11.700000000000006
+          },
+          "min_obb_separating_axis_gap_m": 0.3114526901698049,
+          "min_obb_ttc_seconds": 0.7251744011285118
+        },
+        "walker": {
+          "frames_with_actor_record": 0,
+          "low_ttc_exposure_seconds": {
+            "1.0": 0,
+            "2.0": 0,
+            "3.0": 0,
+            "5.0": 0
+          },
+          "min_obb_separating_axis_gap_m": null,
+          "min_obb_ttc_seconds": null
+        }
+      },
+      "critical_frame": {
+        "actor": {
+          "actor_id": 159,
+          "category": "vehicle",
+          "closest_approach_time_seconds": 0.9992396971255791,
+          "closing_speed_mps": 10.016521902990286,
+          "disc_clearance_m": 5.108370501416989,
+          "disc_collision_ttc_seconds": 0.5199229717812094,
+          "disc_radius_m": 2.6719030517676834,
+          "extent_xy_m": [
+            2.4508416652679443,
+            1.0641621351242065
+          ],
+          "extent_z_m": 0.7553732395172119,
+          "obb_collision_ttc_seconds": 0.7251744011285118,
+          "obb_separating_axis_gap_m": 5.259172914966321,
+          "position_xy": [
+            110.47114562988281,
+            -139.50279235839844
+          ],
+          "position_z": 0.7905899286270142,
+          "predicted_min_disc_clearance_m": -3.2863704300750527,
+          "range_m": 10.393170134772966,
+          "relative_lateral_m": -2.7778221693114653,
+          "relative_longitudinal_m": 10.015073112365103,
+          "relative_position_xy_m": [
+            -10.38421630859375,
+            -0.4313201904296875
+          ],
+          "relative_velocity_xy_mps": [
+            9.926442742347717,
+            2.37662810087204
+          ],
+          "type_id": "vehicle.lincoln.mkz_2017",
+          "velocity_xy": [
+            8.103982925415039,
+            1.7998366355895996
+          ],
+          "yaw_degrees": 12.494050979614258
+        },
+        "sim_time_seconds": 31.75,
+        "step": 635
+      },
+      "low_ttc_exposure_seconds": {
+        "1.0": 0.4499999999999993,
+        "2.0": 3.649999999999996,
+        "3.0": 7.200000000000003,
+        "5.0": 11.700000000000006
+      },
+      "min_disc_clearance_m_diagnostic": -2.904513515949663,
+      "min_obb_separating_axis_gap_m": 0.3114526901698049,
+      "min_obb_ttc_seconds": 0.7251744011285118,
+      "primary_metric": "constant_velocity_fixed_orientation_obb_ttc"
+    },
+    "safety_telemetry_available_frames": 750,
+    "safety_telemetry_coverage": 1.0
+  },
+  "trace_frames": 750,
+  "trace_path": "/public/share/lidachuan/orion_assets/results/closedloop_hard_case_bank_clean_v2/route180_hazard_clean_off-1084617/records_orion_traj_0/RouteScenario_25955_rep0_Town05_HazardAtSideLaneTwoWays_1_11_08_28_20_47_29/control_trace.jsonl"
+}

@@ -1,0 +1,171 @@
+{
+  "schema": "orion.route197_stop_yield_oracle.v2",
+  "created_at": "2026-08-29T02:28:05+08:00",
+  "status": "preregistered_before_single_development_repair_submission",
+  "scope": "post-hoc mechanism-development repair only; not confirmatory evidence",
+  "scientific_question": "After the frozen v1 speed-cap oracle merely displaced the Route197 collision to a later crossing vehicle, can a bounded stop-and-hold response clear the sequential crossing conflict while preserving 100 percent route completion?",
+  "naming_boundary": {
+    "condition_name": "native_event_oracle",
+    "paper_name": "development stop-yield task oracle",
+    "prohibited_names": [
+      "uncertainty oracle",
+      "adapter control",
+      "held-out confirmation"
+    ]
+  },
+  "development_evidence_used": {
+    "clean_reference": {
+      "job_id": "1086450",
+      "report_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route197_hazard_clean_off-1086450/native_collision_discovery_report.json",
+      "report_sha256": "50d597f3bc35c8780387c79e7a68b0e1c79139c9eb3467e4289163ef999c6a64",
+      "collision_actor_type": "vehicle.mini.cooper_s_2021",
+      "collision_time_seconds": 14.0,
+      "official_vehicle_collisions": 1,
+      "route_completion_percent": 100,
+      "score_composed": 60.0
+    },
+    "failed_v1_oracle": {
+      "job_id": "1087430",
+      "result_path": "/public/share/lidachuan/orion_assets/results/closedloop_route197_sidecar_oracle_v1/route197_hazard_native_event_oracle-1087430/route197_task_event_oracle_result.json",
+      "result_sha256": "275a7cab88a3b65430763294270e90929b850c0301f3e4cf821b96a623abc1ae",
+      "trace_sha256": "716d7583eac4b6e45c45741258efe8417a2c6d66bac6dd93549350d8b0efaff1",
+      "oracle_first_active_time_seconds": 10.95,
+      "oracle_duration_seconds": 5.0,
+      "risk_min_speed_mps": 1.5,
+      "replacement_collision_actor_type": "vehicle.mercedes.coupe_2020",
+      "replacement_collision_time_seconds": 18.15,
+      "official_vehicle_collisions": 1,
+      "route_completion_percent": 100,
+      "score_composed": 60.0,
+      "failure_interpretation": "The response slowed the ego through the conflict and then released it while sequential cross traffic was still active; it delayed and changed the collision rather than eliminating it."
+    }
+  },
+  "clean_reference": {
+    "job_id": "1086450",
+    "report_path": "/public/share/lidachuan/orion_assets/results/closedloop_native_collision_discovery_v1/route197_hazard_clean_off-1086450/native_collision_discovery_report.json",
+    "report_sha256": "50d597f3bc35c8780387c79e7a68b0e1c79139c9eb3467e4289163ef999c6a64",
+    "official_vehicle_collisions": 1,
+    "route_completion_percent": 100,
+    "score_composed": 60.0
+  },
+  "window_selection_from_clean_geometry_only": {
+    "oracle_start_route_progress": 0.3690731367863814,
+    "oracle_duration_seconds": 9.0,
+    "compatibility_note": "The start remains selected from clean geometry. The 9-second duration is a declared post-hoc v1 repair and is not clean-only or confirmatory."
+  },
+  "single_repair_selection_rule": {
+    "oracle_start_route_progress": 0.3690731367863814,
+    "oracle_duration_seconds": 9.0,
+    "risk_min_speed_mps": 0.0,
+    "rationale": "Keep the independently selected entry trigger. Change the response semantic from rolling speed cap to stop-and-hold. The failed v1 collision occurred 7.20 seconds after activation; add a declared 1.80 second clearance margin and freeze one 9.0 second hold before rerunning.",
+    "post_hoc_boundary": "Both duration and stop response use v1 outcome information. Route197 v2 is development tuning and cannot be reported as prospective confirmation.",
+    "no_parameter_sweep": true,
+    "maximum_authorized_submissions": 1
+  },
+  "frozen_condition": {
+    "route_index": 197,
+    "corruption": "none",
+    "orion_uq_inference_mode": "none",
+    "observation_adapter_loaded": false,
+    "legacy_density_uq_enabled": false,
+    "risk_mode": "oracle",
+    "risk_threshold": 0.4,
+    "risk_saturation": 0.8,
+    "risk_min_speed_mps": 0.0,
+    "risk_max_speed_mps": 5.0,
+    "risk_slowdown_margin_mps": 1.0,
+    "risk_brake_gain": 0.5,
+    "risk_max_brake": 0.5,
+    "oracle_start_route_progress": 0.3690731367863814,
+    "oracle_duration_seconds": 9.0,
+    "steering_modified": false,
+    "orion_weights_modified": false
+  },
+  "runtime": {
+    "partition": "Nvidia_A800",
+    "validated_node": "gpu4",
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "gpus_per_task": 1,
+    "carla_quality": "Epic",
+    "control_trace_stall_watchdog_seconds": 300
+  },
+  "frozen_hashes": {
+    "route_197_hazard.xml": "a25537ab3d966cdc6d786e1c37982e040296ec95068afcf21ac193a1fc1a7cae",
+    "adzoo/orion/configs/orion_stage3_agent_uq.py": "78ac9cbd629ac3e019d7efaf25c8c3214c200cfe746fdb99eb0603f32ddd2799",
+    "team_code/orion_b2d_agent.py": "3a650b97e14f9c6673b3b7a33dfa356461ae2ea9f4342eb97c787bebb6abc803",
+    "mmcv/models/dense_heads/orion_head.py": "9d4e18ba4cad278635b5bd85e0fc6056d5104adda38d99701e1d087680cf2754",
+    "uq_estimator/risk_governor.py": "000cd309853a2173cc8fcf0e5362615c2d251ffb54cfc1c187f8a164af89edc2",
+    "scripts/run_closedloop_uq_pilot.sh": "e9d85bd9d18f42dfc79732e7bcac9ce991169cdc195049987e24d4b899ab3eb3",
+    "scripts/evaluate_route197_task_event_oracle.py": "7a4de35f0c9c00dd8e67b76b0c29d327885668e490e4a6dc5a2eee31de6ca802"
+  },
+  "execution_records": [
+    {
+      "timestamp": "2026-08-29T02:31:04+08:00",
+      "slurm_job_id": "1087449",
+      "submission_attestation": "STOP_YIELD_PREREG_ATTESTATION_OK=1",
+      "explicit_signal_separation": {
+        "ORION_ENABLE_LEGACY_DENSITY_UQ": "0",
+        "ORION_OBSERVATION_UQ_CHECKPOINT": "",
+        "ORION_OBSERVATION_UQ_CHECKPOINT_SHA256": ""
+      },
+      "status_at_record": "RUNNING on gpu4"
+    },
+    {
+      "timestamp": "2026-08-29T02:54:51+08:00",
+      "slurm_job_id": "1087449",
+      "runtime_status": "Completed with exit code 0",
+      "result_sha256": "7c0a14ab3c0ab1a8acee28fd6e7f7bdf2a4ae7fb4586bae5ec4abee8ba22a8d3",
+      "trace_sha256": "91ee2f80f601ceacfaa48ba0a887dc9f7b4c873e941a14a4615860807f5eb7fe",
+      "endpoint": {
+        "route_completion_percent": 100,
+        "official_vehicle_collisions": 1,
+        "collision_actor_type": "vehicle.audi.tt",
+        "collision_time_seconds": 22.3,
+        "score_composed": 60.0,
+        "new_serious_infraction_count": 0
+      },
+      "contracts": {
+        "manifest_checks_all_passed": true,
+        "trace_checks_all_passed": true,
+        "oracle_window_frames": 180,
+        "oracle_window_duration_seconds": 9.0,
+        "density_uq_score_non_null_frames": 0,
+        "observation_uq_non_null_frames": 0,
+        "inactive_control_exact_passthrough": true,
+        "active_control_intervention_observed": true
+      },
+      "primary_success": false,
+      "decision": "The stop-and-hold response safely held the ego outside the conflict during the registered window, but release still produced a later collision with a third crossing vehicle. Abandon fixed-window scalar governor tuning for this scenario. Move conservative response into a task-aware trajectory/planning layer that can represent yielding and decide release from current conflict state. Do not submit any additional duration, speed, constant, shuffled, or learned-control variants."
+    }
+  ],
+  "primary_success_rule_all_required": {
+    "runtime_valid_terminal_endpoint": true,
+    "official_vehicle_collision_count": 0,
+    "route_completion_percent": 100,
+    "new_serious_infraction_count": 0,
+    "oracle_window_triggered_exactly_once": true,
+    "oracle_window_duration_seconds": 9.0,
+    "governor_inactive_control_exact_passthrough": true,
+    "active_control_intervention_observed": true,
+    "legacy_density_score_absent_every_frame": true,
+    "observation_adapter_output_absent_every_frame": true
+  },
+  "secondary_outcomes": [
+    "score_composed",
+    "minimum actor-category OBB TTC",
+    "time at or below TTC thresholds",
+    "minimum OBB separating-axis gap",
+    "time-weighted mean speed",
+    "stopped time",
+    "route completion",
+    "collision and traffic-infraction counts"
+  ],
+  "decision_rule": {
+    "if_primary_success": "The development route supports a task-semantic stop-and-hold response as the mechanism upper bound. Keep the existing adapter non-controlling; next train task relevance/response and require prospective confirmation on a different frozen route or seed.",
+    "if_collision_removed_but_completion_or_rules_fail": "Reject as blanket stopping or task failure and move response learning into the trajectory/planning layer.",
+    "if_collision_remains": "Abandon the scalar governor as the mechanism proof for this scenario and move to trajectory/planner-level yielding before any learned-signal matrix.",
+    "no_matrix_expansion": "Do not submit constant, shuffled, learned-control, additional-duration, or additional-speed variants from this development result."
+  },
+  "claim_boundary": "This single post-hoc development repair can diagnose whether stop-and-hold is mechanically capable of clearing Route197 sequential cross traffic. Even a success cannot validate the adapter, observation uncertainty, task relevance learning, VLM understanding, or prospective generalization."
+}

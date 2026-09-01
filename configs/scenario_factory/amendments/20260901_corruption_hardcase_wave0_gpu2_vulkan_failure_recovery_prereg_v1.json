@@ -1,0 +1,66 @@
+{
+  "schema": "orion.corruption_hardcase_wave0_node_environment_recovery_prereg.v1",
+  "created_at": "2026-09-01T02:12:42+08:00",
+  "status": "preregistered_before_two_exact_recovery_submissions",
+  "parent_submission": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_online_wave0_submission_v1.json",
+    "sha256": "36039728c0050ee59b3c2653566cc38746a6f376886e3462ef8594b58880e7ba"
+  },
+  "node_failure": {
+    "node": "gpu2",
+    "failure": "Vulkan instance creation failed with ERROR_INCOMPATIBLE_DRIVER before CARLA/ORION",
+    "matches_known_gpu5_failure_class": true,
+    "failed_job_ids": [1116358, 1116359, 1116855, 1116924, 1116925],
+    "elapsed_seconds_range": [5, 7],
+    "log_sha256": {
+      "1116358": "e78c230c4aade6513b45959d596d858e25fa0ef45f51fcce086d911364405406",
+      "1116359": "a5684a211825ccbf798546e80a85ff6d76aa716486cf2763f450b32b977829f6",
+      "1116855": "819261cacdb4758e73792ce8688356d73dc099f96a0bafa23d623ecab7912e12",
+      "1116924": "2ee8053fa52cdc64ae23f5c1e143814cb9872d9c37ccdc8afa6daeedb5e3f2b2",
+      "1116925": "04725c8ecb0f11b5c1f8c249a6d6c3c33aa76bbc2a5ea513da69ebc25292598f"
+    },
+    "permanently_excluded_from_scientific_counts": true,
+    "platform_bad_node_set_after_observation": ["gpu2", "gpu5"]
+  },
+  "recovery_groups": [
+    {
+      "name": "route180_pair_gpu2_recovery",
+      "job_keys": [
+        "route180_clean_off",
+        "route180_front_stale_transient_off"
+      ],
+      "invalid_jobs_replaced": [1116358, 1116359],
+      "excluded_nodes": ["gpu2", "gpu5"],
+      "allowed_verified_nodes": ["gpu1", "gpu4"],
+      "scientific_conditions_unchanged": true
+    },
+    {
+      "name": "route194_three_condition_gpu2_recovery",
+      "job_keys": [
+        "route194_clean_off",
+        "route194_lens_waterdrop_paired_template_transient_off",
+        "route194_native_motion_blur_off"
+      ],
+      "invalid_jobs_replaced": [1116855, 1116924, 1116925],
+      "excluded_nodes": ["gpu2", "gpu4", "gpu5"],
+      "allowed_verified_nodes": ["gpu1"],
+      "route194_gpu4_exclusion_source": [1116352, 1116354, 1116355],
+      "scientific_conditions_unchanged": true
+    }
+  ],
+  "retry_contract": {
+    "total_jobs": 5,
+    "failed_platform_attempts_do_not_increase_scientific_matrix_size": true,
+    "effective_scientific_matrix_size_after_recovery": 12,
+    "route_xml_agent_checkpoint_code_visual_gate_resources_unchanged": true,
+    "architecture_locks_unchanged": true,
+    "maximum_new_jobs_authorized_by_this_record": 5
+  },
+  "frozen_inputs": {
+    "wave_sha256": "59429ae9fa3cb01b0639c8694399d6ea12f12cf49cf77c14c23b317da3af5186",
+    "activation_sha256": "8d6a370b99bcaab8f9d678b1545470cd9fdb1957d6cef15b36ef172fe6daca41",
+    "visual_gate_sha256": "aac9996062720f95498a85247611e0f63adf3d1cc6caea2dcb6bd55846c2e98d",
+    "submitter_sha256": "a46d32bd94549df90a78e5358e0282cdadb030c62fd13c0a07b6d8e14fd3357f"
+  },
+  "claim_boundary": "Node-environment recovery only. All five gpu2 attempts are excluded before any scientific endpoint; replacements must preserve exact job keys and frozen conditions."
+}

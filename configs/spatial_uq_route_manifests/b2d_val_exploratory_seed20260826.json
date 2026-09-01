@@ -1,0 +1,1379 @@
+{
+  "lineage_audit": {
+    "canonicalization": {
+      "guarantee": "all observed weather/repetition folders for one Town/RouteN key are assigned as one indivisible group",
+      "key_format": "<Town>/<RouteN>",
+      "manifest_route_ids": "original B2D folder strings",
+      "repetition_in_key": false,
+      "scenario_in_key": false,
+      "split_assignment_unit": "canonical physical-route group",
+      "version": "b2d-physical-route/v1",
+      "weather_in_key": false
+    },
+    "claim_boundary": {
+      "held_out_means": "disjoint within this input info file after declared exclusions",
+      "proves_absent_from_orion_pretraining": false,
+      "proves_closed_loop_route_is_training_heldout": false
+    },
+    "closed_loop_route_semantics": {
+      "development_route_labels": [
+        "146",
+        "148",
+        "203"
+      ],
+      "headline_route_labels": [
+        "203"
+      ],
+      "offline_folder_route_id_equals_closed_loop_xml_or_index_id": false,
+      "statement": "Closed-loop route labels are external experiment annotations. They are not equated with B2D offline Town/RouteN folder keys and cannot establish training-held-out status. Explicit offline folder exclusions and upstream pretraining lineage are required.",
+      "training_heldout_claim_supported_by_these_labels": false,
+      "used_for_offline_id_matching": false
+    },
+    "exclusions": {
+      "allow_unmatched": false,
+      "excluded_frame_count": 0,
+      "expanded_canonical_route_keys": [],
+      "matched_input_folders": [],
+      "requested": [],
+      "scope": "entire_canonical_route_for_each_matched_folder",
+      "unmatched": []
+    },
+    "input_summary": {
+      "canonical_route_count": 50,
+      "folder_count": 50,
+      "raw_frame_records": 12806,
+      "scenario_types": [
+        "Accident",
+        "AccidentTwoWays",
+        "BlockedIntersection",
+        "ConstructionObstacle",
+        "ConstructionObstacleTwoWays",
+        "ControlLoss",
+        "CrossingBicycleFlow",
+        "DynamicObjectCrossing",
+        "EnterActorFlow",
+        "HardBreakRoute",
+        "HazardAtSideLane",
+        "HazardAtSideLaneTwoWays",
+        "HighwayCutIn",
+        "HighwayExit",
+        "InterurbanActorFlow",
+        "InterurbanAdvancedActorFlow",
+        "InvadingTurn",
+        "LaneChange",
+        "MergerIntoSlowTraffic",
+        "MergerIntoSlowTrafficV2",
+        "NonSignalizedJunctionLeftTurn",
+        "NonSignalizedJunctionLeftTurnEnterFlow",
+        "NonSignalizedJunctionRightTurn",
+        "OppositeVehicleRunningRedLight",
+        "OppositeVehicleTakingPriority",
+        "ParkedObstacle",
+        "ParkedObstacleTwoWays",
+        "ParkingCrossingPedestrian",
+        "ParkingCutIn",
+        "ParkingExit",
+        "PedestrianCrossing",
+        "SignalizedJunctionLeftTurn",
+        "SignalizedJunctionLeftTurnEnterFlow",
+        "SignalizedJunctionRightTurn",
+        "StaticCutIn",
+        "TJunction",
+        "VanillaNonSignalizedTurnEncounterStopsign",
+        "VanillaSignalizedTurnEncounterGreenLight",
+        "VanillaSignalizedTurnEncounterRedLight",
+        "VehicleOpensDoorTwoWays",
+        "VehicleTurningRoute",
+        "VehicleTurningRoutePedestrian",
+        "YieldToEmergencyVehicle"
+      ],
+      "towns": [
+        "Town01",
+        "Town02",
+        "Town03",
+        "Town04",
+        "Town05",
+        "Town06",
+        "Town07",
+        "Town10HD",
+        "Town12",
+        "Town13",
+        "Town15"
+      ]
+    },
+    "leakage_checks": {
+      "canonical_route_overlap": [],
+      "folder_overlap": [],
+      "passed": true,
+      "weather_repetition_siblings_grouped_before_split": true
+    },
+    "route_catalog": {
+      "Town01/Route3": {
+        "folders": [
+          "v1/DynamicObjectCrossing_Town01_Route3_Weather3"
+        ],
+        "frame_count": 191,
+        "frame_max": 190,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route3",
+        "scenario_types": [
+          "DynamicObjectCrossing"
+        ],
+        "town": "Town01",
+        "weather_variants": [
+          3
+        ]
+      },
+      "Town01/Route32": {
+        "folders": [
+          "v1/HardBreakRoute_Town01_Route32_Weather6"
+        ],
+        "frame_count": 292,
+        "frame_max": 291,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route32",
+        "scenario_types": [
+          "HardBreakRoute"
+        ],
+        "town": "Town01",
+        "weather_variants": [
+          6
+        ]
+      },
+      "Town02/Route11": {
+        "folders": [
+          "v1/DynamicObjectCrossing_Town02_Route11_Weather11"
+        ],
+        "frame_count": 195,
+        "frame_max": 194,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route11",
+        "scenario_types": [
+          "DynamicObjectCrossing"
+        ],
+        "town": "Town02",
+        "weather_variants": [
+          11
+        ]
+      },
+      "Town02/Route95": {
+        "folders": [
+          "v1/InvadingTurn_Town02_Route95_Weather9"
+        ],
+        "frame_count": 139,
+        "frame_max": 138,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route95",
+        "scenario_types": [
+          "InvadingTurn"
+        ],
+        "town": "Town02",
+        "weather_variants": [
+          9
+        ]
+      },
+      "Town03/Route118": {
+        "folders": [
+          "v1/SignalizedJunctionRightTurn_Town03_Route118_Weather14"
+        ],
+        "frame_count": 156,
+        "frame_max": 155,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route118",
+        "scenario_types": [
+          "SignalizedJunctionRightTurn"
+        ],
+        "town": "Town03",
+        "weather_variants": [
+          14
+        ]
+      },
+      "Town03/Route126": {
+        "folders": [
+          "v1/NonSignalizedJunctionRightTurn_Town03_Route126_Weather18"
+        ],
+        "frame_count": 173,
+        "frame_max": 172,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route126",
+        "scenario_types": [
+          "NonSignalizedJunctionRightTurn"
+        ],
+        "town": "Town03",
+        "weather_variants": [
+          18
+        ]
+      },
+      "Town03/Route132": {
+        "folders": [
+          "v1/EnterActorFlow_Town03_Route132_Weather2"
+        ],
+        "frame_count": 535,
+        "frame_max": 534,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route132",
+        "scenario_types": [
+          "EnterActorFlow"
+        ],
+        "town": "Town03",
+        "weather_variants": [
+          2
+        ]
+      },
+      "Town03/Route135": {
+        "folders": [
+          "v1/BlockedIntersection_Town03_Route135_Weather5"
+        ],
+        "frame_count": 605,
+        "frame_max": 604,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route135",
+        "scenario_types": [
+          "BlockedIntersection"
+        ],
+        "town": "Town03",
+        "weather_variants": [
+          5
+        ]
+      },
+      "Town04/Route166": {
+        "folders": [
+          "v1/YieldToEmergencyVehicle_Town04_Route166_Weather10"
+        ],
+        "frame_count": 331,
+        "frame_max": 330,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route166",
+        "scenario_types": [
+          "YieldToEmergencyVehicle"
+        ],
+        "town": "Town04",
+        "weather_variants": [
+          10
+        ]
+      },
+      "Town04/Route170": {
+        "folders": [
+          "v1/ControlLoss_Town04_Route170_Weather14"
+        ],
+        "frame_count": 356,
+        "frame_max": 355,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route170",
+        "scenario_types": [
+          "ControlLoss"
+        ],
+        "town": "Town04",
+        "weather_variants": [
+          14
+        ]
+      },
+      "Town04/Route173": {
+        "folders": [
+          "v1/SignalizedJunctionLeftTurn_Town04_Route173_Weather26"
+        ],
+        "frame_count": 606,
+        "frame_max": 605,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route173",
+        "scenario_types": [
+          "SignalizedJunctionLeftTurn"
+        ],
+        "town": "Town04",
+        "weather_variants": [
+          26
+        ]
+      },
+      "Town04/Route180": {
+        "folders": [
+          "v1/OppositeVehicleRunningRedLight_Town04_Route180_Weather23"
+        ],
+        "frame_count": 153,
+        "frame_max": 152,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route180",
+        "scenario_types": [
+          "OppositeVehicleRunningRedLight"
+        ],
+        "town": "Town04",
+        "weather_variants": [
+          23
+        ]
+      },
+      "Town04/Route214": {
+        "folders": [
+          "v1/OppositeVehicleTakingPriority_Town04_Route214_Weather6"
+        ],
+        "frame_count": 136,
+        "frame_max": 135,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route214",
+        "scenario_types": [
+          "OppositeVehicleTakingPriority"
+        ],
+        "town": "Town04",
+        "weather_variants": [
+          6
+        ]
+      },
+      "Town05/Route218": {
+        "folders": [
+          "v1/Accident_Town05_Route218_Weather10"
+        ],
+        "frame_count": 207,
+        "frame_max": 206,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route218",
+        "scenario_types": [
+          "Accident"
+        ],
+        "town": "Town05",
+        "weather_variants": [
+          10
+        ]
+      },
+      "Town05/Route226": {
+        "folders": [
+          "v1/StaticCutIn_Town05_Route226_Weather18"
+        ],
+        "frame_count": 207,
+        "frame_max": 206,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route226",
+        "scenario_types": [
+          "StaticCutIn"
+        ],
+        "town": "Town05",
+        "weather_variants": [
+          18
+        ]
+      },
+      "Town05/Route260": {
+        "folders": [
+          "v1/TJunction_Town05_Route260_Weather0"
+        ],
+        "frame_count": 543,
+        "frame_max": 542,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route260",
+        "scenario_types": [
+          "TJunction"
+        ],
+        "town": "Town05",
+        "weather_variants": [
+          0
+        ]
+      },
+      "Town06/Route282": {
+        "folders": [
+          "v1/ParkedObstacle_Town06_Route282_Weather22"
+        ],
+        "frame_count": 200,
+        "frame_max": 199,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route282",
+        "scenario_types": [
+          "ParkedObstacle"
+        ],
+        "town": "Town06",
+        "weather_variants": [
+          22
+        ]
+      },
+      "Town06/Route306": {
+        "folders": [
+          "v1/TJunction_Town06_Route306_Weather20"
+        ],
+        "frame_count": 537,
+        "frame_max": 536,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route306",
+        "scenario_types": [
+          "TJunction"
+        ],
+        "town": "Town06",
+        "weather_variants": [
+          20
+        ]
+      },
+      "Town06/Route307": {
+        "folders": [
+          "v1/LaneChange_Town06_Route307_Weather21"
+        ],
+        "frame_count": 133,
+        "frame_max": 132,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route307",
+        "scenario_types": [
+          "LaneChange"
+        ],
+        "town": "Town06",
+        "weather_variants": [
+          21
+        ]
+      },
+      "Town06/Route312": {
+        "folders": [
+          "v1/HighwayExit_Town06_Route312_Weather0"
+        ],
+        "frame_count": 150,
+        "frame_max": 149,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route312",
+        "scenario_types": [
+          "HighwayExit"
+        ],
+        "town": "Town06",
+        "weather_variants": [
+          0
+        ]
+      },
+      "Town06/Route317": {
+        "folders": [
+          "v1/MergerIntoSlowTraffic_Town06_Route317_Weather5"
+        ],
+        "frame_count": 169,
+        "frame_max": 168,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route317",
+        "scenario_types": [
+          "MergerIntoSlowTraffic"
+        ],
+        "town": "Town06",
+        "weather_variants": [
+          5
+        ]
+      },
+      "Town06/Route324": {
+        "folders": [
+          "v1/InterurbanAdvancedActorFlow_Town06_Route324_Weather2"
+        ],
+        "frame_count": 152,
+        "frame_max": 151,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route324",
+        "scenario_types": [
+          "InterurbanAdvancedActorFlow"
+        ],
+        "town": "Town06",
+        "weather_variants": [
+          2
+        ]
+      },
+      "Town07/Route342": {
+        "folders": [
+          "v1/NonSignalizedJunctionLeftTurn_Town07_Route342_Weather3"
+        ],
+        "frame_count": 100,
+        "frame_max": 99,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route342",
+        "scenario_types": [
+          "NonSignalizedJunctionLeftTurn"
+        ],
+        "town": "Town07",
+        "weather_variants": [
+          3
+        ]
+      },
+      "Town07/Route354": {
+        "folders": [
+          "v1/VanillaSignalizedTurnEncounterGreenLight_Town07_Route354_Weather8"
+        ],
+        "frame_count": 266,
+        "frame_max": 265,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route354",
+        "scenario_types": [
+          "VanillaSignalizedTurnEncounterGreenLight"
+        ],
+        "town": "Town07",
+        "weather_variants": [
+          8
+        ]
+      },
+      "Town07/Route359": {
+        "folders": [
+          "v1/VanillaSignalizedTurnEncounterRedLight_Town07_Route359_Weather21"
+        ],
+        "frame_count": 327,
+        "frame_max": 326,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route359",
+        "scenario_types": [
+          "VanillaSignalizedTurnEncounterRedLight"
+        ],
+        "town": "Town07",
+        "weather_variants": [
+          21
+        ]
+      },
+      "Town10HD/Route372": {
+        "folders": [
+          "v1/ParkedObstacle_Town10HD_Route372_Weather8"
+        ],
+        "frame_count": 165,
+        "frame_max": 164,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route372",
+        "scenario_types": [
+          "ParkedObstacle"
+        ],
+        "town": "Town10HD",
+        "weather_variants": [
+          8
+        ]
+      },
+      "Town10HD/Route373": {
+        "folders": [
+          "v1/HazardAtSideLane_Town10HD_Route373_Weather9"
+        ],
+        "frame_count": 173,
+        "frame_max": 172,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route373",
+        "scenario_types": [
+          "HazardAtSideLane"
+        ],
+        "town": "Town10HD",
+        "weather_variants": [
+          9
+        ]
+      },
+      "Town10HD/Route378": {
+        "folders": [
+          "v1/ControlLoss_Town10HD_Route378_Weather14"
+        ],
+        "frame_count": 205,
+        "frame_max": 204,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route378",
+        "scenario_types": [
+          "ControlLoss"
+        ],
+        "town": "Town10HD",
+        "weather_variants": [
+          14
+        ]
+      },
+      "Town10HD/Route74": {
+        "folders": [
+          "v1/ConstructionObstacle_Town10HD_Route74_Weather22"
+        ],
+        "frame_count": 187,
+        "frame_max": 186,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route74",
+        "scenario_types": [
+          "ConstructionObstacle"
+        ],
+        "town": "Town10HD",
+        "weather_variants": [
+          22
+        ]
+      },
+      "Town12/Route1029": {
+        "folders": [
+          "v1/HighwayCutIn_Town12_Route1029_Weather15"
+        ],
+        "frame_count": 147,
+        "frame_max": 146,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route1029",
+        "scenario_types": [
+          "HighwayCutIn"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          15
+        ]
+      },
+      "Town12/Route1093": {
+        "folders": [
+          "v1/ConstructionObstacleTwoWays_Town12_Route1093_Weather1"
+        ],
+        "frame_count": 359,
+        "frame_max": 359,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route1093",
+        "scenario_types": [
+          "ConstructionObstacleTwoWays"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          1
+        ]
+      },
+      "Town12/Route1115": {
+        "folders": [
+          "v1/AccidentTwoWays_Town12_Route1115_Weather23"
+        ],
+        "frame_count": 326,
+        "frame_max": 325,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route1115",
+        "scenario_types": [
+          "AccidentTwoWays"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          23
+        ]
+      },
+      "Town12/Route1151": {
+        "folders": [
+          "v1/HazardAtSideLaneTwoWays_Town12_Route1151_Weather7"
+        ],
+        "frame_count": 254,
+        "frame_max": 253,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route1151",
+        "scenario_types": [
+          "HazardAtSideLaneTwoWays"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          7
+        ]
+      },
+      "Town12/Route1203": {
+        "folders": [
+          "v1/VehicleOpensDoorTwoWays_Town12_Route1203_Weather7"
+        ],
+        "frame_count": 424,
+        "frame_max": 423,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route1203",
+        "scenario_types": [
+          "VehicleOpensDoorTwoWays"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          7
+        ]
+      },
+      "Town12/Route1291": {
+        "folders": [
+          "v1/InterurbanActorFlow_Town12_Route1291_Weather1"
+        ],
+        "frame_count": 120,
+        "frame_max": 119,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route1291",
+        "scenario_types": [
+          "InterurbanActorFlow"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          1
+        ]
+      },
+      "Town12/Route78": {
+        "folders": [
+          "v1/ConstructionObstacle_Town12_Route78_Weather0"
+        ],
+        "frame_count": 213,
+        "frame_max": 212,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route78",
+        "scenario_types": [
+          "ConstructionObstacle"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          0
+        ]
+      },
+      "Town12/Route857": {
+        "folders": [
+          "v1/MergerIntoSlowTrafficV2_Town12_Route857_Weather25"
+        ],
+        "frame_count": 150,
+        "frame_max": 149,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route857",
+        "scenario_types": [
+          "MergerIntoSlowTrafficV2"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          25
+        ]
+      },
+      "Town12/Route922": {
+        "folders": [
+          "v1/ParkingExit_Town12_Route922_Weather12"
+        ],
+        "frame_count": 201,
+        "frame_max": 200,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route922",
+        "scenario_types": [
+          "ParkingExit"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          12
+        ]
+      },
+      "Town12/Route949": {
+        "folders": [
+          "v1/NonSignalizedJunctionLeftTurnEnterFlow_Town12_Route949_Weather13"
+        ],
+        "frame_count": 67,
+        "frame_max": 66,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route949",
+        "scenario_types": [
+          "NonSignalizedJunctionLeftTurnEnterFlow"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          13
+        ]
+      },
+      "Town12/Route977": {
+        "folders": [
+          "v1/CrossingBicycleFlow_Town12_Route977_Weather15"
+        ],
+        "frame_count": 361,
+        "frame_max": 360,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route977",
+        "scenario_types": [
+          "CrossingBicycleFlow"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          15
+        ]
+      },
+      "Town12/Route979": {
+        "folders": [
+          "v1/VanillaNonSignalizedTurnEncounterStopsign_Town12_Route979_Weather9"
+        ],
+        "frame_count": 97,
+        "frame_max": 96,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route979",
+        "scenario_types": [
+          "VanillaNonSignalizedTurnEncounterStopsign"
+        ],
+        "town": "Town12",
+        "weather_variants": [
+          9
+        ]
+      },
+      "Town13/Route1333": {
+        "folders": [
+          "v1/ParkedObstacleTwoWays_Town13_Route1333_Weather26"
+        ],
+        "frame_count": 356,
+        "frame_max": 355,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route1333",
+        "scenario_types": [
+          "ParkedObstacleTwoWays"
+        ],
+        "town": "Town13",
+        "weather_variants": [
+          26
+        ]
+      },
+      "Town13/Route1343": {
+        "folders": [
+          "v1/ParkingCutIn_Town13_Route1343_Weather1"
+        ],
+        "frame_count": 209,
+        "frame_max": 208,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route1343",
+        "scenario_types": [
+          "ParkingCutIn"
+        ],
+        "town": "Town13",
+        "weather_variants": [
+          1
+        ]
+      },
+      "Town13/Route545": {
+        "folders": [
+          "v1/ParkingCrossingPedestrian_Town13_Route545_Weather25"
+        ],
+        "frame_count": 204,
+        "frame_max": 203,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route545",
+        "scenario_types": [
+          "ParkingCrossingPedestrian"
+        ],
+        "town": "Town13",
+        "weather_variants": [
+          25
+        ]
+      },
+      "Town13/Route657": {
+        "folders": [
+          "v1/SignalizedJunctionLeftTurnEnterFlow_Town13_Route657_Weather2"
+        ],
+        "frame_count": 137,
+        "frame_max": 136,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route657",
+        "scenario_types": [
+          "SignalizedJunctionLeftTurnEnterFlow"
+        ],
+        "town": "Town13",
+        "weather_variants": [
+          2
+        ]
+      },
+      "Town13/Route747": {
+        "folders": [
+          "v1/PedestrianCrossing_Town13_Route747_Weather19"
+        ],
+        "frame_count": 512,
+        "frame_max": 511,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route747",
+        "scenario_types": [
+          "PedestrianCrossing"
+        ],
+        "town": "Town13",
+        "weather_variants": [
+          19
+        ]
+      },
+      "Town15/Route445": {
+        "folders": [
+          "v1/VehicleTurningRoutePedestrian_Town15_Route445_Weather11"
+        ],
+        "frame_count": 193,
+        "frame_max": 192,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route445",
+        "scenario_types": [
+          "VehicleTurningRoutePedestrian"
+        ],
+        "town": "Town15",
+        "weather_variants": [
+          11
+        ]
+      },
+      "Town15/Route481": {
+        "folders": [
+          "v1/VehicleTurningRoutePedestrian_Town15_Route481_Weather19"
+        ],
+        "frame_count": 120,
+        "frame_max": 120,
+        "frame_min": 1,
+        "repetition_variants": [],
+        "route_token": "Route481",
+        "scenario_types": [
+          "VehicleTurningRoutePedestrian"
+        ],
+        "town": "Town15",
+        "weather_variants": [
+          19
+        ]
+      },
+      "Town15/Route491": {
+        "folders": [
+          "v1/VanillaSignalizedTurnEncounterRedLight_Town15_Route491_Weather23"
+        ],
+        "frame_count": 591,
+        "frame_max": 590,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route491",
+        "scenario_types": [
+          "VanillaSignalizedTurnEncounterRedLight"
+        ],
+        "town": "Town15",
+        "weather_variants": [
+          23
+        ]
+      },
+      "Town15/Route504": {
+        "folders": [
+          "v1/VehicleTurningRoute_Town15_Route504_Weather10"
+        ],
+        "frame_count": 176,
+        "frame_max": 175,
+        "frame_min": 0,
+        "repetition_variants": [],
+        "route_token": "Route504",
+        "scenario_types": [
+          "VehicleTurningRoute"
+        ],
+        "town": "Town15",
+        "weather_variants": [
+          10
+        ]
+      }
+    },
+    "schema_version": "spatial-uq-route-lineage-audit/v1",
+    "selection": {
+      "heldout_towns": [
+        "Town02",
+        "Town05"
+      ],
+      "min_routes_per_split": 2,
+      "minimum_canonical_routes": 12,
+      "requested_ratios": {
+        "calibration": 0.10000000000000002,
+        "held_out": 0.10000000000000002,
+        "train": 0.7000000000000001,
+        "validation": 0.10000000000000002
+      },
+      "seed": 20260826,
+      "stratification_fields": [
+        "scenario_type",
+        "town",
+        "frame_count"
+      ],
+      "town_disjoint_heldout_achieved": true,
+      "town_disjoint_heldout_preferred": true,
+      "town_selection_reason": "selected whole town subset closest to held-out target"
+    },
+    "source": {
+      "format": "trusted_pickle",
+      "image_files_opened": false,
+      "kind": "b2d_info_metadata",
+      "model_loaded": false,
+      "path": "/public/share/lidachuan/orion_assets/data/infos/b2d_infos_val.pkl",
+      "sha256": "d31e151fbc1854ccc8b7288445f3585d1f6dcf660f08bbfb90f71a5660943798",
+      "size_bytes": 140919944
+    },
+    "split_statistics": {
+      "calibration": {
+        "canonical_route_count": 5,
+        "canonical_route_keys": [
+          "Town03/Route132",
+          "Town04/Route214",
+          "Town10HD/Route378",
+          "Town12/Route1151",
+          "Town15/Route445"
+        ],
+        "folder_count": 5,
+        "folder_route_ids": [
+          "v1/ControlLoss_Town10HD_Route378_Weather14",
+          "v1/EnterActorFlow_Town03_Route132_Weather2",
+          "v1/HazardAtSideLaneTwoWays_Town12_Route1151_Weather7",
+          "v1/OppositeVehicleTakingPriority_Town04_Route214_Weather6",
+          "v1/VehicleTurningRoutePedestrian_Town15_Route445_Weather11"
+        ],
+        "frame_count": 1323,
+        "frames_by_scenario_stratum": {
+          "ControlLoss": 205,
+          "EnterActorFlow": 535,
+          "HazardAtSideLaneTwoWays": 254,
+          "OppositeVehicleTakingPriority": 136,
+          "VehicleTurningRoutePedestrian": 193
+        },
+        "frames_by_town": {
+          "Town03": 535,
+          "Town04": 136,
+          "Town10HD": 205,
+          "Town12": 254,
+          "Town15": 193
+        },
+        "scenario_types": [
+          "ControlLoss",
+          "EnterActorFlow",
+          "HazardAtSideLaneTwoWays",
+          "OppositeVehicleTakingPriority",
+          "VehicleTurningRoutePedestrian"
+        ],
+        "towns": [
+          "Town03",
+          "Town04",
+          "Town10HD",
+          "Town12",
+          "Town15"
+        ]
+      },
+      "held_out": {
+        "canonical_route_count": 5,
+        "canonical_route_keys": [
+          "Town02/Route11",
+          "Town02/Route95",
+          "Town05/Route218",
+          "Town05/Route226",
+          "Town05/Route260"
+        ],
+        "folder_count": 5,
+        "folder_route_ids": [
+          "v1/Accident_Town05_Route218_Weather10",
+          "v1/DynamicObjectCrossing_Town02_Route11_Weather11",
+          "v1/InvadingTurn_Town02_Route95_Weather9",
+          "v1/StaticCutIn_Town05_Route226_Weather18",
+          "v1/TJunction_Town05_Route260_Weather0"
+        ],
+        "frame_count": 1291,
+        "frames_by_scenario_stratum": {
+          "Accident": 207,
+          "DynamicObjectCrossing": 195,
+          "InvadingTurn": 139,
+          "StaticCutIn": 207,
+          "TJunction": 543
+        },
+        "frames_by_town": {
+          "Town02": 334,
+          "Town05": 957
+        },
+        "scenario_types": [
+          "Accident",
+          "DynamicObjectCrossing",
+          "InvadingTurn",
+          "StaticCutIn",
+          "TJunction"
+        ],
+        "towns": [
+          "Town02",
+          "Town05"
+        ]
+      },
+      "train": {
+        "canonical_route_count": 35,
+        "canonical_route_keys": [
+          "Town01/Route3",
+          "Town01/Route32",
+          "Town03/Route118",
+          "Town03/Route126",
+          "Town03/Route135",
+          "Town04/Route166",
+          "Town04/Route170",
+          "Town04/Route173",
+          "Town04/Route180",
+          "Town06/Route282",
+          "Town06/Route306",
+          "Town06/Route307",
+          "Town06/Route317",
+          "Town06/Route324",
+          "Town07/Route342",
+          "Town07/Route354",
+          "Town10HD/Route373",
+          "Town10HD/Route74",
+          "Town12/Route1029",
+          "Town12/Route1093",
+          "Town12/Route1115",
+          "Town12/Route1203",
+          "Town12/Route1291",
+          "Town12/Route78",
+          "Town12/Route857",
+          "Town12/Route922",
+          "Town12/Route949",
+          "Town12/Route979",
+          "Town13/Route1333",
+          "Town13/Route1343",
+          "Town13/Route545",
+          "Town13/Route657",
+          "Town15/Route481",
+          "Town15/Route491",
+          "Town15/Route504"
+        ],
+        "folder_count": 35,
+        "folder_route_ids": [
+          "v1/AccidentTwoWays_Town12_Route1115_Weather23",
+          "v1/BlockedIntersection_Town03_Route135_Weather5",
+          "v1/ConstructionObstacleTwoWays_Town12_Route1093_Weather1",
+          "v1/ConstructionObstacle_Town10HD_Route74_Weather22",
+          "v1/ConstructionObstacle_Town12_Route78_Weather0",
+          "v1/ControlLoss_Town04_Route170_Weather14",
+          "v1/DynamicObjectCrossing_Town01_Route3_Weather3",
+          "v1/HardBreakRoute_Town01_Route32_Weather6",
+          "v1/HazardAtSideLane_Town10HD_Route373_Weather9",
+          "v1/HighwayCutIn_Town12_Route1029_Weather15",
+          "v1/InterurbanActorFlow_Town12_Route1291_Weather1",
+          "v1/InterurbanAdvancedActorFlow_Town06_Route324_Weather2",
+          "v1/LaneChange_Town06_Route307_Weather21",
+          "v1/MergerIntoSlowTrafficV2_Town12_Route857_Weather25",
+          "v1/MergerIntoSlowTraffic_Town06_Route317_Weather5",
+          "v1/NonSignalizedJunctionLeftTurnEnterFlow_Town12_Route949_Weather13",
+          "v1/NonSignalizedJunctionLeftTurn_Town07_Route342_Weather3",
+          "v1/NonSignalizedJunctionRightTurn_Town03_Route126_Weather18",
+          "v1/OppositeVehicleRunningRedLight_Town04_Route180_Weather23",
+          "v1/ParkedObstacleTwoWays_Town13_Route1333_Weather26",
+          "v1/ParkedObstacle_Town06_Route282_Weather22",
+          "v1/ParkingCrossingPedestrian_Town13_Route545_Weather25",
+          "v1/ParkingCutIn_Town13_Route1343_Weather1",
+          "v1/ParkingExit_Town12_Route922_Weather12",
+          "v1/SignalizedJunctionLeftTurnEnterFlow_Town13_Route657_Weather2",
+          "v1/SignalizedJunctionLeftTurn_Town04_Route173_Weather26",
+          "v1/SignalizedJunctionRightTurn_Town03_Route118_Weather14",
+          "v1/TJunction_Town06_Route306_Weather20",
+          "v1/VanillaNonSignalizedTurnEncounterStopsign_Town12_Route979_Weather9",
+          "v1/VanillaSignalizedTurnEncounterGreenLight_Town07_Route354_Weather8",
+          "v1/VanillaSignalizedTurnEncounterRedLight_Town15_Route491_Weather23",
+          "v1/VehicleOpensDoorTwoWays_Town12_Route1203_Weather7",
+          "v1/VehicleTurningRoutePedestrian_Town15_Route481_Weather19",
+          "v1/VehicleTurningRoute_Town15_Route504_Weather10",
+          "v1/YieldToEmergencyVehicle_Town04_Route166_Weather10"
+        ],
+        "frame_count": 8677,
+        "frames_by_scenario_stratum": {
+          "AccidentTwoWays": 326,
+          "BlockedIntersection": 605,
+          "ConstructionObstacle": 400,
+          "ConstructionObstacleTwoWays": 359,
+          "ControlLoss": 356,
+          "DynamicObjectCrossing": 191,
+          "HardBreakRoute": 292,
+          "HazardAtSideLane": 173,
+          "HighwayCutIn": 147,
+          "InterurbanActorFlow": 120,
+          "InterurbanAdvancedActorFlow": 152,
+          "LaneChange": 133,
+          "MergerIntoSlowTraffic": 169,
+          "MergerIntoSlowTrafficV2": 150,
+          "NonSignalizedJunctionLeftTurn": 100,
+          "NonSignalizedJunctionLeftTurnEnterFlow": 67,
+          "NonSignalizedJunctionRightTurn": 173,
+          "OppositeVehicleRunningRedLight": 153,
+          "ParkedObstacle": 200,
+          "ParkedObstacleTwoWays": 356,
+          "ParkingCrossingPedestrian": 204,
+          "ParkingCutIn": 209,
+          "ParkingExit": 201,
+          "SignalizedJunctionLeftTurn": 606,
+          "SignalizedJunctionLeftTurnEnterFlow": 137,
+          "SignalizedJunctionRightTurn": 156,
+          "TJunction": 537,
+          "VanillaNonSignalizedTurnEncounterStopsign": 97,
+          "VanillaSignalizedTurnEncounterGreenLight": 266,
+          "VanillaSignalizedTurnEncounterRedLight": 591,
+          "VehicleOpensDoorTwoWays": 424,
+          "VehicleTurningRoute": 176,
+          "VehicleTurningRoutePedestrian": 120,
+          "YieldToEmergencyVehicle": 331
+        },
+        "frames_by_town": {
+          "Town01": 483,
+          "Town03": 934,
+          "Town04": 1446,
+          "Town06": 1191,
+          "Town07": 366,
+          "Town10HD": 360,
+          "Town12": 2104,
+          "Town13": 906,
+          "Town15": 887
+        },
+        "scenario_types": [
+          "AccidentTwoWays",
+          "BlockedIntersection",
+          "ConstructionObstacle",
+          "ConstructionObstacleTwoWays",
+          "ControlLoss",
+          "DynamicObjectCrossing",
+          "HardBreakRoute",
+          "HazardAtSideLane",
+          "HighwayCutIn",
+          "InterurbanActorFlow",
+          "InterurbanAdvancedActorFlow",
+          "LaneChange",
+          "MergerIntoSlowTraffic",
+          "MergerIntoSlowTrafficV2",
+          "NonSignalizedJunctionLeftTurn",
+          "NonSignalizedJunctionLeftTurnEnterFlow",
+          "NonSignalizedJunctionRightTurn",
+          "OppositeVehicleRunningRedLight",
+          "ParkedObstacle",
+          "ParkedObstacleTwoWays",
+          "ParkingCrossingPedestrian",
+          "ParkingCutIn",
+          "ParkingExit",
+          "SignalizedJunctionLeftTurn",
+          "SignalizedJunctionLeftTurnEnterFlow",
+          "SignalizedJunctionRightTurn",
+          "TJunction",
+          "VanillaNonSignalizedTurnEncounterStopsign",
+          "VanillaSignalizedTurnEncounterGreenLight",
+          "VanillaSignalizedTurnEncounterRedLight",
+          "VehicleOpensDoorTwoWays",
+          "VehicleTurningRoute",
+          "VehicleTurningRoutePedestrian",
+          "YieldToEmergencyVehicle"
+        ],
+        "towns": [
+          "Town01",
+          "Town03",
+          "Town04",
+          "Town06",
+          "Town07",
+          "Town10HD",
+          "Town12",
+          "Town13",
+          "Town15"
+        ]
+      },
+      "validation": {
+        "canonical_route_count": 5,
+        "canonical_route_keys": [
+          "Town06/Route312",
+          "Town07/Route359",
+          "Town10HD/Route372",
+          "Town12/Route977",
+          "Town13/Route747"
+        ],
+        "folder_count": 5,
+        "folder_route_ids": [
+          "v1/CrossingBicycleFlow_Town12_Route977_Weather15",
+          "v1/HighwayExit_Town06_Route312_Weather0",
+          "v1/ParkedObstacle_Town10HD_Route372_Weather8",
+          "v1/PedestrianCrossing_Town13_Route747_Weather19",
+          "v1/VanillaSignalizedTurnEncounterRedLight_Town07_Route359_Weather21"
+        ],
+        "frame_count": 1515,
+        "frames_by_scenario_stratum": {
+          "CrossingBicycleFlow": 361,
+          "HighwayExit": 150,
+          "ParkedObstacle": 165,
+          "PedestrianCrossing": 512,
+          "VanillaSignalizedTurnEncounterRedLight": 327
+        },
+        "frames_by_town": {
+          "Town06": 150,
+          "Town07": 327,
+          "Town10HD": 165,
+          "Town12": 361,
+          "Town13": 512
+        },
+        "scenario_types": [
+          "CrossingBicycleFlow",
+          "HighwayExit",
+          "ParkedObstacle",
+          "PedestrianCrossing",
+          "VanillaSignalizedTurnEncounterRedLight"
+        ],
+        "towns": [
+          "Town06",
+          "Town07",
+          "Town10HD",
+          "Town12",
+          "Town13"
+        ]
+      }
+    },
+    "writes_performed": true
+  },
+  "route_disjoint": true,
+  "schema_version": "spatial-uq-route-manifest/v1",
+  "seed": 20260826,
+  "split_unit": "route_id",
+  "splits": {
+    "calibration": {
+      "route_ids": [
+        "v1/ControlLoss_Town10HD_Route378_Weather14",
+        "v1/EnterActorFlow_Town03_Route132_Weather2",
+        "v1/HazardAtSideLaneTwoWays_Town12_Route1151_Weather7",
+        "v1/OppositeVehicleTakingPriority_Town04_Route214_Weather6",
+        "v1/VehicleTurningRoutePedestrian_Town15_Route445_Weather11"
+      ]
+    },
+    "held_out": {
+      "route_ids": [
+        "v1/Accident_Town05_Route218_Weather10",
+        "v1/DynamicObjectCrossing_Town02_Route11_Weather11",
+        "v1/InvadingTurn_Town02_Route95_Weather9",
+        "v1/StaticCutIn_Town05_Route226_Weather18",
+        "v1/TJunction_Town05_Route260_Weather0"
+      ]
+    },
+    "train": {
+      "route_ids": [
+        "v1/AccidentTwoWays_Town12_Route1115_Weather23",
+        "v1/BlockedIntersection_Town03_Route135_Weather5",
+        "v1/ConstructionObstacleTwoWays_Town12_Route1093_Weather1",
+        "v1/ConstructionObstacle_Town10HD_Route74_Weather22",
+        "v1/ConstructionObstacle_Town12_Route78_Weather0",
+        "v1/ControlLoss_Town04_Route170_Weather14",
+        "v1/DynamicObjectCrossing_Town01_Route3_Weather3",
+        "v1/HardBreakRoute_Town01_Route32_Weather6",
+        "v1/HazardAtSideLane_Town10HD_Route373_Weather9",
+        "v1/HighwayCutIn_Town12_Route1029_Weather15",
+        "v1/InterurbanActorFlow_Town12_Route1291_Weather1",
+        "v1/InterurbanAdvancedActorFlow_Town06_Route324_Weather2",
+        "v1/LaneChange_Town06_Route307_Weather21",
+        "v1/MergerIntoSlowTrafficV2_Town12_Route857_Weather25",
+        "v1/MergerIntoSlowTraffic_Town06_Route317_Weather5",
+        "v1/NonSignalizedJunctionLeftTurnEnterFlow_Town12_Route949_Weather13",
+        "v1/NonSignalizedJunctionLeftTurn_Town07_Route342_Weather3",
+        "v1/NonSignalizedJunctionRightTurn_Town03_Route126_Weather18",
+        "v1/OppositeVehicleRunningRedLight_Town04_Route180_Weather23",
+        "v1/ParkedObstacleTwoWays_Town13_Route1333_Weather26",
+        "v1/ParkedObstacle_Town06_Route282_Weather22",
+        "v1/ParkingCrossingPedestrian_Town13_Route545_Weather25",
+        "v1/ParkingCutIn_Town13_Route1343_Weather1",
+        "v1/ParkingExit_Town12_Route922_Weather12",
+        "v1/SignalizedJunctionLeftTurnEnterFlow_Town13_Route657_Weather2",
+        "v1/SignalizedJunctionLeftTurn_Town04_Route173_Weather26",
+        "v1/SignalizedJunctionRightTurn_Town03_Route118_Weather14",
+        "v1/TJunction_Town06_Route306_Weather20",
+        "v1/VanillaNonSignalizedTurnEncounterStopsign_Town12_Route979_Weather9",
+        "v1/VanillaSignalizedTurnEncounterGreenLight_Town07_Route354_Weather8",
+        "v1/VanillaSignalizedTurnEncounterRedLight_Town15_Route491_Weather23",
+        "v1/VehicleOpensDoorTwoWays_Town12_Route1203_Weather7",
+        "v1/VehicleTurningRoutePedestrian_Town15_Route481_Weather19",
+        "v1/VehicleTurningRoute_Town15_Route504_Weather10",
+        "v1/YieldToEmergencyVehicle_Town04_Route166_Weather10"
+      ]
+    },
+    "validation": {
+      "route_ids": [
+        "v1/CrossingBicycleFlow_Town12_Route977_Weather15",
+        "v1/HighwayExit_Town06_Route312_Weather0",
+        "v1/ParkedObstacle_Town10HD_Route372_Weather8",
+        "v1/PedestrianCrossing_Town13_Route747_Weather19",
+        "v1/VanillaSignalizedTurnEncounterRedLight_Town07_Route359_Weather21"
+      ]
+    }
+  }
+}

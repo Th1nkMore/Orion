@@ -1,0 +1,61 @@
+{
+  "schema": "orion.corruption_hardcase_clean_qualification_runtime_inconclusive.v1",
+  "created_at": "2026-09-01T06:02:56+08:00",
+  "status": "q2_runtime_inconclusive",
+  "phase": "q2",
+  "route_index": 185,
+  "condition": "clean_off",
+  "q1_status": "clean_qualified",
+  "q2_status": "no_valid_terminal_scientific_result",
+  "stable_clean_qualified": false,
+  "qualified_for_corruption_screen": false,
+  "attempts": [
+    {
+      "job_id": 1117850,
+      "node": "gpu1",
+      "slurm_state": "FAILED",
+      "slurm_exit_code": "127:0",
+      "classification": "runtime_environment_invalid",
+      "last_observed_sim_time_seconds": 5.8,
+      "last_observed_route_progress": 0.165347,
+      "failure": "Strict sensor bundle timeout at frame 11862 because SPEED was the only missing current-frame tag; the available SPEED item was off-target by one frame.",
+      "evidence": {
+        "manifest_sha256": "12c69c0478da007b797e2638180b9181dbd142b3e69577289f82dc90927d6b40",
+        "evaluator_sha256": "c1a54f28c635378a19b1bf802833687cba5c5bbe6c3742ca044b4c2b7571133a",
+        "sensor_queue_diagnostics_sha256": "73f82af9c671abe0e08c5ce8a5d5128fb0dcaf448afd99b1c7a1895c2ea7307a",
+        "job_log_sha256": "8afca7d0e9827884a01a86270b9e38d9044b0485a5df3cfd4b27c5aba295040c"
+      }
+    },
+    {
+      "job_id": 1117862,
+      "node": "gpu4",
+      "slurm_state": "FAILED",
+      "slurm_exit_code": "124:0",
+      "classification": "runtime_environment_invalid",
+      "last_observed_sim_time_seconds": 4.35,
+      "last_observed_route_progress": 0.113963,
+      "failure": "Control trace stopped advancing for more than the frozen 300 second watchdog threshold; the diagnostic stack remained inside scenario tick and the watchdog terminated the evaluator.",
+      "evidence": {
+        "manifest_sha256": "91776668a83b8e99a440ba2bbdf54a67a99bbb809b22c43106264a1097fe0717",
+        "evaluator_sha256": "62339586af997351e8a6051667ee679e9d4dc76dee0af04a301f2425ab97555e",
+        "runtime_progress_watchdog_sha256": "c1d23087163a726420d36519a00bea13aa9c501f039f9ca8598d26143b5d3860",
+        "control_trace_sha256": "1b9704c5efe907a38158ab9f65a7c3f54dd1e640b00a284fb3016f4671030ba6",
+        "job_log_sha256": "c29287fb3035db9efbd8ddf473e88380343c1cd465cdab44aada54148daa2f75"
+      }
+    }
+  ],
+  "replacement_policy": {
+    "authorized_replacements": 1,
+    "used_replacements": 1,
+    "additional_replacement_authorized": false
+  },
+  "decision": "Exclude both attempts from scientific counting, leave Route185 Q2 inconclusive, and do not submit any Route185 corruption-conditioned job.",
+  "automatic_scope_locks": {
+    "route185_corruption": false,
+    "additional_q2_retry": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Runtime diagnostic outcome only. It is neither evidence that native ORION passes Route185 clean Q2 nor evidence that it fails the driving task."
+}

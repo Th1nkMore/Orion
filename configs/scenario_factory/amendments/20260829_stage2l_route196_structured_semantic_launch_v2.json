@@ -1,0 +1,50 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T23:14:00+08:00",
+  "status": "active_single_route196_structured_semantic_smoke_authorization",
+  "supersedes_prepared_amendment": {
+    "path": "configs/scenario_factory/amendments/20260829_stage2l_route196_structured_semantic_launch_v1.json",
+    "sha256": "f8d18db11e97f4faad26a87682896fa059aa3c9c6e7509bc8ce762b47c5460c2",
+    "reason": "The structured semantic tensor contracts, remote unit tests, exact-step guard, source hash gate, and inactive fail-closed submit path have now been validated."
+  },
+  "validated_inputs": {
+    "training_protocol_sha256": "6fd48d4b3b446aefe83b9d2fdab7e5dd3db1228a65a145cd24a9f4c80e05c0e5",
+    "trainer_sha256": "a3b6aad3f9662bb6d1bc47d8c7e184eab0b5a7d372b3b6bcd9e25b85bdaffd34",
+    "bridge_trainer_helpers_sha256": "74f72836d923ced888363a8109b91083a0d892ec7c8999cb153a2e6fd41c489d",
+    "uq_relevance_bridge_sha256": "2e04bbfdf7fc9fd20ab4c1d8cf6fd8f02c655f350d33599e80c8d92a6d858be7",
+    "two_pass_runtime_sha256": "30533e5f8683cf0d10491a3eaacc65820a864f2aa43a3a7eade1aafcab9d53c1",
+    "semantic_bottleneck_sha256": "3e85676d80354ca5620b08740a257e8de8f1437f7bf616edb09bb5b1bb1b83e0",
+    "semantic_runtime_sha256": "bde7501dd58c685fb45d4dbe4a215e2692552cc990ecf6622db22ff7c2a39e8c",
+    "submit_wrapper_sha256": "eb3cf9af6604849a0b5f916bb0f89e08ed899da2e45184d6509e966e1b4ba2a8",
+    "semantic_test_sha256": "b796aa9eeac777f02803ae6cd95377767d8b674909e403d2741a00e4e9cecf0b",
+    "unit_tests": "16 passed",
+    "interface_contracts": [
+      "stance supervision is loss-only and never enters model forward inputs",
+      "language receives one differentiable token built from the predicted three-class stance distribution",
+      "structured stance gradients propagate through K to the task-relevance logits",
+      "zero-UQ structured conditioning is exactly invariant to task relevance",
+      "unknown lexical fusions such as prepare_right are rejected by the frozen stance vocabulary"
+    ],
+    "exact_240_step_guard": true,
+    "inactive_submit_rejected_before_sbatch": true,
+    "inactive_submit_queue_unchanged": true,
+    "source_hash_gate_before_sbatch": true
+  },
+  "authorized_run": {
+    "event_id": "route196_step313",
+    "objective": "fresh Route196 learnability smoke for the explicit predicted planning-semantics bottleneck",
+    "maximum_submissions": 1,
+    "maximum_steps": 240,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "reuse_failed_bridge_checkpoint": false,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_structured_semantic_v1_240/training"
+  },
+  "launch_locks": {
+    "route196_structured_semantic_smoke_allowed": true,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "success_policy": "Passing every preregistered gate permits only an explicit migration review for the frozen 8-event Stage2-L pilot; it does not make the pilot automatically training-ready.",
+  "stop_policy": "Exactly one submission, no step extension and no automatic rerun. Failure pauses further Route196 overfit iterations and requires review of the discrete language contract before any pilot training.",
+  "claim_boundary": "One-event structured semantic architecture learnability smoke only; no held-out generalization, trajectory, closed-loop, or safety evidence."
+}

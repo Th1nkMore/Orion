@@ -1,0 +1,144 @@
+{
+  "schema": "orion.stage2l_route196_structured_semantic_diagnosis.v1",
+  "status": "validated_architecture_gate_failure_pilot_locked",
+  "report": {
+    "path": "results/scenario_factory/stage2l_smokes/route196_structured_semantic_v1_240/training/report.json",
+    "sha256": "012e3e451293c2044855139ce5522ac504269fbab7a5fd8ab581d1459eebc3d3"
+  },
+  "independent_validation": {
+    "path": "results/scenario_factory/stage2l_smokes/route196_structured_semantic_v1_240/training/independent_validation.json",
+    "sha256": "2c74ee4693e4100b85ee7f641c2758098cde35a830958482e3b77097d09238fd",
+    "integrity_valid": true
+  },
+  "checkpoint": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_structured_semantic_v1_240/training/stage2l_route196_structured_semantic.pt",
+    "sha256": "b9c4b93ef8ffafdc307c47a20db095ee530405673788bca14318a1375ab03bcf",
+    "reuse_for_training": false,
+    "diagnostic_only": true
+  },
+  "successful_subcontracts": {
+    "mean_language_nll": {
+      "before": 14.868884372711182,
+      "after": 0.21278494223952293
+    },
+    "relevance_bce": {
+      "before": 0.7723497748374939,
+      "after": 0.06321897357702255
+    },
+    "mean_structured_stance_ce": {
+      "before": 1.162103295326233,
+      "after": 0.8207617998123169
+    },
+    "on_minus_off_peak_task_risk": {
+      "before": -0.010287851095199585,
+      "after": 0.4894776940345764,
+      "required": 0.2
+    },
+    "matched_answer_preferences": {
+      "zero_uq_prefers_maintain": true,
+      "off_path_prefers_maintain": true,
+      "on_path_prefers_prepare_to_yield": true
+    }
+  },
+  "failed_gates": {
+    "structured_stance_accuracy": {
+      "observed": 0.6,
+      "required": 1.0,
+      "wrong_variants": {
+        "observed": {
+          "target": "maintain",
+          "predicted": "caution",
+          "target_probability": 0.05226803198456764,
+          "predicted_probability": 0.933987021446228
+        },
+        "off_path_uq": {
+          "target": "maintain",
+          "predicted": "caution",
+          "target_probability": 0.4291567802429199,
+          "predicted_probability": 0.5692288875579834
+        }
+      }
+    },
+    "minimum_structured_target_probability": {
+      "observed": 0.05226803198456764,
+      "required": 0.55
+    },
+    "generated_stance_accuracy": {
+      "observed": 0.2,
+      "required": 1.0,
+      "only_correct_variant": "view_shuffled_uq",
+      "failure_pattern": "Observed, zero-UQ, off-path and on-path free generation fell into observation-semantics or epistemic-limitation answer templates instead of emitting a planning stance."
+    }
+  },
+  "task_risk_feature_diagnosis": {
+    "after_global_features": {
+      "observed": [
+        0.050418075174093246,
+        0.000996203045360744,
+        0.004709857515990734,
+        0.5031388998031616,
+        -0.06320799142122269,
+        -0.20116186141967773
+      ],
+      "off_path_uq": [
+        0.0676359012722969,
+        0.000276144448434934,
+        0.0038902899250388145,
+        0.16940158605575562,
+        0.661990225315094,
+        -0.5999963879585266
+      ],
+      "on_path_uq": [
+        0.5571135878562927,
+        0.0014018520014360547,
+        0.02386159636080265,
+        0.1467646062374115,
+        -0.7432035207748413,
+        -0.5999993085861206
+      ],
+      "view_shuffled_uq": [
+        0.12521100044250488,
+        0.0025675061624497175,
+        0.010577423498034477,
+        0.4874228835105896,
+        0.09405490010976791,
+        -0.32184934616088867
+      ],
+      "zero_uq": [
+        0.0,
+        0.0,
+        0.0010000000474974513,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "observed_vs_view_shuffled_cosine_similarity": 0.9367285460002781,
+    "inference": "Observed and shuffled K summaries are highly aligned while their hard stance targets differ. The stance head consumes a normalized 4096-D bridge token rather than an explicit unnormalized magnitude side channel, so the current interface may attenuate exactly the scale distinction needed here. This is a source-supported inference, not a proven sole cause."
+  },
+  "language_diagnosis": {
+    "direct_evidence": "Teacher-forced target answers beat their matched maintain/conservative alternatives, yet greedy generation selects answers from other QA families.",
+    "objective_gap": "The matched preference loss contrasts only maintain versus conservative driving answers. It does not contrast the driving answer against observation-semantics, epistemic-limitation, or task-relevance templates for the same visual condition.",
+    "conclusion": "Low target NLL and matched stance preference are insufficient evidence that free generation obeys the requested QA family."
+  },
+  "label_audit": {
+    "zero_uq": "maintain remains a valid controlled counterfactual label",
+    "off_path_uq": "maintain remains a valid controlled counterfactual label",
+    "on_path_uq": "prepare_to_yield remains a valid controlled counterfactual label for this smoke",
+    "view_shuffled_uq": "caution is a constructed diagnostic label and must not be presented as uncertainty ground truth",
+    "observed": "A hard maintain label is not independently justified merely because the source frame is clean. Observed adapter U may be nonzero and task-relevant; future training should treat observed stance as unlabeled/calibration data unless an independent consequence label exists."
+  },
+  "recommended_architecture_review": [
+    "Train the matched counterfactual variants together in one optimizer batch so maintain, caution and prepare_to_yield gradients cannot overwrite one another sequentially.",
+    "Feed the stance predictor explicit raw K summaries, including an unnormalized magnitude path, while keeping the differentiable predicted stance token for VLM language conditioning.",
+    "Add question-family routing or a frozen structured answer prefix and contrast the target driving answer against all other QA-family answers, not only the opposite driving stance.",
+    "Remove hard stance CE from observed adapter outputs unless an independent task-consequence label is available; retain observed data for calibration, consistency and downstream held-out evaluation.",
+    "Evaluate the next design first as an offline objective/interface audit; do not submit another Route196 overfit run or the 8-event pilot under the failed protocol."
+  ],
+  "launch_locks": {
+    "additional_route196_overfit_runs_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "Validated one-event architecture failure diagnosis. It does not negate the learned R/K ordering result, but it provides no held-out VLM-understanding, trajectory, closed-loop, or safety evidence."
+}

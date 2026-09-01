@@ -1,0 +1,87 @@
+{
+  "audit": {
+    "development_failure_candidates_allowed": false,
+    "eligible_for_locked_test_claim": true,
+    "jobs_submitted": false,
+    "selection_uses_learned_uq_outcomes": false,
+    "selection_uses_published_orion_outcomes": false,
+    "selection_uses_stage2_outcomes": false,
+    "writes_performed": true
+  },
+  "claim_boundary": "One exact technical replay of frozen locked-test Route145; model outcome cannot change membership and no replacement route is permitted.",
+  "lineage": {
+    "candidate_manifest": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/locked_test_candidates.json",
+      "sha256": "dbbf64f4c27a2ce071d4db77d84cf2b23d30304724d187e4e730cc7cbb6fea6e"
+    },
+    "original_batch_manifest": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/test_wave0/batch_manifest.json",
+      "sha256": "e35b378e633d1b5efdb26d3acab51fdcf43fb831ec4efb9375d5f7ef10fa2add"
+    },
+    "runtime_retry_amendment": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260831_route145_control_tick_stall_retry1_v1.json",
+      "sha256": "0469553570f1ae51abace7a73a32326fa622d74492cc9524faad8532f190577e"
+    },
+    "scenario_factory_protocol": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/protocol_v1.json",
+      "sha256": "0df6da6276ae3002207b20c014a8de10873ebf9acf3fe81f5c68311401e997c0"
+    }
+  },
+  "postprocessing": {
+    "event_package_schema": "orion.scenario_event_package.v1",
+    "initial_review_status": "pending_human_review",
+    "stage1_uq": "offline precomputation only; never affects clean replay control"
+  },
+  "route_count": 1,
+  "routes": [
+    {
+      "development_selection_role": "published_clean_valid",
+      "formal_split": "test",
+      "hazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/test_wave0/route_145_hazard.xml",
+        "sha256": "8a6d71730ead7d11d4c85ad6e604a923e98ed809b62267a0c5ed4cdd5825fcde"
+      },
+      "initial_condition": "clean_off",
+      "nohazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/test_wave0/route_145_nohazard.xml",
+        "sha256": "9267a9fba2344bb263727b5b24354c09952c2f61e359bfff3f1a00e2246f7c25"
+      },
+      "priority": 98,
+      "published_clean_prior": {
+        "available": false,
+        "valid": false
+      },
+      "review_status": "awaiting_single_exact_runtime_retry",
+      "route_index": 145,
+      "route_length_m": 133.978,
+      "scenario_name": "ParkingCrossingPedestrian_1",
+      "scenario_type": "ParkingCrossingPedestrian",
+      "screen_role": "dynamic_path_conflict",
+      "source_xml": {
+        "path": "/public/share/lidachuan/orion_assets/Bench2Drive/leaderboard/data/bench2drive220_145_orion_traj.xml",
+        "sha256": "8a6d71730ead7d11d4c85ad6e604a923e98ed809b62267a0c5ed4cdd5825fcde"
+      },
+      "town": "Town03",
+      "trigger_progress": 0.078006,
+      "xml_route_id": "24206"
+    }
+  ],
+  "run_id": "stage2l_formal24_test_wave0_route145_retry1_20260831",
+  "runtime_contract": {
+    "agent_config": "adzoo/orion/configs/orion_stage3_agent_spatial_stage2.py",
+    "carla_quality": "Epic",
+    "condition": "clean_off",
+    "cpus_per_route": 2,
+    "gpus_per_route": 1,
+    "legacy_density_uq": false,
+    "memory_per_route": "192G",
+    "planning_response": "off",
+    "risk_mode": "off",
+    "stage1_adapter_control_influence": false,
+    "stage2_spatial_uq_source": "disabled",
+    "variant": "hazard"
+  },
+  "schema": "orion.scenario_factory.batch.v1",
+  "split": "locked_test",
+  "status": "prepared_no_jobs_submitted"
+}

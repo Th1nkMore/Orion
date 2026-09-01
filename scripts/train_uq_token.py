@@ -106,6 +106,19 @@ def parse_args() -> argparse.Namespace:
         help="optional path to save intervention evaluation JSON",
     )
     parser.add_argument("--max-samples", type=int, default=None)
+    parser.add_argument("--train-route-balanced", action="store_true")
+    parser.add_argument(
+        "--train-route-samples",
+        type=int,
+        default=100,
+        help="uniformly spaced samples per route for route-balanced training",
+    )
+    parser.add_argument(
+        "--train-route-limit",
+        type=int,
+        default=None,
+        help="optional maximum number of routes for route-balanced training",
+    )
     parser.add_argument("--max-steps", type=int, default=None)
     parser.add_argument("--log-interval", type=int, default=10)
     parser.add_argument("--workers", type=int, default=2)
@@ -132,6 +145,12 @@ def parse_args() -> argparse.Namespace:
         help="comma-separated UQ modes for --eval-only",
     )
     parser.add_argument("--out", default="checkpoints/uq_token/best.pt")
+    parser.add_argument(
+        "--lambda-clean-preservation",
+        type=float,
+        default=0.0,
+        help="keep clean conditioned planning features close to none-mode features",
+    )
     return parser.parse_args()
 
 
@@ -158,6 +177,7 @@ def select_route_balanced_samples(
     dataset,
     samples_per_route: int,
     route_limit: int | None = None,
+    sampling: str = "head",
 ) -> dict[str, int]:
     route_samples: dict[str, list[dict]] = {}
     for info in dataset.data_infos:
@@ -166,8 +186,20 @@ def select_route_balanced_samples(
             if route_limit is not None and len(route_samples) >= route_limit:
                 continue
             route_samples[route] = []
-        if len(route_samples[route]) < samples_per_route:
-            route_samples[route].append(info)
+        route_samples[route].append(info)
+
+    if sampling not in {"head", "uniform"}:
+        raise ValueError(f"Unknown route sampling mode: {sampling}")
+    for route, infos in route_samples.items():
+        if len(infos) <= samples_per_route:
+            continue
+        if sampling == "head":
+            route_samples[route] = infos[:samples_per_route]
+        else:
+            indices = np.linspace(
+                0, len(infos) - 1, samples_per_route, dtype=np.int64
+            )
+            route_samples[route] = [infos[int(index)] for index in indices]
 
     selected = [
         info
@@ -520,7 +552,19 @@ def main() -> None:
 
     dataset = build_dataset(cfg.data.test)
     split_size = filter_dataset_by_split(dataset, assignment, args.split)
-    if args.max_samples is not None:
+    train_route_balanced_counts = None
+    if args.train_route_balanced:
+        if args.max_samples is not None:
+            raise ValueError(
+                "--max-samples cannot be combined with --train-route-balanced"
+            )
+        train_route_balanced_counts = select_route_balanced_samples(
+            dataset,
+            args.train_route_samples,
+            args.train_route_limit,
+            sampling="uniform",
+        )
+    elif args.max_samples is not None:
         dataset.data_infos = dataset.data_infos[:args.max_samples]
         dataset.flag = np.zeros(len(dataset), dtype=np.uint8)
     data_loader = build_dataloader(
@@ -558,6 +602,11 @@ def main() -> None:
         f"[UQToken] split={args.split}, matched={split_size}, "
         f"training_samples={len(dataset)}"
     )
+    if train_route_balanced_counts is not None:
+        print(
+            f"[UQToken] route-balanced train: "
+            f"{json.dumps(train_route_balanced_counts)}"
+        )
     print(
         f"[UQToken] calibration matched={eval_size}, "
         f"evaluation_samples={len(eval_dataset)}"
@@ -725,6 +774,29 @@ def main() -> None:
             paired_log = {}
             if args.paired_corruption:
                 pair_seed = args.seed + global_step
+                clean_baseline_feature = None
+                if args.lambda_clean_preservation > 0:
+                    set_pair_forward_seed(pair_seed)
+                    with torch.no_grad():
+                        clean_baseline_output = forward_film_training(
+                            model,
+                            copy.deepcopy(data),
+                            lambda_col=0.0,
+                            lambda_uq_consistency=0.0,
+                            lambda_plan=0.0,
+                            lambda_vae=0.0,
+                            lambda_vlm=0.0,
+                            lambda_ground=0.0,
+                            uq_mode="none",
+                            grounding_only=args.grounding_only,
+                            token_input=args.token_input,
+                            conditioning=args.conditioning,
+                        )
+                    if clean_baseline_output is not None:
+                        clean_baseline_feature = clean_baseline_output[
+                            "planning_feature_raw"
+                        ].detach()
+                    del clean_baseline_output
                 set_pair_forward_seed(pair_seed)
                 clean_output = forward_film_training(
                     model,
@@ -753,6 +825,17 @@ def main() -> None:
                 clean_reference_score = clean_output[
                     "target_score"
                 ].detach()
+                clean_preservation_loss = clean_output["loss"].new_zeros(())
+                if clean_baseline_feature is not None:
+                    clean_preservation_loss = (
+                        clean_output["planning_feature_raw"]
+                        - clean_baseline_feature
+                    ).float().pow(2).mean()
+                    (
+                        args.lambda_clean_preservation
+                        * clean_preservation_loss
+                        / args.grad_accum
+                    ).backward()
                 del clean_output
 
                 shuffled_reference_feature = None
@@ -841,6 +924,13 @@ def main() -> None:
                     "corrupted_total": float(output["loss"].detach()),
                     "pair_consistency": float(pair_loss.detach()),
                     "pair_rank": float(pair_rank_loss.detach()),
+                    "clean_preservation": float(
+                        clean_preservation_loss.detach()
+                    ),
+                    "weighted_clean_preservation": float(
+                        args.lambda_clean_preservation
+                        * clean_preservation_loss.detach()
+                    ),
                     "clean_uq_score": float(
                         clean_reference_score.mean()
                     ),

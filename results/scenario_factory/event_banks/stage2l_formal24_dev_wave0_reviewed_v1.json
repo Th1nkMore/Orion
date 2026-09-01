@@ -1,0 +1,278 @@
+{
+  "claim_boundary": "Human-reviewed formal-route shard with preregistered splits. It establishes event integrity only, not UQ, model, trajectory, closed-loop, or safety performance.",
+  "counts": {
+    "accepted_events": 3,
+    "formal_splits": {
+      "dev": 2,
+      "test": 0,
+      "train": 1
+    },
+    "rejected_events": 0,
+    "scenario_families": 3,
+    "towns": 2
+  },
+  "events": [
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 1.2846552322108273,
+        "min_obb_ttc_seconds": 0.6070458898152666,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 138,
+          "category": "walker",
+          "obb_separating_axis_gap_m": 2.9789274850003635,
+          "obb_ttc_seconds": 0.6070458898152666,
+          "type_id": "walker.pedestrian.0007"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.3718034747556409,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "selection_policy": {
+          "complete_review_window_required": true,
+          "maximum_route_progress_exclusive": 0.98,
+          "minimum_post_event_seconds": 2.0,
+          "minimum_pre_event_seconds": 3.0,
+          "terminal_route_tail_excluded": true
+        },
+        "sim_time_seconds": 11.15,
+        "speed_mps": 4.971552114604546,
+        "step": 223,
+        "window_seconds": [
+          8.15,
+          13.15
+        ]
+      },
+      "event_id": "route147_step223",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route147/event_package.json",
+        "sha256": "b76d7fb10c8e19bda6154526821367c34b7445d1fa310d26cab5558ff2775320"
+      },
+      "formal_plan_selection_role": "published_clean_valid",
+      "formal_split": "dev",
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "The pedestrian emerges continuously from the right sidewalk/rock-side shelter region and crosses the ego path during t=10.5-13.0 s. Front and BEV motion agree; the opposite-direction vehicle is also temporally continuous.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 1,
+      "route_index": 147,
+      "runtime_valid": true,
+      "scenario_family": "DynamicObjectCrossing",
+      "screen_role": "dynamic_path_conflict",
+      "split_origin": "development_screen",
+      "town": "Town02",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route147/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route147/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route147/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 1.7318693420633673,
+        "min_obb_ttc_seconds": 1.2183600987929308,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 138,
+          "category": "walker",
+          "obb_separating_axis_gap_m": 5.5431010327251915,
+          "obb_ttc_seconds": 1.2731810684330078,
+          "type_id": "walker.pedestrian.0034"
+        },
+        "preferred_actor_categories": [
+          "walker"
+        ],
+        "route_progress": 0.46461600000599634,
+        "selection_basis": "minimum_finite_preferred_actor_obb_ttc",
+        "selection_policy": {
+          "complete_review_window_required": true,
+          "maximum_route_progress_exclusive": 0.98,
+          "minimum_post_event_seconds": 2.0,
+          "minimum_pre_event_seconds": 3.0,
+          "terminal_route_tail_excluded": true
+        },
+        "sim_time_seconds": 10.9,
+        "speed_mps": 3.95620154767894,
+        "step": 218,
+        "window_seconds": [
+          7.9,
+          12.9
+        ]
+      },
+      "event_id": "route151_step218",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route151/event_package.json",
+        "sha256": "c2cb277b5ce3ec2f3af5b3139b35bfd26de38c4584e20d46a5f43ff5c9503cd2"
+      },
+      "formal_plan_selection_role": "published_clean_valid",
+      "formal_split": "train",
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "The pedestrian emerges continuously from occlusion beside the parked police vehicle and crosses the ego lane during t=10.5-12.5 s. Front and BEV views agree and show no spawn/disappearance artifact.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 3,
+      "route_index": 151,
+      "runtime_valid": true,
+      "scenario_family": "ParkingCrossingPedestrian",
+      "screen_role": "dynamic_path_conflict",
+      "split_origin": "development_screen",
+      "town": "Town02",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route151/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route151/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route151/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 2.6714470380824356,
+        "min_obb_ttc_seconds": 1.6547039853439407,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 110,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 23.90183543884767,
+          "obb_ttc_seconds": 1.6552124302146025,
+          "type_id": "vehicle.dodge.charger_police_2020"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.4571617207492187,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "selection_policy": {
+          "complete_review_window_required": true,
+          "maximum_route_progress_exclusive": 0.98,
+          "minimum_post_event_seconds": 2.0,
+          "minimum_pre_event_seconds": 3.0,
+          "terminal_route_tail_excluded": true
+        },
+        "sim_time_seconds": 11.5,
+        "speed_mps": 3.6417443538304384,
+        "step": 230,
+        "window_seconds": [
+          8.5,
+          13.5
+        ]
+      },
+      "event_id": "route195_step230",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route195/event_package.json",
+        "sha256": "e4fa058a0c7f0e954a9cb03f12340df9b9807b65e14ac26d23d8beda6adf2274"
+      },
+      "formal_plan_selection_role": "published_clean_valid",
+      "formal_split": "dev",
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "The police vehicle enters from the right and traverses the junction continuously during t=11.5-13.0 s. Front and rotating ego-centric BEV views remain aligned. Native night illumination is treated as clean context, not corruption or a rejection reason.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 2,
+      "route_index": 195,
+      "runtime_valid": true,
+      "scenario_family": "OppositeVehicleRunningRedLight",
+      "screen_role": "dynamic_path_conflict",
+      "split_origin": "development_screen",
+      "town": "Town03",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route195/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route195/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave0_20260829/route195/visuals/raw_front.gif"
+      ]
+    }
+  ],
+  "formal_training_ready": false,
+  "provenance": {
+    "batch_manifest": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave0/batch_manifest.json",
+      "sha256": "bbeb8f6b21521d671045bbf4567094289b6ee88b74c9c11163abf10a7da60368"
+    },
+    "formal_route_plan": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/formal_route_plan.json",
+      "sha256": "ccc4f25b1110856873bfdedc87b2d3232a2418400acd0d2ba093d0201bd2c50c"
+    },
+    "review_decisions": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/stage2l_formal24_dev_wave0_20260829/scenario_event_review_decisions.json",
+      "sha256": "5c74e460c4641c366b39e4821a2284250ad4ffa5d2c62970fdae601b16ea6470"
+    },
+    "review_queue": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/stage2l_formal24_dev_wave0_20260829/scenario_event_review_queue.json",
+      "sha256": "74489a62b9213e3947602de24800c80e417bfeeae4accb9ac37a36b4ed63b566"
+    }
+  },
+  "rejected_events": [],
+  "run_id": "stage2l_formal24_dev_wave0_20260829",
+  "schema": "orion.stage2_l.formal_reviewed_wave.v1",
+  "status": "reviewed_formal_wave_shard"
+}

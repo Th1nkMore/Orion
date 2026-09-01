@@ -1,0 +1,142 @@
+{
+  "schema": "orion.scenario_event_review_decisions.v1",
+  "status": "review_complete",
+  "reviewer": "Codex-assisted visual review",
+  "reviewed_at": "2026-08-29T15:32:41+08:00",
+  "review_queue": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/stage2l_pilot8_review_20260829_v1/scenario_event_review_queue.json",
+    "sha256": "9f29ca52bc2e441ca0893d7d4d7ab2cba7310f79224f3c7a00d29f0aa3847acf"
+  },
+  "decisions": [
+    {
+      "event_id": "route160_step518",
+      "event_package_sha256": "100312d6468f5a2573dc1a4c587233d7c435377f2db9ce42c70a30740fe5641e",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "rejection_basis": null,
+      "notes": "Ford Mustang remains temporally continuous while entering and crossing the ego corridor; raw/model-input front and BEV agree. Development event only."
+    },
+    {
+      "event_id": "route159_step1020",
+      "event_package_sha256": "c3e5eaab465c4f09a239f5de09b22cf416353a3d516e30d87d877d9c74c1b47f",
+      "decision": "reject",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "fail",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "rejection_basis": null,
+      "notes": "Automatic minimum-TTC window occurs after the visible interaction has passed and does not ground a current ego-corridor conflict; most of the route is also nearly stopped. Retained only as a selector diagnostic."
+    },
+    {
+      "event_id": "route192_step729",
+      "event_package_sha256": "593070436b8e8aa48a2f848c2ab439d54cac5e9bffa14e306d7e6ca86cd028fd",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "rejection_basis": null,
+      "notes": "Lead vehicle remains continuous while braking sharply in the ego lane; ego closes and then stops. Front and BEV motion agree. Early immutable packaging was used so the completed route did not wait for the reserve route."
+    },
+    {
+      "event_id": "route165_step421",
+      "event_package_sha256": "a32b44dcd43402c5545a2c4870f7ff20701ab916cd4d4305c013fe8e6dd5b080",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "rejection_basis": null,
+      "notes": "Severe-TTC parked-obstacle interaction is temporally continuous in native dark/rain conditions. The route's MinSpeed failure remains recorded and is not treated as a safety improvement."
+    },
+    {
+      "event_id": "route200_step33",
+      "event_package_sha256": "89b2edcc5ad169ebf7e65a278d05f42cb9c4d11be729aee632b5d939e588ac3b",
+      "decision": "reject",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "fail",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "fail"
+      },
+      "rejection_basis": null,
+      "notes": "Critical event lies essentially at route start and is dominated by initial neighboring-traffic/spawn geometry rather than an established driving interaction. Retained only as a selector diagnostic."
+    },
+    {
+      "event_id": "route202_step105",
+      "event_package_sha256": "8e5e4df478446fe2484e724504b308dcbbf691cfe68e1b7205d7fa0ae4f77030",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "rejection_basis": null,
+      "notes": "Corrected pedestrian-specific review window shows a continuous right-to-left crossing aligned in front and BEV. Majority-stopped warning is retained; this is a semantic QA event, not closed-loop performance evidence."
+    },
+    {
+      "event_id": "route162_step277",
+      "event_package_sha256": "ecced03ac5a1952e88e2105d5356da2ecd0a30bb1714a01074a1a2aa67625b0c",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "rejection_basis": null,
+      "notes": "Accident/crossing-vehicle interaction is continuous in native dark/rain conditions. The BEV is naturally very dark but present and temporally aligned, not a missing stream."
+    },
+    {
+      "event_id": "route185_step304",
+      "event_package_sha256": "0bd0b2aeac3b5de75b60962061eeafc7dc3ec8818817679fbde9cae9ce95f4fa",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "rejection_basis": null,
+      "notes": "Chevrolet Impala remains visible during the diagonal cut-in and front/BEV agree. Dense surrounding traffic makes this a lower-specificity development conflict, not a standalone headline case."
+    },
+    {
+      "event_id": "route161_step308",
+      "event_package_sha256": "11ad7ddaa0de75901e73ab89fee158a35094a970266c8b00270ddfd91ead3022",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "rejection_basis": null,
+      "notes": "Construction-zone cones and crossing/cut-in vehicles remain continuous and aligned across front and BEV throughout the selected conflict window."
+    },
+    {
+      "event_id": "route188_step139",
+      "event_package_sha256": "c223fc670d88d047e744d7ee1a371e7a5fec2066fc118cda705f2e3bb3e76e25",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "rejection_basis": null,
+      "notes": "Dense-traffic hard-braking interaction is continuous; ego stops behind the lead traffic and front/BEV motion agree. Accepted as a development longitudinal-conflict event."
+    }
+  ]
+}

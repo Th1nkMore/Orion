@@ -1,0 +1,61 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T17:12:00+08:00",
+  "status": "immutable_evaluation_only_authorization",
+  "title": "Single zero-step replay of the scientifically failed Stage2-L v10 Phase-A checkpoint",
+  "amends_without_rewriting": [
+    {
+      "path": "configs/scenario_factory/amendments/20260831_stage2l_v10_phase_a_result_v1.json",
+      "role": "terminal failed-gate result; remains failed"
+    },
+    {
+      "path": "results/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/analysis/phase_a_diagnosis.json",
+      "role": "report-only diagnosis requesting this checkpoint replay"
+    }
+  ],
+  "validated_inputs": {
+    "evaluator_sha256": "79c994cc60499cb9ba2444cc9a276993075730de65afd3099f1eb69f0b07e520",
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "orion_config_sha256": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+    "u_tokenizer_checkpoint_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "phase_a_checkpoint_sha256": "9010ee1b559bbd5a822bc78193bc88594f5d266bd64932ceefe90b2699f03443",
+    "v10_report_sha256": "8085bd52f51c491c55a5ed474ecbcef9b6912055ad433540bb08035ac2bd8783"
+  },
+  "protocol_sha256": "336a7e63b11228b376622065d996740c2c0f734893de92f61153c1c9a239c776",
+  "preflight_sha256": "9942840b1fd6db598a037a9a04f17278fbd2325d735b8e71ae7a5b7b5a3fd4ca",
+  "platform_validation": {
+    "python_environment": "/public/share/lidachuan/orion_assets/envs/orion-cl-centos7/bin/python",
+    "test_result": "4 passed",
+    "test_log": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/phase_a_replay_v1_platform_tests.log",
+    "test_log_sha256": "2ccfc48a2f8957fb6b5995c6aa48a536161298ce591eeaef7f729681a0ef9b0c",
+    "attester_sha256": "6694f6778d3e2cf46aabac9cd1a4a8c889826c224d13dd6ac8a6fdd435f44010",
+    "submitter_sha256": "6afb973e140d774c5d80f2ba5f5b1e66513af210afe90757d60af9299b5ae8af"
+  },
+  "authorized_run": {
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/phase_a_replay_v1",
+    "maximum_submissions": 1,
+    "optimizer_steps": 0,
+    "checkpoint_update": false,
+    "automatic_retry": false,
+    "resource_request": {
+      "partition": "Nvidia_A800",
+      "gpus": 1,
+      "cpus_per_task": 2,
+      "memory": "192G",
+      "time_limit": "04:00:00",
+      "exclude_nodes": ["gpu5"]
+    }
+  },
+  "launch_locks": {
+    "phase_a_replay_allowed": true,
+    "phase_b_allowed": false,
+    "phase_c_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "route203_native_glare_submission_allowed": false,
+    "automatic_retry_or_extension_allowed": false
+  },
+  "claim_boundary": "One evaluation-only checkpoint replay. v10 remains a failed Phase-A smoke regardless of replay metrics; any calibration, objective or step change requires a new version and authorization."
+}

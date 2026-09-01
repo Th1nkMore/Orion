@@ -1,0 +1,76 @@
+schema_version: spatial_uq_adapter_stage2/v1
+status: diagnostic_oracle_teacher_only
+superseded_mainline: configs/spatial_uq_orion_stage2_v2.yaml
+interpretation_limit: >-
+  This privileged path-risk residual adapter is an oracle teacher/mechanism
+  baseline. It is not evidence that ORION/VLM learned uncertainty relevance.
+
+input_contract:
+  uq_source_during_initial_training: oracle_spatial_uq
+  risk_source: fixed_path_risk_aggregator
+  allow_density_uq_as_target: false
+  trajectory_representation: six_step_displacements
+
+model:
+  type: PathRiskTrajectoryAdapter
+  context_dim: 0
+  hidden_dim: 128
+  max_residual_m: 2.0
+  identity_at_zero_risk: true
+  base_orion_frozen: true
+
+dataset:
+  schema_version: orion.oracle_adapter.dataset.v1
+  root: /public/share/lidachuan/orion_assets/oracle_adapter_v1
+  horizon_seconds: 3.0
+  step_seconds: 0.5
+  required_axes:
+    scenario: [hazard, nohazard]
+    relevance: [on_path, off_path]
+    response: [off, oracle_expert]
+  development_routes: [146]
+  exclude_from_headline: [203]
+  incompatible_routes: [25, 113, 148, 195]
+  split_unit: route_and_seed
+
+loss:
+  implemented:
+    lambda_oracle_imitation: 1.0
+    lambda_stop: 0.25
+    lambda_clean_preservation: 0.5
+  planned_after_multi_route_oracle_gate:
+    lambda_progress: 0.25
+    lambda_comfort: 0.05
+    lambda_unnecessary_intervention: 0.5
+    lambda_recovery: 0.25
+  collision_proxy_role: auxiliary_only
+
+training_order:
+  - exporter_and_coordinate_smoke
+  - oracle_adapter_smoke_on_route146
+  - held_out_oracle_adapter_validation
+  - learned_spatial_uq_integration
+  - constrained_joint_finetuning
+
+closed_loop_gate:
+  primary:
+    - collision_count
+    - route_completion
+    - traffic_infraction_count
+  secondary:
+    - minimum_ttc
+    - blocked_or_timeout
+    - unnecessary_stop_time
+    - intervention_duration
+    - recovery_latency
+    - duration_game
+  require_hazard_improvement: true
+  require_nohazard_preservation: true
+  compare_matched_intervention_budget: true
+
+resources:
+  gpu: NVIDIA_A800
+  gpus_per_job: 1
+  adapter_training_host_memory: 16G
+  full_orion_closed_loop_host_memory: 192G
+  training_and_carla_on_separate_nodes: true

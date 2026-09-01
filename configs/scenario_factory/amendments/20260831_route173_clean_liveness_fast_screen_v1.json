@@ -1,0 +1,53 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T06:43:32+08:00",
+  "status": "locked_test_runtime_terminated_by_preregistered_liveness_rule",
+  "title": "Route173 clean baseline triggered the frozen liveness fast-screen",
+  "scope": "Route173 clean_off resource termination and result classification only",
+  "source": {
+    "job_id": 1107818,
+    "run_id": "stage2l_formal24_test_wave0_route173_20260829",
+    "route_index": 173,
+    "formal_split": "test",
+    "town": "Town03",
+    "condition": "clean_off",
+    "submission_attestation_sha256": "f32fb23d96ac037409791bec2d70668ee3eb38dd49db7a151820f3d02e45c503"
+  },
+  "frozen_rule": {
+    "speed_threshold_mps": 0.25,
+    "maximum_stop_seconds": 8.0,
+    "ignore_before_seconds": 2.0,
+    "comparison": "strictly greater than maximum"
+  },
+  "observed_evidence_at_termination": {
+    "trace_frames": 1217,
+    "last_sim_time_seconds": 60.8,
+    "last_route_progress": 0.7138055022208174,
+    "longest_low_speed_duration_seconds": 16.150000000000002,
+    "low_speed_interval_start_progress": 0.7263649222494932,
+    "low_speed_interval_end_progress": 0.7263894942936263,
+    "clean_liveness_report_sha256": "ab3ccf849b0a28b373b8737004fe2c1bbbbc49b5e8de48006ac5308f1b3089cb"
+  },
+  "action": {
+    "job_cancelled": true,
+    "scheduler_terminal_state": "CANCELLED by 2329",
+    "elapsed_wallclock": "00:37:04",
+    "stage_b_qualified": false,
+    "route_membership_changed": false,
+    "replacement_route_selected": false,
+    "automatic_retry_allowed": false
+  },
+  "classification": {
+    "official_safety_result": false,
+    "model_failure_result": false,
+    "collision_or_ttc_claim_allowed": false,
+    "formal_test_membership_preserved": true,
+    "formal_test_data_status": "missing_valid_runtime_due_clean_liveness_ineligibility"
+  },
+  "locks": {
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false,
+    "outcome_based_route_replacement_allowed": false
+  },
+  "claim_boundary": "The trace establishes only that Route173 clean_off is ineligible for Stage B under the preregistered liveness screen. It is not a safety, uncertainty, planning, collision, TTC, or generalization result."
+}

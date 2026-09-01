@@ -1,0 +1,70 @@
+{
+  "schema": "orion.stage2_l.formal_v5_qa_reuse_wave_submission.v1",
+  "submitted_at": "2026-08-31T06:52:59+08:00",
+  "status_at_attestation": "running",
+  "purpose": "Bounded four-event expansion after the Route147 v5 data-contract smoke passed.",
+  "formal_route_plan": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/formal_route_plan.json",
+    "sha256": "ccc4f25b1110856873bfdedc87b2d3232a2418400acd0d2ba093d0201bd2c50c"
+  },
+  "reviewed_event_bank": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_banks/stage2l_formal24_partial18_reviewed_v1.json",
+    "sha256": "9b1c5b6ca9f2c544110bc096e731bcd7b7f9be2cabe94c16b5573aecb9d30d89"
+  },
+  "jobs": [
+    {
+      "job_id": 1108522,
+      "event_id": "route152_step125",
+      "formal_split": "dev",
+      "event_package_sha256": "eaf100efa846a919e53520a1f52494328b81a64c7e9d09de29bfc88f4cfdb25e",
+      "stage1_multiframe_sha256": "2fbbd3910e654bd90d16428525027a3c08e0c462274236fb673067ff668355d7"
+    },
+    {
+      "job_id": 1108523,
+      "event_id": "route162_step277",
+      "formal_split": "dev",
+      "event_package_sha256": "ecced03ac5a1952e88e2105d5356da2ecd0a30bb1714a01074a1a2aa67625b0c",
+      "stage1_multiframe_sha256": "21d5dd8e095d9a8113fbd79c0b9788f861e9bb0d7fc1e20f24ea944ab4b03bd1"
+    },
+    {
+      "job_id": 1108524,
+      "event_id": "route195_step230",
+      "formal_split": "dev",
+      "event_package_sha256": "e4fa058a0c7f0e954a9cb03f12340df9b9807b65e14ac26d23d8beda6adf2274",
+      "stage1_multiframe_sha256": "0b506618e144ae2d252a32a99a427b0883ada558a9c673dcc25baf5534f46e41"
+    },
+    {
+      "job_id": 1108525,
+      "event_id": "route151_step218",
+      "formal_split": "train",
+      "event_package_sha256": "c2cb277b5ce3ec2f3af5b3139b35bfd26de38c4584e20d46a5f43ff5c9503cd2",
+      "stage1_multiframe_sha256": "c94faa2f84d1eb746502397890573b209ff39e407b0ce2b72a29564f5fcf3bc6"
+    }
+  ],
+  "implementation": {
+    "submitter_sha256": "853d89ef29e381e45e3c03398ee2c1ed7e686569903b12414135d0ec5c4ed63f",
+    "validator_sha256": "5a97dacb9c6e143fca1f9b57c9fa7720c574270d41a5379f0ef70d866d91d71b",
+    "event_finalizer_sha256": "2704a2ac9246fbd8bcb0821c61882dd6c2c1e00f5320a0bbf7c7d641ea112d3a",
+    "v5_qa_factory_sha256": "c942d85a3ac44b551397cbb4b47172d75594d520be8258147dee1aa4a2e9b476",
+    "base_v2_qa_factory_sha256": "2236bbc84bb794abc0ce69fc3b4706b131eaa1282b2942212ef429a3b381471e"
+  },
+  "resources_per_job": {
+    "partition": "Nvidia_A800",
+    "gpu_requested": 1,
+    "gpu_used_by_workload": false,
+    "gpu_request_reason": "Account/QOS does not permit a CPU-only partition.",
+    "cpus": 2,
+    "host_memory": "16G",
+    "time_limit": "00:30:00"
+  },
+  "output_parent": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_formal_v5_qa_wave1_20260831",
+  "locks": {
+    "stage1_trainable": false,
+    "formal_stage2l_training_started": false,
+    "stage2p_allowed": false,
+    "native_glare_used": false,
+    "trajectory_or_control_loss_used": false,
+    "further_batch_expansion_requires_wave_audit": true
+  },
+  "claim_boundary": "CPU data reconstruction only. No VLM learning, uncertainty quality, planning, trajectory, collision, TTC, or safety result."
+}

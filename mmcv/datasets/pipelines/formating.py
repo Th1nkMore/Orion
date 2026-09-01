@@ -8,6 +8,8 @@ from mmcv.core.bbox.structures.base_box3d import BaseInstance3DBoxes
 from mmcv.core.points import BasePoints
 from mmcv.utils import is_str
 from ..builder import PIPELINES
+from .traffic_state_alignment import filter_traffic_state_by_box_mask
+from .actor_id_alignment import filter_actor_ids_by_box_mask
 
 
 def to_tensor(data):
@@ -412,7 +414,7 @@ class DefaultFormatBundle(object):
                 'proposals', 'gt_bboxes', 'gt_bboxes_ignore', 'gt_labels',
                 'gt_labels_3d', 'attr_labels', 'pts_instance_mask',
                 'pts_semantic_mask', 'centers2d', 'depths',
-                'traffic_state_mask', 'traffic_state',
+                'traffic_state_mask', 'traffic_state', 'gt_actor_ids',
         ]:
             if key not in results:
                 continue
@@ -438,6 +440,78 @@ class DefaultFormatBundle(object):
 
     def __repr__(self):
         return self.__class__.__name__
+
+
+@PIPELINES.register_module()
+class DefaultFormatBundle3D(DefaultFormatBundle):
+    """Standard 3D formatting bundle required by inference configs.
+
+    This mirrors the Bench2DriveZoo implementation while inheriting the
+    repository's multi-view-aware ``DefaultFormatBundle`` above.  In the
+    inference-only pipeline ``with_label`` is false, so the primary operation
+    is converting the six-image list into one stacked data container.
+    """
+
+    def __init__(self, class_names, with_gt=True, with_label=True):
+        super(DefaultFormatBundle3D, self).__init__()
+        self.class_names = class_names
+        self.with_gt = with_gt
+        self.with_label = with_label
+
+    def __call__(self, results):
+        if 'points' in results:
+            if not isinstance(results['points'], BasePoints):
+                raise TypeError('points must be a BasePoints instance')
+            results['points'] = DC(results['points'].tensor)
+
+        for key in ['voxels', 'coors', 'voxel_centers', 'num_points']:
+            if key in results:
+                results[key] = DC(to_tensor(results[key]), stack=False)
+
+        if self.with_gt:
+            if 'gt_bboxes_3d_mask' in results:
+                mask = results['gt_bboxes_3d_mask']
+                results['gt_bboxes_3d'] = results['gt_bboxes_3d'][mask]
+                for key in ['gt_names_3d', 'centers2d', 'depths']:
+                    if key in results:
+                        results[key] = results[key][mask]
+            if 'gt_bboxes_mask' in results:
+                mask = results['gt_bboxes_mask']
+                if 'gt_bboxes' in results:
+                    results['gt_bboxes'] = results['gt_bboxes'][mask]
+                if 'gt_names' in results:
+                    results['gt_names'] = results['gt_names'][mask]
+            if self.with_label:
+                if 'gt_names' in results and len(results['gt_names']) == 0:
+                    results['gt_labels'] = np.array([], dtype=np.int64)
+                    results['attr_labels'] = np.array([], dtype=np.int64)
+                elif 'gt_names' in results and isinstance(results['gt_names'][0], list):
+                    results['gt_labels'] = [
+                        np.array(
+                            [self.class_names.index(name) for name in names],
+                            dtype=np.int64,
+                        )
+                        for names in results['gt_names']
+                    ]
+                elif 'gt_names' in results:
+                    results['gt_labels'] = np.array(
+                        [self.class_names.index(name) for name in results['gt_names']],
+                        dtype=np.int64,
+                    )
+                if 'gt_names_3d' in results:
+                    results['gt_labels_3d'] = np.array(
+                        [self.class_names.index(name) for name in results['gt_names_3d']],
+                        dtype=np.int64,
+                    )
+        return super(DefaultFormatBundle3D, self).__call__(results)
+
+    def __repr__(self):
+        return (
+            self.__class__.__name__
+            + f'(class_names={self.class_names}, with_gt={self.with_gt}, '
+            + f'with_label={self.with_label})'
+        )
+
 
 @PIPELINES.register_module()
 class PETRFormatBundle3D(DefaultFormatBundle):
@@ -528,10 +602,25 @@ class PETRFormatBundle3D(DefaultFormatBundle):
                         gt_bboxes_3d_mask]
                 if 'depths' in results:
                     results['depths'] = results['depths'][gt_bboxes_3d_mask]
-                if 'traffic_state_mask' in results:
-                    results['traffic_state_mask'] = results['traffic_state_mask'][gt_bboxes_3d_mask]
-                if 'traffic_state' in results:
-                    results['traffic_state'] = results['traffic_state_mask'][gt_bboxes_3d_mask]
+                if 'gt_actor_ids' in results:
+                    results['gt_actor_ids'] = filter_actor_ids_by_box_mask(
+                        results['gt_actor_ids'], gt_bboxes_3d_mask
+                    )
+                if 'traffic_state' in results or 'traffic_state_mask' in results:
+                    if 'traffic_state' not in results or 'traffic_state_mask' not in results:
+                        raise ValueError(
+                            'traffic_state and traffic_state_mask must be present together'
+                        )
+                    # Filter both tensors from their original object axis in
+                    # one validated operation.  Never index the already
+                    # filtered mask a second time or assign it into state.
+                    traffic_state, traffic_state_mask = filter_traffic_state_by_box_mask(
+                        results['traffic_state'],
+                        results['traffic_state_mask'],
+                        gt_bboxes_3d_mask,
+                    )
+                    results['traffic_state'] = traffic_state
+                    results['traffic_state_mask'] = traffic_state_mask
             if 'gt_bboxes_mask' in results:
                 gt_bboxes_mask = results['gt_bboxes_mask']
                 if 'gt_bboxes' in results:

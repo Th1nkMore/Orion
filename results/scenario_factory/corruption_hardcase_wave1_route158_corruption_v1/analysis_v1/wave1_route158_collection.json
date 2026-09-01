@@ -1,0 +1,87 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_route158_collection.v1",
+  "created_at": "2026-09-01T07:52:44+08:00",
+  "status": "complete_two_valid_negatives_one_runtime_inconclusive",
+  "route_index": 158,
+  "clean_comparator": {
+    "q2_job_id": 1117849,
+    "report_sha256": "aa07304d0aa36efa161ea750cb4ea2a351dfdb0291e3886c66c5766d57fcf55d",
+    "route_completion_percent": 100.0,
+    "hard_infractions": 0
+  },
+  "conditions": [
+    {
+      "condition": "front_stale_200ms",
+      "invalid_initial_job_id": 1118150,
+      "effective_job_id": 1118496,
+      "effective_slurm_state": "COMPLETED",
+      "pair_report": "route158_front_stale_200ms_decision.json",
+      "pair_report_sha256": "d571f972cb922f525290a5e26a36179de3de79f758221a6cc491777bc02d8105",
+      "valid": true,
+      "evidence_tier": "valid_negative",
+      "positive_case": false,
+      "clean_route_completion_percent": 100.0,
+      "corrupt_route_completion_percent": 100.0,
+      "new_hard_infractions": 0,
+      "clean_event_plus_recovery_vehicle_ttc_seconds": 1.5278255788394763,
+      "corrupt_event_plus_recovery_vehicle_ttc_seconds": 1.265335974638149,
+      "ttc_drop_seconds": 0.2624896042013274,
+      "required_ttc_drop_seconds": 0.3055651157678953,
+      "clean_vehicle_obb_gap_m": 2.153660852446467,
+      "corrupt_vehicle_obb_gap_m": 2.3173064894125908,
+      "gap_drop_m": -0.16364563696612366
+    },
+    {
+      "condition": "native_motion_blur_medium",
+      "effective_job_id": 1118152,
+      "effective_slurm_state": "COMPLETED",
+      "pair_report": "route158_native_motion_blur_medium_decision.json",
+      "pair_report_sha256": "0827afd06e56004b073d14c74710ba1748fdb992a3006bd4974a212f2405cbdb",
+      "valid": true,
+      "evidence_tier": "valid_negative",
+      "positive_case": false,
+      "clean_route_completion_percent": 100.0,
+      "corrupt_route_completion_percent": 100.0,
+      "new_hard_infractions": 0,
+      "clean_whole_route_vehicle_ttc_seconds": 1.501201196653039,
+      "corrupt_whole_route_vehicle_ttc_seconds": 1.375982783697526,
+      "ttc_drop_seconds": 0.12521841295551295,
+      "required_ttc_drop_seconds": 0.30024023933060784,
+      "clean_vehicle_obb_gap_m": 2.153660852446467,
+      "corrupt_vehicle_obb_gap_m": 2.2646323692373356,
+      "gap_drop_m": -0.11097151679086847
+    },
+    {
+      "condition": "waterdrop_medium",
+      "attempt_job_ids": [1118151, 1118497],
+      "runtime_report": "route158_waterdrop_medium_runtime_inconclusive.json",
+      "runtime_report_sha256": "862505993f0d5ce7951bf496c6b46d83b4cab678a9ca4f9be4da2f255b87e431",
+      "valid": false,
+      "evidence_tier": "runtime_inconclusive",
+      "positive_case": null,
+      "scientific_result": null
+    }
+  ],
+  "counts": {
+    "conditions": 3,
+    "valid_pairs": 2,
+    "valid_negative_pairs": 2,
+    "positive_pairs": 0,
+    "runtime_inconclusive_conditions": 1
+  },
+  "decision": {
+    "retain_route158_for_case_study": false,
+    "eligible_for_heldout_confirmation": false,
+    "approved_severity_escalation": false,
+    "additional_runtime_retry": false,
+    "current_wave_complete": true,
+    "next_action_automatically_authorized": false
+  },
+  "interpretation": [
+    "Route158 is a reproducible clean baseline, but the approved stale-200ms and native-motion-blur-medium conditions do not induce a preregistered hard or continuous-margin failure.",
+    "The stale TTC reduction is directional but remains below the prospectively frozen threshold and its OBB gap improves, so it must remain a negative result.",
+    "Waterdrop has no valid closed-loop pair because both attempts ended in runtime failures; its partial completion is not a model outcome.",
+    "No result in this wave supports uncertainty quality, task relevance, conservative control, or safety benefit."
+  ],
+  "claim_boundary": "Development failure-induction screen only. Two valid negatives and one runtime-inconclusive condition; no learned-UQ, control, held-out, or benchmark claim."
+}

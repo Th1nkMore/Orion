@@ -1,0 +1,54 @@
+{
+  "schema": "orion.stage2l_route196_smoke_diagnosis.v1",
+  "created_at": "2026-08-29T17:43:00+08:00",
+  "status": "optimization_paused_after_preregistered_final_extension",
+  "source": {
+    "report": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_v3_480/training/report.json",
+      "sha256": "82cf0b1e9fc9c97d9d53dda9b5d320e72bb96e57d5b87ae7f6e073c6bf9f4b82"
+    },
+    "checkpoint": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_v3_480/training/stage2l_route196_overfit.pt",
+      "sha256": "651ae18778528656bdeceb362574f41a1470fb79bb2c1d28b6d535e4140494e4"
+    }
+  },
+  "result": {
+    "status": "engineering_overfit_failed_gate",
+    "passed": [
+      "optimization_reduces_language_nll",
+      "optimization_reduces_relevance_bce",
+      "on_path_risk_exceeds_off_path_by_margin",
+      "zero_uq_prefers_nonconservative_answer",
+      "off_path_prefers_nonconservative_answer"
+    ],
+    "failed": ["on_path_prefers_conservative_answer"],
+    "generated_answers": {
+      "zero_uq": "maintain",
+      "off_path_uq": "maintain",
+      "on_path_uq": "maintain"
+    },
+    "on_path_expected_answer_nll": 0.07571101188659668,
+    "on_path_maintain_counterfactual_nll": 0.017768289893865585,
+    "mean_on_minus_off_task_risk": 0.37043985205236823,
+    "mean_relevance_bce": 0.04985875878483057
+  },
+  "diagnosis": {
+    "not_a_map_or_ranking_failure": "The explicit R head and K ranking both pass, so the failure is localized after spatial UQ/relevance construction.",
+    "language_conditioning_failure": "The decoder still prefers and generates the majority maintain wording when the on-path UQ counterfactual is supplied.",
+    "training_trace": "On-path driving-answer NLL fell from 6.272017 at its first exposure to 0.202237 at its 24th exposure, but the matched maintain answer remained substantially more likely.",
+    "target_prior": "Among the five driving-implication variants, three target maintain, one caution, and one prepare_to_yield. Plain token-average cross entropy does not explicitly require the expected answer to outrank the matched counterfactual answer.",
+    "interpretation": "This is failure to overfit the intended conditional language distinction, not evidence of held-out overfitting or Stage2-L generalization."
+  },
+  "stop_rule": {
+    "additional_steps_or_epochs_allowed": false,
+    "fourth_run_submitted": false,
+    "required_before_any_new_smoke": [
+      "Freeze a new objective amendment rather than extending epochs.",
+      "Use the same Route196 data, visual cache, seed, and fresh initialization.",
+      "Add an explicit matched-answer preference or balanced conditional objective.",
+      "Keep the existing zero/off-path, R-map, K-ranking, and generated-answer gates unchanged.",
+      "Record the new run as a different optimization experiment, not a continuation of v3."
+    ]
+  },
+  "claim_boundary": "Route196 remains a one-event engineering learnability diagnostic. No VLM understanding, generalization, trajectory, closed-loop, or safety claim is supported."
+}

@@ -1,0 +1,163 @@
+{
+  "schema": "orion.stage2l_mr2_training_protocol.v1",
+  "created_at": "2026-08-31T23:45:00+08:00",
+  "status": "bounded_expanded_coverage_diagnostic_prepared_formal_training_locked",
+  "protocol_path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/stage2l_mr2_17event_coverage_v1.json",
+  "research_question": "Does increasing the clean, actor-grounded V5 event coverage from 8 to 17 events improve held-out Stage2-L task-relevance and structured-field learning at the same 40 optimizer steps and the same 40 primary presentations per train event?",
+  "architecture": {
+    "stage1_adapter": "frozen task-agnostic spatial observation uncertainty U",
+    "stage1_adapter_trainable": false,
+    "task_relevance_owner": "ORION/VLM",
+    "task_risk_definition": "K=U*sigmoid(R)",
+    "trajectory_training_enabled": false,
+    "direct_control_training_enabled": false,
+    "legacy_density_uq_used": false,
+    "hard_governor_used": false
+  },
+  "dataset": {
+    "manifest": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v1/manifest.json",
+    "manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "records_sha256": "2a4edbc48e031b15cea91f81efd5af3bfde758ca8b41606b79ba6f73e2b7993d",
+    "event_count": 17,
+    "train_event_count": 13,
+    "dev_event_count": 4,
+    "train_group_count": 60,
+    "dev_group_count": 20,
+    "record_count": 1600,
+    "keyframe_count": 80,
+    "town_count": 6,
+    "scenario_family_count": 12,
+    "formal_per_frame_human_review_completed": false,
+    "eligible_for_bounded_preexperiment": true,
+    "eligible_for_formal_training": false,
+    "locked_test_events_included": false
+  },
+  "bounded_preexperiment": {
+    "optimizer_steps": 40,
+    "train_events_per_step": 13,
+    "matched_groups_per_step": 13,
+    "language_anchors_per_step": 6,
+    "primary_group_presentations": 520,
+    "primary_presentations_per_train_event": 40,
+    "language_anchor_presentations": 240,
+    "first_two_steps_finite_value_fail_fast": true,
+    "dev_labels_enter_optimizer": false,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "maximum_submissions": 1,
+    "automatic_retry_or_extension": false,
+    "formal_training": false
+  },
+  "controlled_comparison": {
+    "reference_run": "stage2l_mr1_8event_v1_40",
+    "intended_changes": [
+      "event coverage: 8 -> 17",
+      "train/dev event split: 6/2 -> 13/4",
+      "matched groups: 37 -> 80",
+      "towns: 5 -> 6",
+      "scenario families: 7 -> 12",
+      "primary groups per step: 6 -> 13 so every train event remains visible before each update"
+    ],
+    "frozen_across_runs": [
+      "40 optimizer steps",
+      "40 primary presentations per train event",
+      "architecture and trainable modules",
+      "loss definitions and weights",
+      "learning rates",
+      "seed",
+      "release thresholds",
+      "fresh initialization from the original ORION checkpoint"
+    ],
+    "optimizer_state_resumed": false,
+    "same_seed": 20260831,
+    "decision_rules": {
+      "train_and_dev_improve_without_dev_regression": "Coverage expansion supports one later formal-protocol design pass, but formal training remains locked.",
+      "train_improves_dev_regresses": "Classify as continued overfit/capacity-objective mismatch and stop repeated MR training.",
+      "train_and_dev_stall": "Stop GPU scaling and revise relevance/field objective or label support before more routes or steps.",
+      "missing_class_cells_dominate": "Finish formal route and QA coverage; do not reinterpret absent-class metrics as model failure or success."
+    }
+  },
+  "losses": {
+    "auxiliary_language": {
+      "weight": 0.25,
+      "release_evidence": false
+    },
+    "dense_relevance": {
+      "weight": 2.0,
+      "support_fraction": 0.1,
+      "calibration_bce_weight": 0.1,
+      "background_support_weight": 1.0,
+      "background_probability_margin": 0.01
+    },
+    "on_off_ranking": {
+      "weight": 1.0,
+      "required_oracle_fraction": 0.8
+    },
+    "task_fields": {
+      "weight": 2.0,
+      "class_counts_source": "train_split_only",
+      "absent_train_classes_receive_zero_weight": true
+    },
+    "language_preference": 0.0,
+    "trajectory": 0.0,
+    "direct_control": 0.0
+  },
+  "release_gates": {
+    "interpretation": "Engineering coverage diagnostic only; thresholds are unchanged from MR1 and passing cannot unlock formal training automatically.",
+    "train_min_foreground_recall": 0.9,
+    "train_max_background_fpr": 0.1,
+    "train_min_oracle_fraction": 0.8,
+    "train_min_task_field_accuracy": 0.85,
+    "dev_min_foreground_recall": 0.8,
+    "dev_max_background_fpr": 0.1,
+    "dev_min_oracle_fraction": 0.8,
+    "dev_min_task_field_accuracy": 0.75,
+    "dev_min_supported_class_macro_recall": 0.7,
+    "dev_min_zero_uq_complete_field_accuracy": 0.9,
+    "dev_min_stance_accuracy": 0.8,
+    "dev_min_render_field_accuracy": 0.75,
+    "free_language_nll_or_generation": "diagnostic_only",
+    "unsupported_train_or_dev_classes": "reported_coverage_gap_not_a_model_gate"
+  },
+  "coverage_change": {
+    "newly_present_in_dev": [
+      "risk_view/CAM_BACK",
+      "risk_view/CAM_BACK_LEFT",
+      "risk_view/CAM_FRONT_LEFT",
+      "stance/caution"
+    ],
+    "remaining_train_absent_classes": [
+      "risk_view/CAM_BACK_RIGHT",
+      "risk_region/upper_center",
+      "risk_region/upper_right"
+    ],
+    "remaining_dev_absent_classes": [
+      "risk_view/CAM_BACK_RIGHT",
+      "risk_region/upper_left",
+      "risk_region/upper_center",
+      "risk_region/upper_right"
+    ],
+    "claim_limit": "The diagnostic tests whether materially broader observed support reduces the MR1 failure. It cannot establish complete view/region generalization while these cells remain absent."
+  },
+  "implementation_sources": {
+    "scripts/train_stage2l_mr2_coverage_smoke.py": "06099e056af117480dce95caf3bddb1abda450e9a638bccfad7a8b8b26e304d5",
+    "scripts/train_stage2l_mr1_smoke.py": "dbf03178d1d748c8b2004d82e91cedd4976bd57bd1e0b82822332229e89227d6",
+    "scripts/train_stage2l_v7_route151_smoke.py": "4f18871e5803cb5197b0b1b05c2198585839038ac5ea45e32346363838b7adca",
+    "scripts/train_stage2l_v9_route151_smoke.py": "184bde8a03d3abba82756bf959b4b3eb985d8f4272e39830da63bcd33f19dde6",
+    "scripts/upgrade_stage2l_v9_qa_records.py": "7ed8bce212b648818fed6e9b4107a714e682e0a9d1c2a43c8b002314815f54c3",
+    "uq_estimator/stage2l_qa_contract_v5.py": "43f4bf3991f14e441b3cf6963f4dc2937422f66cc43c7ab4fcba97d7ed1cc394",
+    "uq_estimator/stage2l_semantic_runtime_v4.py": "20c023abafb0272c6e100312f0a8794b9409ef3614f745d6e6390ef321aad99b",
+    "uq_estimator/stage2l_structured_field_head.py": "715b18b5e4d31386677323c94cd6eaa97106d77dfe0ddda555b02ea088f78d94",
+    "uq_estimator/stage2l_support_aligned_objective_v9.py": "68156b0bdb46d34413c990a8fea32e45ec825e46cc39ad427a49994582c4d77d",
+    "uq_estimator/stage2l_calibrated_objective.py": "8775ff03348e228bcce28ba7121e996cb8d25776baa567cddb99260aa592aaae",
+    "uq_estimator/stage2l_matched_objective.py": "a3c7fc1af94220a58be2df54dec97eb089396ffb3747f4fc407e1e88dbf35be8",
+    "uq_estimator/uq_relevance_tokenizer.py": "1edf59228f76c8b07fea81dd1389a7b70d6378f88508e7192cf57f50fb16011b"
+  },
+  "launch_locks": {
+    "bounded_preexperiment_allowed_after_amendment": false,
+    "immutable_amendment_required": true,
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false,
+    "automatic_retry_or_extension_allowed": false
+  },
+  "claim_boundary": "One fresh 17-event/40-step engineering coverage diagnostic only. No formal Stage2-L, locked-test, Stage2-P, trajectory, control, closed-loop, generalization, or safety claim."
+}

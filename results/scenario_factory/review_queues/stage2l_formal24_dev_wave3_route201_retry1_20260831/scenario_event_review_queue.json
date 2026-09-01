@@ -1,0 +1,104 @@
+{
+  "automatically_excluded": [
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [
+        "runtime_invalid",
+        "qa_inputs_incomplete"
+      ],
+      "automatic_review_warnings": [],
+      "automatic_status": "excluded_before_human_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 1.404242447852051,
+        "min_obb_ttc_seconds": 1.0655423461807012,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 152,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 7.502294873273209,
+          "obb_ttc_seconds": 1.0655423461807012,
+          "type_id": "vehicle.lincoln.mkz_2020"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.18338588468377265,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "selection_policy": {
+          "complete_review_window_required": true,
+          "maximum_route_progress_exclusive": 0.98,
+          "minimum_post_event_seconds": 2.0,
+          "minimum_pre_event_seconds": 3.0,
+          "terminal_route_tail_excluded": true
+        },
+        "sim_time_seconds": 4.65,
+        "speed_mps": 0.04808778055141058,
+        "step": 93,
+        "window_seconds": [
+          1.6500000000000004,
+          6.65
+        ]
+      },
+      "event_id": "route201_step93",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave3_route201_retry1_20260831/route201/event_package.json",
+        "sha256": "6464665c6d11c354a794f7c92c63d2cd5ab191b7294a0a3da9ab6fdabbb57bf7"
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 20.24,
+          "score_penalty": 1.0,
+          "score_route": 20.24
+        },
+        "serious_infraction_count": 0,
+        "status": "Failed - Simulation crashed"
+      },
+      "outcome_class": "INVALID_RUNTIME",
+      "qa_input_ready": false,
+      "route_index": 201,
+      "runtime_valid": false,
+      "scenario_family": "EnterActorFlow",
+      "screen_role": "dynamic_junction_conflict",
+      "split_origin": "development_screen",
+      "town": "Town05",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave3_route201_retry1_20260831/route201/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave3_route201_retry1_20260831/route201/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave3_route201_retry1_20260831/route201/visuals/raw_front.gif"
+      ]
+    }
+  ],
+  "automatically_excluded_count": 1,
+  "candidate_count": 1,
+  "claim_boundary": "Queue priority is for review efficiency only. Human acceptance establishes event integrity, not UQ validity or closed-loop benefit.",
+  "human_review_contract": {
+    "decision_values": [
+      "accept",
+      "reject",
+      "pending"
+    ],
+    "locked_test_rejection_must_be_technical_only": true,
+    "prohibited_rejection_basis": [
+      "learned UQ behavior",
+      "Stage2 behavior",
+      "whether ORION succeeded or failed"
+    ],
+    "required_checks": [
+      "visual_stream_integrity",
+      "actor_event_semantics",
+      "front_bev_temporal_alignment",
+      "no_actor_disappearance_or_spawn_artifact"
+    ]
+  },
+  "human_review_count": 0,
+  "review_order": [],
+  "schema": "orion.scenario_event_review_queue.v1",
+  "source_batch_reports": [
+    {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave3_route201_retry1_20260831/batch_screen_report.json",
+      "sha256": "c7d207eda69ba2a908f6a70d0d3aa9a17fb9d384b1220c96918fe8a54f7cfd34"
+    }
+  ],
+  "status": "pending_human_event_review"
+}

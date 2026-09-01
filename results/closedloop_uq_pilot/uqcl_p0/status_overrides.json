@@ -1,0 +1,83 @@
+{
+  "snapshot_at": "2026-08-26T05:00:00+08:00",
+  "runs": {
+    "route148_hazard_clean_off-1051652": {
+      "status": "fast_screen_cancelled",
+      "official_outcome": false,
+      "note": "Clean baseline excluded after speed stayed below 0.25 m/s for 8.65 simulation seconds; governor was off."
+    },
+    "route113_hazard_clean_off-1051669": {
+      "status": "environment_error",
+      "official_outcome": false,
+      "note": "Town12 was absent from the installed CARLA package; no control trace was produced."
+    },
+    "route203_hazard_clean_off-1051677": {
+      "status": "completed",
+      "official_outcome": true,
+      "note": "Official Bench2Drive result: 100% route completion, no collisions, score_composed=98.862078. The early lead vehicle disappearance is the benchmark's intentional clear_ego_entry background-traffic cleanup for PedestrianCrossing."
+    },
+    "route203_hazard_front_corrupt_off-1055876": {
+      "status": "environment_error",
+      "official_outcome": false,
+      "note": "Diagnostic-only partial run. Bench2Drive reported SensorReceivedNoData at 18.8 simulation seconds (51.16% route progress), marked the run ineligible, and recorded no collisions before the sensor crash."
+    },
+    "route203_hazard_front_corrupt_off-1056816": {
+      "status": "completed",
+      "official_outcome": true,
+      "note": "Official retry result: 100% route completion and no collisions, but 8.749 m (12.5%) outside route lanes, score_composed=87.496196, and 26.35 simulation seconds."
+    },
+    "route195_hazard_clean_off-1057169": {
+      "status": "environment_error",
+      "official_outcome": false,
+      "note": "CARLA segfaulted with Signal 11 while loading Town03, before agent setup or any control frame. Model-free runtime smoke job 1057187 reproduced the Town03 load crash, so this is not a model or safety outcome."
+    },
+    "route146_hazard_clean_off-1057201": {
+      "status": "environment_error",
+      "official_outcome": false,
+      "note": "Diagnostic-only partial run: SensorReceivedNoData after 12.35 simulation seconds and 37.91% route progress. Bench2Drive marked entry_status=Crashed and eligible=false; partial no-collision and score values are not official safety outcomes."
+    },
+    "route146_hazard_clean_off-1057222": {
+      "status": "completed",
+      "official_outcome": true,
+      "note": "Official identical retry result: eligible=true, 100% route completion, score_composed=100.0, and zero pedestrian, vehicle, layout, lane, red-light, blocked, or timeout infractions. The clean agent stopped for the crossing pedestrian, resumed, and completed in 30.95 simulation seconds."
+    },
+    "route146_hazard_front_corrupt_off-1057242": {
+      "status": "environment_error",
+      "official_outcome": false,
+      "note": "Diagnostic-only partial run: control trace stopped at 15.65 simulation seconds. With the GPU at 0% utilization and both trace and agent log unchanged for more than 8 wall-clock minutes, the pre-declared no-progress watchdog cancelled the job. Partial behavior and any unregistered collision are not official outcomes."
+    },
+    "route146_hazard_front_corrupt_off-1057253": {
+      "status": "diagnostic_screen_cancelled",
+      "official_outcome": false,
+      "note": "Single full-route retry remained runtime-healthy but repeatedly contacted and overlapped the red vehicle near x=186 m in saved front/BEV frames, then oscillated without forward route progress. It was cancelled after 47:19 wall time to avoid waiting for Bench2Drive's minimum 300-second route timeout. This is strong failure-induction evidence but not an official collision, blocked, completion, infraction, or benchmark score."
+    },
+    "route146_hazard_front_corrupt_off-1057273": {
+      "status": "implementation_error",
+      "official_outcome": false,
+      "note": "Cancelled at 2.0 simulation seconds before the 0.30 event-window start because route_progress stayed at 0.0: GNSS ego coordinates were incorrectly projected onto CARLA world-coordinate route points. No corrupted control frame or experimental outcome was produced."
+    },
+    "route146_hazard_front_corrupt_off-1057274": {
+      "status": "implementation_error",
+      "official_outcome": false,
+      "note": "Cancelled during event-window boundary validation before the clean hazard point. GNSS-derived progress flickered across 0.30 and created a 0.10-second corruption gap, so the run did not implement the registered contiguous spatial window and is excluded from all outcomes."
+    },
+    "route146_hazard_front_corrupt_off-1057275": {
+      "status": "completed",
+      "official_outcome": true,
+      "note": "Official finite-window off result: eligible=true and 100% route completion, but one pedestrian collision at (x=180.456, y=330.434), score_penalty=0.5 and score_composed=50.0. Corruption was active exactly once over projected route progress [0.30122, 0.55075); governor mode was off."
+    },
+    "route146_hazard_front_corrupt_oracle-1057294": {
+      "status": "fast_screen_cancelled",
+      "official_outcome": false,
+      "note": "Finite-window oracle diagnostic did not pass the preregistered mechanism gate. It avoided the earlier off-run pedestrian collision point, but stopped making forward progress at route_progress=0.466800 and remained below 0.25 m/s for 9.00 consecutive simulation seconds (31.65--40.65 s). Job 1057294 was therefore cancelled by the uniform fast-screen rule. The evaluator remained entry_status=Started and eligible=false, so no official collision, completion, infraction, or benchmark score is claimed."
+    }
+  },
+  "environment_checks": {
+    "carla_town03_smoke-1057187": {
+      "status": "failed",
+      "map": "Town03",
+      "model_loaded": false,
+      "finding": "CARLA load_world(Town03) reproducibly terminated the engine with Signal 11 on gpu4 using the official job's Vulkan runtime."
+    }
+  }
+}

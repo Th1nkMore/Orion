@@ -1,0 +1,55 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T05:13:15+08:00",
+  "status": "outcome_blind_formal_provenance_hardening",
+  "title": "Fail-closed clean-render and frozen-Stage1 lineage for formal Stage2-L data",
+  "authorization_basis": {
+    "user_instruction": "并行的看看这个事情；以后无需我审计，预实验可以直接开始",
+    "interpretation": "A read-only glare audit exposed a future provenance leak. Closing it changes validation and manifests only; it does not launch training or a closed-loop matrix."
+  },
+  "previous_protocol": {
+    "path": "configs/scenario_factory/stage2l_formal24_data_and_corruption_protocol_v1.json",
+    "sha256": "85b845052c111513fabff75b0549f14dc44e6933bd667feadc32aa1886ec5292"
+  },
+  "problem": {
+    "native_glare_basicagent_capture_was_training_isolated": true,
+    "formal_protocol_already_forbade_native_glare_training": true,
+    "remaining_gap": "A future ORION native-render override could have left ORION_CLOSEDLOOP_CORRUPTION empty and therefore been misclassified as clean_off because ordinary run manifests did not require a render condition."
+  },
+  "changes": {
+    "new_closedloop_manifests": "Explicitly record orion.closedloop_render_condition.v1 with native_glare_profile=none and no camera postprocess override.",
+    "unsupported_native_profile": "run_closedloop_uq_pilot.sh rejects any non-none native glare profile until a dedicated ORION agent interface and protocol are implemented.",
+    "event_package_gate": "clean_off validation now requires an explicit clean render condition or an allow-listed historical pre-native-glare agent hash.",
+    "formal_assembler_gate": "Recursively validates factory report, event package, source run manifest, Stage1 multiframe manifest and every Stage1 sequence; native glare and Stage1 checkpoint drift fail closed.",
+    "formal_protocol_gate": "Requires clean visual sources, no Stage2-L image corruptions, native glare held out, Stage1 frozen and all launch locks false."
+  },
+  "historical_compatibility": {
+    "source_manifests_modified": false,
+    "allowed_agent_sha256": [
+      "185ba32012718d13322efdf19f1b23d71ec64001bcd1ee57625b1904d0eeb8a6"
+    ],
+    "reason": "This exact ORION closed-loop agent predates any native-glare render interface. Missing render_condition is accepted only for this hash; any later agent hash fails closed."
+  },
+  "validated_code": {
+    "scripts/scenario_factory_lib.py": "154ea4d1dee37e0041d23c0ed7f01aa851b9c2bb8a2f4e8c9bde12fe6cb29392",
+    "scripts/assemble_stage2l_formal_dataset.py": "3d294936d6cd0127389e481f332a275b9868a46a56eca45ff1b39c146afd06cc",
+    "scripts/run_closedloop_uq_pilot.sh": "939e507453806435aed7f450fa9a0d238d4d0874476441539dc63c3189a58450",
+    "tests/test_scenario_factory.py": "9beeeb70bbc4ac6764b78048d57adab55f9b9cdbc1600dd3b84ae680e5550a63",
+    "tests/test_assemble_stage2l_formal_dataset.py": "edac5d63b1c97df70e3fb070ce31cc7afd8a03724b19b4d04a01f0dfadbf9625"
+  },
+  "verification": {
+    "platform_tests": "15 passed",
+    "covered_failures": [
+      "missing or unknown render condition",
+      "native glare source mislabeled clean_off",
+      "missing corruption-isolation protocol fields",
+      "Stage1 checkpoint drift"
+    ]
+  },
+  "launch_state": {
+    "formal_stage2_l_allowed": false,
+    "stage2_p_allowed": false,
+    "closed_loop_matrix_allowed": false
+  },
+  "claim_boundary": "Provenance and leakage hardening only. It is not a glare-quality, UQ, model, planning, generalization or safety result."
+}

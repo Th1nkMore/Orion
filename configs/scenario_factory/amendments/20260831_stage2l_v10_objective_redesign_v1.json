@@ -1,0 +1,101 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T12:21:56+08:00",
+  "status": "implementation_preflight_only_training_locked",
+  "title": "Stage2-L v10 responsibility-preserving objective redesign after MR2",
+  "amends_without_rewriting": [
+    {
+      "path": "configs/scenario_factory/amendments/20260831_stage2l_mr2_17event_coverage_launch_v1.json",
+      "role": "bounded MR2 launch record"
+    },
+    {
+      "path": "configs/scenario_factory/stage2l_formal24_data_and_corruption_protocol_v1.json",
+      "role": "formal data and held-out corruption protocol; all launch locks remain active"
+    }
+  ],
+  "evidence": {
+    "mr2_recovered_report": {
+      "path": "results/scenario_factory/stage2l_smokes/mr2_17event_v1_40/report.recovered.json",
+      "sha256": "3dd10e2dd7a842db30de360bd486dd10041e73f19af1cf00454d0ff55772ed87",
+      "gate_summary": {
+        "total_passed": "7/19",
+        "train_core_passed": "0/5",
+        "dev_passed": "2/9"
+      }
+    },
+    "mr1_mr2_lineage_repaired_engineering_audit": {
+      "path": "results/scenario_factory/stage2l_smokes/mr2_17event_v1_40/coverage_comparison_mr1_vs_mr2_lineage_repaired.json",
+      "sha256": "b7fdc9ec00bde57d5cb9c6e1a7978306bbeab487a4f232ff76545f8d24841e89",
+      "decision": "expanded_coverage_not_sufficient_revise_objective"
+    },
+    "structured_target_determinism_audit": {
+      "path": "results/scenario_factory/stage2l_smokes/mr2_17event_v1_40/structured_target_determinism_audit_v3.json",
+      "sha256": "50b23d1d1eb52c6f564c7de50890ba3b0975548dff4b6ff89409931e91f69459",
+      "result": "400/400 group-variant summaries reconstructed exactly from U, R and K; learned structured-field classification is redundant supervision"
+    }
+  },
+  "responsibility_contract": {
+    "stage1_adapter": "Produces task-agnostic spatial observation uncertainty U only, including view, region, strength and temporal variation.",
+    "orion_vlm_first_pass": "Learns task relevance R from clean visual and route/task context.",
+    "task_risk": "K is defined as U multiplied by sigmoid(R); task relevance is not delegated to the Stage1 adapter.",
+    "language_path": "Receives detached U and detached first-pass R through a trainable task-risk language bridge. QA gradients may update the bridge and language-facing ORION parameters but not U or first-pass R.",
+    "structured_answer_fields": "Risk view, region, level, relevance level and stance are deterministically decoded from U, R and K. No learned structured-field head is permitted.",
+    "forbidden": [
+      "trajectory loss",
+      "direct control output",
+      "Density UQ",
+      "risk governor",
+      "corruption family labels as task relevance",
+      "collision or TTC labels in Stage1",
+      "native glare in adapter or Stage2-L training or checkpoint selection"
+    ]
+  },
+  "phases": {
+    "A_map_pretrain": {
+      "objective": "Learn spatial R support from route/hazard geometry using calibrated foreground-balanced map loss, Tversky loss with stronger false-positive penalty, and foreground/background support hinges.",
+      "on_off_ranking_allowed": false,
+      "structured_field_classification_allowed": false,
+      "exit_gate": "Held-out spatial relevance support, foreground recall and background false-positive gates must pass before any risk-alignment phase. Extra routes or optimizer steps may not substitute for a failed objective."
+    },
+    "B_risk_alignment": {
+      "objective": "Apply geometry-normalized on-path versus off-path ranking only to matched examples with identical U magnitude and support.",
+      "requires_phase_A": true,
+      "structured_field_classification_allowed": false,
+      "exit_gate": "Held-out on-path greater than off-path ordering must improve without degrading zero-UQ and background selectivity gates."
+    },
+    "C_language_grounding": {
+      "objective": "Teach QA verbalization of deterministic U/R/K semantics with U and first-pass R detached.",
+      "requires_phase_B": true,
+      "trajectory_or_control_allowed": false,
+      "exit_gate": "Held-out QA consistency and map-to-answer faithfulness; language metrics cannot retroactively qualify a failed R map."
+    }
+  },
+  "implementation": {
+    "sources": {
+      "uq_estimator/stage2l_deterministic_semantics_v10.py": "3cc35825ccbf5971bb03854964279adfb247b04bb37016b08e8b2f08a83b6391",
+      "uq_estimator/stage2l_relevance_objective_v10.py": "69bf2b15832a8a1ed3078e493f3252e27a0752d02279799387de5bf7969b3c07",
+      "uq_estimator/stage2l_semantic_runtime_v10.py": "c2ce4ec09e756a6667017f6c4d33a245aa4e9ab66b9740cfb2d6eb65c9f5c782"
+    },
+    "tests": {
+      "tests/test_stage2l_deterministic_semantics_v10.py": "bc927b99e6146293d3a9b42e98033b3b133258bc61b7ccc6eb4076110a22e5a6",
+      "tests/test_stage2l_relevance_objective_v10.py": "97c7fe846524f99817902a3b3143b76ab268b2c31d9227b53a548578082396e7",
+      "tests/test_stage2l_semantic_runtime_v10.py": "22c65e56bbcf213642f8068d283f38769a348677ff18b1dcb41c040473e76346"
+    },
+    "platform_test": "9 passed on the frozen ORION platform Python environment",
+    "orion_weights_loaded": false,
+    "optimizer_steps": 0
+  },
+  "unresolved_preflight": {
+    "blocking_dependency": "Identify a genuinely task-agnostic Stage1 U-tokenizer checkpoint or train the tokenizer using Stage1-only observation-uncertainty objectives, then freeze and hash it.",
+    "prohibited_shortcut": "Do not reuse the MR1/MR2 tokenizer after task/QA training as though it were a frozen Stage1 tokenizer.",
+    "next_safe_action": "Audit tokenizer checkpoint lineage and produce a zero-training preflight report before implementing or submitting the v10 trainer."
+  },
+  "launch_locks": {
+    "v10_training_allowed": false,
+    "formal_stage2_l_allowed": false,
+    "stage2_p_allowed": false,
+    "closed_loop_matrix_allowed": false,
+    "route203_native_glare_submission_allowed": false
+  },
+  "claim_boundary": "This amendment records an objective and gradient-routing correction. It is not evidence that R has been learned, that the VLM understands U, that native glare is detected, or that closed-loop safety improves."
+}

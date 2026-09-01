@@ -1,0 +1,70 @@
+{
+  "automatic_scope_locks": {
+    "corruption_submission": false,
+    "formal_200_route_evaluation": false,
+    "heldout_confirmation": false,
+    "q2_submission": false,
+    "stage2p": false
+  },
+  "checks": {
+    "condition_clean_off": true,
+    "conditioning_none": true,
+    "evaluator_entry_finished": true,
+    "legacy_density_disabled": true,
+    "liveness_at_most_8s": true,
+    "planning_response_off": true,
+    "risk_mode_off": true,
+    "route_completion_100": true,
+    "route_index_matches": true,
+    "run_id_matches_phase": true,
+    "safety_telemetry_complete": true,
+    "stage2_source_disabled": true,
+    "terminal_completed": true,
+    "trace_steps_contiguous": true,
+    "trace_times_strictly_monotonic": true,
+    "uq_mode_none": true,
+    "zero_hard_infractions": true
+  },
+  "claim_boundary": "One clean Q2 replicate only. Passing Q2 establishes stable-clean eligibility only when its frozen Q1 replicate also passed; corruption submission still requires a separate prospective result amendment.",
+  "failed_checks": [],
+  "hard_infraction_counts": {
+    "collisions_layout": 0,
+    "collisions_pedestrian": 0,
+    "collisions_vehicle": 0,
+    "outside_route_lanes": 0,
+    "red_light": 0,
+    "route_dev": 0,
+    "route_timeout": 0,
+    "scenario_timeouts": 0,
+    "stop_infraction": 0,
+    "vehicle_blocked": 0
+  },
+  "longest_low_speed_interval": {
+    "duration_seconds": 5.100000000000001,
+    "end_progress": 0.1857250921534372,
+    "end_step": 290,
+    "end_time_seconds": 14.5,
+    "start_progress": 0.1842287813711358,
+    "start_step": 189,
+    "start_time_seconds": 9.45
+  },
+  "passed_clean_qualification": true,
+  "phase": "q2",
+  "protocol": {
+    "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/corruption_hardcase_wave1_clean_q2_activation_v1.json",
+    "sha256": "d76e2fa281a67fa425f159b5680eff90ca35566132c16fd7e242b6f919d45c21"
+  },
+  "qualified_for_corruption_screen": true,
+  "qualified_for_next_clean_repeat": false,
+  "route_completion_percent": 100.0,
+  "route_index": 158,
+  "run_dir": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q2_v1/route158_hazard_clean_off-1117849",
+  "schema": "orion.corruption_hardcase_clean_qualification.v1",
+  "source_files": {
+    "control_trace": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q2_v1/route158_hazard_clean_off-1117849/records_orion_traj_0/RouteScenario_24781_rep0_Town01_HardBreakRoute_1_10_09_01_05_12_33/control_trace.jsonl",
+    "evaluator": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q2_v1/route158_hazard_clean_off-1117849/eval_orion_traj_0.json",
+    "manifest": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q2_v1/route158_hazard_clean_off-1117849/manifest.json"
+  },
+  "status": "clean_qualified",
+  "trace_frames": 1062
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "orion.stage2l_interim_geometry_audit.v1",
+  "reviewed_at": "2026-08-29T16:22:00+08:00",
+  "reviewer": "codex_visual_review_pending_user_signoff",
+  "status": "geometry_pass_qa_regeneration_required",
+  "scope": {
+    "events": 6,
+    "keyframes": 27,
+    "variants_per_keyframe": 5,
+    "contact_sheets_reviewed": 135
+  },
+  "automatic_checks": {
+    "all_matched_on_off_pairs_use_the_same_view": true,
+    "all_off_path_support_weighted_relevance_is_zero": true,
+    "all_on_path_support_weighted_relevance_is_positive": true,
+    "minimum_on_path_support_weighted_relevance": 0.16502132849049914,
+    "all_retained_frames_have_visible_orion_route_support": true
+  },
+  "events": [
+    {
+      "event_id": "route160_step518",
+      "keyframes": [48, 50, 52, 54, 56],
+      "geometry_decision": "pass",
+      "notes": "Route corridor and actor boxes remain aligned across the five frames. Frame 52 has valid rearward dynamic-actor support; its old prepare_to_yield text must be regenerated under the rearward stance amendment."
+    },
+    {
+      "event_id": "route161_step308",
+      "keyframes": [27, 29, 31, 33, 35],
+      "geometry_decision": "pass",
+      "notes": "The Mini Cooper approaches from rear-left and closes from a predicted 1.8 s conflict to 0.1 s. Rear-camera R support is time-aligned rather than a projection error. Rearward high-K language must be regenerated as caution."
+    },
+    {
+      "event_id": "route162_step277",
+      "keyframes": [26, 28, 30, 32],
+      "geometry_decision": "pass",
+      "notes": "Dark/rain imagery is intact. Route and crossing-vehicle support are visible and paired on/off supports are separated. Frame 26 contains rearward high-K text requiring regeneration."
+    },
+    {
+      "event_id": "route165_step421",
+      "keyframes": [38, 40, 42, 44, 46],
+      "geometry_decision": "pass",
+      "notes": "Two fast rear-approaching vehicles explain frames 38-42 actor support; frames 44-46 revert to front route support after the predicted conflict clears. Rearward high-K text requires regeneration."
+    },
+    {
+      "event_id": "route185_step304",
+      "keyframes": [26, 28, 30, 32, 34],
+      "geometry_decision": "pass",
+      "notes": "Dense-traffic cut-in geometry is visually plausible across the window. Frame 30 contains rearward high-K text requiring regeneration; other retained frames use front route/actor support."
+    },
+    {
+      "event_id": "route188_step139",
+      "keyframes": [10, 12, 16],
+      "geometry_decision": "pass",
+      "notes": "All three retained hard-braking frames use frontward route/lead-traffic support and clean same-view off-path matches."
+    }
+  ],
+  "required_before_freeze": [
+    "Regenerate QA records and map sidecars with configs/scenario_factory/amendments/20260829_stage2l_rearward_stance_semantics_v1.json active.",
+    "Re-run map-text consistency audit on regenerated records.",
+    "Add and review the two replacement events before creating the final 8-event decision file.",
+    "Obtain user sign-off on the final geometry review queue."
+  ],
+  "claim_boundary": "This audit supports geometry/data-construction integrity only. It does not validate Stage1 UQ, VLM understanding, generalization, trajectory behavior, or closed-loop safety."
+}

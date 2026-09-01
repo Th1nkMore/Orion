@@ -1,0 +1,110 @@
+{
+  "schema": "orion.scenario_factory.codex_assisted_visual_audit.v1",
+  "audited_at": "2026-08-30T01:15:00+08:00",
+  "status": "codex_assisted_review_complete_human_confirmation_pending",
+  "source_batch_report": {
+    "path": "batch_screen_report.json",
+    "sha256": "c47db0b923d44d59b614acfa128f441b1e681261b07553a7da579e56d7995e4b"
+  },
+  "review_contract": {
+    "reviewer": "codex_assisted_visual_audit",
+    "human_event_acceptance": false,
+    "required_checks": [
+      "visual_stream_integrity",
+      "actor_event_semantics",
+      "front_bev_temporal_alignment",
+      "no_actor_disappearance_or_spawn_artifact"
+    ],
+    "decision_policy": "This artifact records an engineering visual audit only. A human may accept or reject each event after inspecting the linked GIFs; outcome success/failure is not used as a rejection basis."
+  },
+  "events": [
+    {
+      "route_index": 168,
+      "event_id": "route168_step482",
+      "event_package_sha256": "1ad0af5252160d8751944aa8e31a04b13aeb6bb1d0c8b9d1a631e8f8aa76f4bd",
+      "outcome_class": "VALID_COLLISION",
+      "critical_event": {
+        "sim_time_seconds": 24.1,
+        "route_progress": 0.5268337793392173,
+        "actor_id": 186,
+        "min_ttc_seconds": 0.0
+      },
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "notes": "Nissan Patrol is visible at the left/front edge, advances through the ego path across the 5-second window, and the BEV shows the same approach/contact progression."
+    },
+    {
+      "route_index": 180,
+      "event_id": "route180_step696",
+      "event_package_sha256": "5eac4b183cfa95fa72edea604256de27aa536884b6169061fa2767020634f88c",
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "critical_event": {
+        "sim_time_seconds": 34.8,
+        "route_progress": 0.9285632233192601,
+        "actor_id": 152,
+        "min_ttc_seconds": 1.085822389345037
+      },
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass_with_visibility_note",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass_with_visibility_note"
+      },
+      "notes": "The side vehicle is visible at the front-view boundary and then leaves that camera field; the BEV remains the authoritative continuity view. The route also carries an automatic majority-nearly-stopped warning, so it is useful as a conflict/near-miss case but should not be interpreted as a clean speed baseline."
+    },
+    {
+      "route_index": 194,
+      "event_id": "route194_step684",
+      "event_package_sha256": "ebae6ec949d243f58f1f14b196c687b46bbb8ccf8c5f55b0553af1ed6ffc0218",
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "critical_event": {
+        "sim_time_seconds": 34.2,
+        "route_progress": 0.3838388189349919,
+        "actor_id": 148,
+        "min_ttc_seconds": 1.2053368864556915
+      },
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass_with_visibility_note",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass_with_visibility_note"
+      },
+      "notes": "The firetruck approaches from the right/occluded side and becomes prominent late in the front window; this is consistent with a side-entry conflict, with no obvious frame-level spawn artifact."
+    }
+  ],
+  "gif_inventory": {
+    "per_route": {
+      "route168": {
+        "bev.gif": "91171bc4b52796eff13bc1bffa231d76b46853fb08e9d379b2af38694422880a",
+        "model_input_front.gif": "a2459f0032ffa7613fdd93a0f66337195c56658f461c725716552f1cfd4bc246",
+        "raw_front.gif": "a66550417269bead1aab44b8ffe3a85461cb3d648eafed6acdb5a31b476ec49c"
+      },
+      "route180": {
+        "bev.gif": "e7bb74d893096d8d67ad0fd3c1178cb86ea978202e765b1495bf7a06911be84a",
+        "model_input_front.gif": "3cdf8a495ecc97271840ad182ec323745d0ecd20775228c8e70b1fcd0edc37e4",
+        "raw_front.gif": "95712e890de23956ca53bc4289307fd45aa13197ee3c7a527153ea8506d6409d"
+      },
+      "route194": {
+        "bev.gif": "ba360a4125d61e1557f8dbf96e1aaf58ee8850aaf06f2d0903fb7c53d9dbe410",
+        "model_input_front.gif": "62bc548a93db6329389e20bde14c1c9ccd44ad9ace65499729eb12e987789837",
+        "raw_front.gif": "f19abe507caf5360b52c58de157bd2e37d5d4c8899847617493efbb64518b7ac"
+      }
+    },
+    "all_gifs": {
+      "frame_count": 10,
+      "fps": 2.0,
+      "front_size": "720x405",
+      "bev_size": "512x512"
+    }
+  },
+  "decisions": {
+    "route168": "pending_human_confirmation",
+    "route180": "pending_human_confirmation",
+    "route194": "pending_human_confirmation"
+  },
+  "claim_boundary": "Engineering visual-integrity audit only; no adapter, VLM, planning, closed-loop, or safety claim."
+}

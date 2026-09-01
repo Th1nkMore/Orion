@@ -1,0 +1,69 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T15:28:00+08:00",
+  "status": "implementation_complete_remote_activation_deferred_dependency_freeze",
+  "title": "CARLA-native glare to real ORION input interface staging record",
+  "research_role": "Provide an auditable clean-versus-native-glare observation intervention for later engineering closed-loop screens. This is an interface record, not a robustness or safety result.",
+  "implementation": {
+    "profiles": {
+      "none": "Unmodified standard CARLA RGB path.",
+      "clean": {
+        "cam_front_lens_flare_intensity": 0.0,
+        "cam_front_bloom_intensity": 0.0
+      },
+      "medium": {
+        "cam_front_lens_flare_intensity": 0.75,
+        "cam_front_bloom_intensity": 1.5
+      },
+      "heavy": {
+        "cam_front_lens_flare_intensity": 1.5,
+        "cam_front_bloom_intensity": 3.0
+      }
+    },
+    "pairing_rule": "clean, medium and heavy share the route's frozen low-sun weather; only CAM_FRONT lens flare and bloom differ. BEV postprocess, flare and bloom are disabled in all three paired profiles.",
+    "sensor_spawn_hook": "Patch Leaderboard AgentWrapper._preprocess_sensor_spec before RGB sensor construction.",
+    "runtime_readback": "At the first ORION run_step, read the actual CARLA CAM_FRONT/BEV actor attributes and world weather; active-profile absence or mismatch fails closed.",
+    "model_input_capture": "The saved diagnostic tensor must be the exact post-corruption uint8 BGR CAM_FRONT model tensor with shape 640x640x3; no resize or fallback is allowed.",
+    "synthetic_mix_allowed": false
+  },
+  "sources": {
+    "team_code/orion_native_glare.py": "ec6cf3f3237b36c340e56462585506cdfc0180193b5ca2171e82f82d7ba05499",
+    "team_code/orion_b2d_agent.py": "79ea4a3858d4ab8326722e097579647e7402b2c357bfa49cd28f169e7d53b1bf",
+    "scripts/run_closedloop_uq_pilot.sh": "1b72002fda125db8984efd17246aaaee1356455b606a2ff65001020e969243f7",
+    "tests/test_orion_native_glare.py": "3cfad4bb22f13fa28e5ead9301c9d2661a378df583f785fa847710a0bd1e838e"
+  },
+  "validation": {
+    "local": {
+      "python_compile": "pass",
+      "shell_syntax": "pass",
+      "test_suite": "16 passed: tests/test_orion_native_glare.py plus tests/test_scenario_factory.py"
+    },
+    "platform_staging": {
+      "pure_module_and_scenario_tests": "15 passed",
+      "static_full_chain_test": "expected deferred failure because remote team_code/orion_b2d_agent.py and run_closedloop_uq_pilot.sh were deliberately not overwritten during active hash-bound Stage2-L job 1112878",
+      "remote_module_staged": true,
+      "remote_agent_activated": false,
+      "remote_runner_activated": false
+    },
+    "remaining": [
+      "After job 1112878 is terminal, sync the exact hashed agent and runner and require the full platform suite to pass.",
+      "Verify CARLA 0.9.15 actor readback of exposure, lens-flare and bloom attributes.",
+      "Verify actual clean/medium/heavy differences in saved front view and exact 640x640 ORION input tensor.",
+      "Verify the frozen route XML low-sun weather is retained by the evaluator."
+    ]
+  },
+  "dependency_freeze": {
+    "active_job_id": "1112878",
+    "reason": "The staged trainer imports the legacy ORION agent module for a path resolver. Changing that file after the hash-bound training submission would alter an indirect runtime dependency.",
+    "policy": "Do not activate the remote agent or runner changes until the training job is terminal. Record activation in a new amendment rather than rewriting this staging record."
+  },
+  "launch_locks": {
+    "native_glare_interface_activation_allowed_after_job_1112878_terminal": true,
+    "native_glare_closed_loop_submission_allowed": false,
+    "route203_native_glare_submission_allowed": false,
+    "formal_stage2l_clean_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_matrix_allowed": false
+  },
+  "claim_boundary": "This record establishes implementation intent and staged tests only. It does not show that native glare changes ORION behavior, that the adapter detects it, or that closed-loop TTC, collision, completion or traffic-rule metrics improve."
+}

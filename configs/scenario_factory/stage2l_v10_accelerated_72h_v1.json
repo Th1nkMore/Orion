@@ -1,0 +1,130 @@
+{
+  "schema": "orion.stage2l_v10_accelerated_protocol.v1",
+  "created_at": "2026-08-31T14:54:49+08:00",
+  "status": "accelerated_engineering_protocol_frozen_real_training_locked_pending_preflight",
+  "time_budget": {
+    "total_wall_clock_hours": 72,
+    "model_track_target_hours": 24,
+    "glare_interface_target_hours": 24,
+    "bounded_closed_loop_screen_target_hours": 24,
+    "scope_rule": "Stop at the first failed scientific gate; do not spend the remaining budget by extending steps or adding routes."
+  },
+  "research_questions": [
+    "Can ORION/VLM learn a spatial task-relevance map R while the task-agnostic uncertainty tokenizer U remains frozen?",
+    "Does the learned R order matched on-path uncertainty above off-path uncertainty through K=U*sigmoid(R)?",
+    "Can a language-facing bridge ground zero-U versus on-path-U driving implications without changing the frozen U or learned R map path?"
+  ],
+  "architecture": {
+    "stage1_adapter": "Frozen producer of task-agnostic spatial observation uncertainty U.",
+    "stage1_adapter_trainable": false,
+    "uq_tokenizer": "Frozen task-agnostic U-tokenizer artifact from Stage1-only reconstruction pretraining.",
+    "uq_tokenizer_trainable": false,
+    "task_relevance_owner": "ORION/VLM",
+    "task_risk_definition": "K=U*sigmoid(R)",
+    "learned_structured_field_head_used": false,
+    "structured_fields": "Deterministically decoded from U, R and K for diagnosis and QA rendering.",
+    "phase_c_trainable_scope": "task-risk language bridge only; U, first-pass R and ORION language parameters are frozen",
+    "trajectory_training_enabled": false,
+    "direct_control_training_enabled": false,
+    "density_uq_used": false,
+    "governor_used": false,
+    "native_glare_used_for_training_or_checkpoint_selection": false
+  },
+  "dataset": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v1/manifest.json",
+    "sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "event_count": 17,
+    "train_event_count": 13,
+    "dev_event_count": 4,
+    "train_group_count": 60,
+    "dev_group_count": 20,
+    "record_count": 1600,
+    "town_count": 6,
+    "scenario_family_count": 12,
+    "dev_labels_enter_optimizer": false,
+    "locked_test_read_allowed": false,
+    "formal_training_eligible": false
+  },
+  "frozen_u_tokenizer": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage1_u_tokenizer_pretraining/stage1_u_tokenizer_task_agnostic_v1_200_retry1/stage1_u_tokenizer_task_agnostic_v1.pt",
+    "sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "source_status": "bounded_task_agnostic_tokenizer_pretraining_pass",
+    "task_or_route_labels_seen": false,
+    "reconstruction_decoder_reused": false
+  },
+  "phases": {
+    "A_map_pretrain": {
+      "optimizer_steps": 40,
+      "train_events_per_step": 13,
+      "objective": "Foreground-balanced dense R-map learning from clean visual and route/task context only.",
+      "automatic_next_phase": "Only when every Phase-A release gate passes."
+    },
+    "B_risk_alignment": {
+      "optimizer_steps": 40,
+      "train_events_per_step": 13,
+      "objective": "Matched on-path versus off-path K ranking with identical U magnitude/support, while retaining Phase-A map gates.",
+      "automatic_next_phase": "Only when every Phase-B release gate passes."
+    },
+    "C_language_grounding": {
+      "optimizer_steps": 40,
+      "anchors_per_step": 6,
+      "objective": "Bridge-only auxiliary QA grounding for task-relevance and driving-implication answers.",
+      "map_path_frozen": true
+    }
+  },
+  "objective": {
+    "support_fraction_of_peak": 0.1,
+    "required_oracle_fraction": 0.8,
+    "ranking_weight": 1.0,
+    "trajectory_weight": 0.0,
+    "direct_control_weight": 0.0,
+    "learned_structured_field_weight": 0.0
+  },
+  "learning_rates": {
+    "lora": 0.00002,
+    "relevance": 0.0003,
+    "language_bridge": 0.0003,
+    "weight_decay": 0.0001
+  },
+  "release_gates": {
+    "interpretation": "Engineering learnability gates only. Passing all phases does not unlock formal training, Stage2-P or closed loop.",
+    "train_min_foreground_recall": 0.9,
+    "train_max_background_fpr": 0.1,
+    "dev_min_foreground_recall": 0.8,
+    "dev_max_background_fpr": 0.1,
+    "dev_min_positive_order_fraction": 0.8,
+    "dev_min_mean_attained_fraction": 0.5,
+    "dev_min_target_preference_fraction": 0.6,
+    "dev_min_zero_uq_target_preference_fraction": 0.5,
+    "dev_min_on_path_target_preference_fraction": 0.5,
+    "map_metric_retention_tolerance": 0.00000001
+  },
+  "stop_rules": {
+    "phase_a_fail": "Save Phase-A checkpoint/report and stop. Diagnose R objective or support labels; do not add optimizer steps.",
+    "phase_b_fail": "Save Phase-B checkpoint/report and stop. Keep Phase-A result; revise matched risk alignment only.",
+    "phase_c_fail": "Save Phase-C checkpoint/report and stop. Keep passed map/ranking evidence; revise language interface only.",
+    "all_pass": "Qualifies only one clean/corrupt engineering interface smoke. Formal Stage2-L and Stage2-P remain locked.",
+    "automatic_retry_or_extension": false,
+    "maximum_submissions": 1
+  },
+  "implementation_sources": {
+    "scripts/train_stage2l_v10_staged_smoke.py": "03093c10b1f68b3f9c1a068a8aaaa680be8aa466d53b1e6bf0bc474fa4b31d02",
+    "scripts/train_stage2l_mr1_smoke.py": "dbf03178d1d748c8b2004d82e91cedd4976bd57bd1e0b82822332229e89227d6",
+    "uq_estimator/stage2l_deterministic_semantics_v10.py": "3cc35825ccbf5971bb03854964279adfb247b04bb37016b08e8b2f08a83b6391",
+    "uq_estimator/stage2l_relevance_objective_v10.py": "69bf2b15832a8a1ed3078e493f3252e27a0752d02279799387de5bf7969b3c07",
+    "uq_estimator/stage2l_semantic_runtime_v10.py": "c2ce4ec09e756a6667017f6c4d33a245aa4e9ab66b9740cfb2d6eb65c9f5c782",
+    "uq_estimator/stage2l_calibrated_objective.py": "8775ff03348e228bcce28ba7121e996cb8d25776baa567cddb99260aa592aaae",
+    "uq_estimator/uq_relevance_tokenizer.py": "1edf59228f76c8b07fea81dd1389a7b70d6378f88508e7192cf57f50fb16011b",
+    "adzoo/orion/configs/orion_stage3_agent_spatial_stage2.py": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed"
+  },
+  "launch_locks": {
+    "real_training_allowed": false,
+    "immutable_hash_bound_amendment_required": true,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "closed_loop_matrix_allowed": false,
+    "route203_native_glare_submission_allowed": false
+  },
+  "claim_boundary": "One fresh 17-event, gate-staged engineering learnability smoke. It cannot establish formal generalization, uncertainty correctness, native-glare robustness, planning improvement, closed-loop safety or a 200-route result."
+}

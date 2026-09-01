@@ -1,0 +1,37 @@
+{
+  "schema": "orion.scenario_factory.submission_attestation.v1",
+  "submitted_at": "2026-08-29T20:49:06+08:00",
+  "run_id": "stage2l_formal24_dev_wave1_20260829",
+  "batch_manifest": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave1/batch_manifest.json",
+    "sha256": "73fc66b5f80800a09e8f58c077ff652205a5e05698412fa4452ed7ad00cb5b13"
+  },
+  "runtime_contract": {
+    "condition": "clean_off",
+    "variant": "hazard",
+    "stage1_adapter_control_influence": false,
+    "stage2_spatial_uq_source": "disabled",
+    "legacy_density_uq": false,
+    "risk_mode": "off",
+    "planning_response": "off"
+  },
+  "route_jobs": [
+    {"route_index": 157, "job_id": 1094689, "state_at_attestation": "pending_priority"},
+    {"route_index": 158, "job_id": 1094690, "state_at_attestation": "pending_priority"},
+    {"route_index": 164, "job_id": 1094691, "state_at_attestation": "pending_priority"}
+  ],
+  "resources_per_route": {
+    "gpu": 1,
+    "cpus": 2,
+    "host_memory": "192G",
+    "time_limit": "02:00:00",
+    "excluded_nodes": ["gpu2", "gpu5"]
+  },
+  "postprocessing": {
+    "finalize_job_id": 1094692,
+    "finalize_dependency": "afterany:1094689:1094690:1094691",
+    "review_queue_job_id": 1094693,
+    "review_dependency": "afterok:1094692"
+  },
+  "claim_boundary": "Development route screening only; no learned-UQ, Stage2, closed-loop intervention, or safety claim."
+}

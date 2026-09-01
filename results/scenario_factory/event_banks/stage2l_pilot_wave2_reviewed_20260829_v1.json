@@ -1,0 +1,203 @@
+{
+  "checks": {
+    "locked_test_lineage_valid": true,
+    "minimum_dev_events": false,
+    "minimum_independent_events": false,
+    "minimum_locked_test_events": false,
+    "minimum_scenario_families": false,
+    "minimum_towns": false,
+    "minimum_train_events": false,
+    "route_disjoint": true
+  },
+  "claim_boundary": "A frozen event bank establishes data integrity and split governance only. Stage1, Stage2-L, and closed-loop claims require their own evaluations.",
+  "counts": {
+    "accepted_events": 2,
+    "rejected_events": 0,
+    "scenario_families": 2,
+    "splits": {
+      "dev": 0,
+      "test": 0,
+      "train": 2
+    },
+    "towns": 2
+  },
+  "events": [
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 1.4822440869862745,
+        "min_obb_ttc_seconds": 1.3160898884280712,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 63,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 9.619482851389886,
+          "obb_ttc_seconds": 1.3160898884280712,
+          "type_id": "vehicle.lincoln.mkz_2020"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.21445600661131217,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "selection_policy": {
+          "complete_review_window_required": true,
+          "maximum_route_progress_exclusive": 0.98,
+          "minimum_post_event_seconds": 2.0,
+          "minimum_pre_event_seconds": 3.0,
+          "terminal_route_tail_excluded": true
+        },
+        "sim_time_seconds": 6.25,
+        "speed_mps": -0.003660229183029454,
+        "step": 125,
+        "window_seconds": [
+          3.25,
+          8.25
+        ]
+      },
+      "event_id": "route152_step125",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave2_geometry_reserve_20260829/route152/event_package.json",
+        "sha256": "eaf100efa846a919e53520a1f52494328b81a64c7e9d09de29bfc88f4cfdb25e"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "The lead vehicle brakes in-lane while ego decelerates from about 5 m/s to a stop. The automatically selected minimum-TTC actor is a different Lincoln approaching continuously from the rear after ego stops; its motion was verified in rgb_back and agrees with BEV. Accepted as a multi-view longitudinal-response event, not as a collision or closed-loop improvement result.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 1,
+      "route_index": 152,
+      "runtime_valid": true,
+      "scenario_family": "HardBreakRoute",
+      "screen_role": "longitudinal_response_hazard",
+      "split_origin": "development_screen",
+      "stage2_split": "train",
+      "town": "Town10HD",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave2_geometry_reserve_20260829/route152/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave2_geometry_reserve_20260829/route152/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave2_geometry_reserve_20260829/route152/visuals/raw_front.gif"
+      ]
+    },
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [
+        "majority_of_route_nearly_stopped"
+      ],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 1.8589471685687207,
+        "min_obb_ttc_seconds": 0.8652392637716928,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 148,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 13.907116338119014,
+          "obb_ttc_seconds": 2.701980025511846,
+          "type_id": "vehicle.dodge.charger_2020"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.949087627852726,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "selection_policy": {
+          "complete_review_window_required": true,
+          "maximum_route_progress_exclusive": 0.98,
+          "minimum_post_event_seconds": 2.0,
+          "minimum_pre_event_seconds": 3.0,
+          "terminal_route_tail_excluded": true
+        },
+        "sim_time_seconds": 46.2,
+        "speed_mps": 5.14819844616096,
+        "step": 924,
+        "window_seconds": [
+          43.2,
+          48.2
+        ]
+      },
+      "event_id": "route207_step924",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave2_geometry_reserve_20260829/route207/event_package.json",
+        "sha256": "5278dd0d1161464567296d6f4da6dbb9d821745657bbfdcac7a3d9be1cc2f5fc"
+      },
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "After the preregistered terminal-tail and complete-window guards, the selected actor is a stationary same-lane Dodge about 18.9 m ahead, continuously visible in front/BEV; a separate vehicle merges from the left T-junction and exits view normally. The majority-stopped warning is retained. Accepted only as a route-geometry/task-relevance hard negative pending keyframe geometry preflight, not as a severe safety event.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 2,
+      "route_index": 207,
+      "runtime_valid": true,
+      "scenario_family": "T_Junction",
+      "screen_role": "route_geometry_hard_negative",
+      "split_origin": "development_screen",
+      "stage2_split": "train",
+      "town": "Town02",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave2_geometry_reserve_20260829/route207/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave2_geometry_reserve_20260829/route207/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave2_geometry_reserve_20260829/route207/visuals/raw_front.gif"
+      ]
+    }
+  ],
+  "formal_training_ready": false,
+  "provenance": {
+    "review_decisions": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/scenario_factory_clean_wave2_geometry_reserve_20260829/scenario_event_review_decisions.json",
+      "sha256": "6976c931a667d4793f27a34ca73a63cce3e5440fece425e1eb877956c0983102"
+    },
+    "review_queue": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/scenario_factory_clean_wave2_geometry_reserve_20260829/scenario_event_review_queue.json",
+      "sha256": "4bd25af006249a39522a337547149f7c4eaea01b527ff5e2fdb94ca97d5e3420"
+    },
+    "stage2_config": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/stage2l_training_v2_balanced_language.json",
+      "sha256": "679294ca483b15faff2b17ec81792202ba7a74fe0b615823be720f38258b2aee"
+    }
+  },
+  "rejected_events": [],
+  "schema": "orion.scenario_event_bank.v1",
+  "split_seed": "orion-stage2l-pilot-wave2-review-v1",
+  "status": "reviewed_pilot_bank_below_formal_gate"
+}
