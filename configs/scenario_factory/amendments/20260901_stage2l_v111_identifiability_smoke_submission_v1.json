@@ -1,0 +1,63 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T12:48:14+08:00",
+  "status": "v11_1_single_replacement_submitted_and_attested",
+  "launch_authorization": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v111_identifiability_smoke_launch_v1.json",
+    "sha256": "3fc737433561569adfebc064522330681830bf943c1b8ca112f4558183f255cc"
+  },
+  "submission": {
+    "job_id": "1120954",
+    "job_name": "s2l_v111_ident",
+    "partition": "Nvidia_A800",
+    "submitted_at": "2026-09-01T12:46:53+08:00",
+    "started_at": "2026-09-01T12:47:09+08:00",
+    "state_at_snapshot": "RUNNING",
+    "node_at_snapshot": "gpu4",
+    "resources": {
+      "gpus": 1,
+      "cpus_per_task": 2,
+      "memory": "192G",
+      "time_limit": "08:00:00",
+      "excluded_nodes": ["gpu5"]
+    },
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/training",
+    "remote_log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/stage2l_smokes/v11_1_identifiable_17event_40_v1-1120954.out",
+    "maximum_submissions": 1,
+    "automatic_retry": false
+  },
+  "submission_attestation": {
+    "path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/submission_attestation.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/submission_attestation.json",
+    "sha256": "cd0ec591afaaf92cc6945eef851edd369894249b876c706ab0bee213624cfc92",
+    "schema": "orion.stage2l_v11_1_submission_attestation.v1",
+    "status": "single_v11_1_replacement_job_submitted_and_attested"
+  },
+  "implementation": {
+    "submitter": {
+      "path": "scripts/submit_stage2l_v111_identifiable_smoke.sh",
+      "sha256": "bf82169742b5151d2a63658e850869234e0393117138f6dc5d38cdd66911d09d"
+    },
+    "attester": {
+      "path": "scripts/write_stage2l_v111_submission_attestation.py",
+      "sha256": "15dba53d9ced16b020b9297b5b2058ae0d73f099d20a0f7d05f4b24056a9d573"
+    }
+  },
+  "pre_submission_checks": {
+    "user_queue_was_empty": true,
+    "training_output_was_absent": true,
+    "submission_attestation_was_absent": true,
+    "duplicate_job_name_was_absent": true,
+    "hash_attestation_completed": true,
+    "unattested_job_cancel_trap_triggered": false
+  },
+  "launch_locks": {
+    "only_task_risk_language_bridge_trainable": true,
+    "optimizer_steps_ceiling": 40,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "automatic_retry_allowed": false
+  },
+  "claim_boundary": "Submission and scheduler lineage only. The running job is not a controlled-U pass, semantic result, planning result or safety claim."
+}
