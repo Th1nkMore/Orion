@@ -59,6 +59,8 @@ That factorized-R CPU preflight now passes on all 80 frozen groups with exact ro
 
 The separate v12.1 trainer preflight now also passes on the exact 17-event/80-group assets: all component targets load, the duplicated route/actor warm start is bitwise identical to the old single-R probability, and neither ambiguous union convention enters the loss. Exactly one hash-attested 40-step R-only run was submitted as Slurm Job `1121553`; at the recorded `2026-09-01T15:28:11+08:00` scheduler snapshot it was `PENDING (Priority)`. This is a submission state, not a model result, and it does not unlock U, language, Stage2-P or closed loop.
 
+While Job `1121553` was running but before its metrics were reviewed, engineering progression was changed to a soft-gate vertical slice. The original seven metrics remain mandatory diagnostics and the job keeps its frozen verdict, but model-quality misses no longer block one bounded controlled-U/QA run, Stage2-P interface run and very small closed-loop smoke. Only integrity, leakage, numerical, interface and runtime defects hard-stop the first pass. Front and central rear views are the primary longitudinal analysis; side and oblique views remain reported auxiliary generalization. This policy authorizes no job by itself and does not weaken later locked-test or benchmark release gates; see [docs/CURRENT_STATE.md](./docs/CURRENT_STATE.md).
+
 While that job still had no log or training output, an outcome-blind terminal audit was frozen and passed an 18-test remote regression suite. It independently recomputes every engineering gate, verifies both milestone checkpoints and all 80 component maps, rejects hash/lock drift and unexpected artifacts, and forbids outcome-conditioned threshold or epoch changes.
 
 ---

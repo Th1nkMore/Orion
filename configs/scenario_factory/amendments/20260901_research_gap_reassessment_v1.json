@@ -1,0 +1,134 @@
+{
+  "schema": "orion.research_gap_reassessment.v1",
+  "created_at": "2026-09-01T15:52:23+08:00",
+  "status": "frozen_evidence_based_priority_record_no_experiment_authority",
+  "execution_policy_status": {
+    "gap_hierarchy_remains_active": true,
+    "terminal_branch_progression_rules_superseded": true,
+    "superseded_at": "2026-09-01T16:06:49+08:00",
+    "superseded_by": "configs/scenario_factory/amendments/20260901_vertical_slice_soft_gate_progression_v1.json",
+    "reason": "Model-quality gates remain diagnostic but no longer block the first complete engineering vertical slice; only integrity, leakage, numerical, interface and runtime defects hard-stop progression."
+  },
+  "purpose": "Reassess the largest current research gap from the authoritative repository state and completed evidence only, without using a preferred corruption, route, decoder or end-state schedule as the answer.",
+  "evidence_cutoff": {
+    "current_state_last_audited": "2026-09-01",
+    "active_job": {
+      "job_id": "1121553",
+      "name": "s2l_v121_factr",
+      "snapshot_at": "2026-09-01T15:52:23+08:00",
+      "state": "PENDING",
+      "reason": "Priority",
+      "optimizer_steps_observed": 0,
+      "scientific_result_observed": false
+    },
+    "current_job_outcome_used_for_reassessment": false
+  },
+  "architecture_chain": [
+    "task-agnostic spatial observation uncertainty U",
+    "frozen spatial U-tokenization",
+    "U-independent contextual task relevance R",
+    "task-relevant uncertainty K = U * sigmoid(R)",
+    "structured fields and language semantics",
+    "Stage2-P trajectory response",
+    "closed-loop safety and utility"
+  ],
+  "gap_hierarchy": {
+    "largest_scientific_gap": {
+      "name": "held-out-identifiable U-times-R-to-K-and-language bridge",
+      "statement": "No released checkpoint or terminal experiment has shown, on independent held-out events, that changing only spatial U while visual evidence, route, ego state and shared contextual R are fixed produces the correct localized K and matched structured-language response.",
+      "why_primary": "Without this bridge, a later conservative trajectory cannot be attributed to task-relevant interpretation of uncertainty rather than a foreground, route-template, corruption or universal-caution shortcut. A corruption-induced failure case alone cannot repair this attribution gap."
+    },
+    "immediate_engineering_blocker": {
+      "name": "held-out conflict-actor relevance localization",
+      "statement": "The current U-independent relevance path generalizes route/front structure substantially better than conflict-actor and non-front structure, so U cannot yet be exposed to a reliable shared R for a causal language test.",
+      "evidence": {
+        "v10_1_train_recall": 0.866435,
+        "v10_1_dev_recall": 0.443067,
+        "v11_1_train_controlled_u_ordering": 0.866667,
+        "v11_1_dev_controlled_u_ordering": 0.55,
+        "v11_1_front_controls_passed": "10/10",
+        "v11_1_side_or_no_effective_region_controls_passed": "0/9",
+        "frozen_single_r_dev_actor_front_left_recall": 0.0,
+        "frozen_single_r_dev_actor_front_right_recall": 0.0,
+        "frozen_single_r_dev_actor_back_left_recall": 0.0089
+      }
+    },
+    "root_identifiability_limitation": {
+      "name": "independent event and component-view support",
+      "statement": "The frozen bank is too sparse and asymmetric to separate architecture failure from event/view coverage or template shortcuts, especially for conflict actors outside the front view.",
+      "evidence": {
+        "formal_target_events": 24,
+        "currently_accepted_events": 18,
+        "accepted_split": "14 train / 4 dev / 0 locked-test",
+        "v12_1_smoke_split": "13 train / 4 dev",
+        "actor_front_right_positive_events": "2 train / 1 dev",
+        "actor_back_right_positive_events": "0 train / 0 dev",
+        "unsupported_component_views": [
+          "route/CAM_FRONT_LEFT",
+          "route/CAM_FRONT_RIGHT",
+          "route/CAM_BACK",
+          "route/CAM_BACK_LEFT",
+          "route/CAM_BACK_RIGHT",
+          "actor/CAM_BACK_RIGHT"
+        ]
+      }
+    },
+    "parallel_foundational_gap": {
+      "name": "learned Stage-1 U external validity",
+      "statement": "The tokenizer passed representation reconstruction, but the spatial adapter remains a diagnostic evidence-loss proxy and missed its preregistered heavy-native-fog patch-AUROC gate.",
+      "evidence": {
+        "tokenizer_dev_mae": 0.031972,
+        "tokenizer_zero_u_anchor_mae": 0.010475,
+        "adapter_heavy_native_fog_patch_auroc": 0.590313,
+        "adapter_heavy_native_fog_patch_auroc_gate": 0.6
+      },
+      "interpretation": "This is independent of the contextual-R repair. Controlled or oracle U may diagnose the Stage2-L bridge, but learned-U claims remain blocked until a genuinely held-out native or sensor-family gate passes."
+    },
+    "largest_final_claim_gap": {
+      "name": "no learned-U Stage2-P closed-loop result",
+      "statement": "Stage2-P has not started and no current-mainline checkpoint establishes collision, TTC, traffic-rule, completion or unnecessary-slowing benefit.",
+      "current_failure_induction_evidence": "five valid negative pairs and zero positive corruption-induced failure pairs",
+      "interpretation": "This is the largest distance to the final paper claim, but it is downstream of the causal semantic bridge rather than the next mechanism to optimize."
+    }
+  },
+  "priority_decision": {
+    "next_result_to_observe": "terminal frozen audit of Job 1121553",
+    "if_factorized_r_engineering_gates_pass": [
+      "record factorization only as an engineering repair candidate",
+      "do not start language, Stage2-P or closed loop from the 17-event smoke",
+      "repair independent actor/component-view coverage under a separately frozen outcome-blind protocol",
+      "then preregister the matched controlled-U semantic bridge with shared R fixed across U variants"
+    ],
+    "if_train_improves_but_held_out_actor_relevance_fails": [
+      "stop the current training path without adding epochs or capacity",
+      "audit actor target semantics and same-view representation by component and event",
+      "expand independent actor/view coverage only where the audit identifies missing support"
+    ],
+    "if_route_retention_or_background_control_fails": [
+      "stop without retry",
+      "repair component sharing or normalization on CPU before any new GPU authorization"
+    ],
+    "parallel_safe_work": [
+      "inventory existing held-out native and sensor-family assets for a Stage-1 external-validity protocol",
+      "complete formal event-bank lineage and immutable human review without reading locked-test model outcomes"
+    ]
+  },
+  "not_the_immediate_gap": [
+    "more v10/v10.1 epochs",
+    "a larger trajectory decoder or diffusion replacement",
+    "a 200-route benchmark run",
+    "a single visually stronger corruption",
+    "a generic increase in route count without actor/component-view support",
+    "GPU availability"
+  ],
+  "locks": {
+    "changes_job_1121553_thresholds": false,
+    "authorizes_job_retry_or_resize": false,
+    "authorizes_new_gpu_submission": false,
+    "authorizes_language_training": false,
+    "authorizes_stage2p": false,
+    "authorizes_closed_loop": false,
+    "authorizes_locked_test_read": false
+  },
+  "claim_boundary": "A repository-state research-priority audit. It records which missing evidence is scientifically primary and which technical result should be observed next; it is not a model result, dataset release, uncertainty validation, language result, planning result or safety result."
+}

@@ -166,6 +166,65 @@ reconstruction, decoder choice, and GPU budget are not immediate blockers;
 independent-event coverage and Stage-1 external validity remain separate open
 problems.
 
+### 3.1 Evidence-based gap reassessment
+
+An independent priority audit at `2026-09-01T15:52:23+08:00` deliberately
+separated the distance to the final paper claim from the next scientifically
+identifiable experiment. Its conclusion is that the largest **scientific** gap
+is not a particular corruption, decoder or benchmark size. It is the absence
+of a held-out causal bridge in which visual evidence, route, ego state and one
+shared contextual R are fixed, changing only spatial U produces the correct
+localized `K = U * sigmoid(R)`, and the structured/language answer changes
+consistently without universal caution.
+
+The immediate engineering blocker inside that larger gap is held-out
+conflict-actor R localization. The root identifiability limitation is sparse
+independent event/component-view support, while learned Stage-1 U external
+validity is a parallel foundational gap. Stage2-P and closed-loop safety are
+the largest remaining distance to the final claim, but optimizing them before
+the semantic bridge would not establish why a behavior changed. Likewise, a
+new positive corruption-induced failure case would be useful downstream but
+would not by itself distinguish task-relevant U use from a route, corruption
+or universal-slowing shortcut.
+
+At the audit snapshot, Job `1121553` remained `PENDING (Priority)` with no
+optimizer step or outcome. The audit therefore does not use its result, does
+not alter its frozen gates, and authorizes no retry or downstream job. Its
+machine-readable evidence hierarchy and terminal branches are frozen in
+`configs/scenario_factory/amendments/20260901_research_gap_reassessment_v1.json`.
+
+### 3.2 Soft-gate vertical-slice progression
+
+At `2026-09-01T16:06:49+08:00`, while Job `1121553` was running but before its
+training log or metrics were reviewed, the engineering progression policy was
+changed prospectively. Model-quality thresholds are now **soft diagnostics**
+during the first end-to-end pass. A weak per-view recall, background FPR,
+train/dev gap, controlled-U ordering, QA score or first closed-loop outcome is
+recorded but does not by itself prevent the next interface from being run.
+
+Only integrity and causal-contract failures remain hard stops: hash or split
+drift, locked-test leakage, forbidden labels or planning gradients crossing
+the Stage-1 boundary, non-finite optimization, incompatible tensors or an
+invalid runtime/artifact. Job `1121553` retains its original seven-gate verdict
+and all metrics must still be reported, but an integrity-valid terminal
+checkpoint is carried into one bounded controlled-U structured-QA smoke even
+if one or more model-quality gates fail. No extra R epochs are inserted first.
+
+The first vertical slice then continues through one Stage2-L semantic run, one
+Stage2-P interface run and a very small CARLA closed-loop smoke. These runs are
+engineering diagnostics, not formal releases or safety claims. Once the whole
+chain exposes its actual failures, the earliest broken causal stage is repaired
+and its downstream consumers are rerun. Front and central rear views remain the
+primary longitudinal analysis; side and oblique views remain reported
+auxiliary generalization rather than stage blockers. In particular, current
+rear actor localization does not yet prove braking-conditioned relevance; that
+distinction is probed in QA instead of being required from the present scene
+bank alone.
+
+This policy authorizes no new job by itself and does not unlock locked test or
+formal benchmark claims. The machine-readable record is
+`configs/scenario_factory/amendments/20260901_vertical_slice_soft_gate_progression_v1.json`.
+
 ## 4. Formal Stage-2L data readiness
 
 The frozen formal target is 24 independent events with a 16 train / 4 dev / 4
@@ -260,7 +319,7 @@ UQ-aware ORION result establishes collision, TTC, traffic-rule, or route-
 completion improvement. Conditional diffusion remains a later decoder
 ablation; changing the decoder cannot repair the missing semantic bridge.
 
-## 7. Next executable milestone
+## 7. Next executable vertical slice
 
 The next bounded engineering experiment must combine the two previously
 separated interfaces without collapsing U and R into one predictor:
@@ -288,16 +347,23 @@ Before GPU submission it must prove on CPU/preflight that:
   ground-truth stance enters the forward pass;
 - train/dev route identities remain disjoint and locked test is unread.
 
-The bounded release gates remain held-out R foreground recall/background FPR,
-on-path-over-off-path K ordering, per-variant answer preference,
-zero/irrelevant-U false-conservatism, and map/structured-field/text
-consistency. It must also include a no-U ablation and report per-event and
-per-view results rather than only aggregate metrics. If R remains high on train
-and low on dev, do not add epochs or model capacity: audit support labels and
-coordinate binding, then expand independent-event coverage. If controlled U
-does not change K/QA correctly under a shared R, repair the semantic bridge
-before Stage-2P. If controlled U passes but learned U fails an independent
-native/sensor gate, Stage 1—not Stage-2L—is the bottleneck.
+Held-out R foreground recall/background FPR, on-path-over-off-path K ordering,
+per-variant answer preference, zero/irrelevant-U false-conservatism and
+map/structured-field/text consistency remain mandatory outputs. They are soft
+diagnostics during the first vertical slice rather than permission switches.
+The run must also include a no-U ablation and report per-event and per-view
+results rather than only aggregates.
+
+If R remains high on train and low on dev, do not insert extra R epochs before
+the first semantic run; carry the attested checkpoint forward with that failure
+label. If controlled U does not change K/QA correctly, record the failed bridge
+and still exercise the bounded Stage2-P interface unless the failure is an
+integrity, leakage, numerical or tensor-contract defect. If learned U fails an
+independent native/sensor diagnostic, record Stage 1 as a bottleneck while
+retaining controlled U for interface testing. After the complete slice, repair
+the earliest broken causal stage and rerun it plus downstream consumers.
+Formal release gates are frozen again only before locked-test or benchmark
+claims.
 
 The machine-readable preflight contract for this distinction is
 `configs/scenario_factory/stage2l_v11_identifiable_factorized_bridge_v1.json`.
@@ -529,6 +595,8 @@ Authoritative v11.1 results:
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_existing_raw_actor_support_inventory_result_v1.json`.
 - `configs/scenario_factory/stage2l_v12_1_factorized_r_cpu_preflight_v1.json`.
 - `configs/scenario_factory/amendments/20260901_stage2l_v121_factorized_r_cpu_preflight_result_v1.json`.
+- `configs/scenario_factory/amendments/20260901_research_gap_reassessment_v1.json`.
+- `configs/scenario_factory/amendments/20260901_vertical_slice_soft_gate_progression_v1.json`.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.
