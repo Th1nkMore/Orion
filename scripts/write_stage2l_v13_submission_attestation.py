@@ -71,6 +71,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--arm", choices=tuple(ARMS), required=True)
     parser.add_argument("--job-id", required=True)
+    parser.add_argument("--job-name")
     parser.add_argument("--trainer", type=Path, required=True)
     parser.add_argument("--process-module", type=Path, required=True)
     parser.add_argument("--v122-lineage-helper", type=Path, required=True)
@@ -101,6 +102,7 @@ def main() -> int:
     launch = _read(args.launch.resolve())
     actual = _validated_inputs(args)
     arm = launch.get("authorized_arms", {}).get(args.arm, {})
+    expected_job_name = str(arm.get("job_name", ARMS[args.arm]))
     locks = launch.get("locks", {})
     architecture = launch.get("architecture_invariants", {})
     if (
@@ -122,6 +124,10 @@ def main() -> int:
         or arm.get("output_root") != str(args.output_root.resolve())
         or arm.get("maximum_submissions") != 1
         or arm.get("optimizer_steps") != 200
+        or (
+            args.job_name is not None
+            and args.job_name != expected_job_name
+        )
         or launch.get("automatic_retry") is not False
         or architecture.get("task_risk_language_bridge_present") is not False
         or architecture.get("k_used_as_model_input") is not False
@@ -137,7 +143,7 @@ def main() -> int:
         "created_at": datetime.now(timezone.utc).isoformat(),
         "training_arm": args.arm,
         "job_id": str(args.job_id),
-        "job_name": ARMS[args.arm],
+        "job_name": expected_job_name,
         "remote_log": str(args.remote_log.resolve()),
         "authorized_output_root": str(args.output_root.resolve()),
         "optimizer_steps": 200,

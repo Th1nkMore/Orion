@@ -265,6 +265,21 @@ def _set_requires_grad(module: nn.Module, enabled: bool) -> None:
         parameter.requires_grad = bool(enabled)
 
 
+def detached_conditioning_gradient_anchor(tokens: torch.Tensor) -> torch.Tensor:
+    """Anchor checkpointed ORION gradients without training token producers.
+
+    ORION uses re-entrant gradient checkpointing.  When every conditioning
+    input is frozen, PyTorch otherwise treats a checkpointed decoder segment
+    as gradient-free even if that segment contains trainable LoRA weights.
+    A detached leaf restores the decoder graph while guaranteeing that the
+    gradient cannot reach Stage1, the U tokenizer, or the R-token producer.
+    """
+
+    if not tokens.is_floating_point():
+        raise TypeError("ORION conditioning tokens must be floating point")
+    return tokens.detach().requires_grad_(True)
+
+
 def configure_trainable_scope(
     *,
     lm: nn.Module,

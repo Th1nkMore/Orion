@@ -11,6 +11,7 @@ from uq_estimator.stage2l_process_qa_v13 import (
     build_structured_process_chain,
     build_structured_process_row,
     configure_trainable_scope,
+    detached_conditioning_gradient_anchor,
 )
 
 
@@ -66,6 +67,30 @@ def _answer(family: str, variant: str) -> str:
             "response_basis=observation_uncertainty." % stance
         )
     raise AssertionError(family)
+
+
+def test_detached_conditioning_gradient_anchor_stops_upstream_gradient() -> None:
+    source = torch.randn(2, 3, requires_grad=True)
+    produced = source.square()
+
+    anchor = detached_conditioning_gradient_anchor(produced)
+    anchor.sum().backward()
+
+    assert anchor.is_leaf
+    assert anchor.requires_grad
+    assert anchor.grad is not None
+    assert source.grad is None
+
+
+def test_detached_conditioning_gradient_anchor_rejects_non_float() -> None:
+    with torch.no_grad():
+        tokens = torch.ones(2, 3, dtype=torch.long)
+    try:
+        detached_conditioning_gradient_anchor(tokens)
+    except TypeError as error:
+        assert "floating point" in str(error)
+    else:
+        raise AssertionError("integer conditioning tokens must be rejected")
 
 
 def _rows(group: str, variant: str):

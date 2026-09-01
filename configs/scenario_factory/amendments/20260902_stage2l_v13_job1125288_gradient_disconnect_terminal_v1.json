@@ -1,0 +1,55 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-02T01:11:15+08:00",
+  "status": "terminal_runtime_failure_recorded",
+  "scope": "Stage2-L v13 direct-U/R process-QA LoRA capacity smoke only",
+  "job": {
+    "job_id": "1125288",
+    "job_name": "s2l_v13_lora",
+    "partition": "Nvidia_A800",
+    "node": "gpu4",
+    "state": "FAILED",
+    "elapsed": "00:18:56",
+    "exit_code": "1:0",
+    "optimizer_steps_completed": 0,
+    "maximum_observed_rss": "6412512K"
+  },
+  "authoritative_artifacts": {
+    "remote_log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/stage2l_smokes/v13_process_qa_lora_17event_200_v1-1125288.out",
+    "remote_submission_attestation": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v13_process_qa_lora_17event_200_v1/submission_attestation.json",
+    "local_log": "artifacts/stage2l_v13_process_qa_failed_job_1125288/job-1125288.out",
+    "local_submission_attestation": "artifacts/stage2l_v13_process_qa_failed_job_1125288/submission_attestation.json",
+    "log_sha256": "cac24e191693306e18a7bf0d0f64c21a13e1d2b11a8f62a728ceaf4ad48e5573",
+    "submission_attestation_sha256": "7387fdd878a92cdea9b69dfaff24338369bade082fe4acd4a134304b3e69b893"
+  },
+  "observations": {
+    "direct_u_r_forward_completed": true,
+    "full_pretraining_evaluation_completed": true,
+    "first_language_backward_started": true,
+    "first_optimizer_step_completed": false,
+    "exception": "RuntimeError: element 0 of tensors does not require grad and does not have a grad_fn",
+    "exception_site": "scripts/train_stage2l_v13_process_qa_smoke.py: weighted_chain.backward()",
+    "checkpoint_warning": "None of the inputs have requires_grad=True. Gradients will be None",
+    "nonfinite_value_observed": false,
+    "cuda_oom_observed": false
+  },
+  "root_cause": "ORION uses re-entrant gradient checkpointing. The removed bridge used to produce a gradient-requiring conditioning tensor. Under the corrected direct-token architecture, baseline, frozen Stage1 U, and detached R tokens were all gradient-free, so checkpointed decoder segments did not retain a graph for trainable LoRA weights.",
+  "scientific_interpretation": "This is a fail-closed implementation error, not evidence for or against direct U-token semantics, language learnability, capacity, task relevance, planning, or safety.",
+  "disposition": {
+    "same_job_requeued": false,
+    "same_output_overwritten": false,
+    "original_protocol_mutated": false,
+    "original_submission_count": 1,
+    "partial_unfreeze_v13_submitted": false,
+    "v13_result_eligible_for_comparison": false
+  },
+  "authorized_followup": "A separately hash-bound v13.1 runtime-fix smoke may use a detached leaf conditioning gradient anchor, which terminates gradients before Stage1/U/R producers, plus a no-update runtime gradient probe before full evaluation. It must use fresh output roots and one new submission per arm.",
+  "locks_retained": {
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "locked_test_allowed": false,
+    "extra_epochs_allowed": false,
+    "automatic_downstream_unlock": false
+  }
+}

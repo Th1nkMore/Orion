@@ -56,6 +56,7 @@ from uq_estimator.stage2l_process_qa_v13 import (
     build_structured_process_chain,
     build_structured_process_row,
     configure_trainable_scope,
+    detached_conditioning_gradient_anchor,
 )
 from uq_estimator.uq_relevance_tokenizer import (
     ViewAlignedTaskRelevanceQueryTokenizer,
@@ -650,6 +651,146 @@ def _all_finite(parameters: Sequence[torch.nn.Parameter]) -> bool:
     )
 
 
+def _runtime_gradient_probe(
+    *,
+    args: argparse.Namespace,
+    protocol: Mapping[str, Any],
+    lm,
+    tokenizer,
+    uq_tokenizer,
+    queries,
+    head,
+    scope,
+    lm_assets: v11.V11Assets,
+    factorized_assets: v121.FactorizedAssets,
+) -> Dict[str, Any]:
+    """Exercise one real direct-token backward before the full baseline eval."""
+
+    for module in (lm, queries, head):
+        module.zero_grad(set_to_none=True)
+    group_id = sorted(
+        values[0]
+        for _, values in sorted(lm_assets.event_groups["train"].items())
+    )[0]
+    variant = "on_path_uq"
+    lm.train()
+    queries.train()
+    head.train()
+    logits, target, direct_r_tokens, baseline = _factorized_forward(
+        lm=lm,
+        tokenizer=tokenizer,
+        queries=queries,
+        head=head,
+        assets=factorized_assets,
+        group_id=group_id,
+    )
+    training = protocol["training"]
+    r_terms = factorized_relevance_terms_v121(
+        logits,
+        target,
+        support_fraction_of_peak=float(
+            training["r_objective"]["support_fraction"]
+        ),
+        inactive_view_background_anchor_weight=float(
+            training["r_objective"]["inactive_view_background_anchor_weight"]
+        ),
+        empty_component_background_anchor_weight=float(
+            training["r_objective"]["empty_component_background_anchor_weight"]
+        ),
+        route_component_weight=float(
+            training["r_objective"]["route_component_weight"]
+        ),
+        actor_component_weight=float(
+            training["r_objective"]["actor_component_weight"]
+        ),
+    )
+    r_terms.loss.backward()
+    r_gradient_groups = {
+        name: sum(parameter.grad is not None for parameter in parameters)
+        for name, parameters in scope.parameter_groups.items()
+        if name in {"relevance_queries", "relevance_head"}
+    }
+    if any(r_gradient_groups.get(name, 0) == 0 for name in (
+        "relevance_queries", "relevance_head"
+    )):
+        raise RuntimeError("v13 runtime probe found a disconnected R group")
+    for module in (lm, queries, head):
+        module.zero_grad(set_to_none=True)
+    conditioned = _direct_matched_conditioning(
+        component_logits=logits.detach(),
+        direct_r_tokens=direct_r_tokens.detach(),
+        baseline=baseline,
+        lm_assets=lm_assets,
+        group_id=group_id,
+        uq_tokenizer=uq_tokenizer,
+        protocol=protocol,
+    )
+    rows = _process_rows(lm_assets, group_id, variant)
+    row = build_structured_process_row(rows)
+    anchor = detached_conditioning_gradient_anchor(
+        conditioned.conditioning_by_variant[variant]
+    )
+    import scripts.train_stage2l_mr1_smoke as base
+
+    nll = base._answer_nlls_mr1(
+        lm=lm,
+        tokenizer=tokenizer,
+        vision=anchor,
+        row=row,
+        route_text=lm_assets.route_text[group_id],
+        answers=(_process_answers(lm_assets, group_id)[variant],),
+        micro_batch_size=1,
+    )[0]
+    if not nll.requires_grad or nll.grad_fn is None:
+        raise RuntimeError("v13 direct-token language loss has no gradient graph")
+    nll.backward()
+    language_gradient_groups = {
+        name: sum(parameter.grad is not None for parameter in parameters)
+        for name, parameters in scope.parameter_groups.items()
+        if name in {"orion_lora", "partial_decoder"} and parameters
+    }
+    required_groups = {"orion_lora"}
+    if args.training_arm == "partial_unfreeze":
+        required_groups.add("partial_decoder")
+    if any(
+        language_gradient_groups.get(name, 0) == 0 for name in required_groups
+    ):
+        raise RuntimeError("v13 runtime probe found a disconnected language group")
+    if anchor.grad is None or not bool(torch.isfinite(anchor.grad).all()):
+        raise RuntimeError("v13 direct-token gradient anchor did not receive a finite gradient")
+    if any(parameter.grad is not None for parameter in uq_tokenizer.parameters()):
+        raise RuntimeError("v13 runtime probe gradient escaped into the U tokenizer")
+    trainable = [
+        parameter
+        for module in (lm, queries, head)
+        for parameter in module.parameters()
+        if parameter.requires_grad
+    ]
+    if not _all_finite(trainable):
+        raise RuntimeError("v13 runtime probe produced non-finite gradients")
+    result = {
+        "status": "direct_token_backward_connected",
+        "training_arm": args.training_arm,
+        "group_id": group_id,
+        "event_id": lm_assets.group_event[group_id],
+        "variant": variant,
+        "language_nll": float(nll.item()),
+        "factorized_r_loss": float(r_terms.loss.item()),
+        "r_gradient_parameter_counts": r_gradient_groups,
+        "language_gradient_parameter_counts": language_gradient_groups,
+        "conditioning_is_detached_leaf": bool(anchor.is_leaf),
+        "u_tokenizer_gradient_parameter_count": 0,
+        "optimizer_step_taken": False,
+        "finite": True,
+    }
+    for module in (lm, queries, head):
+        module.zero_grad(set_to_none=True)
+    del anchor, nll, r_terms, conditioned, logits, target, direct_r_tokens
+    torch.cuda.empty_cache()
+    print("[Stage2LV13Probe] " + json.dumps(result, sort_keys=True), flush=True)
+    return result
+
+
 def _train(
     *,
     args: argparse.Namespace,
@@ -754,10 +895,13 @@ def _train(
         process_row = build_structured_process_row(rows)
         answers = _process_answers(lm_assets, group_id)
         negative = _negative_variant(variant)
+        chain_anchor = detached_conditioning_gradient_anchor(
+            conditioned.conditioning_by_variant[variant]
+        )
         answer_values = base._answer_nlls_mr1(
             lm=lm,
             tokenizer=tokenizer,
-            vision=conditioned.conditioning_by_variant[variant],
+            vision=chain_anchor,
             row=process_row,
             route_text=lm_assets.route_text[group_id],
             answers=(answers[variant], answers[negative]),
@@ -778,13 +922,16 @@ def _train(
         negative_nll_value = float(negative_nll.item())
         preference_value = float(preference.item())
         target_preferred = bool(chain_nll < negative_nll)
-        del answer_values, chain_nll, negative_nll
+        del answer_values, chain_nll, negative_nll, chain_anchor
         del preference, weighted_chain
         step_row = build_process_step_row(rows, family)
+        step_anchor = detached_conditioning_gradient_anchor(
+            conditioned.conditioning_by_variant[variant]
+        )
         step_nll = base._answer_nlls_mr1(
             lm=lm,
             tokenizer=tokenizer,
-            vision=conditioned.conditioning_by_variant[variant],
+            vision=step_anchor,
             row=step_row,
             route_text=lm_assets.route_text[group_id],
             answers=(str(step_row["conversation"][1]["value"]),),
@@ -793,6 +940,7 @@ def _train(
         weighted_step = float(weights["step_process_nll"]) * step_nll
         weighted_step.backward()
         step_nll_value = float(step_nll.item())
+        del step_anchor
         loss_value = (
             float(weights["factorized_relevance"]) * r_loss_value
             + float(weights["full_process_nll"]) * chain_nll_value
@@ -996,6 +1144,24 @@ def main() -> int:
         ),
     )
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    runtime_gradient_probe = _runtime_gradient_probe(
+        args=args,
+        protocol=protocol,
+        lm=lm,
+        tokenizer=tokenizer,
+        uq_tokenizer=uq_tokenizer,
+        queries=queries,
+        head=head,
+        scope=scope,
+        lm_assets=lm_assets,
+        factorized_assets=factorized_assets,
+    )
+    (args.output_dir / "runtime_gradient_probe.json").write_text(
+        json.dumps(
+            runtime_gradient_probe, indent=2, sort_keys=True, allow_nan=False
+        ) + "\n",
+        encoding="utf-8",
+    )
     before = {
         split: _evaluate_process_language(
             split=split,
@@ -1087,6 +1253,7 @@ def main() -> int:
         },
         "process_dataset_audit": audit_process_dataset(lm_assets),
         "language_before": before,
+        "runtime_gradient_probe": runtime_gradient_probe,
         "language_after": after,
         "quality_diagnostics": quality,
         "quality_diagnostics_passed": all(quality.values()),
