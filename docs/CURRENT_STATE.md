@@ -125,6 +125,30 @@ or a demonstrated language-bridge failure. The frozen Stage-1 adapter remains
 a separate diagnostic evidence-loss proxy and has not passed its independent
 native gate.
 
+A CPU-only frozen-artifact audit has now ruled out the most direct coordinate
+implementation explanation. All 80 targets were rebuilt from their original
+frame metadata; route corridor, actor support, combined relevance, QA sidecar,
+and pooled 10x10 trainer target matched with maximum absolute error exactly
+`0.0`. Camera order and every referenced hash also matched. This establishes
+reproducibility, not semantic completeness of the weak geometry target.
+
+The remaining gap separates into supervision and coverage:
+
+- `CAM_FRONT` receives `65.76%` of the train foreground-Brier weight, while
+  front-left, front-right and back-left each receive only `4.13–5.06%`;
+  back-right receives no positive train support.
+- held-out foreground recall is `0.5854` on front, `0.3833` on back,
+  `0.0089` on back-left, and exactly `0` on both front-side views.
+- Route195's pure front-right failures have same-view train-neighbour cosine
+  only `0.3841 / 0.3952` and only two train events contain any front-right
+  support: independent-event/view coverage is a primary limitation.
+- Route152 front-left neighbours are much closer (`0.75–0.86`), yet R remains
+  front-dominant. Thus feature OOD is not a sufficient explanation; the loss
+  and route-plus-actor binding also fail to use the limited side supervision.
+- combined route-plus-conflict-actor controls pass only `2/8` on dev, versus
+  `8/11` for route-only controls. These support modes must no longer be hidden
+  inside one aggregate metric.
+
 The immediate engineering gap is therefore a held-out-generalizing,
 **factorized** bridge:
 
@@ -322,19 +346,29 @@ region cases passed 0/9 combined. This is valid evidence against the frozen
 v10.1 R interface on held-out event/view patterns. It is not a language result,
 because the language bridge was never optimized or evaluated.
 
-The next executable milestone is therefore CPU-first R supervision/binding
-diagnosis on Route152 and Route195, contrasted with passing Route147 and
-Route162. It must audit target support, camera-coordinate projection, per-view
-positive coverage, event diversity and loss contribution before changing the
-model or adding epochs. Preserve the v11.1 controls, shared-R invariant and
-`0.8` gate. No automatic retry, language extension, formal Stage2-L, Stage2-P,
-learned-U closed loop or benchmark run is authorized.
+The CPU-first diagnosis is complete. The next executable milestone is an
+R-only, view-balanced and support-mode-aware repair preflight. It must give
+each active camera view equal foreground-region weight within a group while
+preserving the calibrated soft-target optimum; report route-only, actor-only,
+and combined residuals separately; and prove the weight redistribution on the
+current 60 train groups without consuming U, QA answers, TTC, outcomes,
+corruption labels or control fields. In parallel, geometry-only selection must
+add independent right-view coverage without moving Route152/195 into train or
+reading locked-test outcomes. Every camera intended for formal release,
+including back-right, needs nonzero accepted train support.
+
+Only after that CPU contract passes may one separately authorized bounded
+R-only engineering smoke run. It must preserve the held-out event identities,
+v11.1 controls and `0.8` gate and report per-view plus support-mode metrics. No
+U-token, language, trajectory or control optimization is authorized in that
+run; additional v10/v10.1 epochs alone are not a repair.
 
 Authoritative v11.1 results:
 
 - `configs/scenario_factory/amendments/20260901_stage2l_v111_consumer_grid_preflight_result_v1.json`;
 - `configs/scenario_factory/amendments/20260901_stage2l_v111_identifiability_model_preflight_result_v1.json`;
-- `configs/scenario_factory/amendments/20260901_stage2l_v111_identifiability_smoke_terminal_v1.json`.
+- `configs/scenario_factory/amendments/20260901_stage2l_v111_identifiability_smoke_terminal_v1.json`;
+- `configs/scenario_factory/amendments/20260901_stage2l_v111_r_binding_cpu_audit_v1.json`.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.
@@ -342,8 +376,9 @@ must not change Stage-2L labels after model outcomes are seen.
 ## 8. Claim boundary
 
 Current evidence supports a task-agnostic U representation, exact
-consumer-grid counterfactual controls, and partial/front-dominant learnability
-of a spatial relevance head. It does not yet support a held-out-generalizing
-task-relevance model, learned language use of U, semantic UQ correctness,
-risk-aware planning, closed-loop safety improvement, or a 200-route benchmark
-claim.
+consumer-grid counterfactual controls, exact reproducibility of the current
+geometry supervision, and partial/front-dominant learnability of a spatial
+relevance head. It does not establish semantic correctness of that weak target,
+a held-out-generalizing task-relevance model, learned language use of U,
+semantic UQ correctness, risk-aware planning, closed-loop safety improvement,
+or a 200-route benchmark claim.
