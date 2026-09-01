@@ -110,13 +110,20 @@ Authoritative results:
 - `configs/scenario_factory/amendments/20260831_stage2l_v10_phase_a_result_v1.json`;
 - `configs/scenario_factory/amendments/20260831_stage2l_v101_phase_a_terminal_v1.json`.
 
-The most important scientific gap is now more precise than a missing tensor
-connection: **the marginal contribution of U is not identifiable in the
-current results**. The dense R target is owned by route-corridor and visible
-conflict-actor geometry, so a model can learn substantial R structure from
-visual/route context without using U. The v10.1 no-U result demonstrates that
-this bypass is real. Conversely, the frozen Stage-1 adapter is only a
-diagnostic evidence-loss proxy and has not passed its independent native gate.
+The v11.1 consumer-grid-controlled result has now made the largest immediate
+gap more precise: **held-out contextual task-relevance localization is not yet
+reliable enough to expose U to the language bridge**. The dense R target is
+owned by route-corridor and visible conflict-actor geometry, so a model can
+learn substantial R structure from visual/route context without using U. The
+v10.1 no-U result demonstrates that this bypass is real, while the valid v11.1
+controlled comparison shows train on/off ordering at `52/60` but held-out
+ordering at only `11/20`. All ten held-out controls whose resulting risk view
+was `CAM_FRONT` passed; the five left-side controls and four controls with no
+effective R risk region all failed. Thus the current first bottleneck is
+R-target/view/coordinate/event generalization, not U-tokenizer reconstruction
+or a demonstrated language-bridge failure. The frozen Stage-1 adapter remains
+a separate diagnostic evidence-loss proxy and has not passed its independent
+native gate.
 
 The immediate engineering gap is therefore a held-out-generalizing,
 **factorized** bridge:
@@ -296,20 +303,47 @@ to numerical tolerance. Therefore the observed train/dev on-over-off fractions
 failure claim. The exact terminal evidence and repair rule are frozen in
 `configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_smoke_terminal_v1.json`.
 
-The next run must use a new, versioned control dataset constructed and audited
-on the exact 10x10 consumer grid. It must preserve the same observation,
-route/ego inputs, frozen R checkpoint and thresholds; the matched-magnitude
-gate must not be weakened. The existing v10.1 held-out R failure remains the
-best current R evidence until that repaired comparison exists. No outcome or
-repair automatically authorizes extra steps, formal Stage2-L, Stage2-P, closed
-loop or benchmark runs.
+That required replacement is now complete. The v11.1 dataset was constructed
+and independently audited on the exact 10x10 consumer grid: all 80 on/off
+pairs match peak, mass and support count exactly after pooling, while retaining
+spatially distinct support and bitwise-shared R. Source v11 records were not
+overwritten. The fresh CPU/model preflight passed, and exactly one separately
+attested replacement was submitted as Slurm Job `1120954`.
+
+Job `1120954` completed normally on `gpu4` with exit code 0 after 9 minutes 15
+seconds and peak batch RSS `65,430,240 KiB`. It failed closed before language
+optimization (`optimizer_steps=0`): train controlled-U ordering passed at
+`0.866667`, but dev reached only `0.55` against the frozen `0.8` gate. All
+shared-R, zero-U, spatial-distinction, matched-magnitude and off-path-low checks
+passed. Held-out results localize the gap: Route147 and Route162 each passed
+4/5 controls, while Route152 passed 1/5 and Route195 2/5; `CAM_FRONT` controls
+passed 10/10, while `CAM_FRONT_LEFT`, `CAM_BACK_LEFT`, and no-effective-risk-
+region cases passed 0/9 combined. This is valid evidence against the frozen
+v10.1 R interface on held-out event/view patterns. It is not a language result,
+because the language bridge was never optimized or evaluated.
+
+The next executable milestone is therefore CPU-first R supervision/binding
+diagnosis on Route152 and Route195, contrasted with passing Route147 and
+Route162. It must audit target support, camera-coordinate projection, per-view
+positive coverage, event diversity and loss contribution before changing the
+model or adding epochs. Preserve the v11.1 controls, shared-R invariant and
+`0.8` gate. No automatic retry, language extension, formal Stage2-L, Stage2-P,
+learned-U closed loop or benchmark run is authorized.
+
+Authoritative v11.1 results:
+
+- `configs/scenario_factory/amendments/20260901_stage2l_v111_consumer_grid_preflight_result_v1.json`;
+- `configs/scenario_factory/amendments/20260901_stage2l_v111_identifiability_model_preflight_result_v1.json`;
+- `configs/scenario_factory/amendments/20260901_stage2l_v111_identifiability_smoke_terminal_v1.json`.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.
 
 ## 8. Claim boundary
 
-Current evidence supports a task-agnostic U representation and partial
-learnability of a spatial relevance head. It does not yet support semantic UQ
-correctness, a held-out-generalizing task-relevance model, risk-aware planning,
-closed-loop safety improvement, or a 200-route benchmark claim.
+Current evidence supports a task-agnostic U representation, exact
+consumer-grid counterfactual controls, and partial/front-dominant learnability
+of a spatial relevance head. It does not yet support a held-out-generalizing
+task-relevance model, learned language use of U, semantic UQ correctness,
+risk-aware planning, closed-loop safety improvement, or a 200-route benchmark
+claim.

@@ -1,0 +1,167 @@
+{
+  "schema": "orion.stage2l_v11_1_identifiability_smoke_terminal_amendment.v1",
+  "created_at": "2026-09-01T12:58:30+08:00",
+  "status": "terminal_runtime_complete_valid_controlled_u_heldout_r_interface_failed",
+  "submission": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v111_identifiability_smoke_submission_v1.json",
+    "sha256": "c022bc4a61a2218738881ff57ab2b17d095175d3e5df3563b9ca2a717c9a7f75"
+  },
+  "protocol": {
+    "path": "configs/scenario_factory/stage2l_v11_1_bounded_identifiability_smoke_protocol_v1.json",
+    "sha256": "484810725025d3f9eddbecded8e1d6c7fc4d361dfbde10e7296136ec1f6cddf1"
+  },
+  "slurm_terminal": {
+    "job_id": 1120954,
+    "job_name": "s2l_v111_ident",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "node": "gpu4",
+    "started_at": "2026-09-01T12:47:09+08:00",
+    "ended_at": "2026-09-01T12:56:24+08:00",
+    "elapsed": "00:09:15",
+    "allocated_cpus": 2,
+    "requested_memory": "192G",
+    "batch_max_rss_kib": 65430240,
+    "batch_max_vm_size_kib": 74272012,
+    "batch_max_disk_read_mib": 163975.88,
+    "batch_max_disk_write_mib": 0.11
+  },
+  "terminal_artifacts": {
+    "report": {
+      "local_path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/training/report.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/training/report.json",
+      "sha256": "2ff31ad80337d7bd6a38fd75d1f2993fb429202153693a6c753bddfe9fe9845e"
+    },
+    "slurm_log": {
+      "local_path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/training/slurm-1120954.out",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/logs/stage2l_smokes/v11_1_identifiable_17event_40_v1-1120954.out",
+      "sha256": "db12d88147d466397e5dfc2c842ed44775dc5094434e31a0c07c0cc96bf94108"
+    }
+  },
+  "validated_control_contract": {
+    "stored_grid_hw": [
+      40,
+      40
+    ],
+    "consumer_grid_hw": [
+      10,
+      10
+    ],
+    "group_count": 80,
+    "raw_magnitude_matched_fraction": 1.0,
+    "consumer_magnitude_matched_fraction": 1.0,
+    "consumer_peak_relative_difference_maximum": 0.0,
+    "consumer_mass_relative_difference_maximum": 0.0,
+    "consumer_support_count_absolute_difference_maximum": 0.0,
+    "shared_r_fraction": 1.0,
+    "zero_exact_fraction": 1.0,
+    "spatially_distinct_fraction": 1.0,
+    "source_v11_records_unchanged": true,
+    "interpretation": "Unlike v11, this replacement is a valid controlled comparison at the tokenizer consumer grid. The gate failure is therefore model/interface evidence rather than a control-construction defect."
+  },
+  "trainer_terminal_result": {
+    "status": "stopped_before_language_controlled_u_gate_failed",
+    "optimizer_steps": 0,
+    "language_before": null,
+    "language_after": null,
+    "final_checks": {
+      "controlled_u_train_passed": true,
+      "controlled_u_dev_passed": false
+    },
+    "train": {
+      "groups": 60,
+      "on_over_off_fraction": 0.8666666666666667,
+      "required_fraction": 0.8,
+      "off_path_low_fraction": 1.0,
+      "r_average_precision": 0.9101576885787981,
+      "r_foreground_recall": 0.8664349317550659,
+      "release_gate_passed": true
+    },
+    "dev": {
+      "groups": 20,
+      "on_over_off_fraction": 0.55,
+      "required_fraction": 0.8,
+      "off_path_low_fraction": 1.0,
+      "r_average_precision": 0.4152420231579685,
+      "r_foreground_recall": 0.4430674612522125,
+      "release_gate_passed": false
+    }
+  },
+  "heldout_localization": {
+    "by_event": {
+      "route147_step223": {
+        "passing_groups": 4,
+        "groups": 5,
+        "median_on_minus_off_risk_peak": 0.7709584832191467
+      },
+      "route152_step125": {
+        "passing_groups": 1,
+        "groups": 5,
+        "median_on_minus_off_risk_peak": 0.0004808986559510231
+      },
+      "route162_step277": {
+        "passing_groups": 4,
+        "groups": 5,
+        "median_on_minus_off_risk_peak": 0.6885653734207153
+      },
+      "route195_step230": {
+        "passing_groups": 2,
+        "groups": 5,
+        "median_on_minus_off_risk_peak": 0.000002109126171490061
+      }
+    },
+    "by_resulting_on_path_risk_view": {
+      "CAM_FRONT": {
+        "passing_groups": 10,
+        "groups": 10
+      },
+      "CAM_BACK": {
+        "passing_groups": 1,
+        "groups": 1
+      },
+      "CAM_FRONT_LEFT": {
+        "passing_groups": 0,
+        "groups": 3
+      },
+      "CAM_BACK_LEFT": {
+        "passing_groups": 0,
+        "groups": 2
+      },
+      "none": {
+        "passing_groups": 0,
+        "groups": 4,
+        "meaning": "The frozen R map did not yield a task-risk region above the structured-field threshold for the on-path control."
+      }
+    },
+    "diagnosis": "The frozen contextual R interface generalizes to the sampled held-out front-view controls but does not reliably bind task relevance outside the dominant front-view pattern. Route152 and Route195 account for seven of nine held-out failures."
+  },
+  "interpretation": {
+    "runtime_failure": false,
+    "resource_failure": false,
+    "control_contract_failure": false,
+    "language_training_failure": false,
+    "language_bridge_tested": false,
+    "frozen_contextual_r_supported_the_train_interface": true,
+    "frozen_contextual_r_supported_the_heldout_interface": false,
+    "stage1_learned_u_tested": false,
+    "scientific_disposition": "The immediate bottleneck is held-out contextual task-relevance localization and view/coordinate/event generalization, not the U-tokenizer reconstruction or the untrained language bridge."
+  },
+  "next_required_action": {
+    "primary": "Before another GPU language smoke, audit and repair the R supervision/binding on the failed held-out event-view patterns, with special attention to side-camera and no-effective-risk-region cases.",
+    "required_cpu_diagnostics": [
+      "Verify target support and camera-coordinate projection for Route152 and Route195 and compare with passing Route147 and Route162.",
+      "Report per-view positive support, event diversity and loss contribution for train and dev; do not rely on aggregate AP.",
+      "Separate label/projection defects from insufficient independent-event coverage using frozen-feature, target-only diagnostics.",
+      "Preserve the v11.1 consumer-grid controls, shared-R invariant and existing 0.8 release threshold for any later replacement."
+    ],
+    "not_authorized": [
+      "Language-bridge optimizer steps",
+      "Extra R epochs or larger capacity without the diagnostic audit",
+      "Formal Stage2-L",
+      "Stage2-P",
+      "Learned-U closed loop",
+      "Benchmark matrix"
+    ]
+  },
+  "claim_boundary": "This run validly shows that the frozen v10.1 contextual-R checkpoint cannot support the preregistered held-out controlled-U interface, with failures concentrated outside the dominant front-view pattern. It does not test whether the language bridge can learn U semantics, whether learned Stage1 U is externally valid, or whether planning and closed-loop safety improve."
+}
