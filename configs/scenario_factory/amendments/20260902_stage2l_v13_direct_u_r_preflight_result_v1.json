@@ -1,0 +1,56 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-02T00:44:15+08:00",
+  "status": "stage2l_v13_direct_u_r_two_arm_preflight_passed",
+  "reason": "Record the CPU/data/sequence result that precedes the immutable two-arm capacity-smoke authorization.",
+  "architecture": {
+    "stage1_u_tokens_enter_orion_directly": true,
+    "stage1_u_token_count": 600,
+    "r_hidden_tokens_enter_orion_directly": true,
+    "r_language_token_count": 150,
+    "r_language_pool": "fixed_parameter_free_10x10_to_5x5_per_view_average",
+    "task_risk_language_bridge_present": false,
+    "k_used_as_model_input": false,
+    "full_resolution_factorized_r_supervision": "2x6x10x10"
+  },
+  "semantic_audit": {
+    "matched_group_count": 80,
+    "structured_process_chain_count": 320,
+    "structured_process_step_target_count": 1280,
+    "failed_group_ids": [],
+    "passed": true
+  },
+  "sequence_length_audit": {
+    "model_max_length": 2048,
+    "image_token_count": 1279,
+    "maximum_full_process_expanded_tokens": 1740,
+    "maximum_single_step_expanded_tokens": 1574,
+    "violation_count": 0,
+    "passed": true
+  },
+  "arms": {
+    "lora": {
+      "remote_preflight": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v13_process_qa_lora_17event_200_v1/trainer_preflight.json",
+      "preflight_sha256": "7614ff09348a351920773f1fb364217d5722e2239757b6f3413ddfa9dfa81ab8",
+      "passed": true
+    },
+    "partial_unfreeze": {
+      "remote_preflight": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v13_process_qa_partial4_17event_200_v1/trainer_preflight.json",
+      "preflight_sha256": "865a7434713342a5f5ee5f42c497d33ba37f9d71eff0833c65ba311eb23111dd",
+      "passed": true
+    }
+  },
+  "protocol": {
+    "path": "configs/scenario_factory/stage2l_v13_process_qa_capacity_protocol_v1.json",
+    "sha256": "a0360e5c85719b8a21d3dd8cd754e2ec216f671706d455081df1cb7bfacc94a5"
+  },
+  "locks": {
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "locked_test_allowed": false,
+    "automatic_retry": false,
+    "automatic_extension": false
+  },
+  "claim_boundary": "This is a CPU/data/lineage and context-length preflight result. It is not evidence that ORION learned U semantics or that driving safety improved."
+}
