@@ -493,6 +493,17 @@ bound to the frozen preflight, trainer and protocol hashes. At the recorded
 observed yet; language, Stage2-P, closed loop and locked-test access remain
 disabled.
 
+While the same job still had no log or training output, the terminal audit was
+frozen prospectively in
+`configs/scenario_factory/stage2l_v12_1_factorized_r_terminal_audit_v1.json`.
+Its independent validator passed 18 related remote tests. It recomputes all
+seven engineering checks without calling the trainer gate function, verifies
+the complete finite step history, both milestone checkpoint contracts, every
+one of the 80 component-map artifacts, the exact frozen hashes and all disabled
+paths, and rejects unregistered output files. Threshold changes, extra epochs,
+automatic retry and downstream unlocks are explicitly prohibited after the
+result is observed.
+
 Only after the factorized-R CPU preflight defines component targets, loss
 normalization and supported-view gates may one separately authorize a bounded
 R-only engineering smoke. It must preserve the held-out event identities,

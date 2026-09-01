@@ -1,0 +1,107 @@
+{
+  "schema": "orion.stage2l_v12_1_factorized_r_terminal_audit.v1",
+  "created_at": "2026-09-01T15:37:54+08:00",
+  "status": "frozen_outcome_blind_terminal_audit",
+  "purpose": "Independently verify integrity, frozen engineering gates, component artifacts and scope locks for the already-submitted Stage2-L v12.1 factorized-R-only Job 1121553 without changing thresholds after observing its result.",
+  "job": {
+    "job_id": "1121553",
+    "job_name": "s2l_v121_factr",
+    "result_read_before_freeze": false,
+    "terminal_report_present_at_freeze": false,
+    "training_output_present_at_freeze": false,
+    "scheduler_state_at_freeze": "PENDING",
+    "scheduler_reason_at_freeze": "Priority"
+  },
+  "validated_lineage": {
+    "training_protocol_sha256": "2b3afc6cac3bb9e5b583e421acab5bc03d1db6c09cf439a56dac0884dfa303e4",
+    "trainer_preflight_sha256": "0171a03ca5f79c09e810cb2ec306f1022bafe746f0901d06c4d5ecb025ccb43d",
+    "launch_amendment_sha256": "b88758a36c126ba2b47e944b86ffe88c2542927350c49d939988e53e8f74545d",
+    "submission_attestation_sha256": "3d8a2ce86d687b7958a7ef640f5e0feee77d29e5ae2a34ac225e1ab4d4bab250"
+  },
+  "implementation_hashes": {
+    "validator_sha256": "914271e3bdcb01a201978badd959a39490f4c5e8ee6734062d5d4752106408b5",
+    "trainer_sha256": "05fc37aee17aaccdcfc680669c814dfb199eceb6dbc0cd5759f4409635f2e31a",
+    "factorized_module_sha256": "616831dac43593551e5263ce7d7f28da4b7d8898e70ec0ec8ef998b181fd4d08",
+    "validator_test_sha256": "80c5b760404560e9871aa2cbbd20c4173360d5657953eb0736378c43fbe0f0f9"
+  },
+  "expected_run": {
+    "events": 17,
+    "train_groups": 60,
+    "dev_groups": 20,
+    "maximum_optimizer_steps": 40,
+    "evaluation_milestones": [20, 40],
+    "early_pass_may_stop_at_step": 20,
+    "train_events_per_step": 13,
+    "component_order": ["route", "actor"],
+    "camera_order": [
+      "CAM_FRONT",
+      "CAM_FRONT_LEFT",
+      "CAM_FRONT_RIGHT",
+      "CAM_BACK",
+      "CAM_BACK_LEFT",
+      "CAM_BACK_RIGHT"
+    ],
+    "supported_component_views": [
+      "route/CAM_FRONT",
+      "actor/CAM_FRONT",
+      "actor/CAM_FRONT_LEFT",
+      "actor/CAM_FRONT_RIGHT",
+      "actor/CAM_BACK",
+      "actor/CAM_BACK_LEFT"
+    ],
+    "front_right_interpretation": "fragile engineering cell with two train events and one dev event",
+    "actor_back_right_in_release_average": false,
+    "route_nonfront_in_release_average": false
+  },
+  "independent_checks": [
+    "recompute every engineering gate directly from final metrics without calling the trainer gate function",
+    "require trainer-recorded checks and pass status to equal independent recomputation at every milestone",
+    "require complete finite step history and 13 distinct train events per optimizer step",
+    "verify exact train/dev group counts and disjointness",
+    "verify checkpoint schema, step, provenance, tensor-family counts and all disabled-path flags",
+    "verify every spatial-map group and exact component-to-derived-union tensor identity",
+    "rehash frozen source, data, model, protocol, preflight, launch and attestation inputs",
+    "reject any unregistered file in the training output directory"
+  ],
+  "artifact_contract": {
+    "step20_required": [
+      "factorized_r_step020.pt",
+      "spatial_maps_step020.pt"
+    ],
+    "step40_required_only_if_step20_does_not_pass": [
+      "factorized_r_step040.pt",
+      "spatial_maps_step040.pt"
+    ],
+    "terminal_report": "report.json",
+    "validation_output": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/terminal_validation.json",
+    "overwrite_allowed": false
+  },
+  "decision_rules": {
+    "integrity_failure": "Classify the run as technically invalid; do not interpret metrics and do not retry automatically.",
+    "engineering_gate_pass": "Preserve it only as a factorized-R engineering repair candidate and expand independent-event coverage before any formal or language run.",
+    "train_pass_dev_fail": "Classify as held-out transfer failure; stop and inspect actor supervision or contextual representation instead of adding epochs.",
+    "learnability_or_route_retention_fail": "Stop and inspect the component objective or warm-start retention; do not start language or later stages.",
+    "automatic_threshold_change": false,
+    "automatic_epoch_extension": false,
+    "automatic_retry": false
+  },
+  "locks": {
+    "stage1_uq_input": false,
+    "u_tokenizer": false,
+    "language_training": false,
+    "trajectory_or_control": false,
+    "formal_stage2l": false,
+    "stage2p": false,
+    "closed_loop": false,
+    "locked_test_read": false,
+    "new_gpu_submission": false
+  },
+  "test_evidence": {
+    "remote_pytest": "4 passed",
+    "covers_honest_pass": true,
+    "covers_honest_failed_gate": true,
+    "covers_recorded_vs_recomputed_gate_disagreement": true,
+    "covers_unregistered_terminal_artifact": true
+  },
+  "claim_boundary": "Prospectively frozen terminal-integrity and engineering-gate audit only. It cannot establish semantic R correctness, learned U correctness, language understanding, formal generalization, planning, closed-loop behavior or safety."
+}
