@@ -24,6 +24,12 @@ def _write_run(run_dir: Path, job_id: int, runtime_valid: bool):
         "orion_planning_response_mode": "off",
         "orion_enable_legacy_density_uq": "0",
         "orion_closedloop_corruption": None,
+        "render_condition": {
+            "schema": "orion.closedloop_render_condition.v1",
+            "kind": "standard_carla_rgb",
+            "native_glare_profile": "none",
+            "camera_postprocess_override": False,
+        },
     }
     (run_dir / "manifest.json").write_text(json.dumps(manifest))
     evaluation = {
@@ -149,6 +155,59 @@ def test_finalizer_preserves_locked_test_split(tmp_path):
     package = json.loads((output / "route12" / "event_package.json").read_text())
     assert report["split"] == "locked_test"
     assert package["split"] == "locked_test"
+
+
+def test_finalizer_maps_train_coverage_repair_to_qa_train_candidate(
+    tmp_path, monkeypatch
+):
+    batch_path = tmp_path / "batch.json"
+    batch_path.write_text(
+        json.dumps(
+            {
+                "schema": "orion.scenario_factory.batch.v1",
+                "run_id": "coverage_repair",
+                "split": "train_coverage_repair",
+                "routes": [
+                    {
+                        "route_index": 12,
+                        "town": "Town04",
+                        "scenario_type": "ConstructionObstacle",
+                        "screen_role": "coverage",
+                    }
+                ],
+            }
+        )
+    )
+    results = tmp_path / "results"
+    run = results / "route12_hazard_clean_off-1"
+    run.mkdir(parents=True)
+    seen = []
+
+    def fake_build(run_dir, *, split, batch_manifest_path, visualization_manifest_path=None):
+        seen.append(split)
+        return {
+            "route": {"route_index": 12},
+            "runtime": {"valid": True},
+            "outcome_class": "VALID_SAFE_COMPLETION",
+            "qa_input_ready": True,
+            "critical_event": None,
+            "split": split,
+        }
+
+    monkeypatch.setattr(MODULE, "build_event_package", fake_build)
+    report = MODULE.finalize_batch(
+        project_root=tmp_path,
+        batch_manifest_path=batch_path,
+        results_root=results,
+        output_root=tmp_path / "output",
+        render_visuals=False,
+    )
+    package = json.loads(
+        (tmp_path / "output" / "route12" / "event_package.json").read_text()
+    )
+    assert report["split"] == "train_coverage_repair"
+    assert seen == ["qa_train_candidate", "qa_train_candidate"]
+    assert package["split"] == "qa_train_candidate"
 
 
 def test_finalizer_keeps_batch_when_one_route_is_unpackageable(tmp_path):

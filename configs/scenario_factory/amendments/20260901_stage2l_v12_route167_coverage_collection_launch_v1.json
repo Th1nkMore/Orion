@@ -1,0 +1,104 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T13:43:13+08:00",
+  "status": "one_route167_train_coverage_collection_authorized_not_submitted",
+  "title": "Authorize one outcome-blind Route167 clean-off collection for missing back-right R coverage",
+  "scope": "one train-only raw-data collection; no corruption, optimization, held-out evaluation, or control intervention",
+  "motivation": {
+    "route196_geometry_reuse_preflight": {
+      "local_path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/route196_coverage_reuse_preflight_v1.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/route196_coverage_reuse_preflight_v1.json",
+      "sha256": "733a7638cc3b053781de8a71d02628f3f639a332199193dba3bf41ea68c72c83",
+      "finding": "five fixed frames are geometry-eligible and add one independent front-right/front-left/back-left train event, but CAM_BACK_RIGHT remains zero"
+    },
+    "accepted_train_raw_frame_scan": {
+      "local_path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/train_back_right_geometry_scan_v1.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/train_back_right_geometry_scan_v1.json",
+      "sha256": "8d8e5b765b634ddc51455093a05a38bb2bdb13e8da002b0ec0c490deacdf6ab6",
+      "finding": "all 14 accepted train event identities were scanned across aligned raw six-view/meta frames; no event contained any CAM_BACK_RIGHT-positive relevance frame"
+    }
+  },
+  "selection": {
+    "protocol": {
+      "path": "configs/scenario_factory/stage2l_v12_train_coverage_repair_protocol_v1.json",
+      "sha256": "46e3b0637daa6feb7141b492207decdce7e5eed0f1419e7d081481ee3613e2c7"
+    },
+    "candidate_manifest": {
+      "path": "results/scenario_factory/coverage_repair/stage2l_v12_route167_static_v1/candidate_manifest.json",
+      "sha256": "85486622a37e604d802fd346873a9139c82479b1b6512bc632d6c415c3e13e6a"
+    },
+    "route_index": 167,
+    "town": "Town03",
+    "scenario_family": "YieldToEmergencyVehicle",
+    "static_prior": "rear-approaching emergency actor with distance=30m",
+    "source_route_xml_sha256": "07747ded9ae0110b42f26d1c23a440a79fad4b3414e07199e978cc56396bd581",
+    "formal_plan_member": false,
+    "held_out_evidence_eligible": false,
+    "published_orion_outcomes_used": false,
+    "learned_uq_or_stage2_outcomes_used": false
+  },
+  "batch": {
+    "run_id": "stage2l_v12_coverage_repair_route167_v1",
+    "split": "train_coverage_repair",
+    "manifest": {
+      "path": "results/scenario_factory/batches/stage2l_v12_coverage_repair_route167_v1/batch_manifest.json",
+      "sha256": "1046c66b76f50a324a81de325a60cc1633f4fac62f204e66148efe295350197f"
+    },
+    "hazard_xml_sha256": "07747ded9ae0110b42f26d1c23a440a79fad4b3414e07199e978cc56396bd581",
+    "nohazard_xml_sha256": "7824fd7e0410b094b904abd9b422c4e64e879de59174b3f50608785f817f1894",
+    "dry_run_passed": true,
+    "jobs_submitted": false
+  },
+  "runtime_contract": {
+    "condition": "clean_off",
+    "variant": "hazard",
+    "gpu_count": 1,
+    "gpu_partition": "Nvidia_A800",
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "02:00:00",
+    "carla_quality": "Epic",
+    "legacy_density_uq": false,
+    "observation_uq_checkpoint": null,
+    "stage1_control_influence": false,
+    "stage2_spatial_uq_source": "disabled",
+    "stage2_task_checkpoint": null,
+    "risk_mode": "off",
+    "planning_response": "off",
+    "corruption": null
+  },
+  "implementation_hashes": {
+    "scripts/build_scenario_factory_batch.py": "b64f3377a957ef7a362baf2db99f8345942fbdd43eb263d856ed1db9c9f30059",
+    "scripts/submit_scenario_factory_batch.sh": "6a0797d7bd7ebdb6a3153f9ff7bafa64a79853ac22f54ff1c36bfb6b6f26d0a8",
+    "scripts/finalize_scenario_factory_batch.py": "8d96a38d179bb0d38292b9c133fd360eebae013e86b86aa02486fd370e512015",
+    "scripts/preflight_stage2l_v12_route196_coverage_reuse.py": "2d620ed012f82be21f1843a4bd69734fff2214f125c74e05fbcf9d9ebfd3de34",
+    "scripts/scan_stage2l_v12_train_back_right_support.py": "d42ff74c693fb52739fb1d19b770ebe49018488700eb07b3989f1dd582274e09",
+    "tests/test_build_scenario_factory_batch.py": "19fdfecacf8c11bceb76611a09f90b61c023b88cc9cfb005047bf5d5f27d0a66",
+    "tests/test_finalize_scenario_factory_batch.py": "0053d49dc3b6605a162be20f6ad0c181f753c5652b22404c31c269700da20974",
+    "tests/test_preflight_stage2l_v12_route196_coverage_reuse.py": "57857d42bf815217f4f325e8c3e9cb9686176d589fe960d87c81f33ae15a0c33",
+    "tests/test_scan_stage2l_v12_train_back_right_support.py": "06da78d053810b016daf4730ece8ea911d3dbafb7beb18a60f2a1d439e0b45d5"
+  },
+  "verification": {
+    "local_batch_and_finalizer_tests": "11 passed in 0.06s",
+    "remote_relevant_tests": "14 passed in 10.12s",
+    "submitter_dry_run_passed": true
+  },
+  "authorization": {
+    "maximum_jobs": 1,
+    "exact_route": 167,
+    "exact_condition": "clean_off",
+    "exact_variant": "hazard",
+    "automatic_retry": false,
+    "additional_routes": false,
+    "corruption_conditions": false,
+    "training": false
+  },
+  "post_run_gates": [
+    "runtime and six-camera/meta integrity",
+    "actor-grounded event package",
+    "at least three CAM_BACK_RIGHT-positive geometry frames",
+    "human visual/geometry review",
+    "separate Stage1 extraction and QA construction"
+  ],
+  "claim_boundary": "One train-only coverage data collection. Even a valid Route167 package is not formal or held-out evidence and cannot unlock R training until back-right geometry, human review, Stage1/QA construction, and the aggregate CPU coverage gate pass."
+}

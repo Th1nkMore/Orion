@@ -77,8 +77,10 @@ def build_batch(
     if not run_id or any(character.isspace() for character in run_id):
         raise ValueError("run-id must be non-empty and contain no whitespace")
     candidate_payload = json.loads(candidate_manifest.read_text(encoding="utf-8"))
-    if split not in ("development_screen", "locked_test"):
-        raise ValueError("split must be development_screen or locked_test")
+    if split not in ("development_screen", "locked_test", "train_coverage_repair"):
+        raise ValueError(
+            "split must be development_screen, locked_test or train_coverage_repair"
+        )
     selection_inputs = candidate_payload.get("selection_inputs", {})
     published_outcomes_used = bool(
         selection_inputs.get(
@@ -95,6 +97,12 @@ def build_batch(
     ):
         raise ValueError(
             "locked_test selection must not use published ORION, learned-UQ, or Stage2 outcomes"
+        )
+    if split == "train_coverage_repair" and (
+        published_outcomes_used or learned_uq_outcomes_used or stage2_outcomes_used
+    ):
+        raise ValueError(
+            "train coverage repair selection must not use model outcomes"
         )
     by_index = _candidate_by_index(candidate_payload)
     development_failure_candidates_allowed = bool(
@@ -128,6 +136,14 @@ def build_batch(
                     "route %s lacks the required published clean-valid prior"
                     % candidate["route_index"]
                 )
+        if split == "train_coverage_repair" and not (
+            candidate.get("coverage_repair_candidate") is True
+            and candidate.get("held_out_evidence_eligible") is False
+            and candidate.get("formal_plan_member") is False
+        ):
+            raise ValueError(
+                "train coverage repair candidate lacks explicit non-held-out locks"
+            )
         index = int(candidate["route_index"])
         source = source_routes_dir / str(candidate["source_xml"])
         if not source.is_file():
@@ -221,6 +237,8 @@ def build_batch(
                 and development_failure_candidates_allowed
             ),
             "eligible_for_locked_test_claim": split == "locked_test",
+            "train_coverage_repair_only": split == "train_coverage_repair",
+            "held_out_evidence_eligible": split == "locked_test",
         },
         "claim_boundary": (
             (
@@ -230,6 +248,11 @@ def build_batch(
             )
             if split == "locked_test"
             else (
+                "Outcome-blind train-only coverage collection. Every event requires "
+                "runtime, geometry and human review and is permanently ineligible as "
+                "held-out evidence."
+                if split == "train_coverage_repair"
+                else
                 "Development screening batch may use published ORION priors; not an "
                 "untouched test set and not learned-UQ evidence."
             )
@@ -269,7 +292,7 @@ def main() -> int:
     parser.add_argument("--limit", type=int)
     parser.add_argument(
         "--split",
-        choices=("development_screen", "locked_test"),
+        choices=("development_screen", "locked_test", "train_coverage_repair"),
         default="development_screen",
     )
     parser.add_argument("--dry-run", action="store_true")

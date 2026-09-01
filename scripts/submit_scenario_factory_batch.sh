@@ -29,7 +29,7 @@ if payload.get("schema") != "orion.scenario_factory.batch.v1":
     raise SystemExit("invalid scenario-factory batch schema")
 if payload.get("status") != "prepared_no_jobs_submitted":
     raise SystemExit("batch is not in prepared_no_jobs_submitted state")
-if payload.get("split") not in ("development_screen", "locked_test"):
+if payload.get("split") not in ("development_screen", "locked_test", "train_coverage_repair"):
     raise SystemExit("unsupported scenario-factory batch split")
 contract = payload.get("runtime_contract", {})
 required = {

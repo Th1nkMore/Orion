@@ -375,6 +375,28 @@ route/event geometry before model outcomes, require accepted 3–5-keyframe
 support with nonzero side/rear-view contribution, and rerun the CPU coverage
 gate. Route152/195 stay held out and locked-test outcomes remain unread.
 
+The subsequent coverage-repair protocol first exhausted existing raw assets.
+Route196's previously frozen engineering-train identity was replayed only
+offline through its original metadata at the unchanged `[-2,-1,0,+1,+2] s`
+offsets. All five frames were geometry-eligible: front-right appears in `4/5`,
+front-left in `3/5`, back-left in `2/5`, and back in `1/5`. It can therefore
+add one independent front-right train event after separate Stage1/QA and human
+review, but back-right remains absent. All aligned raw frames across the 14
+accepted train event identities were then scanned using only ORION plan and
+privileged actor geometry. Every event had exactly zero back-right-positive R
+frames, so fixed-keyframe reselection cannot solve that view.
+
+The preregistered outcome-blind fallback is Route167 in Town03,
+`YieldToEmergencyVehicle`, selected from static XML because its emergency actor
+approaches from behind. A new `train_coverage_repair` batch split requires no
+published/model outcome, maps its event package to `qa_train_candidate`, and is
+permanently ineligible as held-out evidence. Exactly one Route167 `clean_off`
+collection is prepared with 2 CPU, 192 GB host memory and one A800; all UQ,
+Stage2, governor, planning-response and corruption paths remain disabled. The
+run must still pass runtime/sensor integrity, actor grounding, at least three
+back-right-positive geometry frames, human review, and separate Stage1/QA
+construction before the aggregate CPU coverage gate is rerun.
+
 Only after that coverage contract passes may one separately authorized bounded
 R-only engineering smoke run. It must preserve the held-out event identities,
 v11.1 controls and `0.8` gate and report per-view plus support-mode metrics. No
@@ -388,6 +410,8 @@ Authoritative v11.1 results:
 - `configs/scenario_factory/amendments/20260901_stage2l_v111_identifiability_smoke_terminal_v1.json`;
 - `configs/scenario_factory/amendments/20260901_stage2l_v111_r_binding_cpu_audit_v1.json`.
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_objective_and_train_coverage_preflight_v1.json`.
+- `configs/scenario_factory/stage2l_v12_train_coverage_repair_protocol_v1.json`;
+- `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_coverage_collection_launch_v1.json`.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.

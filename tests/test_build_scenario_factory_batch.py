@@ -214,3 +214,74 @@ def test_explicit_development_failure_candidate_is_allowed_but_audited(tmp_path)
         "published_failure_hard_case"
     )
     assert result["audit"]["development_failure_candidates_allowed"] is True
+
+
+def test_train_coverage_repair_requires_outcome_blind_nonheld_candidate(tmp_path):
+    routes, candidate, _, protocol = _sources(tmp_path)
+    payload = json.loads(candidate.read_text())
+    payload["selection_inputs"] = {
+        "published_orion_outcomes_used": False,
+        "learned_uq_outcomes_used": False,
+        "stage2_outcomes_used": False,
+    }
+    payload["candidates"][0].update(
+        {
+            "clean_baseline": {"available": False, "valid": False},
+            "coverage_repair_candidate": True,
+            "held_out_evidence_eligible": False,
+            "formal_plan_member": False,
+        }
+    )
+    candidate.write_text(json.dumps(payload))
+
+    result = MODULE.build_batch(
+        candidate_manifest=candidate,
+        source_routes_dir=routes,
+        baseline_source=None,
+        protocol=protocol,
+        out_dir=tmp_path / "coverage",
+        run_id="coverage_repair_wave0",
+        route_indices=[12],
+        limit=None,
+        writes_performed=False,
+        split="train_coverage_repair",
+    )
+
+    assert result["split"] == "train_coverage_repair"
+    assert result["audit"]["train_coverage_repair_only"] is True
+    assert result["audit"]["held_out_evidence_eligible"] is False
+
+
+def test_train_coverage_repair_rejects_published_outcome_selection(tmp_path):
+    routes, candidate, _, protocol = _sources(tmp_path)
+    payload = json.loads(candidate.read_text())
+    payload["selection_inputs"] = {
+        "published_orion_outcomes_used": True,
+        "learned_uq_outcomes_used": False,
+        "stage2_outcomes_used": False,
+    }
+    payload["candidates"][0].update(
+        {
+            "coverage_repair_candidate": True,
+            "held_out_evidence_eligible": False,
+            "formal_plan_member": False,
+        }
+    )
+    candidate.write_text(json.dumps(payload))
+    try:
+        MODULE.build_batch(
+            candidate_manifest=candidate,
+            source_routes_dir=routes,
+            baseline_source=None,
+            protocol=protocol,
+            out_dir=tmp_path / "coverage",
+            run_id="coverage_repair_wave0",
+            route_indices=[12],
+            limit=None,
+            writes_performed=False,
+            split="train_coverage_repair",
+        )
+    except ValueError as error:
+        assert "must not use model outcomes" in str(error)
+    else:
+        raise AssertionError("outcome-informed coverage repair was accepted")

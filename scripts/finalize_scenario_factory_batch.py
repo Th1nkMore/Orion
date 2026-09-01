@@ -118,8 +118,11 @@ def finalize_batch(
     if batch.get("schema") != "orion.scenario_factory.batch.v1":
         raise ValueError("invalid scenario-factory batch schema")
     split = batch.get("split")
-    if split not in ("development_screen", "locked_test"):
+    if split not in ("development_screen", "locked_test", "train_coverage_repair"):
         raise ValueError("unsupported scenario-factory batch split")
+    event_package_split = (
+        "qa_train_candidate" if split == "train_coverage_repair" else split
+    )
     if output_root.exists() and any(output_root.iterdir()):
         raise FileExistsError("refusing to overwrite non-empty finalization root")
 
@@ -128,7 +131,7 @@ def finalize_batch(
     for route in batch["routes"]:
         route_index = int(route["route_index"])
         run_dir, initial_package, attempts = select_run(
-            results_root, route_index, batch_manifest_path, split
+            results_root, route_index, batch_manifest_path, event_package_split
         )
         if run_dir is None or initial_package is None:
             selected_rows.append(
@@ -158,7 +161,7 @@ def finalize_batch(
             )
         package = build_event_package(
             run_dir,
-            split=split,
+            split=event_package_split,
             batch_manifest_path=batch_manifest_path,
             visualization_manifest_path=visualization_manifest,
         )
@@ -227,6 +230,10 @@ def finalize_batch(
             )
             if split == "locked_test"
             else (
+                "Automated train-only coverage-repair report awaiting geometry and "
+                "human review; permanently ineligible as held-out evidence."
+                if split == "train_coverage_repair"
+                else
                 "Automated development-screen report awaiting human scene review; "
                 "not a training-set acceptance decision or held-out result."
             )

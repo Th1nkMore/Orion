@@ -1,0 +1,80 @@
+{
+  "schema": "orion.stage2l_v12_train_coverage_repair_protocol.v1",
+  "created_at": "2026-09-01T13:41:00+08:00",
+  "status": "preregistered_cpu_geometry_scan_not_training_authority",
+  "research_question": "Can existing train-only raw event assets supply independent side/rear-view R supervision without reading held-out model outcomes or changing dev/test identities?",
+  "authoritative_inputs": {
+    "formal_route_plan": {
+      "path": "results/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/formal_route_plan.json",
+      "sha256": "ccc4f25b1110856873bfdedc87b2d3232a2418400acd0d2ba093d0201bd2c50c"
+    },
+    "accepted_event_bank": {
+      "path": "results/scenario_factory/event_banks/stage2l_formal24_partial18_reviewed_v1.json",
+      "sha256": "9b1c5b6ca9f2c544110bc096e731bcd7b7f9be2cabe94c16b5573aecb9d30d89"
+    },
+    "v12_gate_amendment": {
+      "path": "configs/scenario_factory/amendments/20260901_stage2l_v12_objective_and_train_coverage_preflight_v1.json",
+      "sha256": "79dda3e2832df24ab09016235f6b5907dffbb0b1877268a2dacfb2a8a75126fb"
+    }
+  },
+  "scope": {
+    "formal_split": "train_only",
+    "accepted_train_event_identities_only": true,
+    "dev_event_packages_may_be_dereferenced": false,
+    "locked_test_event_packages_or_results_may_be_read": false,
+    "route152_or_route195_may_move_to_train": false,
+    "formal_plan_modified": false
+  },
+  "geometry_scan": {
+    "grid": [40, 40],
+    "camera_order": [
+      "CAM_FRONT",
+      "CAM_FRONT_LEFT",
+      "CAM_FRONT_RIGHT",
+      "CAM_BACK",
+      "CAM_BACK_LEFT",
+      "CAM_BACK_RIGHT"
+    ],
+    "label": "unmodified ORION route corridor union current future-path-conflict actor projection",
+    "scan_all_aligned_saved_frames": true,
+    "uses_observation_uq": false,
+    "uses_corruption_family": false,
+    "uses_recorded_ttc": false,
+    "uses_collision_or_infraction_outcome": false,
+    "uses_model_prediction_or_loss": false,
+    "uses_qa_answer": false
+  },
+  "candidate_gate": {
+    "primary_missing_view": "CAM_BACK_RIGHT",
+    "minimum_positive_saved_frames_in_one_independent_event": 3,
+    "positive_cell_threshold": 0.0,
+    "selection_order": [
+      "descending CAM_BACK_RIGHT positive saved-frame count",
+      "ascending frozen route index"
+    ],
+    "route177_remains_ineligible_under_its_frozen_fixed_offset_geometry_gate": true,
+    "newly_selected_frames_require_visual_geometry_review": true,
+    "newly_selected_frames_require_separate Stage1 extraction and QA construction": true,
+    "repeated_frames_do_not_count_as_independent_events": true
+  },
+  "fallback_if_no_existing_event_passes": {
+    "freeze_new_static_xml_candidate_pool_before_CARLA": true,
+    "first_scenario_family": "YieldToEmergencyVehicle",
+    "first_route_index": 167,
+    "reason": "rear-approaching emergency actor is the strongest static scenario prior for rear-camera support; this is a data-coverage prior, not a model-outcome selection",
+    "carla_collection_may_start_automatically": false
+  },
+  "release_locks": {
+    "gpu_r_only_smoke": false,
+    "language_bridge_training": false,
+    "stage2p": false,
+    "learned_u_closed_loop": false,
+    "unlock_requires": [
+      "nonzero accepted train support for every release camera view",
+      "at least three independent train events with CAM_FRONT_RIGHT support",
+      "accepted 3-5-keyframe geometry packages for all additions",
+      "rerun of the CPU coverage gate"
+    ]
+  },
+  "claim_boundary": "Prospective train-only data audit protocol. Geometry-based train augmentation is allowed only to repair known coverage, followed by human review; it cannot be presented as held-out evidence and does not authorize training or support uncertainty, language, planning, or safety claims."
+}
