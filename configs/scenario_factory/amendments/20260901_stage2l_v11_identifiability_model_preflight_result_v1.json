@@ -1,0 +1,103 @@
+{
+  "schema": "orion.stage2l_v11_identifiability_model_preflight_result.v1",
+  "created_at": "2026-09-01T11:51:38+08:00",
+  "status": "complete_output_side_preflight_pass_training_still_locked",
+  "title": "Stage2-L v11 shared-R/K/QA bounded model preflight result",
+  "parent_contract": {
+    "path": "configs/scenario_factory/stage2l_v11_identifiable_factorized_bridge_v1.json",
+    "sha256": "57c3ba89b3b51df1aa176b5bfbeaf9f2a029758fc8f50ad7a50ec8a38808f1e3"
+  },
+  "protocol": {
+    "path": "configs/scenario_factory/stage2l_v11_bounded_identifiability_smoke_protocol_v1.json",
+    "sha256": "583738ca51121a917e1731752b22af6f781e11d4816fa857bdaae1a80ebefbf8"
+  },
+  "implementation": {
+    "trainer": {
+      "path": "scripts/train_stage2l_v11_identifiable_smoke.py",
+      "sha256": "4d4b87499b96c65eacc0b8254e6eef6ae883b2a6e99dd37a5e99974d88a774c5"
+    },
+    "factorized_runtime": {
+      "path": "uq_estimator/stage2l_factorized_runtime_v11.py",
+      "sha256": "603cb46493f50907bedba1e7caabb8e200644a3c7a6484c2f902238b75872e77"
+    },
+    "identifiability_audit": {
+      "path": "uq_estimator/stage2l_identifiability.py",
+      "sha256": "7f38def48f14ef7f4de71fe63a82ee432ed9650cb8f5336e6d9be95efd57c49a"
+    },
+    "submitter": {
+      "path": "scripts/submit_stage2l_v11_identifiable_smoke.sh",
+      "sha256": "bbca9cfb3ef9eeda5e291cc008a42cd5289f0a0620083a7f87d4fe2368a8a3b6"
+    },
+    "submission_attester": {
+      "path": "scripts/write_stage2l_v11_submission_attestation.py",
+      "sha256": "2cb21ae3edc20eaa5ebe1af057eea2afdb02d1586c478109e9b58feb29c153a7"
+    }
+  },
+  "terminal_preflight": {
+    "path": "results/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/trainer_preflight.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/trainer_preflight.json",
+    "sha256": "260fe7d3ef4955c9cbe0060daa508a736c853c9fcc1ed554b23317426bd748e2",
+    "schema": "orion.stage2l_v11_identifiable_smoke_preflight.v1",
+    "passed": true,
+    "gpu_used": false,
+    "training_started": false,
+    "event_count": 17,
+    "group_count": 80,
+    "fresh_dataset_metadata_passed": true,
+    "fresh_dataset_tensor_passed": true,
+    "fresh_dataset_v11_ready": true,
+    "failed_group_count": 0
+  },
+  "superseded_preflight": {
+    "path": "results/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/trainer_preflight_superseded_timestamp_v1.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/trainer_preflight_superseded_timestamp_v1.json",
+    "sha256": "66ef23c832483242385b0eaa7014f257670229a870510cf69f8100bf94567773",
+    "reason": "The first protocol encoded a clerical created_at timestamp later than the actual freeze time. It is retained unchanged and cannot authorize launch.",
+    "scientific_content_changed_in_replacement": false,
+    "replacement_consistency": "The terminal rerun is byte-equivalent after removing protocol_sha256; all data, checkpoint and architecture checks are identical."
+  },
+  "validated_architecture": {
+    "contextual_relevance_computed_once_per_group": true,
+    "u_enters_relevance_query": false,
+    "shared_r_reused_for_all_matched_variants": true,
+    "task_risk_formula": "K = U * sigmoid(R_context)",
+    "baseline_only_no_u_ablation_present": true,
+    "only_trainable_module_if_launched": "TaskRiskLanguageBridge",
+    "orion_lora_trainable": false,
+    "contextual_relevance_trainable": false,
+    "stage1_and_u_tokenizer_trainable": false,
+    "trajectory_or_control_loss": false
+  },
+  "checkpoint_contracts": {
+    "contextual_relevance": {
+      "sha256": "3a722ffdeedf682dc58753b3997b0e68143b027f4ae757f2d57362fad026bb16",
+      "schema": "orion.stage2l_v101_view_aligned_phase_a.v1",
+      "status": "phase_a_failed_gate",
+      "optimizer_steps": 120,
+      "use": "frozen engineering warm start only"
+    },
+    "u_tokenizer": {
+      "sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+      "status": "bounded_task_agnostic_tokenizer_pretraining_pass",
+      "task_agnostic": true,
+      "use": "frozen"
+    }
+  },
+  "verification": {
+    "local_targeted_pytest": "13 passed",
+    "remote_python": "3.8.20",
+    "remote_full_dependency_import_and_compile": true,
+    "remote_full_400_u_tensor_reaudit": true,
+    "json_parse_passed": true,
+    "shell_syntax_passed": true,
+    "pyflakes_passed": true
+  },
+  "decision": {
+    "cpu_preflight_complete": true,
+    "separate_single_run_launch_amendment_required": true,
+    "formal_stage2l_unlocked": false,
+    "stage2p_unlocked": false,
+    "closed_loop_unlocked": false
+  },
+  "claim_boundary": "The input, lineage and implementation contracts are ready for one separately authorized bounded run. This is not a model forward result, learned semantic result, planning result or safety claim."
+}

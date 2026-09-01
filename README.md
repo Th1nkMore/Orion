@@ -49,7 +49,7 @@ multi-view observations + temporal context
 
 The largest unresolved gap is **identifying the marginal contribution of U**. The current R target can be partially learned from visual/route geometry without U, while the frozen Stage-1 adapter remains diagnostic and missed one independent native gate. The next bounded interface therefore keeps `R_context` U-independent, combines it with frozen U only through `K=U×sigmoid(R_context)`, and uses matched counterfactuals plus a no-U ablation to prove that task semantics change because U changed. See [docs/CURRENT_STATE.md](./docs/CURRENT_STATE.md).
 
-The 17-event v11 engineering dataset has passed its metadata and full U-tensor identifiability audit (80 matched groups / 1,600 QA records). This validates the experimental inputs only. No v11 model checkpoint or output-side shared-R/K/QA result exists yet, so GPU training and all downstream claims remain locked.
+The 17-event v11 engineering dataset has passed its metadata and full U-tensor identifiability audit (80 matched groups / 1,600 QA records). The shared-R/K/QA runtime and bridge-only trainer have also passed a remote CPU/lineage preflight, and one 40-step engineering run is hash-authorized. No v11 model result exists yet; formal Stage2-L, Stage2-P, learned-U closed loop and benchmark claims remain locked.
 
 ---
 

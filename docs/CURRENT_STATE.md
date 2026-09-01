@@ -261,12 +261,29 @@ native/sensor gate, Stage 1—not Stage-2L—is the bottleneck.
 The machine-readable preflight contract for this distinction is
 `configs/scenario_factory/stage2l_v11_identifiable_factorized_bridge_v1.json`.
 
-The route/ego and matched-U dataset checks above are now complete. The remaining
-pre-GPU blocker is model-output-side implementation and testing: the v11
-forward path must compute R once, reuse the exact logits across all U variants,
-derive K, score the matched QA answers, and execute the no-U ablation. A new
-hash-bound launch amendment is still required after that implementation passes
-CPU tests; the dataset result does not authorize a training job by itself.
+The route/ego and matched-U dataset checks above are complete. The model-side
+v11 runtime and bounded trainer are now also implemented. The runtime accepts
+one U-independent contextual-R callable, invokes it exactly once per matched
+group, reuses that tensor for zero/on-path/off-path/shuffled U, derives K, and
+exposes baseline ORION visual tokens as an explicit no-U ablation. The bounded
+trainer freezes the failed v10.1 step-120 same-view R checkpoint, ORION LoRA,
+Stage 1 and the U-tokenizer; only `TaskRiskLanguageBridge` may update. Thus this
+run cannot silently repair R by adding more R epochs.
+
+The remote CPU preflight passed on Python 3.8.20 with 17 events, 80 groups and a
+fresh full 400-U-tensor audit. It did not use a GPU, load ORION weights or start
+training. A first otherwise identical preflight is retained as superseded
+because its protocol contained a clerical future `created_at` timestamp; after
+correcting only that timestamp, the terminal rerun was identical after removing
+`protocol_sha256`. The terminal report and correction trail are bound by
+`configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_model_preflight_result_v1.json`.
+
+Exactly one 40-step, bridge-only engineering run is now authorized by
+`configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_smoke_launch_v1.json`.
+It has not yet produced a model result. It must stop before language training
+if the frozen R cannot meet the controlled on/off-path K gate, and no failure or
+pass automatically authorizes extra steps, formal Stage2-L, Stage2-P, closed
+loop or benchmark runs.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.
