@@ -120,6 +120,31 @@ require_spatial_corruption() {
 }
 
 case "${PILOT_CONDITION}" in
+  stage2p_controlled_k_smoke)
+    export ORION_CLOSEDLOOP_CORRUPTION=""
+    export ORION_CLOSEDLOOP_RISK_MODE=off
+    if [[ "${ORION_STAGE2_ENGINEERING_SMOKE:-0}" != "1" || \
+          "${ORION_STAGE2_SPATIAL_UQ_SOURCE:-disabled}" != "external_oracle" || \
+          -n "${ORION_STAGE1_SPATIAL_UQ_CHECKPOINT:-}" || \
+          -n "${ORION_OBSERVATION_UQ_CHECKPOINT:-}" ]]; then
+      echo "[FAIL] Stage2-P smoke requires external K without Stage-1 or sidecar UQ" >&2
+      exit 2
+    fi
+    : "${ORION_STAGE2_TASK_CHECKPOINT:?set the hash-bound Stage2-P checkpoint}"
+    : "${ORION_STAGE2_TASK_CHECKPOINT_SHA256:?set the Stage2-P checkpoint hash}"
+    : "${ORION_STAGE2_EXTERNAL_K_START_PROGRESS:?set the bounded K start progress}"
+    : "${ORION_STAGE2_EXTERNAL_K_DURATION_SECONDS:?set the bounded K duration}"
+    : "${ORION_STAGE2_EXTERNAL_K_CAMERA:?set the controlled K camera}"
+    : "${ORION_STAGE2_EXTERNAL_K_REGION:?set the controlled K region}"
+    : "${ORION_STAGE2_EXTERNAL_K_STRENGTH:?set the controlled K strength}"
+    : "${ORION_STAGE2_EXTERNAL_K_GRID_SIZE:?set the controlled K grid size}"
+    if [[ ! -f "${ORION_STAGE2_TASK_CHECKPOINT}" ]] || \
+       [[ "$(sha256sum "${ORION_STAGE2_TASK_CHECKPOINT}" | awk '{print $1}')" \
+          != "${ORION_STAGE2_TASK_CHECKPOINT_SHA256}" ]]; then
+      echo "[FAIL] Stage2-P checkpoint is missing or its hash differs" >&2
+      exit 1
+    fi
+    ;;
   clean_off)
     export ORION_CLOSEDLOOP_CORRUPTION=""
     export ORION_CLOSEDLOOP_RISK_MODE=off
@@ -304,7 +329,9 @@ if [[ -n "${ORION_OBSERVATION_UQ_CHECKPOINT:-}" && \
   echo "[FAIL] do not mix the diagnostic observation-UQ sidecar with a privileged planning oracle" >&2
   exit 2
 fi
-if [[ "${ORION_STAGE2_SPATIAL_UQ_SOURCE:-disabled}" != "disabled" ]]; then
+if [[ "${ORION_STAGE2_ENGINEERING_SMOKE:-0}" == "1" ]]; then
+  export ORION_EFFECTIVE_CONDITIONING="controlled_k_to_stage2p_trajectory_response"
+elif [[ "${ORION_STAGE2_SPATIAL_UQ_SOURCE:-disabled}" != "disabled" ]]; then
   export ORION_EFFECTIVE_CONDITIONING="spatial_stage1_to_vlm_stage2:${ORION_STAGE2_SPATIAL_UQ_SOURCE}"
 elif [[ -n "${ORION_OBSERVATION_UQ_CHECKPOINT:-}" ]]; then
   export ORION_EFFECTIVE_CONDITIONING=frozen_spatial_observation_uq_sidecar
@@ -438,6 +465,13 @@ keys = [
     "ORION_STAGE1_SPATIAL_UQ_WARMUP_FRAMES",
     "ORION_STAGE2_TASK_CHECKPOINT",
     "ORION_STAGE2_TASK_CHECKPOINT_SHA256",
+    "ORION_STAGE2_ENGINEERING_SMOKE",
+    "ORION_STAGE2_EXTERNAL_K_START_PROGRESS",
+    "ORION_STAGE2_EXTERNAL_K_DURATION_SECONDS",
+    "ORION_STAGE2_EXTERNAL_K_CAMERA",
+    "ORION_STAGE2_EXTERNAL_K_REGION",
+    "ORION_STAGE2_EXTERNAL_K_STRENGTH",
+    "ORION_STAGE2_EXTERNAL_K_GRID_SIZE",
     "ORION_STAGE2_ARTIFACT_ROOT",
     "ORION_STAGE2_ARTIFACT_ROUTE_GROUP",
     "ORION_STAGE2_ARTIFACT_STRIDE_STEPS",
@@ -486,6 +520,7 @@ source_paths = (
     "uq_estimator/lens_waterdrop.py",
     "uq_estimator/spatial_uq_runtime.py",
     "uq_estimator/spatial_task_fusion.py",
+    "uq_estimator/stage2p_task_risk_trajectory.py",
     "uq_estimator/stage2_artifact_capture.py",
     "uq_estimator/risk_governor.py",
     "uq_estimator/closedloop_safety_metrics.py",

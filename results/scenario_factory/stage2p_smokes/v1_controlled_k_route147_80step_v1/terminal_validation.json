@@ -1,0 +1,40 @@
+{
+  "artifact_hashes": {
+    "report.json": "1b6e9a492bbd78502fc842980fd92116b8a310f7af297d9e670cbd821ee18807",
+    "stage2p_controlled_k_response.pt": "4a27db9104208341e04756d7dffe6f57b6b0d4d4a61a1ec4ae4c50737da890e6"
+  },
+  "claim_boundary": "Independent integrity and specificity diagnosis for one controlled-K trajectory-interface engineering smoke; not a learned-U, generalization, closed-loop benefit or safety result.",
+  "decision": "run_one_hash_bound_route147_carla_interface_smoke",
+  "integrity_valid": true,
+  "job_id": "1123187",
+  "locks": {
+    "automatic_retry": false,
+    "closed_loop_safety_ready": false,
+    "extra_training": false,
+    "formal_stage2p_ready": false,
+    "locked_test_read": false
+  },
+  "optimizer_steps": 80,
+  "quality_diagnosis": {
+    "failed_soft_checks": [
+      "irrelevant_k_max_response_below_0_2m",
+      "view_shuffled_k_max_response_below_0_2m"
+    ],
+    "hard_identity_mean_response_m": 0.03156651523230331,
+    "interpretation": "The response learned the four positive controlled-K targets and preserved exact zero-K identity, but its worst low-K irrelevant and view-shuffled responses exceeded the preregistered 0.2 m soft bound.",
+    "irrelevant_k_max_response_m": 0.37117940187454224,
+    "positive_nonzero_response_fraction": 1.0,
+    "positive_target_mae_m": 0.10104887373745441,
+    "view_shuffled_k_max_response_m": 0.39758121967315674
+  },
+  "runtime_checks": {
+    "checkpoint_loader_passed": true,
+    "native_context_exact_identity": true,
+    "unit_k_lateral_within_2m": true,
+    "unit_k_longitudinal_within_24m": true,
+    "unit_k_response_finite": true,
+    "zero_k_trajectory_exact_identity": true
+  },
+  "schema": "orion.stage2p_v1_controlled_k_terminal_validation.v1",
+  "status": "validated_integrity_pass_soft_specificity_failures"
+}

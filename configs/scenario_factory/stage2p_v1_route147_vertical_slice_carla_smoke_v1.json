@@ -1,0 +1,106 @@
+{
+  "schema": "orion.stage2p_v1_route147_vertical_slice_carla_smoke.v1",
+  "created_at": "2026-09-01T20:29:00+08:00",
+  "status": "single_route_engineering_smoke_preregistered",
+  "purpose": "Complete the first U-to-R-to-K-to-QA-to-trajectory-to-CARLA engineering vertical slice by proving that the terminal controlled-K checkpoint is loaded and its direct bounded residual reaches ORION control.",
+  "route": {
+    "index": "147",
+    "variant": "hazard",
+    "town": "Town02",
+    "xml": "configs/closedloop_scenario_bank/routes/route_147_hazard.xml",
+    "sha256": "eb59a25dd8d72327e1c4029609e34adaab3abc4e7b0f9e00c975d2c8251e9ce1",
+    "clean_reference_job": "1082515",
+    "clean_reference_completion": 100.0,
+    "clean_reference_collisions": 0
+  },
+  "controlled_k": {
+    "source": "external_oracle",
+    "camera": "CAM_FRONT",
+    "start_progress": 0.32,
+    "duration_seconds": 3.0,
+    "region_order": "top,left,bottom,right",
+    "region": [
+      0.58,
+      0.32,
+      1.0,
+      0.95
+    ],
+    "strength": 1.0,
+    "grid_size": 40,
+    "derivation": "The spatial window is the frozen Route147 on-path event region converted from x0,y0,x1,y1 to top,left,bottom,right. It is an engineered task-risk K input, not learned U and not uncertainty ground truth.",
+    "event_record": {
+      "path": "configs/closedloop_scenario_bank/events/route147_dynamic_object_glare_v1.json",
+      "sha256": "7927dfcabaa81e23040f322b1fa6c67663eab2f7cdb93b80f6ea64e6e4161853"
+    }
+  },
+  "checkpoint": {
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2p_smokes/v1_controlled_k_route147_80step_v1/training/stage2p_controlled_k_response.pt",
+    "sha256": "4a27db9104208341e04756d7dffe6f57b6b0d4d4a61a1ec4ae4c50737da890e6",
+    "engineering_smoke_only": true,
+    "formal_stage2p_ready": false,
+    "closed_loop_eligible": false,
+    "explicit_override": "ORION_STAGE2_ENGINEERING_SMOKE=1"
+  },
+  "terminal_lineage": {
+    "report_sha256": "1b6e9a492bbd78502fc842980fd92116b8a310f7af297d9e670cbd821ee18807",
+    "validation_sha256": "6a1acd7c51f6fa21a768c8f144ee6f7372d3e8cc9ef384fe7ff55b51b04bc225",
+    "terminal_amendment_sha256": "5c56a9beb48dec67b419883845ec49f1e1006438116391a35a0e508a7713fbd3",
+    "upstream_semantic_quality": "semantic_insensitive_bridge",
+    "stage2p_quality": "soft_specificity_failures"
+  },
+  "runtime": {
+    "condition": "stage2p_controlled_k_smoke",
+    "agent_config": "adzoo/orion/configs/orion_stage3_agent_spatial_stage2.py",
+    "visual_input": "clean",
+    "legacy_density_uq": false,
+    "stage1_observation_uq": false,
+    "observation_uq_sidecar": false,
+    "risk_governor": "off",
+    "privileged_planning_response": "off",
+    "native_orion_context_changed": false,
+    "direct_trajectory_residual_applied": true
+  },
+  "implementation_sha256": {
+    "agent_config": "0920526b2eae94a25110bee882f8df9d51fdff6625d465d6d2d62ee96274f576",
+    "orion_head": "c7805c6611716d2dfd30600f7606334f1fae854c400f645e53a072f1232af116",
+    "orion_detector": "84e7fa76131f591ad58b464692eb06e99279f6b788f344cc108b15c63944afbf",
+    "carla_agent": "98e718bc91dea9420ae9d43dd63c0ae83e0fa48357fd21f42b68077e32773b79",
+    "stage2p_module": "73446082d7d6ab4acfc76c6cd5c3d7a8761e3d55f21ab25fb2692c62898a7051",
+    "closed_loop_runner": "57b2e76c816c45403ce5dd489cfb1046c8c98e82ec20ab211166ce95e59f8e35"
+  },
+  "hard_runtime_checks": [
+    "the hash-bound Stage2-P checkpoint loads with engineering_smoke_only=true",
+    "each reported trajectory residual is finite and within 2 m lateral and 24 m longitudinal bounds",
+    "all residuals outside the bounded K window are exactly zero",
+    "at least one in-window record has active external K and a nonzero residual",
+    "the native ORION planning context remains an exact identity",
+    "no corruption, scalar governor, privileged planning response or Stage-1 UQ path is active"
+  ],
+  "soft_outcomes": [
+    "route completion",
+    "collision count",
+    "minimum TTC",
+    "traffic-rule infractions",
+    "response usefulness or safety"
+  ],
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "02:00:00",
+    "exclude_nodes": [
+      "gpu5"
+    ]
+  },
+  "authorization": {
+    "maximum_submissions": 1,
+    "automatic_retry": false,
+    "quality_threshold_repair": false,
+    "extra_training": false,
+    "locked_test_read": false,
+    "formal_stage2p_unlock": false,
+    "benchmark_unlock": false
+  },
+  "claim_boundary": "One hash-bound Route147 CARLA interface smoke. It can establish end-to-end execution only, not uncertainty understanding, specificity, generalization, closed-loop benefit or safety."
+}
