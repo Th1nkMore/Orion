@@ -1,0 +1,112 @@
+{
+  "schema": "orion.stage2l_v12_1_factorized_r_cpu_preflight.v1",
+  "created_at": "2026-09-01T14:46:55+08:00",
+  "status": "preregistered_cpu_preflight_gpu_locked",
+  "purpose": "Test whether the exact frozen Stage2-L geometry lineage can support a factorized contextual relevance interface before any new route collection or R training.",
+  "predecessors": {
+    "v11_1_r_binding_audit_amendment": {
+      "path": "configs/scenario_factory/amendments/20260901_stage2l_v111_r_binding_cpu_audit_v1.json",
+      "sha256": "11d1e3c6ecc6eb144cd1dfa8ed8f3d5ce0183c1c59fe0e182a8ab67228f77fe9"
+    },
+    "v11_1_r_binding_audit": {
+      "path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/r_binding_audit_v1.json",
+      "sha256": "4b90950c5ab39e7e55a232092a11764c8fd3c17a4ca77b65ef207d03df36b765"
+    },
+    "existing_raw_component_inventory_result": {
+      "path": "configs/scenario_factory/amendments/20260901_stage2l_v12_existing_raw_actor_support_inventory_result_v1.json",
+      "sha256": "72bb504f795a0d0d0070769b71dfd76b30a78fa0be4b4dac8bf4ceca3c5e840b"
+    }
+  },
+  "frozen_data": {
+    "records": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v11_1_consumer_grid_v1/records.jsonl",
+      "sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101"
+    },
+    "spatial_maps_step120": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/spatial_maps_step120.pt",
+      "sha256": "68c33b15c402c932d31b8cb4ee5531d7515ba59f288ae4051931b061d3052031"
+    },
+    "groups": 80,
+    "train_groups": 60,
+    "dev_groups": 20,
+    "events": 17,
+    "train_events": 13,
+    "dev_events": 4,
+    "locked_test_read": false
+  },
+  "target_lineage": {
+    "builder": {
+      "path": "uq_estimator/task_relevance_geometry.py",
+      "sha256": "cba507af7fe302fcc48ade62ebfcb3374352e5e61fefdaeaa545e4dc96679daf"
+    },
+    "stored_grid": [40, 40],
+    "consumer_grid": [10, 10],
+    "pooling": "non-overlapping 4x4 average pooling, identical to the frozen v11.1 consumer",
+    "route_target": "stored route_corridor",
+    "actor_target": "stored relevant_actor_support for actors whose future occupancy intersects the ORION path",
+    "derived_union_target": "elementwise maximum of route_target and actor_target",
+    "union_is_a_training_target": false,
+    "semantic_completeness_claimed": false
+  },
+  "interface": {
+    "input": "the same U-independent contextual token grid produced from same-view ORION visual evidence, route and ego context",
+    "shared_trunk": true,
+    "outputs": ["route_relevance_logits", "actor_relevance_logits"],
+    "derived_union_probability": "elementwise maximum of sigmoid(route logits) and sigmoid(actor logits)",
+    "observation_uq_input": false,
+    "stage1_input": false,
+    "qa_answer_input": false,
+    "scenario_name_input": false,
+    "ttc_collision_outcome_or_control_input": false,
+    "task_relevance_owner": "Stage2-L ORION/VLM; factorization does not transfer task responsibility to Stage1"
+  },
+  "objective": {
+    "component_weights": {"route": 0.5, "actor": 0.5},
+    "base_loss": "soft-target Brier",
+    "support_fraction_of_component_peak": 0.1,
+    "active_component_view_policy": "equal foreground and background mass per active view within each component",
+    "inactive_view_background_anchor_weight": 0.25,
+    "empty_component_background_anchor_weight": 1.0,
+    "derived_union_loss_weight": 0.0,
+    "required_properties": [
+      "each component has a stationary point at its exact soft target",
+      "changing actor target cannot change route loss and changing route target cannot change actor loss",
+      "zero-actor groups retain explicit negative supervision instead of being dropped",
+      "unsupported views cannot enter a foreground release average",
+      "all parameters receive finite gradients in CPU tests"
+    ]
+  },
+  "cpu_audit": {
+    "rebuild_all_components_from_original_metadata": true,
+    "verify_stored_component_and_union_maps_exactly": true,
+    "report_per_split_component_view_positive_groups_and_events": true,
+    "report_route_only_actor_only_and_cooccurring_groups": true,
+    "report_current_frozen_single_union_r_residuals_by_component": true,
+    "current_prediction_is_diagnostic_not_a_target": true,
+    "identifiable_component_view_rule": {
+      "minimum_independent_train_events_with_positive_support": 2,
+      "minimum_independent_dev_events_with_positive_support": 1,
+      "cells_failing_this_rule": "reported_unsupported_not_in_release_average"
+    },
+    "no_gpu": true,
+    "no_orion_forward": true,
+    "no_training": true
+  },
+  "decision_rules": {
+    "component_lineage_or_objective_test_fails": "Repair target/interface implementation; do not add data or run a GPU smoke.",
+    "factorization_reveals_no_identifiable_actor_dev_cells": "Freeze Stage2-L actor generalization as unidentifiable and expand independent event coverage using a separate prospective geometry protocol.",
+    "factorization_is_identifiable_on_at_least_one_nonfront_actor_cell": "Freeze a bounded factorized-R-only smoke proposal; a separate authorization remains required.",
+    "back_right_remains_unsupported": "Declare CAM_BACK_RIGHT outside the empirical claim instead of fabricating a universal gate.",
+    "no_result_can_unlock_language_or_stage2p": true
+  },
+  "release_locks": {
+    "cpu_implementation_and_audit": true,
+    "new_carla_collection": false,
+    "gpu_r_only_smoke": false,
+    "language_bridge": false,
+    "stage2p": false,
+    "learned_u_closed_loop": false,
+    "benchmark_matrix": false
+  },
+  "claim_boundary": "CPU interface and supervision-identifiability preflight only. Passing cannot establish semantic R correctness, U correctness, VLM language understanding, planning benefit or closed-loop safety."
+}

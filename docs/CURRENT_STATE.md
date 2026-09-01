@@ -447,6 +447,34 @@ that exposes route-corridor and conflict-actor components separately, retains
 their union only as a derived diagnostic, and declares unsupported views. It
 must not read dev/test outcomes or authorize training.
 
+That v12.1 CPU preflight is now complete. A shared contextual trunk with
+separate route and actor logits passed shape, serialization, soft-target
+stationarity, component-independence, empty-component negative-anchor and
+finite-gradient tests. Across the exact 80 frozen groups, stored union equals
+`max(route, actor)`, both components rebuild from original metadata, and their
+10x10 consumer targets match with maximum error `0.0`. There are 114 active
+sample-components and 46 empty sample-components; the latter retain explicit
+negative supervision instead of disappearing from the loss.
+
+The prospectively frozen identifiability rule requires at least two positive
+train events and one positive dev event per component/view. It supports only
+route/front (`12/4` train/dev events), plus actor/front (`6/3`), actor/front-left
+(`4/1`), actor/front-right (`2/1`), actor/back (`11/2`) and actor/back-left
+(`5/2`). All other route views and actor/back-right remain outside the release
+average. The frozen single-union R's dev foreground recall is `0.6744` for
+route/front, but only `0.4538` for actor/front, `0` for actor/front-left and
+front-right, `0.3833` for actor/back, and `0.0089` for actor/back-left. Thus the
+existing interface learned route structure much more reliably than held-out
+conflict-actor structure.
+
+This result allows preparation—not submission—of one bounded factorized-R-only
+engineering smoke on the same 60 train/20 dev groups. It must exclude U,
+tokenizer, language, trajectory and control paths, report both components per
+event/view, exclude unsupported cells from release averages, and label the
+front-right result fragile because it has only two train events and one dev
+event. A separate frozen implementation preflight and launch record are still
+required.
+
 Only after the factorized-R CPU preflight defines component targets, loss
 normalization and supported-view gates may one separately authorize a bounded
 R-only engineering smoke. It must preserve the held-out event identities,
@@ -470,6 +498,8 @@ Authoritative v11.1 results:
 - `configs/scenario_factory/stage2l_v12_existing_raw_coverage_inventory_protocol_v1.json`.
 - `configs/scenario_factory/stage2l_v12_existing_raw_actor_support_inventory_amendment_v1.json`.
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_existing_raw_actor_support_inventory_result_v1.json`.
+- `configs/scenario_factory/stage2l_v12_1_factorized_r_cpu_preflight_v1.json`.
+- `configs/scenario_factory/amendments/20260901_stage2l_v121_factorized_r_cpu_preflight_result_v1.json`.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.

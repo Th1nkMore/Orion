@@ -55,6 +55,8 @@ The coverage-repair audit has now exhausted the cheap existing-data path. Route1
 
 The subsequent full raw-asset component inventory changes the next action. All 21 eligible route identities still have zero back-right union or actor support, so back-right is now an explicit unsupported claim region rather than a universal release gate. Front-right actor grounding exists in only Routes157/177/192/194; notably, Route202's nine front-right union positives are all route-only. Because 951 of 1,130 front union positives are route-only while every back/back-left positive is actor-grounded, a single union-R metric hides the actual supervision imbalance. A new CARLA collection and the R-only GPU smoke remain locked until route and actor relevance are factorized and audited on CPU.
 
+That factorized-R CPU preflight now passes on all 80 frozen groups with exact route/actor/union reconstruction and finite gradients. Under the prospective `>=2` train-event and `>=1` dev-event rule, route relevance is identifiable only on front, while actor relevance is identifiable on front, front-left, front-right, back and back-left; back-right stays outside the claim. The frozen single-union R reaches dev recall `0.6744` on route/front but `0 / 0 / 0.0089` on actor front-left/front-right/back-left, supporting one bounded factorized-R-only engineering smoke as the next experiment. Front-right remains fragile at only two train events and one dev event. No GPU run, language training, Stage2-P or closed-loop method is unlocked by the CPU result alone.
+
 ---
 
 ## Historical baseline architecture (superseded)

@@ -1,0 +1,113 @@
+{
+  "schema": "orion.stage2l_v12_1_factorized_r_cpu_preflight_result.v1",
+  "created_at": "2026-09-01T14:55:14+08:00",
+  "status": "terminal_cpu_preflight_passed_bounded_r_only_implementation_allowed_gpu_locked",
+  "protocol": {
+    "path": "configs/scenario_factory/stage2l_v12_1_factorized_r_cpu_preflight_v1.json",
+    "sha256": "2b06bc7a3aa2b7bc08bf0f0303f134928eeee8802f7916ad38df6f7d5663c66e"
+  },
+  "report": {
+    "path": "results/scenario_factory/stage2l_smokes/v12_1_factorized_r_cpu_preflight_v1/report.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v12_1_factorized_r_cpu_preflight_v1/report.json",
+    "sha256": "8d5827dc2914db45e3ad5a0ccd3ebe02fe0289b560ef485d17b23f4bc4dc7e45",
+    "schema": "orion.stage2l_v12_1_factorized_r_preflight.v1",
+    "status": "factorized_r_cpu_preflight_passed",
+    "passed": true
+  },
+  "execution": {
+    "gpu_used": false,
+    "orion_forward_run": false,
+    "training_started": false,
+    "remote_python": "/public/share/lidachuan/orion_assets/envs/orion-cl-centos7/bin/python",
+    "tests": {
+      "passed": 16,
+      "failed": 0,
+      "elapsed_seconds": 18.79,
+      "scope": [
+        "factorized head shapes and serialization",
+        "soft-target stationarity",
+        "route/actor loss independence",
+        "empty-component negative supervision",
+        "equal active-view weighting",
+        "factorized coverage audit helpers",
+        "v12 union objective regression",
+        "v11.1 R-binding audit regression"
+      ]
+    },
+    "technical_first_attempt": {
+      "status": "failed_before_audit_no_output_created",
+      "reason": "The remote repository mirror lacked the already-frozen predecessor r_binding_audit_v1.json even though the authoritative copy existed locally and in shared storage.",
+      "repair": "Copied the exact predecessor into its repository-relative path and verified SHA256 4b90950c5ab39e7e55a232092a11764c8fd3c17a4ca77b65ef207d03df36b765.",
+      "protocol_method_threshold_or_data_changed": false
+    }
+  },
+  "lineage_result": {
+    "records": 1600,
+    "groups": 80,
+    "train_groups": 60,
+    "dev_groups": 20,
+    "events": 17,
+    "all_component_and_union_maps_exact": true,
+    "maximum_absolute_errors": {
+      "stored_union_equals_component_max": 0.0,
+      "rebuilt_union": 0.0,
+      "rebuilt_route": 0.0,
+      "rebuilt_actor": 0.0,
+      "consumer_union": 0.0
+    }
+  },
+  "objective_result": {
+    "finite_loss_and_gradients": true,
+    "active_sample_components": 114,
+    "empty_sample_components_with_negative_anchor": 46,
+    "zero_logit_probe_loss": 0.47919172048568726,
+    "zero_logit_route_loss": 0.47019723057746887,
+    "zero_logit_actor_loss": 0.48818621039390564,
+    "maximum_absolute_gradient": 0.0006793478387407959,
+    "derived_union_used_as_training_loss": false
+  },
+  "support_mode_counts": {
+    "train": {"route_only": 23, "route_and_actor": 26, "actor_only": 11},
+    "dev": {"route_only": 11, "route_and_actor": 8, "actor_only": 1}
+  },
+  "identifiable_component_views_under_preregistered_rule": [
+    {"component": "route", "view": "CAM_FRONT", "train_events": 12, "dev_events": 4},
+    {"component": "actor", "view": "CAM_FRONT", "train_events": 6, "dev_events": 3},
+    {"component": "actor", "view": "CAM_FRONT_LEFT", "train_events": 4, "dev_events": 1},
+    {"component": "actor", "view": "CAM_FRONT_RIGHT", "train_events": 2, "dev_events": 1},
+    {"component": "actor", "view": "CAM_BACK", "train_events": 11, "dev_events": 2},
+    {"component": "actor", "view": "CAM_BACK_LEFT", "train_events": 5, "dev_events": 2}
+  ],
+  "unsupported_component_views": {
+    "route": ["CAM_FRONT_LEFT", "CAM_FRONT_RIGHT", "CAM_BACK", "CAM_BACK_LEFT", "CAM_BACK_RIGHT"],
+    "actor": ["CAM_BACK_RIGHT"]
+  },
+  "frozen_single_union_r_diagnostic": {
+    "dev_route_front_foreground_recall": 0.6744334097275274,
+    "dev_actor_front_foreground_recall": 0.45378151260504207,
+    "dev_actor_front_left_foreground_recall": 0.0,
+    "dev_actor_front_right_foreground_recall": 0.0,
+    "dev_actor_back_foreground_recall": 0.3833333333333333,
+    "dev_actor_back_left_foreground_recall": 0.008928571428571428,
+    "interpretation": "The frozen single-union R is substantially more successful on route/front than on held-out non-front conflict-actor support. This localizes the next engineering experiment to factorized R supervision; it does not prove that factorization will generalize."
+  },
+  "decision": {
+    "factorized_r_interface_and_objective_cpu_contract_passed": true,
+    "bounded_factorized_r_only_training_script_preparation_allowed": true,
+    "maximum_next_gpu_experiment": "one separately frozen engineering smoke using the same 60 train and 20 dev groups, no U/tokenizer/language/trajectory/control path",
+    "front_right_result_must_be_reported_fragile": "Only two independent train events and one dev event satisfy actor/front-right support.",
+    "cam_back_right_excluded_from_release_average": true,
+    "new_route_collection_authorized": false,
+    "gpu_submission_authorized_by_this_result": false,
+    "language_bridge_authorized": false,
+    "stage2p_authorized": false,
+    "learned_u_closed_loop_authorized": false
+  },
+  "implementation_hashes": {
+    "uq_estimator/stage2l_factorized_relevance_v121.py": "616831dac43593551e5263ce7d7f28da4b7d8898e70ec0ec8ef998b181fd4d08",
+    "scripts/audit_stage2l_v121_factorized_r_preflight.py": "aad8b92092f9f1c5d8dc53c4364f9404917406b505ad451c4ed66086ee23c741",
+    "tests/test_stage2l_factorized_relevance_v121.py": "7012bd9164847567bedd2bd7cdc3d231172c9dd681ffb8007a38bb777916b685",
+    "tests/test_audit_stage2l_v121_factorized_r_preflight.py": "bcd4835a40b8668da21fbf50a70fbefef192e3ec25d4729b530a29081025d176"
+  },
+  "claim_boundary": "CPU feasibility and identifiability evidence for a factorized weak-supervision interface. It does not validate semantic R correctness, observation UQ, VLM language use, planning behavior, closed-loop safety or benchmark generalization."
+}
