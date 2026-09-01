@@ -405,10 +405,13 @@ remote-passing relative-manifest regression test. The failed result directory
 is preserved. A separate `retry1` batch reuses byte-identical hazard/no-hazard
 XML and the same runtime contract under a new output path; it also corrects the
 batch metadata lineage to the dedicated train-coverage-repair protocol. One
-technical replacement is separately authorized, with no automatic subsequent
-retry. It must still pass runtime/sensor integrity, actor grounding, at least
-three back-right-positive geometry frames, human review, and separate
-Stage1/QA construction before the aggregate CPU coverage gate is rerun.
+technical replacement was separately authorized and submitted as Job `1121244`
+at `2026-09-01T13:57:52+08:00`. It was pending for priority at the submission
+attestation; the one-job replacement authorization is now exhausted and no
+automatic subsequent retry is allowed. It must still pass runtime/sensor
+integrity, actor grounding, at least three back-right-positive geometry frames,
+human review, and separate Stage1/QA construction before the aggregate CPU
+coverage gate is rerun.
 
 Only after that coverage contract passes may one separately authorized bounded
 R-only engineering smoke run. It must preserve the held-out event identities,
@@ -427,6 +430,7 @@ Authoritative v11.1 results:
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_coverage_collection_launch_v1.json`.
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_coverage_collection_submission_v1.json`.
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_relative_path_failure_retry1_authorization_v1.json`.
+- `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_retry1_submission_v1.json`.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.
