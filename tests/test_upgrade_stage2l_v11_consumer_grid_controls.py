@@ -3,6 +3,7 @@ import pytest
 
 from scripts.upgrade_stage2l_v11_consumer_grid_controls import (
     build_consumer_grid_pair,
+    normalize_v5_structured_summary,
     pool_40_to_10,
     select_consumer_grid_centers,
 )
@@ -45,3 +46,31 @@ def test_center_selection_rejects_unidentifiable_uniform_relevance():
     relevance = np.ones((6, 10, 10), dtype=np.float32)
     with pytest.raises(ValueError, match="does not distinguish"):
         select_consumer_grid_centers(relevance)
+
+
+def test_v5_summary_maps_medium_relevance_to_binary_low():
+    source = {
+        "observation_uncertainty": {
+            "level": "high",
+            "peak_score": 0.9,
+            "peak_view": "CAM_FRONT",
+            "peak_region": "middle_center",
+            "temporal_trend": "rising",
+        },
+        "relevance_at_most_uncertain_region": {
+            "level": "medium",
+            "score": 0.5,
+        },
+        "task_risk": {
+            "level": "medium",
+            "peak_score": 0.45,
+            "peak_view": "CAM_FRONT",
+            "peak_region": "middle_center",
+        },
+        "planning_implication": {
+            "stance": "caution",
+            "is_direct_control_command": False,
+        },
+    }
+    summary = normalize_v5_structured_summary(source, relevance_high_threshold=0.66)
+    assert summary["relevance_at_most_uncertain_region"]["level"] == "low"

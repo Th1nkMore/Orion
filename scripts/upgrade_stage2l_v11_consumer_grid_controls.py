@@ -21,6 +21,7 @@ import math
 from pathlib import Path
 import shutil
 import sys
+import time
 from typing import Any, Dict, List, Mapping, Sequence, Tuple
 
 import numpy as np
@@ -311,6 +312,22 @@ def _field_targets(
     return {}
 
 
+def normalize_v5_structured_summary(
+    source: Mapping[str, Any], *, relevance_high_threshold: float
+) -> Dict[str, Any]:
+    """Apply explicit absence rules and the binary v5 relevance vocabulary."""
+
+    summary = normalize_structured_summary(source)
+    relevance = summary["relevance_at_most_uncertain_region"]
+    if relevance["level"] != "not_applicable":
+        relevance["level"] = (
+            "high"
+            if float(relevance["score"]) >= float(relevance_high_threshold)
+            else "low"
+        )
+    return summary
+
+
 def _safe_group_name(group_id: str) -> str:
     safe = "".join(
         character if character.isalnum() or character in "-_" else "_"
@@ -427,6 +444,18 @@ def _write_control_files(
     }
 
 
+def _cleanup_private_build_dir(build_dir: Path) -> None:
+    """Best-effort cleanup for short NFS directory-entry visibility delays."""
+
+    for attempt in range(5):
+        if not build_dir.exists():
+            return
+        shutil.rmtree(build_dir, ignore_errors=True)
+        if not build_dir.exists():
+            return
+        time.sleep(0.2 * (attempt + 1))
+
+
 def upgrade_dataset(
     *,
     source_records: Path,
@@ -487,7 +516,12 @@ def upgrade_dataset(
                 replacement_by_group[group_id][variant] = {
                     **files,
                     "bundle": pair[variant],
-                    "summary": normalize_structured_summary(consumer_summary),
+                    "summary": normalize_v5_structured_summary(
+                        consumer_summary,
+                        relevance_high_threshold=float(
+                            qa_config["level_thresholds"]["high"]
+                        ),
+                    ),
                 }
             group_diagnostics.append(
                 {
@@ -632,6 +666,10 @@ def upgrade_dataset(
                 "stored_grid_hw": [40, 40],
                 "exact_block_expand_hw": [4, 4],
                 "radius_cells": RADIUS_CELLS,
+                "relevance_level_vocabulary": ["low", "high"],
+                "relevance_high_threshold": float(
+                    qa_config["level_thresholds"]["high"]
+                ),
                 "on_minus_off_weighted_relevance_minimum": min(margins),
                 "on_minus_off_weighted_relevance_maximum": max(margins),
                 (
@@ -669,8 +707,7 @@ def upgrade_dataset(
         build_dir.rename(output_dir)
         return report
     except Exception:
-        if build_dir.exists():
-            shutil.rmtree(build_dir)
+        _cleanup_private_build_dir(build_dir)
         raise
 
 
