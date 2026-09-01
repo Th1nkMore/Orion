@@ -1,0 +1,102 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T13:26:24+08:00",
+  "status": "v12_objective_valid_but_train_coverage_blocks_gpu",
+  "title": "Stage2-L v12 calibrated view weighting cannot replace missing independent view coverage",
+  "scope": "CPU-only R objective integrity and formal-train coverage readiness",
+  "objective_preflight": {
+    "report": {
+      "local_path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/view_balanced_objective_preflight_v1.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/view_balanced_objective_preflight_v1.json",
+      "sha256": "6c5bdb2daa22cf344083e23599c137bdc64d30296798fde5313c0b1fab31b814"
+    },
+    "passed": true,
+    "gpu_used": false,
+    "training_started": false,
+    "train_groups": 60,
+    "interface": "contextual R logits and frozen soft R targets only",
+    "forbidden_inputs_used": {
+      "observation_uq": false,
+      "qa_answer": false,
+      "ttc_or_outcome": false,
+      "corruption_label": false,
+      "trajectory_or_control": false
+    },
+    "integrity": {
+      "foreground_weight_sums_to_one_per_group": true,
+      "background_weight_sums_to_one_per_group": true,
+      "active_views_receive_equal_within_group_region_mass": true,
+      "soft_target_is_stationary": true
+    },
+    "coverage_failure": {
+      "cam_back_right_positive_groups": 0,
+      "cam_front_right_independent_events": 2,
+      "formal_coverage_ready": false,
+      "finding": "Within-group weighting cannot create view support in groups or independent events where none exists."
+    },
+    "observed_global_foreground_share_change": {
+      "CAM_FRONT": [0.6575515270233154, 0.6486110687255859],
+      "CAM_FRONT_LEFT": [0.05057357996702194, 0.03750000149011612],
+      "CAM_FRONT_RIGHT": [0.048762042075395584, 0.03888888657093048],
+      "CAM_BACK": [0.20184125006198883, 0.2152777761220932],
+      "CAM_BACK_LEFT": [0.041271623224020004, 0.05972222611308098],
+      "CAM_BACK_RIGHT": [0.0, 0.0]
+    },
+    "disposition": "Retain the calibrated objective as a valid primitive, but do not describe it as a complete view-balance repair and do not launch it on the current bank."
+  },
+  "formal_train_candidate_audit": {
+    "authoritative_report": {
+      "local_path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/train_coverage_candidate_audit_v2.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/train_coverage_candidate_audit_v2.json",
+      "sha256": "59115c84796093e16547b999f15064f9a5faa2cf3e8c3ac4c515137ad8d3666a"
+    },
+    "superseded_report": {
+      "local_path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/train_coverage_candidate_audit_v1.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/train_coverage_candidate_audit_v1.json",
+      "sha256": "8e6ec3c1370699748fd3a00ab81e40b9e9461fc9072762a652b856736e340501",
+      "superseded_reason": "v2 additionally records the Route208 legacy split-label mismatch without changing its technical exclusion."
+    },
+    "inspection_boundary": {
+      "formal_train_dispositions_read": [177, 201, 208],
+      "dev_result_files_read": [],
+      "locked_test_result_files_read": [],
+      "model_predictions_used_for_selection": false,
+      "uncertainty_or_qa_outputs_used_for_selection": false
+    },
+    "candidate_dispositions": {
+      "route177": "human accepted, but only 2 frozen geometry-valid keyframes against a minimum of 3",
+      "route201": "two technical attempts invalid; no formal R package",
+      "route208": "clean-liveness excluded; no formal R package"
+    },
+    "eligible_candidates_that_can_directly_add_view_coverage": [],
+    "lineage_discrepancy": {
+      "route_index": 208,
+      "authoritative_formal_plan_split": "train",
+      "legacy_liveness_amendment_split_label": "dev",
+      "effect": "clerical lineage mismatch recorded; formal plan owns the split and the route-specific liveness exclusion remains applicable"
+    }
+  },
+  "tests": {
+    "remote_environment": "/public/share/lidachuan/orion_assets/envs/orion-cl-centos7/bin/python",
+    "remote_result": "7 passed in 4.64s",
+    "local_candidate_audit_result": "2 passed in 0.02s",
+    "local_full_suite_limitation": "local Python lacks torch; tensor tests were therefore executed in the remote ORION environment"
+  },
+  "implementation_hashes": {
+    "uq_estimator/stage2l_view_balanced_objective_v12.py": "62678d3f6b820195de059e98ed04168fd0129339ad0d85013f010a3d32dddb1f",
+    "scripts/preflight_stage2l_v12_view_balanced_objective.py": "7087786000c58dfa24dcd4a2f615c8098186f0688238f98a4c944f615d8f1c9f",
+    "scripts/audit_stage2l_v12_train_coverage_candidates.py": "15be6ed7d7b6f8cc0a14b0e336de3cb283fa98755935cfa73f5b1626f858d80c",
+    "tests/test_stage2l_view_balanced_objective_v12.py": "9da736621531d03e6a9fe0afba5ad2868f2d995fa05cfd480303e99ad9489378",
+    "tests/test_preflight_stage2l_v12_view_balanced_objective.py": "4ad653e60bfceaf55d1136cb730887a833d55b8efd679f04f16e2f250bd99efa",
+    "tests/test_audit_stage2l_v12_train_coverage_candidates.py": "c8f3f0cfd2392deb886b952adac481d6e36c9259fdd5f1797758fc4a9371870d"
+  },
+  "decision": {
+    "current_gpu_r_only_smoke_allowed": false,
+    "language_bridge_training_allowed": false,
+    "stage2p_allowed": false,
+    "held_out_routes_may_move_to_train": false,
+    "next_action": "Freeze a separate train-only coverage-repair candidate pool using static route/event geometry before model outcomes, require accepted 3-5-keyframe support with nonzero side/rear-view contribution, and rerun the CPU coverage gate.",
+    "formal_route_plan_change_requires_new_timestamped_amendment": true
+  },
+  "claim_boundary": "The calibrated objective is mathematically valid and the frozen remaining train candidates are not presently eligible to add R coverage. This does not prove that any replacement event supplies the required views, that R will generalize, that the VLM learns U semantics, or that planning and closed-loop safety improve."
+}

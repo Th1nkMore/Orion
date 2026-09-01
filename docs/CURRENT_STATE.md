@@ -183,6 +183,16 @@ bridge. They are nevertheless sufficient for one bounded combined-interface
 diagnostic before deciding whether the next repair belongs primarily in the
 architecture, supervision, or event bank.
 
+The 14 accepted train event identities do not imply 14 geometry-eligible
+training events. Route177 is human accepted but retained only two frozen
+fixed-offset keyframes with visible route support, below the minimum of three,
+so it cannot enter the formal R/QA package. The two missing train identities
+also cannot repair coverage from existing assets: Route201 exhausted its
+technical retry with an invalid sensor/runtime trace, and Route208 failed the
+frozen clean-liveness screen. A legacy Route208 liveness amendment labelled the
+split `dev`; the frozen formal plan owns the authoritative `train` split, and
+the mismatch is now recorded as clerical lineage rather than silently edited.
+
 Authoritative records:
 
 - `results/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/formal_route_plan.json`;
@@ -346,18 +356,26 @@ region cases passed 0/9 combined. This is valid evidence against the frozen
 v10.1 R interface on held-out event/view patterns. It is not a language result,
 because the language bridge was never optimized or evaluated.
 
-The CPU-first diagnosis is complete. The next executable milestone is an
-R-only, view-balanced and support-mode-aware repair preflight. It must give
-each active camera view equal foreground-region weight within a group while
-preserving the calibrated soft-target optimum; report route-only, actor-only,
-and combined residuals separately; and prove the weight redistribution on the
-current 60 train groups without consuming U, QA answers, TTC, outcomes,
-corruption labels or control fields. In parallel, geometry-only selection must
-add independent right-view coverage without moving Route152/195 into train or
-reading locked-test outcomes. Every camera intended for formal release,
-including back-right, needs nonzero accepted train support.
+The CPU-first objective preflight is now complete. The v12 primitive gives each
+active view equal foreground/background region mass within a group, accepts
+only R logits and soft R targets, preserves the calibrated target optimum, and
+passed its tensor/unit-mass tests. It is not a complete view-balance repair.
+Across the frozen 60 train groups, proposed mean foreground share changes only
+from `65.76%` to `64.86%` on front; front-left and front-right actually fall to
+`3.75% / 3.89%`, while back-right remains `0%`. The limiting variable is how
+often independent events contain a view, which an objective cannot create.
 
-Only after that CPU contract passes may one separately authorized bounded
+A separate train-only candidate audit read no dev or locked-test result files
+and used no model/U/QA outcomes for selection. It found no currently frozen
+candidate able to add eligible geometry: Route177 has `2 < 3` keyframes,
+Route201 is runtime-invalid, and Route208 is liveness-invalid. Therefore no GPU
+R-only smoke is currently authorized. The next executable milestone is to
+freeze a separate train-only coverage-repair candidate pool using static
+route/event geometry before model outcomes, require accepted 3–5-keyframe
+support with nonzero side/rear-view contribution, and rerun the CPU coverage
+gate. Route152/195 stay held out and locked-test outcomes remain unread.
+
+Only after that coverage contract passes may one separately authorized bounded
 R-only engineering smoke run. It must preserve the held-out event identities,
 v11.1 controls and `0.8` gate and report per-view plus support-mode metrics. No
 U-token, language, trajectory or control optimization is authorized in that
@@ -369,6 +387,7 @@ Authoritative v11.1 results:
 - `configs/scenario_factory/amendments/20260901_stage2l_v111_identifiability_model_preflight_result_v1.json`;
 - `configs/scenario_factory/amendments/20260901_stage2l_v111_identifiability_smoke_terminal_v1.json`;
 - `configs/scenario_factory/amendments/20260901_stage2l_v111_r_binding_cpu_audit_v1.json`.
+- `configs/scenario_factory/amendments/20260901_stage2l_v12_objective_and_train_coverage_preflight_v1.json`.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.
