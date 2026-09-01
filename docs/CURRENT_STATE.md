@@ -567,11 +567,22 @@ Exactly one separately authorized 40-step R-only run was submitted as Slurm
 Job `1121553` at `2026-09-01T15:27:29+08:00`. It requests one A800, two CPU
 cores and 192 GB host memory, excludes gpu5, allows no automatic retry, and is
 bound to the frozen preflight, trainer and protocol hashes. It started on gpu1
-at `2026-09-01T16:00:10+08:00`; the first observed optimizer step was finite
-with loss `0.11282112635672092` and gradient norm `0.572779655456543`. This is
-runtime/optimization progress only, not a terminal model verdict. The frozen
-terminal validator still owns all seven diagnostics; no threshold, epoch,
-retry or artifact contract has changed.
+at `2026-09-01T16:00:10+08:00` and completed normally after 44 minutes 51
+seconds with exit code `0:0`. All 40 optimizer steps were present and finite.
+The frozen independent validator verified both checkpoints, all 80 component
+maps at both milestones, exact lineage and disabled-path locks; component
+maximum and derived-union errors are exactly `0.0`.
+
+The original seven-gate verdict is `held_out_factorized_r_transfer_failed`.
+Train supported-view macro recall (`0.8329`), dev route/front (`0.7358`), dev
+actor/front (`0.5074`) and background FPR pass. Dev actor non-front macro
+recall is only `0.2531 < 0.35`; front-right remains `0`, front-left is
+`0.0494 < 0.05`, and the absolute improvement over the frozen baseline is
+`0.1551 < 0.25`. Thus factorization is numerically healthy and train-learnable
+but does not close held-out non-front conflict-actor transfer. No extra epoch,
+threshold change, retry, language run, Stage2-P, closed loop or locked-test
+access is unlocked by the terminal audit. The terminal record is
+`configs/scenario_factory/amendments/20260901_stage2l_v121_factorized_r_smoke_terminal_v1.json`.
 
 While the same job still had no log or training output, the terminal audit was
 frozen prospectively in

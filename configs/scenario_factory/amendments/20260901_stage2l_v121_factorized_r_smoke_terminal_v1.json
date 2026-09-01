@@ -1,0 +1,120 @@
+{
+  "schema": "orion.stage2l_v12_1_factorized_r_smoke_terminal.v1",
+  "created_at": "2026-09-01T17:11:29+08:00",
+  "status": "terminal_integrity_valid_engineering_gate_failed",
+  "job": {
+    "job_id": "1121553",
+    "job_name": "s2l_v121_factr",
+    "partition": "Nvidia_A800",
+    "node": "gpu1",
+    "state": "COMPLETED",
+    "elapsed": "00:44:51",
+    "exit_code": "0:0",
+    "batch_max_rss": "13917508K"
+  },
+  "frozen_lineage": {
+    "training_protocol": {
+      "path": "configs/scenario_factory/stage2l_v12_1_factorized_r_smoke_protocol_v1.json",
+      "sha256": "2b3afc6cac3bb9e5b583e421acab5bc03d1db6c09cf439a56dac0884dfa303e4"
+    },
+    "trainer_preflight": {
+      "path": "results/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/trainer_preflight.json",
+      "sha256": "0171a03ca5f79c09e810cb2ec306f1022bafe746f0901d06c4d5ecb025ccb43d"
+    },
+    "launch_amendment": {
+      "path": "configs/scenario_factory/amendments/20260901_stage2l_v121_factorized_r_smoke_launch_v1.json",
+      "sha256": "b88758a36c126ba2b47e944b86ffe88c2542927350c49d939988e53e8f74545d"
+    },
+    "submission_attestation": {
+      "path": "results/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/submission_attestation.json",
+      "sha256": "3d8a2ce86d687b7958a7ef640f5e0feee77d29e5ae2a34ac225e1ab4d4bab250"
+    },
+    "terminal_audit": {
+      "path": "configs/scenario_factory/stage2l_v12_1_factorized_r_terminal_audit_v1.json"
+    }
+  },
+  "terminal_artifacts": {
+    "report": {
+      "path": "results/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/training/report.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/training/report.json",
+      "sha256": "890cb682f6cd20bc5d9c14b3db04ea2454806632dda654c19afd3574239a7cc0"
+    },
+    "terminal_validation": {
+      "path": "results/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/terminal_validation.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/terminal_validation.json",
+      "sha256": "17159ee47e008e29e4e500a74713988d96dfdd4ce4a9e24706b4f3b5782aa51d"
+    },
+    "checkpoint_step20_sha256": "fec58ff1fbd3c1f6e747e75baa326cd6b174646b526c1da0619e2fea9e8a3125",
+    "checkpoint_step40_sha256": "f62cbb234671fc81f1c320f42015ca99ebaf27f2c2c0ede1f616c7eaa846f23c",
+    "spatial_maps_step20_sha256": "2c7ef495d723d86e230474cde8e4b9f8fc70c700d6c49806d5fe3d0bd450b705",
+    "spatial_maps_step40_sha256": "96f9d38af2bfaf8bf91defcd7e976f9fed3497a97859d44704560bd91a384e8a"
+  },
+  "integrity_audit": {
+    "integrity_valid": true,
+    "optimizer_steps": 40,
+    "all_steps_present_and_finite": true,
+    "evaluation_steps": [
+      20,
+      40
+    ],
+    "spatial_map_groups_per_milestone": 80,
+    "maximum_derived_union_error": 0.0,
+    "maximum_component_target_error": 0.0,
+    "unexpected_terminal_artifacts": false,
+    "forbidden_paths_used": false
+  },
+  "final_metrics": {
+    "train_supported_component_view_macro_recall": 0.8328664906193745,
+    "dev_route_front_recall": 0.735841609371021,
+    "dev_actor_front_recall": 0.5073529411764707,
+    "dev_actor_nonfront_macro_recall": 0.253125,
+    "baseline_dev_actor_nonfront_macro_recall": 0.09806547619047619,
+    "dev_actor_nonfront_absolute_improvement": 0.1550595238095238,
+    "dev_actor_nonfront_recall_by_view": {
+      "CAM_FRONT_LEFT": 0.04940476190476191,
+      "CAM_FRONT_RIGHT": 0.0,
+      "CAM_BACK": 0.7666666666666666,
+      "CAM_BACK_LEFT": 0.19642857142857142
+    },
+    "maximum_frozen_background_fpr_cell": 0.06879327246860005
+  },
+  "frozen_checks": {
+    "passed": [
+      "train_supported_macro_recall",
+      "dev_route_front_retained",
+      "dev_actor_front",
+      "dev_background_fpr"
+    ],
+    "failed": [
+      "dev_actor_nonfront_macro",
+      "dev_actor_nonfront_each_positive",
+      "dev_actor_nonfront_absolute_improvement"
+    ],
+    "smoke_passed": false,
+    "validator_decision": "held_out_factorized_r_transfer_failed"
+  },
+  "interpretation": {
+    "supported": "The factorized objective is numerically healthy, train-learnable, retains held-out route/front relevance, improves held-out actor/front, and controls background false positives under the frozen engineering thresholds.",
+    "not_supported": "It does not transfer conflict-actor relevance reliably across all supported non-front held-out cells. Front-right remains zero and front-left remains slightly below the frozen positive-recall floor; the non-front macro and absolute-improvement gates both fail.",
+    "diagnosis": "Factorization removed one supervision confound but did not close the held-out contextual actor-localization gap. More epochs on the same interface are not authorized."
+  },
+  "locks": {
+    "automatic_retry": false,
+    "extra_epochs": false,
+    "threshold_change": false,
+    "language_training_unlocked": false,
+    "stage2p_unlocked": false,
+    "closed_loop_unlocked": false,
+    "locked_test_unlocked": false,
+    "new_gpu_job_authorized": false
+  },
+  "relationship_to_soft_gate_vertical_slice": "The prospectively recorded soft-gate policy may allow a separately preregistered bounded consumer-interface diagnostic to use this integrity-valid checkpoint with its failed-quality label. This terminal amendment itself authorizes no downstream job or stage.",
+  "test_evidence": {
+    "environment": "/public/share/lidachuan/orion_assets/envs/orion-cl-centos7/bin/python",
+    "related_tests": 21,
+    "passed": 21,
+    "warnings": 6,
+    "failures": 0
+  },
+  "claim_boundary": "Terminal integrity and frozen engineering-gate result for one 17-event, 40-step factorized-R-only smoke. It does not establish semantic R correctness, learned-U correctness, VLM understanding, planning response, closed-loop behavior or safety."
+}
