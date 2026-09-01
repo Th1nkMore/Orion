@@ -1,0 +1,129 @@
+{
+  "schema": "orion.stage2l_v11_identifiable_smoke_protocol.v1",
+  "created_at": "2026-09-01T12:35:29+08:00",
+  "status": "frozen_bounded_identifiability_protocol_launch_locked",
+  "purpose": "Repeat the single v11 bridge diagnostic after repairing only the controlled-U construction at the tokenizer's actual 10x10 consumer grid.",
+  "supersedes_for_this_replacement_only": "configs/scenario_factory/stage2l_v11_bounded_identifiability_smoke_protocol_v1.json",
+  "parent_contract": {
+    "path": "configs/scenario_factory/stage2l_v11_identifiable_factorized_bridge_v1.json",
+    "sha256": "57c3ba89b3b51df1aa176b5bfbeaf9f2a029758fc8f50ad7a50ec8a38808f1e3"
+  },
+  "input_sha256": {
+    "runtime_sha256": "603cb46493f50907bedba1e7caabb8e200644a3c7a6484c2f902238b75872e77",
+    "identifiability_audit_sha256": "7f38def48f14ef7f4de71fe63a82ee432ed9650cb8f5336e6d9be95efd57c49a",
+    "parent_contract_sha256": "57c3ba89b3b51df1aa176b5bfbeaf9f2a029758fc8f50ad7a50ec8a38808f1e3",
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "v11_records_sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101",
+    "dataset_audit_report_sha256": "2d8d2879a5ac9383887a95304bc5c9d3c3740aadaee3d720dac9a272c9c9c2f7",
+    "view_feature_cache_sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61",
+    "u_tokenizer_checkpoint_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "v101_checkpoint_sha256": "3a722ffdeedf682dc58753b3997b0e68143b027f4ae757f2d57362fad026bb16",
+    "v101_report_sha256": "334409434e79a153496e590a27ee4db8d4e173c0af40f1682a02bfd384d08c25",
+    "orion_config_sha256": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/training",
+  "architecture": {
+    "contextual_relevance": "Frozen v10.1 step-120 same-view R path; computed once per matched group.",
+    "task_risk": "K = U * sigmoid(R_context)",
+    "language_input": "Frozen U tokens plus trainable K bridge tokens in the second VLM pass.",
+    "only_trainable_module": "TaskRiskLanguageBridge",
+    "u_enters_relevance_query": false,
+    "stage1_trainable": false,
+    "u_tokenizer_trainable": false,
+    "contextual_relevance_trainable": false,
+    "orion_lora_trainable": false,
+    "learned_structured_field_head_used": false,
+    "trajectory_or_control_loss": false,
+    "density_uq_used": false,
+    "governor_used": false,
+    "no_u_ablation": "Baseline frozen ORION visual tokens only; no U tokens and no K bridge tokens."
+  },
+  "data_scope": {
+    "revision": "v11.1 consumer-grid controls",
+    "events": 17,
+    "train_events": 13,
+    "dev_events": 4,
+    "matched_groups": 80,
+    "records": 1600,
+    "locked_test_read": false,
+    "formal_training_eligible": false,
+    "source_v11_records_unchanged": true,
+    "changed_records": "Only the 640 on/off-path QA records change their U tensor reference and derived sidecar/structured targets; 960 non-control records retain canonical inputs and semantics.",
+    "language_evaluation": "One fixed first keyframe per event; all four controlled variants; task-relevance QA only.",
+    "language_training_targets": [
+      "task_relevance for zero/on-path/off-path/view-shuffled U",
+      "driving_implication for zero/on-path/off-path U"
+    ]
+  },
+  "consumer_grid_precondition": {
+    "stored_grid_hw": [40, 40],
+    "consumer_grid_hw": [10, 10],
+    "construction": "10x10 matched Gaussian controls followed by exact 4x4 block expansion",
+    "raw_full_match_count": 80,
+    "consumer_full_match_count": 80,
+    "consumer_peak_relative_difference_maximum": 0.0,
+    "consumer_mass_relative_difference_maximum": 0.0,
+    "consumer_support_count_absolute_difference_maximum": 0.0,
+    "independent_audit_sha256": "6b069fe28ce9a85fd693bc5014a7073f9f6ec56f8210fbc096498d2f1060d182"
+  },
+  "controlled_u_gates": {
+    "minimum_on_over_off_margin": 0.05,
+    "maximum_off_path_risk_peak": 0.25,
+    "minimum_group_fraction": 0.8,
+    "shared_r_bitwise_exact_required": true,
+    "zero_u_and_k_exact_required": true,
+    "on_off_mass_peak_support_count_match_required": true,
+    "view_shuffled_is_report_only": true,
+    "decision": "If either train or dev controlled-U gate fails, stop before language optimization."
+  },
+  "r_diagnostics": {
+    "support_fraction_of_peak": 0.1,
+    "report_overall_event_and_view_average_precision": true,
+    "release_gate": false,
+    "reason": "The warm-start R checkpoint already failed its preregistered v10.1 recall gate; this replacement freezes and reports it rather than granting a new R claim."
+  },
+  "training": {
+    "optimizer_steps": 40,
+    "anchors_per_step": 2,
+    "event_sampling": "one event per step in deterministic round-robin order, shuffled keyframes within event",
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1.0,
+    "first_two_step_finite_fail_fast": true,
+    "automatic_extension": false
+  },
+  "language_gates": {
+    "minimum_per_variant_preference_fraction": 0.8,
+    "maximum_no_u_preference_fraction": 0.5,
+    "minimum_full_minus_no_u_fraction": 0.25,
+    "train_target_nll_must_improve": true,
+    "dev_target_nll_must_improve": true,
+    "zero_and_off_path_false_conservatism_are_included": true
+  },
+  "resource_ceiling": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "08:00:00",
+    "exclude_nodes": ["gpu5"],
+    "maximum_submissions": 1,
+    "automatic_retry": false
+  },
+  "decision_rules": {
+    "controlled_u_fails": "With the consumer-grid control now valid, record this as evidence that the frozen contextual R cannot support the interface; repair R target, coordinate binding or independent-event coverage before any language extension.",
+    "controlled_u_passes_language_fails": "Repair the K-token/QA bridge; do not retrain Stage1, start Stage2-P or add closed-loop jobs.",
+    "controlled_u_and_language_pass": "The engineering U-to-semantics bridge is viable; next test learned Stage1 U on independent native/sensor degradation before Stage2-P.",
+    "r_diagnostics_fail": "Retain R as an explicit independent bottleneck; a v11.1 language pass does not erase the v10.1 R failure."
+  },
+  "launch_locks": {
+    "real_training_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "learned_u_closed_loop_allowed": false,
+    "benchmark_matrix_allowed": false,
+    "unlock_requires": "Fresh CPU preflight plus a separate hash-bound single-run v11.1 launch amendment."
+  },
+  "claim_boundary": "A pass would identify controlled spatial-U use in one frozen-R engineering interface after repairing the consumer-grid control. It would not validate learned Stage1 U, formal event generalization, planning, closed-loop behavior or safety."
+}

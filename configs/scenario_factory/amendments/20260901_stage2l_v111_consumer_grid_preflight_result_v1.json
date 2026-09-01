@@ -1,0 +1,91 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T12:35:29+08:00",
+  "status": "complete_v11_1_consumer_grid_dataset_preflight_training_locked",
+  "reason": "The v11 job stopped before language training because its 40x40 matched controls were not matched after the frozen tokenizer's 10x10 pooling. This amendment records the separately versioned data repair and its independent full-tensor audits.",
+  "source_dataset": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v11_route_context_v1/records.jsonl",
+    "sha256": "1f973c5a38e242730b4cc05aee0fa37a3590a58242b30f16163a6e51717b910f",
+    "modified": false
+  },
+  "failed_first_build_attempt": {
+    "official_output_created": false,
+    "failure": "The legacy v2 summary helper emitted relevance_level=medium, which is forbidden by the current v5 binary low/high relevance vocabulary.",
+    "repair": "Use the frozen v5 threshold 0.66 to map any present relevance to low/high while retaining not_applicable for zero U; add a regression test and preserve the original exception during NFS private-build cleanup.",
+    "scientific_threshold_changed": false,
+    "gpu_used": false,
+    "training_started": false
+  },
+  "output_dataset": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v11_1_consumer_grid_v1/records.jsonl",
+    "sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101",
+    "record_count": 1600,
+    "event_count": 17,
+    "group_count": 80,
+    "groups_by_split": {"train": 60, "dev": 20},
+    "changed_on_off_records": 640,
+    "unchanged_noncontrol_records": 960
+  },
+  "implementation": {
+    "upgrade_script": {
+      "path": "scripts/upgrade_stage2l_v11_consumer_grid_controls.py",
+      "sha256": "5ec9a57905f0e062c1919343a188bb456fa28ca27a6cc9fa897cfa6cab95dca5"
+    },
+    "full_dataset_auditor": {
+      "path": "scripts/audit_stage2l_v11_identifiability_dataset.py",
+      "sha256": "cea0df383c96eb25a3573eebdfe7e383633e773805f75fbabe2a91f1974ca19c"
+    },
+    "consumer_grid_auditor": {
+      "path": "scripts/audit_stage2l_v11_consumer_grid.py",
+      "sha256": "173c022fc470da453049531ab70cd6542d88cc7f32bff151c370a7a86eb59087"
+    },
+    "commits": ["65522a1", "3a53f09"]
+  },
+  "evidence": {
+    "upgrade_report": {
+      "path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/data_preflight/upgrade_report.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v11_1_consumer_grid_v1/upgrade_report.json",
+      "sha256": "1b74b9eecdbaf70fffb35664a1d26b92ffe449cabb6c0725b1bad8b3ee7dab71"
+    },
+    "qa_audit": {
+      "path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/data_preflight/qa_audit.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v11_1_consumer_grid_v1/qa_audit.json",
+      "sha256": "4e6868801536eb43f2ce7b47a6dc5b04ba8116a7d7bb2198bc04c0b72829adf7",
+      "passed": true
+    },
+    "full_tensor_audit": {
+      "path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/data_preflight/identifiability_audit.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v11_1_consumer_grid_v1/identifiability_audit.json",
+      "sha256": "2d8d2879a5ac9383887a95304bc5c9d3c3740aadaee3d720dac9a272c9c9c2f7",
+      "metadata_passed": true,
+      "tensor_passed": true,
+      "failed_group_count": 0
+    },
+    "consumer_grid_audit": {
+      "path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/data_preflight/consumer_grid_audit.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v11_1_consumer_grid_v1/consumer_grid_audit.json",
+      "sha256": "6b069fe28ce9a85fd693bc5014a7073f9f6ec56f8210fbc096498d2f1060d182",
+      "raw_full_match_count": 80,
+      "consumer_full_match_count": 80,
+      "maximum_peak_mass_and_support_mismatch": 0.0
+    }
+  },
+  "preserved_invariants": {
+    "observation": true,
+    "route_and_ego_context": true,
+    "stage1_checkpoint_lineage": true,
+    "relevance_supervision": true,
+    "split_event_and_group_identity": true,
+    "frozen_v101_contextual_r_checkpoint": true,
+    "controlled_u_thresholds": true
+  },
+  "decision": {
+    "dataset_input_gate_passed": true,
+    "fresh_model_cpu_preflight_required": true,
+    "single_replacement_gpu_run_authorized": false,
+    "formal_stage2l_authorized": false,
+    "stage2p_authorized": false,
+    "closed_loop_authorized": false
+  },
+  "claim_boundary": "The repaired dataset now supports a valid controlled-U comparison at the model's actual consumer grid. It does not show that R generalizes, language uses U, learned Stage1 U is valid, planning improves or closed-loop safety improves."
+}
