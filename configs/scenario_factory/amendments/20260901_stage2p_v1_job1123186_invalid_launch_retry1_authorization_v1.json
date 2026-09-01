@@ -1,0 +1,35 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T20:18:00+08:00",
+  "status": "single_replacement_authorized_after_preoptimization_launch_failure",
+  "invalid_job": {
+    "job_id": "1123186",
+    "state": "FAILED",
+    "exit_code": "1:0",
+    "elapsed": "00:01:37",
+    "node": "gpu4",
+    "batch_max_rss": "1992K",
+    "optimizer_steps": 0,
+    "training_output_written": false,
+    "failure": "The validator looked for protocol_sha256 and preflight_sha256 at the launch root, while the immutable launch stored both under implementation."
+  },
+  "repair": {
+    "trainer_change": "Read the two already hash-bound fields from launch.implementation.",
+    "data_changed": false,
+    "preflight_changed": false,
+    "protocol_changed": false,
+    "architecture_changed": false,
+    "training_changed": false,
+    "quality_threshold_changed": false,
+    "output_root_reused": true,
+    "reason_output_root_is_reusable": "The invalid job wrote no training output and did not create the training directory."
+  },
+  "authorization": {
+    "maximum_replacement_submissions": 1,
+    "automatic_retry": false,
+    "same_80_step_scope": true,
+    "same_resources": true,
+    "new_trainer_sha256": "a598135a84754624095b7562335983b31e70b8cf5d4f1bd4d43a12855c0c9677"
+  },
+  "claim_boundary": "Administrative replacement for a zero-step invalid launch; not an outcome-conditioned model retry."
+}

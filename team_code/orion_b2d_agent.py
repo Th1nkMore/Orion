@@ -190,6 +190,41 @@ def parse_boolean_flag(value, name):
     raise ValueError(f'{name} must be a boolean flag, got {value!r}')
 
 
+def build_stage2_external_k_map(
+    *, camera_index, region, active, strength, grid_size=40,
+    device='cpu', dtype=torch.float32,
+):
+    """Build the bounded engineering-smoke K map in canonical camera order."""
+    if not 0 <= int(camera_index) < len(CAMERA_ORDER):
+        raise ValueError('Stage2-P external K camera index is out of range')
+    if int(grid_size) <= 0:
+        raise ValueError('Stage2-P external K grid size must be positive')
+    if not math.isfinite(float(strength)) or not 0.0 <= float(strength) <= 1.0:
+        raise ValueError('Stage2-P external K strength must lie in [0,1]')
+    if region is None:
+        raise ValueError('Stage2-P external K requires a normalized region')
+    top, left, bottom, right = region
+    output = torch.zeros(
+        (len(CAMERA_ORDER), int(grid_size), int(grid_size)),
+        device=device,
+        dtype=dtype,
+    )
+    if not active:
+        return output
+    row_start = max(0, min(grid_size - 1, int(math.floor(top * grid_size))))
+    row_end = max(row_start + 1, min(grid_size, int(math.ceil(bottom * grid_size))))
+    column_start = max(
+        0, min(grid_size - 1, int(math.floor(left * grid_size)))
+    )
+    column_end = max(
+        column_start + 1, min(grid_size, int(math.ceil(right * grid_size)))
+    )
+    output[
+        int(camera_index), row_start:row_end, column_start:column_end
+    ] = float(strength)
+    return output
+
+
 def render_front_corruption_preview(image, corruption, severity, region):
     """Render the model's front-view intervention for saved RGB diagnostics."""
     preview = image.copy()
@@ -506,6 +541,68 @@ class OrionAgent(autonomous_agent.AutonomousAgent):
             self.corruption_schedule_mode = 'route_progress'
         else:
             self.corruption_schedule_mode = 'simulation_time'
+
+        self.stage2p_engineering_smoke = parse_boolean_flag(
+            os.environ.get('ORION_STAGE2_ENGINEERING_SMOKE', '0'),
+            'ORION_STAGE2_ENGINEERING_SMOKE',
+        )
+        stage2_k_start = os.environ.get(
+            'ORION_STAGE2_EXTERNAL_K_START_PROGRESS', ''
+        ).strip()
+        stage2_k_duration = os.environ.get(
+            'ORION_STAGE2_EXTERNAL_K_DURATION_SECONDS', ''
+        ).strip()
+        if bool(stage2_k_start) != bool(stage2_k_duration):
+            raise ValueError(
+                'Stage2-P external K requires start progress and duration'
+            )
+        self.stage2_external_k_window = None
+        if stage2_k_start:
+            self.stage2_external_k_window = RouteTriggeredTimedWindow(
+                float(stage2_k_start), float(stage2_k_duration)
+            )
+        stage2_k_camera = os.environ.get(
+            'ORION_STAGE2_EXTERNAL_K_CAMERA', 'CAM_FRONT'
+        ).strip()
+        if stage2_k_camera not in CAMERA_ORDER:
+            raise ValueError('ORION_STAGE2_EXTERNAL_K_CAMERA is invalid')
+        self.stage2_external_k_camera_index = CAMERA_ORDER.index(
+            stage2_k_camera
+        )
+        self.stage2_external_k_region = parse_corruption_region(
+            os.environ.get('ORION_STAGE2_EXTERNAL_K_REGION', '')
+        )
+        self.stage2_external_k_strength = float(os.environ.get(
+            'ORION_STAGE2_EXTERNAL_K_STRENGTH', '1.0'
+        ))
+        self.stage2_external_k_grid_size = int(os.environ.get(
+            'ORION_STAGE2_EXTERNAL_K_GRID_SIZE', '40'
+        ))
+        if self.stage2p_engineering_smoke:
+            if (
+                self.stage2_external_k_window is None
+                or self.stage2_external_k_region is None
+                or self.closedloop_corruption
+            ):
+                raise RuntimeError(
+                    'Stage2-P engineering smoke requires a bounded external '
+                    'K window/region and a clean visual input'
+                )
+            build_stage2_external_k_map(
+                camera_index=self.stage2_external_k_camera_index,
+                region=self.stage2_external_k_region,
+                active=False,
+                strength=self.stage2_external_k_strength,
+                grid_size=self.stage2_external_k_grid_size,
+            )
+        elif any((
+            stage2_k_start,
+            stage2_k_duration,
+            os.environ.get('ORION_STAGE2_EXTERNAL_K_REGION', '').strip(),
+        )):
+            raise RuntimeError(
+                'External K settings require ORION_STAGE2_ENGINEERING_SMOKE=1'
+            )
 
         self.paired_waterdrop_profile = None
         self.paired_waterdrop_template = None
@@ -925,6 +1022,23 @@ class OrionAgent(autonomous_agent.AutonomousAgent):
                 f'{self.legacy_density_uq_enabled}, model_head='
                 f'{density_head_enabled}'
             )
+        if self.stage2p_engineering_smoke:
+            stage2_head = getattr(self.model, 'pts_bbox_head', None)
+            if (
+                getattr(self.model, 'stage2_spatial_uq_source', None)
+                != 'external_oracle'
+                or getattr(stage2_head, 'stage2_input_semantics', None)
+                != 'task_risk_k'
+                or getattr(stage2_head, 'stage2p_engineering_smoke', None)
+                is not True
+            ):
+                raise RuntimeError(
+                    'Stage2-P engineering smoke model/checkpoint contract differs'
+                )
+            if self.risk_mode != 'off' or self.planning_response_mode != 'off':
+                raise RuntimeError(
+                    'Stage2-P engineering smoke forbids governor and privileged response'
+                )
 
         if self.observation_uq_checkpoint_path:
             self.observation_uq_adapter, self.observation_uq_metadata = (
@@ -1541,6 +1655,22 @@ class OrionAgent(autonomous_agent.AutonomousAgent):
                 tick_data['model_input_front'] = model_input_front_tensor.copy()
                     
         custom_wrap_fp16_model(self.model)
+        stage2_external_k_active = False
+        if self.stage2p_engineering_smoke:
+            stage2_external_k_active = self.stage2_external_k_window.is_active(
+                route_progress, sim_time_seconds
+            )
+            task_risk_k = build_stage2_external_k_map(
+                camera_index=self.stage2_external_k_camera_index,
+                region=self.stage2_external_k_region,
+                active=stage2_external_k_active,
+                strength=self.stage2_external_k_strength,
+                grid_size=self.stage2_external_k_grid_size,
+                device=input_data_batch['img'][0].device,
+                dtype=input_data_batch['img'][0].dtype,
+            )
+            # Match the nested one-sample contract consumed by ORION.forward_test.
+            input_data_batch['stage2_spatial_uq'] = [[task_risk_k]]
         output_data_batch = self.model(input_data_batch, return_loss=False)
         if (
             self.stage2_artifact_writer is not None
@@ -1589,7 +1719,41 @@ class OrionAgent(autonomous_agent.AutonomousAgent):
         out_truck = base_out_truck.copy()
         closedloop_safety = self._collect_closedloop_safety_geometry()
         planning_response_record = None
-        if self.planning_response_mode in {
+        if self.stage2p_engineering_smoke:
+            stage2_output = getattr(
+                getattr(self.model, 'pts_bbox_head', None),
+                'stage2_task_output',
+                None,
+            )
+            if stage2_output is None:
+                raise RuntimeError('Stage2-P smoke produced no trajectory output')
+            stage2_residual = stage2_output.trajectory_residual
+            if (
+                tuple(stage2_residual.shape) != (1, 6, 2)
+                or not bool(torch.isfinite(stage2_residual).all())
+            ):
+                raise RuntimeError('Stage2-P trajectory residual is invalid')
+            if (
+                not stage2_external_k_active
+                and int(torch.count_nonzero(stage2_residual)) != 0
+            ):
+                raise RuntimeError('Zero external K changed native trajectory')
+            residual_numpy = stage2_residual[0].detach().float().cpu().numpy()
+            out_truck = out_truck + residual_numpy
+            planning_response_record = {
+                'mode': 'stage2p_controlled_k_engineering_smoke',
+                'external_k_active': bool(stage2_external_k_active),
+                'external_k_camera': CAMERA_ORDER[
+                    self.stage2_external_k_camera_index
+                ],
+                'external_k_region': list(self.stage2_external_k_region),
+                'external_k_strength': self.stage2_external_k_strength,
+                'global_gate': float(stage2_output.global_gate[0].detach().cpu()),
+                'trajectory_residual_m': residual_numpy.tolist(),
+                'formal_stage2p_ready': False,
+                'closed_loop_safety_claim': False,
+            }
+        elif self.planning_response_mode in {
             'privileged_bounded_crossing',
             'privileged_braking_aware_crossing',
             'privileged_dynamic_yield',

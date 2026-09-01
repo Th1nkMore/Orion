@@ -31,12 +31,21 @@ stage2_checkpoint = os.environ.get('ORION_STAGE2_TASK_CHECKPOINT', '').strip()
 stage2_checkpoint_sha256 = os.environ.get(
     'ORION_STAGE2_TASK_CHECKPOINT_SHA256', ''
 ).strip()
+stage2p_engineering_smoke = os.environ.get(
+    'ORION_STAGE2_ENGINEERING_SMOKE', '0'
+).strip().lower() in {'1', 'true', 'yes', 'on'}
 if stage2_source == 'learned_adapter' and not stage1_checkpoint:
     raise RuntimeError('learned_adapter requires ORION_STAGE1_SPATIAL_UQ_CHECKPOINT')
 if stage2_source != 'learned_adapter' and stage1_checkpoint:
     raise RuntimeError('only learned_adapter may load the Stage-1 checkpoint')
 if not stage2_enabled and stage2_checkpoint:
     raise RuntimeError('disabled Stage-2 path cannot load a task checkpoint')
+if stage2p_engineering_smoke and (
+    stage2_source != 'external_oracle' or not stage2_checkpoint
+):
+    raise RuntimeError(
+        'Stage2-P engineering smoke requires external_oracle and a checkpoint'
+    )
 
 model = dict(
     # Every legacy scalar/global mechanism is structurally absent.
@@ -67,6 +76,7 @@ model = dict(
         stage2_spatial_uq_num_heads=int(
             os.environ.get('ORION_STAGE2_SPATIAL_UQ_NUM_HEADS', '8')
         ),
+        stage2p_engineering_smoke=stage2p_engineering_smoke,
         transformer=dict(use_uncertainty=False),
     ),
 )

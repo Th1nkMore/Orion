@@ -1,0 +1,51 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T20:13:00+08:00",
+  "status": "single_stage2p_controlled_k_job_submitted",
+  "submission": {
+    "job_id": "1123186",
+    "job_name": "s2p_v1_k_iface",
+    "partition": "Nvidia_A800",
+    "state_when_recorded": "PENDING",
+    "reason_when_recorded": "Priority",
+    "submitted_at": "2026-09-01T20:12:41+08:00",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "32G",
+    "time_limit": "01:00:00",
+    "excluded_nodes": [
+      "gpu5"
+    ],
+    "requeue": false,
+    "automatic_retry": false
+  },
+  "hash_binding": {
+    "trainer_sha256": "651fccbb4352f14700771fd44ccdd0bfb306724222fd26953439498645f23ead",
+    "task_risk_trajectory_module_sha256": "73446082d7d6ab4acfc76c6cd5c3d7a8761e3d55f21ab25fb2692c62898a7051",
+    "protocol_sha256": "43e3264ba3abbedb9d2dbc037d371d766856b1439098cf19b0dd78f772aeae6f",
+    "preflight_sha256": "2a1e90265da938b0e2984599455fdbf610e643110216e873ba8c5af145a30f5e",
+    "launch_sha256": "f70fa6bf10162f7c8a3e973db2d4f7115d3e5f8cb053e8602a73e2acba622179",
+    "submitter_sha256": "7829e8b5abb5d39b4330c17f2085c15ef1d13c2bdcf6463c792f6184b32ad4a2"
+  },
+  "clerical_timestamp_disclosure": {
+    "affected_immutable_files": [
+      "configs/scenario_factory/amendments/20260901_stage2p_v1_low_k_float_preflight_repair_v1.json",
+      "configs/scenario_factory/amendments/20260901_stage2p_v1_controlled_k_interface_launch_v1.json"
+    ],
+    "recorded_created_at_values": [
+      "2026-09-01T20:31:00+08:00",
+      "2026-09-01T20:33:00+08:00"
+    ],
+    "actual_submission_time": "2026-09-01T20:12:41+08:00",
+    "disposition": "The two created_at fields were accidentally authored about twenty minutes in the future. They are retained byte-for-byte because the launch was already hash-bound and used. This amendment is the authoritative chronology correction; no scope, threshold, data or result changed."
+  },
+  "scope": {
+    "optimizer_steps": 80,
+    "controlled_k_only": true,
+    "upstream_quality_label": "semantic_insensitive_bridge",
+    "formal_stage2p": false,
+    "closed_loop": false,
+    "locked_test_read": false
+  },
+  "claim_boundary": "Submission and chronology attestation only; no Stage2-P model or planning result yet."
+}

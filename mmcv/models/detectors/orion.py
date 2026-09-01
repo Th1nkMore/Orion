@@ -538,8 +538,23 @@ class Orion(MVXTwoStageDetector):
                     device=data['img_feats'].device,
                     dtype=data['img_feats'].dtype,
                 )
-            if observation_uq.ndim == 4:
-                observation_uq = observation_uq.unsqueeze(0)
+            input_semantics = getattr(
+                self.pts_bbox_head, 'stage2_input_semantics', 'observation_u'
+            )
+            if input_semantics == 'task_risk_k':
+                if observation_uq.ndim == 3:
+                    observation_uq = observation_uq.unsqueeze(0)
+                if observation_uq.ndim != 4:
+                    raise RuntimeError(
+                        'task_risk_k must have [B,V,H,W] shape'
+                    )
+            else:
+                if observation_uq.ndim == 4:
+                    observation_uq = observation_uq.unsqueeze(0)
+                if observation_uq.ndim != 5:
+                    raise RuntimeError(
+                        'observation_u must have [B,V,H,W,C] shape'
+                    )
             data['stage2_spatial_uq'] = observation_uq.detach().to(
                 device=data['img_feats'].device,
                 dtype=data['img_feats'].dtype,

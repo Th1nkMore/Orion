@@ -194,6 +194,7 @@ class OrionHead(AnchorFreeHead):
                  stage2_spatial_uq_tokens_per_view=8,
                  stage2_spatial_uq_hidden_dim=256,
                  stage2_spatial_uq_num_heads=8,
+                 stage2p_engineering_smoke=False,
                  **kwargs):
         # NOTE here use `AnchorFreeHead` instead of `TransformerHead`,
         # since it brings inconvenience when the initialization of
@@ -332,6 +333,8 @@ class OrionHead(AnchorFreeHead):
         self.use_stage2_spatial_uq = bool(use_stage2_spatial_uq)
         self.stage2_spatial_uq_metadata = None
         self.stage2_spatial_uq_checkpoint = str(stage2_spatial_uq_checkpoint or '')
+        self.stage2p_engineering_smoke = bool(stage2p_engineering_smoke)
+        self.stage2_input_semantics = 'observation_u'
         if self.use_stage2_spatial_uq:
             if self.use_uncertainty:
                 raise ValueError(
@@ -351,25 +354,69 @@ class OrionHead(AnchorFreeHead):
                 task_context_dim=89,
             )
             if self.stage2_spatial_uq_checkpoint:
-                from uq_estimator.spatial_task_fusion import (
-                    load_stage2_task_fusion_checkpoint,
-                )
-                (
-                    self.stage2_spatial_uq_projector,
-                    self.stage2_task_adapter,
-                    self.stage2_spatial_uq_metadata,
-                ) = load_stage2_task_fusion_checkpoint(
+                checkpoint_header = torch.load(
                     self.stage2_spatial_uq_checkpoint,
-                    expected_sha256=(stage2_spatial_uq_checkpoint_sha256 or None),
-                    device='cpu',
+                    map_location='cpu',
+                    weights_only=False,
                 )
-                if self.stage2_spatial_uq_metadata.get(
-                    'closed_loop_eligible'
-                ) is not True:
-                    raise RuntimeError(
-                        'Stage-2 checkpoint is auxiliary/offline only; '
-                        'closed-loop ORION requires a jointly trained eligible checkpoint'
+                if (
+                    isinstance(checkpoint_header, dict)
+                    and checkpoint_header.get('schema')
+                    == 'orion.stage2p_task_risk_trajectory.v1'
+                ):
+                    if not self.stage2p_engineering_smoke:
+                        raise RuntimeError(
+                            'Controlled-K Stage2-P checkpoint requires the '
+                            'explicit engineering-smoke config flag'
+                        )
+                    from uq_estimator.stage2p_task_risk_trajectory import (
+                        load_checkpoint as load_stage2p_checkpoint,
                     )
+                    (
+                        self.stage2_spatial_uq_projector,
+                        self.stage2_task_adapter,
+                        self.stage2_spatial_uq_metadata,
+                    ) = load_stage2p_checkpoint(
+                        self.stage2_spatial_uq_checkpoint,
+                        expected_sha256=(
+                            stage2_spatial_uq_checkpoint_sha256 or None
+                        ),
+                        device='cpu',
+                    )
+                    if self.stage2_spatial_uq_metadata.get(
+                        'engineering_smoke_only'
+                    ) is not True:
+                        raise RuntimeError(
+                            'Stage2-P checkpoint lacks engineering-smoke lock'
+                        )
+                    self.stage2_input_semantics = 'task_risk_k'
+                else:
+                    if self.stage2p_engineering_smoke:
+                        raise RuntimeError(
+                            'Engineering Stage2-P smoke refuses a legacy '
+                            'observation-U checkpoint'
+                        )
+                    from uq_estimator.spatial_task_fusion import (
+                        load_stage2_task_fusion_checkpoint,
+                    )
+                    (
+                        self.stage2_spatial_uq_projector,
+                        self.stage2_task_adapter,
+                        self.stage2_spatial_uq_metadata,
+                    ) = load_stage2_task_fusion_checkpoint(
+                        self.stage2_spatial_uq_checkpoint,
+                        expected_sha256=(
+                            stage2_spatial_uq_checkpoint_sha256 or None
+                        ),
+                        device='cpu',
+                    )
+                    if self.stage2_spatial_uq_metadata.get(
+                        'closed_loop_eligible'
+                    ) is not True:
+                        raise RuntimeError(
+                            'Stage-2 checkpoint is auxiliary/offline only; '
+                            'closed-loop ORION requires a jointly trained eligible checkpoint'
+                        )
                 if (
                     self.stage2_spatial_uq_projector.model_dim != self.embed_dims
                     or self.stage2_task_adapter.model_dim != self.embed_dims
@@ -577,9 +624,12 @@ class OrionHead(AnchorFreeHead):
             )
         observation_uq = observation_uq.detach()
         selected = self.stage2_spatial_uq_projector(observation_uq)
-        output = self.stage2_task_adapter(
-            planning_context, selected, task_context
-        )
+        if self.stage2_input_semantics == 'task_risk_k':
+            output = self.stage2_task_adapter(planning_context, selected)
+        else:
+            output = self.stage2_task_adapter(
+                planning_context, selected, task_context
+            )
         self.stage2_planning_context = planning_context.detach()
         self.stage2_observation_uq = observation_uq
         self.stage2_task_context = task_context.detach()

@@ -17,6 +17,8 @@ def _config(monkeypatch, source="disabled", checkpoint=""):
     monkeypatch.setenv("ORION_CLOSEDLOOP_CONDITIONING", "none")
     monkeypatch.setenv("ORION_STAGE2_SPATIAL_UQ_SOURCE", source)
     monkeypatch.setenv("ORION_STAGE1_SPATIAL_UQ_CHECKPOINT", checkpoint)
+    monkeypatch.setenv("ORION_STAGE2_ENGINEERING_SMOKE", "0")
+    monkeypatch.setenv("ORION_STAGE2_TASK_CHECKPOINT", "")
     return runpy.run_path(str(CONFIG))["model"]
 
 
@@ -49,4 +51,29 @@ def test_legacy_conditioning_is_rejected(monkeypatch):
     monkeypatch.setenv("ORION_CLOSEDLOOP_CONDITIONING", "token")
     monkeypatch.setenv("ORION_ENABLE_LEGACY_DENSITY_UQ", "0")
     with pytest.raises(RuntimeError, match="retired"):
+        runpy.run_path(str(CONFIG))
+
+
+def test_controlled_k_engineering_smoke_requires_external_checkpoint(monkeypatch):
+    monkeypatch.setenv("ORION_ENABLE_LEGACY_DENSITY_UQ", "0")
+    monkeypatch.setenv("ORION_CLOSEDLOOP_CONDITIONING", "none")
+    monkeypatch.setenv("ORION_STAGE2_SPATIAL_UQ_SOURCE", "external_oracle")
+    monkeypatch.setenv("ORION_STAGE1_SPATIAL_UQ_CHECKPOINT", "")
+    monkeypatch.setenv("ORION_STAGE2_TASK_CHECKPOINT", "/tmp/stage2p.pt")
+    monkeypatch.setenv("ORION_STAGE2_ENGINEERING_SMOKE", "1")
+    model = runpy.run_path(str(CONFIG))["model"]
+    assert model["use_stage2_spatial_uq"] is True
+    assert model["stage2_spatial_uq_source"] == "external_oracle"
+    assert model["pts_bbox_head"]["stage2p_engineering_smoke"] is True
+    assert model["pts_bbox_head"]["stage2_spatial_uq_checkpoint"] == "/tmp/stage2p.pt"
+
+
+def test_controlled_k_engineering_smoke_rejects_missing_checkpoint(monkeypatch):
+    monkeypatch.setenv("ORION_ENABLE_LEGACY_DENSITY_UQ", "0")
+    monkeypatch.setenv("ORION_CLOSEDLOOP_CONDITIONING", "none")
+    monkeypatch.setenv("ORION_STAGE2_SPATIAL_UQ_SOURCE", "external_oracle")
+    monkeypatch.setenv("ORION_STAGE1_SPATIAL_UQ_CHECKPOINT", "")
+    monkeypatch.setenv("ORION_STAGE2_TASK_CHECKPOINT", "")
+    monkeypatch.setenv("ORION_STAGE2_ENGINEERING_SMOKE", "1")
+    with pytest.raises(RuntimeError, match="requires"):
         runpy.run_path(str(CONFIG))

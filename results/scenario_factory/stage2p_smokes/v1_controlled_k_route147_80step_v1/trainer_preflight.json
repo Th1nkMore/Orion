@@ -1,0 +1,69 @@
+{
+  "gpu_used": false,
+  "item_audit": {
+    "checks": {
+      "all_inputs_finite": true,
+      "irrelevant_and_shuffled_are_low_k": true,
+      "only_relevant_k_has_positive_targets": true,
+      "relevant_k_has_unit_peak": true,
+      "variant_counts_63_each": true,
+      "zero_k_exact": true
+    },
+    "counts": {
+      "irrelevant_k": 63,
+      "relevant_k": 63,
+      "view_shuffled_k": 63,
+      "zero_k": 63
+    },
+    "k_nonzero_counts": {
+      "irrelevant_k": 6,
+      "relevant_k": 6,
+      "view_shuffled_k": 6,
+      "zero_k": 0
+    },
+    "maximum_k_by_variant": {
+      "irrelevant_k": 0.05000000074505806,
+      "relevant_k": 1.0,
+      "view_shuffled_k": 0.05000000074505806,
+      "zero_k": 0.0
+    },
+    "positive_target_counts": {
+      "irrelevant_k": 0,
+      "relevant_k": 4,
+      "view_shuffled_k": 0,
+      "zero_k": 0
+    }
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2p_smokes/v1_controlled_k_route147_80step_v1/training",
+  "passed": true,
+  "protocol_sha256": "43e3264ba3abbedb9d2dbc037d371d766856b1439098cf19b0dd78f772aeae6f",
+  "responsibility_contract": {
+    "forward_inputs": [
+      "frozen_orion_planning_context",
+      "task_risk_k"
+    ],
+    "lateral_bound_m": 2.0,
+    "longitudinal_bound_m": 24.0,
+    "native_planning_context_modified": false,
+    "orion_trainable": false,
+    "privileged_labels_supervision_only": true,
+    "privileged_task_context_forward": false,
+    "raw_observation_u_forward": false,
+    "route_actor_ttc_outcome_forward": false,
+    "stage1_trainable": false,
+    "stage2l_trainable": false,
+    "trajectory_response": "bounded residual applied after the native ORION trajectory"
+  },
+  "schema": "orion.stage2p_v1_controlled_k_interface_preflight.v1",
+  "status": "controlled_k_interface_preflight_pass_training_locked",
+  "training_started": false,
+  "upstream_quality_label": "semantic_insensitive_bridge",
+  "validated_inputs": {
+    "semantic_bridge_sha256": "3cd46c20a209b5c07522ea29dbe05cdda3fbfd3b51b306c39c7b5b52a6b1c7dd",
+    "semantic_report_sha256": "ae4c9ad19ffa83dddd1433a32e4575bc840d616b2124e8c9debf10c30248081f",
+    "semantic_terminal_sha256": "f16a36dbfa9050526625114778c4880b3e8c1f34ea6e87688e048d225311d58e",
+    "source_build_report_sha256": "7a590c07063aea5d4b97776b05de0b0cfd29b4265abca50fceef3342ce46ab39",
+    "source_manifest_sha256": "52285724a9306ce5561425bc3c441447ac82cda6f54bcfc0c133c1d915307043",
+    "spatial_u_r_k_maps_sha256": "8731b252df471e71776635743008e6e0a5faaa7366f9d0ea9e136a3b80dfaae7"
+  }
+}
