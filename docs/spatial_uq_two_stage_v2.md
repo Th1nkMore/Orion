@@ -335,17 +335,29 @@ pooled or sparsified into tokens with camera, grid-position, component, and
 time embeddings:
 
 ```text
+same-view ORION evidence + route + ego
+             -> contextual relevance R [B,V,H,W]
+
 frozen observation UQ [B,V,H,W,K]
-             -> spatial UQ tokens [B,N_uq,D]
-             -> cross-attend with ORION object/map/route/ego tokens
+             -> frozen spatial UQ tokens [B,N_uq,D]
+             + R through K = U * sigmoid(R)
              -> task-risk tokens + yield state + trajectory features
              -> existing VAE trajectory decoder
 ```
 
-Collision and planning gradients stop at the Stage-1 output. The Stage-2
-fusion/projector, a small ORION/VLM LoRA or task adapter, and the trajectory
-conditioning layers are trainable. An explicit task-risk/path map is logged
-separately from the Stage-1 observation-UQ map.
+Collision and planning gradients stop at the Stage-1 output. U does not enter
+the contextual-R query: otherwise a successful R map could not be separated
+from an uncertainty-location shortcut. The Stage-2 fusion/projector, a small
+ORION/VLM LoRA or task adapter, and the trajectory conditioning layers are
+trainable. An explicit task-risk/path map is logged separately from the
+Stage-1 observation-UQ map.
+
+Every Stage-2L release run must include matched groups with byte-identical
+visual/route/ego context and shared R logits while only U changes among zero,
+equal-magnitude on-path, equal-magnitude off-path and an explicitly documented
+shuffle control. Passing R-map metrics alone is insufficient: K and the
+language-facing answer must prefer the correct member of each counterfactual
+group, and a no-U ablation must expose the information supplied only by U.
 
 ### 8.2 Supervision and curriculum
 

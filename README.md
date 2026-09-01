@@ -47,7 +47,9 @@ multi-view observations + temporal context
 - Stage 2P owns trajectory response and remains locked until Stage 2L passes held-out semantic and false-conservatism gates.
 - Legacy Density UQ, scalar UQ tokens, FiLM, and scalar speed governors remain disabled in the current mainline.
 
-The largest unresolved gap is a held-out-generalizing Stage-1-U → Stage-2L-relevance bridge: no checkpoint yet combines the frozen U-tokenizer with explicit same-view ORION visual evidence and route/ego context, then passes independent-event relevance gates. The current evidence does not yet separate interface/supervision faults from insufficient independent-event coverage. See [docs/CURRENT_STATE.md](./docs/CURRENT_STATE.md).
+The largest unresolved gap is **identifying the marginal contribution of U**. The current R target can be partially learned from visual/route geometry without U, while the frozen Stage-1 adapter remains diagnostic and missed one independent native gate. The next bounded interface therefore keeps `R_context` U-independent, combines it with frozen U only through `K=U×sigmoid(R_context)`, and uses matched counterfactuals plus a no-U ablation to prove that task semantics change because U changed. See [docs/CURRENT_STATE.md](./docs/CURRENT_STATE.md).
+
+The 17-event v11 engineering dataset has passed its metadata and full U-tensor identifiability audit (80 matched groups / 1,600 QA records). This validates the experimental inputs only. No v11 model checkpoint or output-side shared-R/K/QA result exists yet, so GPU training and all downstream claims remain locked.
 
 ---
 

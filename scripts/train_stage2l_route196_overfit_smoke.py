@@ -129,8 +129,20 @@ def _route_text(route_context: Mapping[str, Any]) -> str:
     command_text = command_names.get(int(command) - 1, str(command))
     points = route_context["orion_unmodified_plan_right_forward_m"]
     rendered = "; ".join("(%.2f, %.2f)" % (float(x), float(y)) for x, y in points)
-    return "Route command: %s. Frozen ORION future path points (right_m, forward_m): %s." % (
-        command_text, rendered
+    ego_state = route_context.get("ego_state")
+    if ego_state is None:
+        # Historical v1 records remain reproducible. New v11 data must use the
+        # route-context-v2 preflight, which requires the exact current
+        # speedometer reading used by ORION.
+        ego_text = ""
+    else:
+        speedometer_mps = float(ego_state["speedometer_mps"])
+        if not np.isfinite(speedometer_mps):
+            raise ValueError("route context ego speedometer reading is invalid")
+        ego_text = " Current speedometer reading: %.3f m/s." % speedometer_mps
+    return (
+        "Route command: %s. Frozen ORION future path points "
+        "(right_m, forward_m): %s.%s" % (command_text, rendered, ego_text)
     )
 
 

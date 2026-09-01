@@ -110,12 +110,30 @@ Authoritative results:
 - `configs/scenario_factory/amendments/20260831_stage2l_v10_phase_a_result_v1.json`;
 - `configs/scenario_factory/amendments/20260831_stage2l_v101_phase_a_terminal_v1.json`.
 
-Therefore the largest current gap is a **held-out-generalizing U ->
-task-relevance bridge**. It is not merely a missing tensor connection: no
-checkpoint has yet shown that spatial U, same-view evidence, and route/ego
-context produce stable task relevance on independent events. Tokenizer
-reconstruction, decoder choice, and GPU budget are not the immediate blockers;
-independent-event coverage remains part of the unresolved diagnosis.
+The most important scientific gap is now more precise than a missing tensor
+connection: **the marginal contribution of U is not identifiable in the
+current results**. The dense R target is owned by route-corridor and visible
+conflict-actor geometry, so a model can learn substantial R structure from
+visual/route context without using U. The v10.1 no-U result demonstrates that
+this bypass is real. Conversely, the frozen Stage-1 adapter is only a
+diagnostic evidence-loss proxy and has not passed its independent native gate.
+
+The immediate engineering gap is therefore a held-out-generalizing,
+**factorized** bridge:
+
+```text
+R_context = f(same-view visual evidence, route, ego state)   # no U input
+U         = frozen Stage-1 adapter and frozen U-tokenizer
+K         = U * sigmoid(R_context)
+```
+
+A combined run is useful only if matched counterfactuals hold visual, route,
+ego state and R fixed while changing U, then show the correct change in K and
+language-facing task semantics. Injecting U directly into the R query would
+erase this identifiability and is not the next repair. Tokenizer
+reconstruction, decoder choice, and GPU budget are not immediate blockers;
+independent-event coverage and Stage-1 external validity remain separate open
+problems.
 
 ## 4. Formal Stage-2L data readiness
 
@@ -139,6 +157,24 @@ Authoritative records:
 - `results/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/formal_route_plan.json`;
 - `results/scenario_factory/event_banks/stage2l_formal24_partial18_reviewed_v1.json`;
 - `results/scenario_factory/review_queues/stage2l_formal24_test_technical_review_20260831/technical_review.json`.
+
+Separately, the bounded v11 engineering dataset has completed its
+identifiability preflight. A versioned route-context upgrade added only the
+exact current ORION speedometer reading, bound through the existing hashed
+geometry manifest and source metadata. The signed reading is preserved exactly
+(including six near-zero negative sensor readings); desired speed, route
+progress, TTC and outcomes were not added. The source 17-event records remain
+unchanged.
+
+The upgraded dataset contains 17 events, 80 matched groups (60 train / 20 dev)
+and 1,600 QA records. All metadata checks and all 400 referenced U-tensor
+loads/hashes passed; every zero/on-path/off-path/shuffled group preserved the
+matched observation, route/ego context, R supervision and Stage-1 lineage. This
+passes the **dataset-input gate only**. It does not prove that a model reuses a
+shared R, responds to U in K or language, generalizes, or drives safely.
+
+Authoritative result:
+`configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_dataset_preflight_result_v1.json`.
 
 ## 5. Closed-loop failure-induction evidence
 
@@ -186,14 +222,15 @@ ablation; changing the decoder cannot repair the missing semantic bridge.
 ## 7. Next executable milestone
 
 The next bounded engineering experiment must combine the two previously
-separated interfaces:
+separated interfaces without collapsing U and R into one predictor:
 
 ```text
-frozen spatial U maps
-  -> frozen c727... U-tokenizer
-  + explicit same-view ORION evidence from v10.1
-  + route/ego context
-  -> Stage-2L relevance R + structured task fields/QA
+explicit same-view ORION evidence + route/ego
+  -> shared contextual relevance R
+
+frozen spatial U maps -> frozen c727... U-tokenizer
+shared R + matched U variant -> K = U * sigmoid(R)
+  -> structured task fields/QA
 ```
 
 Before GPU submission it must prove on CPU/preflight that:
@@ -202,19 +239,34 @@ Before GPU submission it must prove on CPU/preflight that:
 - all Stage-1 parameters are frozen and planning gradients stop at U;
 - same-view feature and U-token coordinates share one canonical camera/grid
   order;
+- every matched U variant reuses bitwise-identical R logits;
+- on-path/off-path U have matched peak, total mass and support count while
+  changing spatial support;
 - zero U preserves absence/non-conservative semantics;
 - no Density score, corruption family, TTC, collision, answer-derived R, or
   ground-truth stance enters the forward pass;
 - train/dev route identities remain disjoint and locked test is unread.
 
-The bounded release gates remain held-out on-path-over-off-path ordering,
-foreground recall/background FPR, zero/irrelevant-U false-conservatism, and
-map/structured-field/text consistency. The combined run must report per-event
-and per-view results rather than only aggregate metrics. If train performance
-remains high while dev performance remains low, do not add epochs or model
-capacity: audit support labels and coordinate binding, then expand independent
-event coverage under a newly frozen protocol before Stage-2P. If train and dev
-both remain weak, repair the R supervision/interface before data expansion.
+The bounded release gates remain held-out R foreground recall/background FPR,
+on-path-over-off-path K ordering, per-variant answer preference,
+zero/irrelevant-U false-conservatism, and map/structured-field/text
+consistency. It must also include a no-U ablation and report per-event and
+per-view results rather than only aggregate metrics. If R remains high on train
+and low on dev, do not add epochs or model capacity: audit support labels and
+coordinate binding, then expand independent-event coverage. If controlled U
+does not change K/QA correctly under a shared R, repair the semantic bridge
+before Stage-2P. If controlled U passes but learned U fails an independent
+native/sensor gate, Stage 1—not Stage-2L—is the bottleneck.
+
+The machine-readable preflight contract for this distinction is
+`configs/scenario_factory/stage2l_v11_identifiable_factorized_bridge_v1.json`.
+
+The route/ego and matched-U dataset checks above are now complete. The remaining
+pre-GPU blocker is model-output-side implementation and testing: the v11
+forward path must compute R once, reuse the exact logits across all U variants,
+derive K, score the matched QA answers, and execute the no-U ablation. A new
+hash-bound launch amendment is still required after that implementation passes
+CPU tests; the dataset result does not authorize a training job by itself.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.

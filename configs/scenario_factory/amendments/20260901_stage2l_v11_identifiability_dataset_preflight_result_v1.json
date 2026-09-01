@@ -1,0 +1,108 @@
+{
+  "schema": "orion.stage2l_v11_identifiability_dataset_preflight_result.v1",
+  "created_at": "2026-09-01T11:18:38+08:00",
+  "status": "complete_dataset_identifiability_preflight_pass_gpu_still_locked",
+  "title": "Stage2-L v11 matched-U identifiability dataset preflight result",
+  "protocol": {
+    "path": "configs/scenario_factory/stage2l_v11_identifiable_factorized_bridge_v1.json",
+    "sha256": "57c3ba89b3b51df1aa176b5bfbeaf9f2a029758fc8f50ad7a50ec8a38808f1e3"
+  },
+  "source_dataset": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v1/records.jsonl",
+    "sha256": "2a4edbc48e031b15cea91f81efd5af3bfde758ca8b41606b79ba6f73e2b7993d",
+    "record_count": 1600,
+    "modified_in_place": false
+  },
+  "route_context_upgrade": {
+    "implementation": {
+      "path": "scripts/upgrade_stage2l_v11_route_context.py",
+      "sha256": "ecfa3b07afe438717f33fb5192fcb59850f225a78217061e357b3913303b0d82"
+    },
+    "report": {
+      "path": "results/scenario_factory/stage2l_smokes/v11_identifiability_preflight_v1/remote_upgrade_report.json",
+      "sha256": "92a1986fcfd71fc0eb4ba05f2fe139846da041a5921c384da99e32d27e39412f"
+    },
+    "output_records": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v11_route_context_v1/records.jsonl",
+      "sha256": "1f973c5a38e242730b4cc05aee0fa37a3590a58242b30f16163a6e51717b910f",
+      "record_count": 1600
+    },
+    "exact_current_orion_speedometer_mps": {
+      "minimum": -0.0011355502773449607,
+      "maximum": 5.193364660614394,
+      "mean": 2.881068379819466,
+      "signed_sensor_reading_preserved_without_clipping": true
+    },
+    "only_route_context_changed": true,
+    "forbidden_fields_added": false
+  },
+  "historical_preupgrade_diagnosis": {
+    "path": "results/scenario_factory/stage2l_smokes/v11_identifiability_preflight_v1/current_17event_metadata_audit.json",
+    "sha256": "f1abc5ff2f375e09584b80d60346d2065a9189c6eff0079753fc9424e7b0b243",
+    "v11_ready": false,
+    "reason": "The immutable source records used route_context.v1 and did not contain the exact current ORION speedometer reading. This is retained as pre-upgrade diagnostic evidence, not as the terminal dataset result."
+  },
+  "terminal_full_audit": {
+    "implementation": {
+      "path": "scripts/audit_stage2l_v11_identifiability_dataset.py",
+      "sha256": "f8b2e7c988ef7d3738b93d2d38a1d19db5c467bc14f423df54e33a4f2d2b5f7f"
+    },
+    "report": {
+      "path": "results/scenario_factory/stage2l_smokes/v11_identifiability_preflight_v1/remote_identifiability_dataset_audit.json",
+      "sha256": "2087748cfa58c26f106ff550b4b83608218c3831f04bebd79cfa0be0b7c1737c"
+    },
+    "event_count": 17,
+    "train_events": 13,
+    "dev_events": 4,
+    "matched_group_count": 80,
+    "groups_by_split": {
+      "train": 60,
+      "dev": 20
+    },
+    "record_count": 1600,
+    "referenced_u_tensors_loaded_and_hashed": 400,
+    "metadata_passed": true,
+    "tensor_passed": true,
+    "v11_ready": true,
+    "failed_group_count": 0
+  },
+  "matched_invariants_proven": [
+    "byte-identical visual observation within each group",
+    "identical route command, unmodified ORION plan and exact current speedometer reading within each group",
+    "identical independently constructed R supervision within each group",
+    "identical Stage1 checkpoint lineage within each group",
+    "zero U is exactly zero",
+    "on-path and off-path U match total mass, peak and positive support count within frozen FP32 tolerances",
+    "on-path and off-path U have spatially distinct support",
+    "train and dev group identities remain separate and locked test is unread"
+  ],
+  "output_side_audit_implementation": {
+    "path": "uq_estimator/stage2l_identifiability.py",
+    "sha256": "7f38def48f14ef7f4de71fe63a82ee432ed9650cb8f5336e6d9be95efd57c49a",
+    "status": "unit_tested_helpers_only_not_yet_wired_to_a_v11_model_forward"
+  },
+  "verification": {
+    "python": "3.9.6",
+    "pytest_result": "37 passed",
+    "pytest_command": "PYTHONPATH=. python -m pytest -q tests/test_stage2l_identifiability.py tests/test_audit_stage2l_v11_identifiability_dataset.py tests/test_upgrade_stage2l_v11_route_context.py tests/test_build_uq_relevance_frame_bundles.py tests/test_uq_relevance_qa_factory.py tests/test_uq_relevance_tokenizer.py tests/test_stage2l_bridge_runtime.py tests/test_stage2l_semantic_runtime_v10.py tests/test_stage2l_view_aligned_queries.py",
+    "python_compile_passed": true,
+    "json_parse_passed": true
+  },
+  "execution": {
+    "gpu_used": false,
+    "orion_weights_loaded": false,
+    "training_started": false
+  },
+  "next_gate": {
+    "allowed_now": "Implement and CPU-test one v11 model path that computes R once, reuses bitwise-identical R logits across matched U variants, derives K, scores matched QA preferences and executes a no-U ablation.",
+    "not_automatically_allowed": "A GPU run still requires a separate hash-bound launch amendment after the model-output-side implementation and tests pass."
+  },
+  "launch_locks": {
+    "stage2l_v11_gpu_training_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "learned_u_closed_loop_allowed": false,
+    "benchmark_matrix_allowed": false
+  },
+  "claim_boundary": "The versioned 17-event inputs satisfy the frozen matched-counterfactual dataset contract. This does not show that R is held-out-generalizing, that a VLM uses U, that learned U is valid, that QA is grounded, or that planning and closed-loop safety improve."
+}

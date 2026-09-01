@@ -61,6 +61,7 @@ def _fixture(tmp_path):
     (meta / "0002.json").write_text(json.dumps({
         "command": 4,
         "plan": [[0.0, value] for value in (2, 4, 6, 8, 10, 12)],
+        "speed": 4.25,
         "closedloop_safety": _safety(),
     }))
     batch = tmp_path / "batch.json"
@@ -148,6 +149,11 @@ def test_builds_aligned_observed_onpath_and_offpath_bundles(tmp_path):
 
     on_bundle = json.loads((output / "frame_bundle_on_path_uq.json").read_text())
     off_bundle = json.loads((output / "frame_bundle_off_path_uq.json").read_text())
+    route_context = on_bundle["model_input"]["route_context"]
+    assert route_context["schema"] == "orion.route_context.v2"
+    assert route_context["payload"]["ego_state"] == {
+        "speedometer_mps": 4.25
+    }
     on_support = on_bundle["counterfactual"]["spatial_support"]
     off_support = off_bundle["counterfactual"]["spatial_support"]
     assert on_support["support_type"] == "matched_local_gaussian_region_v1"
@@ -173,3 +179,22 @@ def test_explicit_fixed_keyframe_is_recorded_in_provenance(tmp_path):
     bundle = json.loads(Path(report["bundles"][0]["path"]).read_text())
     assert bundle["provenance"]["selected_saved_frame_index"] == 2
     assert bundle["provenance"]["frame_selection"] == "explicit_fixed_temporal_keyframe"
+
+
+def test_route_context_rejects_missing_or_invalid_current_speed(tmp_path):
+    package, stage1 = _fixture(tmp_path)
+    event = json.loads(package.read_text())
+    scenario = Path(event["camera_inventory"]["rgb_front"]["path"]).parent
+    meta_path = scenario / "meta" / "0002.json"
+    meta = json.loads(meta_path.read_text())
+    meta["speed"] = float("nan")
+    meta_path.write_text(json.dumps(meta))
+    with np.testing.assert_raises_regex(ValueError, "speedometer"):
+        build_frame_bundles(
+            event_package_path=package,
+            stage1_manifest_path=stage1,
+            split="train",
+            output_dir=tmp_path / "invalid_speed",
+            variants=("observed",),
+            counterfactual_peak=0.9,
+        )

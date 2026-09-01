@@ -276,6 +276,24 @@ def validate_frame_bundle(
         route_context.get("sha256"), "model_input.route_context.sha256"
     )
     route_payload = route_context.get("payload")
+    route_schema = route_context.get("schema")
+    if route_schema is not None and route_schema != "orion.route_context.v2":
+        raise QAFactoryError("unsupported route_context schema")
+    if route_schema == "orion.route_context.v2":
+        if not isinstance(route_payload, Mapping):
+            raise QAFactoryError("route_context.v2 payload must be an object")
+        ego_state = route_payload.get("ego_state")
+        if not isinstance(ego_state, Mapping) or set(ego_state) != {
+            "speedometer_mps"
+        }:
+            raise QAFactoryError(
+                "route_context.v2 requires only the current speedometer reading"
+            )
+        speedometer_mps = float(ego_state["speedometer_mps"])
+        if not math.isfinite(speedometer_mps):
+            raise QAFactoryError(
+                "route_context.v2 ego speedometer reading is invalid"
+            )
     encoded_route = json.dumps(
         route_payload, sort_keys=True, separators=(",", ":"), allow_nan=False
     ).encode("utf-8")

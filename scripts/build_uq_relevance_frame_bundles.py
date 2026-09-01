@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 import sys
 from typing import Any, Dict, List, Mapping, Tuple
@@ -83,14 +84,22 @@ def _observation_sha(camera_files: List[Mapping[str, Any]]) -> str:
 
 
 def _route_context(meta: Mapping[str, Any]) -> Dict[str, Any]:
+    speedometer_mps = float(meta["speed"])
+    if not math.isfinite(speedometer_mps):
+        raise ValueError("current ego speedometer reading must be finite")
     payload = {
         "command": int(meta["command"]),
         "orion_unmodified_plan_right_forward_m": meta["plan"],
+        "ego_state": {"speedometer_mps": speedometer_mps},
     }
     encoded = json.dumps(
         payload, sort_keys=True, separators=(",", ":"), allow_nan=False
     ).encode("utf-8")
-    return {"payload": payload, "sha256": hashlib.sha256(encoded).hexdigest()}
+    return {
+        "schema": "orion.route_context.v2",
+        "payload": payload,
+        "sha256": hashlib.sha256(encoded).hexdigest(),
+    }
 
 
 def _route_metadata(

@@ -184,6 +184,23 @@ def test_forbidden_ttc_in_model_input_fails_closed(tmp_path):
         validate_frame_bundle(bundle, bundle_path=path, config=_config())
 
 
+def test_route_context_v2_requires_valid_current_ego_speed(tmp_path):
+    bundle, path = _bundle(tmp_path)
+    route_context = bundle["model_input"]["route_context"]
+    route_context["schema"] = "orion.route_context.v2"
+    route_context["payload"]["ego_state"] = {"speedometer_mps": 3.5}
+    route_context["sha256"] = hashlib.sha256(
+        json.dumps(
+            route_context["payload"], sort_keys=True, separators=(",", ":")
+        ).encode()
+    ).hexdigest()
+    validate_frame_bundle(bundle, bundle_path=path, config=_config())
+
+    route_context["payload"]["ego_state"]["speedometer_mps"] = float("nan")
+    with pytest.raises(QAFactoryError, match="speedometer"):
+        validate_frame_bundle(bundle, bundle_path=path, config=_config())
+
+
 def test_on_path_and_off_path_uncertainty_change_task_risk_not_relevance():
     config = _config()
     relevance = np.zeros((6, 3, 3), dtype=np.float32)
