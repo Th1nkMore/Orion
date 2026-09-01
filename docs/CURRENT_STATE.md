@@ -225,6 +225,19 @@ This policy authorizes no new job by itself and does not unlock locked test or
 formal benchmark claims. The machine-readable record is
 `configs/scenario_factory/amendments/20260901_vertical_slice_soft_gate_progression_v1.json`.
 
+Route expansion is proceeding independently without widening the first model
+smoke. At `2026-09-01T16:23:59+08:00`, the scheduler had no immediately usable
+CARLA A800: the only physically unallocated card was on gpu5, which remains
+excluded after the recorded Vulkan initialization failures. One development-
+only `clean_off` replay, Route211 (`T_Junction`, Town04), was therefore queued
+as Job `1121900` with 2 CPU, 192 GB and `gpu2,gpu5` excluded. It is a route-
+geometry hard negative selected using the published ORION outcome and is not a
+clean-valid, formal-split or locked-test route. No U, tokenizer, Density UQ,
+Stage2 conditioning, risk governor or planning response is active. No second
+route or automatic retry is authorized. The frozen batch and submission record
+are under
+`results/scenario_factory/batches/vertical_slice_route211_20260901_v1/`.
+
 ## 4. Formal Stage-2L data readiness
 
 The frozen formal target is 24 independent events with a 16 train / 4 dev / 4
@@ -553,11 +566,12 @@ the fail-closed submitter/attester contract passed shell and lineage checks.
 Exactly one separately authorized 40-step R-only run was submitted as Slurm
 Job `1121553` at `2026-09-01T15:27:29+08:00`. It requests one A800, two CPU
 cores and 192 GB host memory, excludes gpu5, allows no automatic retry, and is
-bound to the frozen preflight, trainer and protocol hashes. At the recorded
-`2026-09-01T15:28:11+08:00` scheduler snapshot it remained
-`PENDING (Priority)`. No optimizer step or scientific gate has therefore been
-observed yet; language, Stage2-P, closed loop and locked-test access remain
-disabled.
+bound to the frozen preflight, trainer and protocol hashes. It started on gpu1
+at `2026-09-01T16:00:10+08:00`; the first observed optimizer step was finite
+with loss `0.11282112635672092` and gradient norm `0.572779655456543`. This is
+runtime/optimization progress only, not a terminal model verdict. The frozen
+terminal validator still owns all seven diagnostics; no threshold, epoch,
+retry or artifact contract has changed.
 
 While the same job still had no log or training output, the terminal audit was
 frozen prospectively in
