@@ -406,12 +406,23 @@ is preserved. A separate `retry1` batch reuses byte-identical hazard/no-hazard
 XML and the same runtime contract under a new output path; it also corrects the
 batch metadata lineage to the dedicated train-coverage-repair protocol. One
 technical replacement was separately authorized and submitted as Job `1121244`
-at `2026-09-01T13:57:52+08:00`. It was pending for priority at the submission
-attestation; the one-job replacement authorization is now exhausted and no
-automatic subsequent retry is allowed. It must still pass runtime/sensor
-integrity, actor grounding, at least three back-right-positive geometry frames,
-human review, and separate Stage1/QA construction before the aggregate CPU
-coverage gate is rerun.
+at `2026-09-01T13:57:52+08:00`. The absolute route path worked: Town03 and
+RouteScenario 25378 loaded, ORION reached real control, and 144 trace records
+were written. CARLA then blocked inside synchronous `world.tick`; the 301-second
+progress watchdog terminated the job `FAILED (124:0)` after 15 minutes 41
+seconds, with peak batch RSS `70,469,056 KiB`. This is an invalid runtime, not a
+complete route or model/safety result, and the one-job replacement authorization
+is exhausted.
+
+Fifteen fully aligned six-view/meta frames were retained only for a CPU geometry
+diagnostic. All 15 had valid geometry; front was positive in 15, back in two,
+and back-right in zero. The two actor-grounded frames placed the emergency
+vehicle in `CAM_BACK`, not `CAM_BACK_RIGHT`. Route167 is therefore retired as
+the missing-view fallback independently of its later CARLA stall. No further
+Route167 retry is authorized, the partial frames are not accepted into the
+formal/training bank, and the aggregate coverage gate remains failed. The next
+data action must freeze a second outcome-blind candidate pool with an explicit
+off-axis rear-right geometry prior before any additional CARLA collection.
 
 Only after that coverage contract passes may one separately authorized bounded
 R-only engineering smoke run. It must preserve the held-out event identities,
@@ -431,6 +442,7 @@ Authoritative v11.1 results:
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_coverage_collection_submission_v1.json`.
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_relative_path_failure_retry1_authorization_v1.json`.
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_retry1_submission_v1.json`.
+- `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_retry1_terminal_and_partial_coverage_v1.json`.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.
