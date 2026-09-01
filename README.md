@@ -57,6 +57,8 @@ The subsequent full raw-asset component inventory changes the next action. All 2
 
 That factorized-R CPU preflight now passes on all 80 frozen groups with exact route/actor/union reconstruction and finite gradients. Under the prospective `>=2` train-event and `>=1` dev-event rule, route relevance is identifiable only on front, while actor relevance is identifiable on front, front-left, front-right, back and back-left; back-right stays outside the claim. The frozen single-union R reaches dev recall `0.6744` on route/front but `0 / 0 / 0.0089` on actor front-left/front-right/back-left, supporting one bounded factorized-R-only engineering smoke as the next experiment. Front-right remains fragile at only two train events and one dev event. No GPU run, language training, Stage2-P or closed-loop method is unlocked by the CPU result alone.
 
+The separate v12.1 trainer preflight now also passes on the exact 17-event/80-group assets: all component targets load, the duplicated route/actor warm start is bitwise identical to the old single-R probability, and neither ambiguous union convention enters the loss. Exactly one hash-attested 40-step R-only run was submitted as Slurm Job `1121553`; at the recorded `2026-09-01T15:28:11+08:00` scheduler snapshot it was `PENDING (Priority)`. This is a submission state, not a model result, and it does not unlock U, language, Stage2-P or closed loop.
+
 ---
 
 ## Historical baseline architecture (superseded)

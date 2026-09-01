@@ -475,6 +475,24 @@ front-right result fragile because it has only two train events and one dev
 event. A separate frozen implementation preflight and launch record are still
 required.
 
+That separate implementation preflight is now complete. It loaded all 80
+factorized targets, verified the exact input hashes, and showed bitwise identity
+between the v10.1 single-R probability and both duplicated component branches
+plus their derived maximum before training. Fourteen groups confirm that
+pooling and component maximum do not commute (maximum absolute difference
+`0.273959`); both union conventions are therefore report-only and the loss is
+strictly component-factorized. The related remote suite passed 14 tests, and
+the fail-closed submitter/attester contract passed shell and lineage checks.
+
+Exactly one separately authorized 40-step R-only run was submitted as Slurm
+Job `1121553` at `2026-09-01T15:27:29+08:00`. It requests one A800, two CPU
+cores and 192 GB host memory, excludes gpu5, allows no automatic retry, and is
+bound to the frozen preflight, trainer and protocol hashes. At the recorded
+`2026-09-01T15:28:11+08:00` scheduler snapshot it remained
+`PENDING (Priority)`. No optimizer step or scientific gate has therefore been
+observed yet; language, Stage2-P, closed loop and locked-test access remain
+disabled.
+
 Only after the factorized-R CPU preflight defines component targets, loss
 normalization and supported-view gates may one separately authorize a bounded
 R-only engineering smoke. It must preserve the held-out event identities,
