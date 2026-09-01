@@ -280,10 +280,17 @@ correcting only that timestamp, the terminal rerun was identical after removing
 
 Exactly one 40-step, bridge-only engineering run is now authorized by
 `configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_smoke_launch_v1.json`.
+That exact run was submitted as Slurm Job `1120666` at
+`2026-09-01T11:58:20+08:00` and started on `gpu4` at
+`2026-09-01T11:59:08+08:00`. The hash-bound attestation and scheduler snapshot
+are recorded by
+`configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_smoke_submission_v1.json`.
 It has not yet produced a model result. It must stop before language training
 if the frozen R cannot meet the controlled on/off-path K gate, and no failure or
 pass automatically authorizes extra steps, formal Stage2-L, Stage2-P, closed
-loop or benchmark runs.
+loop or benchmark runs. In particular, the run freezes the already failed R
+checkpoint, so even a language pass cannot repair or override the held-out R
+generalization gap.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.
