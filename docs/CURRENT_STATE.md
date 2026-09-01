@@ -420,15 +420,39 @@ and back-right in zero. The two actor-grounded frames placed the emergency
 vehicle in `CAM_BACK`, not `CAM_BACK_RIGHT`. Route167 is therefore retired as
 the missing-view fallback independently of its later CARLA stall. No further
 Route167 retry is authorized, the partial frames are not accepted into the
-formal/training bank, and the aggregate coverage gate remains failed. The next
-data action must freeze a second outcome-blind candidate pool with an explicit
-off-axis rear-right geometry prior before any additional CARLA collection.
+formal/training bank, and the aggregate coverage gate remains failed.
 
-Only after that coverage contract passes may one separately authorized bounded
-R-only engineering smoke run. It must preserve the held-out event identities,
-v11.1 controls and `0.8` gate and report per-view plus support-mode metrics. No
-U-token, language, trajectory or control optimization is authorized in that
-run; additional v10/v10.1 epochs alone are not a repair.
+The next CPU inventory deliberately reconsidered whether a rear-right route was
+the correct repair. It scanned all 150 manifests under the unchanged strict
+filter, retained 28 clean-off non-held-out runs, and decomposed 24 geometry runs
+covering 21 route identities. Independent verification passed every count,
+frame-list, component-partition, aggregate and held-out-exclusion check. The
+union label has route support on 1,103 front frame-view positives but only 15
+front-left and 11 front-right, with none behind. Conflict-actor support is
+distributed differently: 179 front, 90 front-left, 29 front-right, 263 back,
+128 back-left and zero back-right frame-view positives. At the route level,
+front-right actor support appears only in Routes157/177/192/194; back-right
+appears in none. Route202's nine apparent front-right union positives are all
+route-only and provide no conflict-actor binding evidence.
+
+This changes the diagnosis. The front-dominant union objective is partly a
+route-corridor volume effect: 951/1,130 front union positives are route-only,
+whereas every back and back-left positive is actor-grounded. Only one
+front-left and one front-right frame-view positive contain route and actor
+support together. `CAM_BACK_RIGHT` is therefore an unsupported region of the
+current frozen inventory, not a universal release gate that justifies a custom
+scenario by itself. The immediate custom rear-right collection is retired.
+The next executable work is a CPU-only factorized-R target/interface preflight
+that exposes route-corridor and conflict-actor components separately, retains
+their union only as a derived diagnostic, and declares unsupported views. It
+must not read dev/test outcomes or authorize training.
+
+Only after the factorized-R CPU preflight defines component targets, loss
+normalization and supported-view gates may one separately authorize a bounded
+R-only engineering smoke. It must preserve the held-out event identities,
+v11.1 controls and `0.8` gate and report route and actor components per event
+and view. No U-token, language, trajectory or control optimization is
+authorized in that run; additional v10/v10.1 epochs alone are not a repair.
 
 Authoritative v11.1 results:
 
@@ -443,16 +467,20 @@ Authoritative v11.1 results:
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_relative_path_failure_retry1_authorization_v1.json`.
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_retry1_submission_v1.json`.
 - `configs/scenario_factory/amendments/20260901_stage2l_v12_route167_retry1_terminal_and_partial_coverage_v1.json`.
+- `configs/scenario_factory/stage2l_v12_existing_raw_coverage_inventory_protocol_v1.json`.
+- `configs/scenario_factory/stage2l_v12_existing_raw_actor_support_inventory_amendment_v1.json`.
+- `configs/scenario_factory/amendments/20260901_stage2l_v12_existing_raw_actor_support_inventory_result_v1.json`.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.
 
 ## 8. Claim boundary
 
-Current evidence supports a task-agnostic U representation, exact
-consumer-grid counterfactual controls, exact reproducibility of the current
-geometry supervision, and partial/front-dominant learnability of a spatial
-relevance head. It does not establish semantic correctness of that weak target,
+Current evidence supports a tokenizer that preserves the frozen pilot-U
+representation, exact consumer-grid counterfactual controls, exact
+reproducibility and component decomposition of the current geometry
+supervision, and partial/front-dominant learnability of a spatial relevance
+head. It does not establish semantic correctness of that weak target,
 a held-out-generalizing task-relevance model, learned language use of U,
 semantic UQ correctness, risk-aware planning, closed-loop safety improvement,
 or a 200-route benchmark claim.

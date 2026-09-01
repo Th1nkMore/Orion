@@ -1,0 +1,73 @@
+{
+  "schema": "orion.stage2l_v12_existing_raw_actor_support_inventory_amendment.v1",
+  "created_at": "2026-09-01T14:31:32+08:00",
+  "status": "preregistered_cpu_diagnostic_not_training_authority",
+  "reason_for_amendment": "The frozen v1 inventory found zero CAM_BACK_RIGHT relevance in every one of 21 deduplicated routes. That result makes a single rear-right collection target too narrow: the union label can be positive because of route-corridor projection without any visible future-path-conflict actor. Before constructing more routes, the existing inventory must be separated by supervision component and support mode.",
+  "authoritative_predecessors": {
+    "base_protocol": {
+      "path": "configs/scenario_factory/stage2l_v12_existing_raw_coverage_inventory_protocol_v1.json",
+      "sha256": "77529855bfbbd6162999a630fd52a8c22cec3290e04b3304e8ae5bfbf3ddf97a"
+    },
+    "base_result": {
+      "path": "results/scenario_factory/coverage_repair/stage2l_v12_existing_raw_inventory_v1/inventory.json",
+      "sha256": "853303fcf068aecca2c518547f9550a11b308c471b1066a971bb84853afb9e49"
+    }
+  },
+  "research_question": "Across the exact strict clean-off, non-held-out inventory, which view/event support comes from the projected route corridor, which comes from a visible future-path-conflict actor, and which contains both in the same view and frame?",
+  "inspection_boundary": {
+    "same_manifest_filter_and_formal_identity_exclusion_as_v1": true,
+    "read_frame_meta_plan_and_closedloop_safety": true,
+    "read_camera_pixels": false,
+    "read_evaluator_checkpoint_or_score": false,
+    "read_control_trace": false,
+    "read_collision_infraction_route_completion_or_ttc": false,
+    "read_observation_uq": false,
+    "read_stage2_prediction_or_loss": false,
+    "read_qa_answer": false,
+    "read_dev_or_locked_test_route_frames": false
+  },
+  "component_definitions": {
+    "union_relevance": "elementwise maximum of route_corridor and relevant_actor_support from task_relevance_geometry.v1",
+    "route_support": "a view/frame with at least one positive route_corridor cell",
+    "actor_support": "a view/frame with at least one positive relevant_actor_support cell; actors are selected only by future occupancy intersecting the frozen ORION path",
+    "route_only": "route_support true and actor_support false in the same view/frame",
+    "actor_only": "actor_support true and route_support false in the same view/frame",
+    "route_and_actor": "both route_support and actor_support true in the same view/frame"
+  },
+  "required_outputs": {
+    "per_run_and_per_route_frame_ids_by_view_and_component": true,
+    "per_view_independent_route_counts_by_component": true,
+    "per_view_frame_view_counts_by_component": true,
+    "formal_train_and_nonformal_counts_reported_separately": true,
+    "support_mode_counts_not_hidden_in_union_metric": true,
+    "zero_support_views_explicit": true
+  },
+  "per_route_deduplication": {
+    "selection_uses_geometry_only": true,
+    "order": [
+      "descending number of camera views with actor-support frames",
+      "descending total actor-support frame-view count",
+      "descending geometry-valid frame count",
+      "descending aligned frame count",
+      "ascending Slurm job id"
+    ],
+    "model_or_route_outcome_used": false
+  },
+  "decision_policy": {
+    "do_not_treat_union_side_view_support_as_actor_grounded": true,
+    "do_not_require_cam_back_right_as_a_universal_release_gate_when_the_frozen_benchmark_inventory_has_no_support": true,
+    "do_not_construct_a_new_route_until_component_inventory_is_frozen": true,
+    "do_not_change_formal_dev_or_locked_test_identities": true,
+    "do_not_authorize_r_training_from_this_diagnostic": true,
+    "subsequent_repair_must_state_whether_it_targets_route_binding_actor_binding_or_view_equivariance": true
+  },
+  "release_locks": {
+    "cpu_component_inventory": true,
+    "new_carla_collection": false,
+    "gpu_r_only_smoke": false,
+    "language_bridge": false,
+    "stage2p": false,
+    "learned_u_closed_loop": false
+  },
+  "claim_boundary": "A descriptive supervision-semantic audit of existing train-eligible raw geometry. It cannot establish semantic task relevance, observation-UQ validity, language understanding, planning benefit or closed-loop safety, and it grants no training or collection authority."
+}
