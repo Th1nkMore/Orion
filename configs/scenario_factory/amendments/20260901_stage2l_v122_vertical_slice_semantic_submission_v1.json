@@ -1,0 +1,46 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T17:50:20+08:00",
+  "status": "single_v12_2_semantic_slice_submitted_and_attested",
+  "launch": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v122_vertical_slice_semantic_launch_v1.json",
+    "sha256": "469e5c000f10585fe53ba57b1577a97ed1247660979c672811e16a0b8ca4f6e9"
+  },
+  "submission": {
+    "job_id": 1122494,
+    "job_name": "s2l_v122_semantic",
+    "partition": "Nvidia_A800",
+    "state_when_recorded": "RUNNING",
+    "node": "gpu4",
+    "submitted_at": "2026-09-01T17:48:28+08:00",
+    "started_at": "2026-09-01T17:49:11+08:00",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "08:00:00",
+    "excluded_nodes": ["gpu5"],
+    "automatic_retry": false,
+    "requeue": false
+  },
+  "artifacts": {
+    "authorized_output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/training",
+    "remote_log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1-1122494.out",
+    "submission_attestation": {
+      "local_path": "results/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/submission_attestation.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/submission_attestation.json",
+      "sha256": "03d6212c8ab7700f04964a2c7a0d1d739b77d90bceabe5a2971694a905b7d25e"
+    }
+  },
+  "scope": {
+    "optimizer_steps": 40,
+    "only_trainable_module": "TaskRiskLanguageBridge",
+    "controlled_u_only": true,
+    "factorized_r_frozen": true,
+    "stage1_and_u_tokenizer_frozen": true,
+    "formal_stage2l": false,
+    "stage2p": false,
+    "closed_loop": false,
+    "locked_test_read": false
+  },
+  "claim_boundary": "Submission and resource attestation for one semantic engineering slice only; no training, semantic, planning, closed-loop or safety result yet."
+}
