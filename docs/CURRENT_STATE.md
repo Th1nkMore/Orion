@@ -278,19 +278,31 @@ correcting only that timestamp, the terminal rerun was identical after removing
 `protocol_sha256`. The terminal report and correction trail are bound by
 `configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_model_preflight_result_v1.json`.
 
-Exactly one 40-step, bridge-only engineering run is now authorized by
+Exactly one 40-step, bridge-only engineering run was authorized by
 `configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_smoke_launch_v1.json`.
 That exact run was submitted as Slurm Job `1120666` at
 `2026-09-01T11:58:20+08:00` and started on `gpu4` at
 `2026-09-01T11:59:08+08:00`. The hash-bound attestation and scheduler snapshot
 are recorded by
 `configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_smoke_submission_v1.json`.
-It has not yet produced a model result. It must stop before language training
-if the frozen R cannot meet the controlled on/off-path K gate, and no failure or
-pass automatically authorizes extra steps, formal Stage2-L, Stage2-P, closed
-loop or benchmark runs. In particular, the run freezes the already failed R
-checkpoint, so even a language pass cannot repair or override the held-out R
-generalization gap.
+The job completed normally with exit code 0 after 9 minutes 54 seconds, but
+stopped before language optimization at step 0 because the controlled-U gate
+failed. A post-run deterministic audit found that this is first an input
+contract defect: all 80 on/off pairs were magnitude-matched on the stored
+40x40 grid, but only 7/80 remained matched after the U-tokenizer's actual
+10x10 area pooling. Median peak mismatch was 21.5%, while mass remained matched
+to numerical tolerance. Therefore the observed train/dev on-over-off fractions
+(`0.867 / 0.550`) are not a valid controlled comparison and do not add a new R
+failure claim. The exact terminal evidence and repair rule are frozen in
+`configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_smoke_terminal_v1.json`.
+
+The next run must use a new, versioned control dataset constructed and audited
+on the exact 10x10 consumer grid. It must preserve the same observation,
+route/ego inputs, frozen R checkpoint and thresholds; the matched-magnitude
+gate must not be weakened. The existing v10.1 held-out R failure remains the
+best current R evidence until that repaired comparison exists. No outcome or
+repair automatically authorizes extra steps, formal Stage2-L, Stage2-P, closed
+loop or benchmark runs.
 
 Closed-loop failure-induction discovery may continue independently, but it
 must not change Stage-2L labels after model outcomes are seen.

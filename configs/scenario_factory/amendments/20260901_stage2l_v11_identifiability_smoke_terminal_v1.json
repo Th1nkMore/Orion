@@ -1,0 +1,114 @@
+{
+  "schema": "orion.stage2l_v11_identifiability_smoke_terminal_amendment.v1",
+  "created_at": "2026-09-01T12:15:39+08:00",
+  "status": "terminal_runtime_complete_consumer_grid_control_contract_failed",
+  "submission": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_smoke_submission_v1.json",
+    "sha256": "4e0b47f081dfe8b10039e2eacf999ccd7060ee901aa739ebf946e9c28521c1bf"
+  },
+  "slurm_terminal": {
+    "job_id": 1120666,
+    "job_name": "s2l_v11_ident",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "node": "gpu4",
+    "started_at": "2026-09-01T11:59:08+08:00",
+    "ended_at": "2026-09-01T12:09:02+08:00",
+    "elapsed": "00:09:54",
+    "batch_max_rss_kib": 3714820,
+    "batch_max_vm_size_kib": 42922544,
+    "batch_max_disk_read_mib": 200838.71
+  },
+  "terminal_artifacts": {
+    "report": {
+      "local_path": "results/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/training/report.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/training/report.json",
+      "sha256": "d9cad130a084baa92abaaa2e2d9e2771433d3e2fccf241303c764c1a3d63bc99"
+    },
+    "slurm_log": {
+      "local_path": "results/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/slurm-1120666.out",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/logs/stage2l_smokes/v11_identifiable_17event_40_v1-1120666.out",
+      "sha256": "e346e4d3eac33b1fd4606aefc0dbab5bea937af13faa4f12cfc27dacc20bfb9f"
+    },
+    "consumer_grid_audit": {
+      "local_path": "results/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/analysis/consumer_grid_audit.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/analysis/consumer_grid_audit.json",
+      "sha256": "ba89d2ae1efa1bb5efc1f75b92b6f5b4eb99fc328e6632fbc02f7943a5fc7e1f"
+    }
+  },
+  "trainer_terminal_result": {
+    "status": "stopped_before_language_controlled_u_gate_failed",
+    "optimizer_steps": 0,
+    "language_before": null,
+    "language_after": null,
+    "train": {
+      "groups": 60,
+      "shared_r_fraction": 1.0,
+      "zero_exact_fraction": 1.0,
+      "spatially_distinct_fraction": 1.0,
+      "matched_magnitude_fraction": 0.06666666666666667,
+      "on_over_off_fraction": 0.8666666666666667,
+      "off_path_low_fraction": 1.0,
+      "r_average_precision": 0.9101576885787981,
+      "r_foreground_recall": 0.8664349317550659
+    },
+    "dev": {
+      "groups": 20,
+      "shared_r_fraction": 1.0,
+      "zero_exact_fraction": 1.0,
+      "spatially_distinct_fraction": 1.0,
+      "matched_magnitude_fraction": 0.15,
+      "on_over_off_fraction": 0.55,
+      "off_path_low_fraction": 0.95,
+      "r_average_precision": 0.4152420231579685,
+      "r_foreground_recall": 0.4430674612522125
+    }
+  },
+  "consumer_grid_root_cause": {
+    "audit_implementation": {
+      "path": "scripts/audit_stage2l_v11_consumer_grid.py",
+      "sha256": "173c022fc470da453049531ab70cd6542d88cc7f32bff151c370a7a86eb59087"
+    },
+    "test": {
+      "path": "tests/test_audit_stage2l_v11_consumer_grid.py",
+      "sha256": "b280d3a624772bb6155eb84d68fd10594a311995eb39b677295f0efe98fc9162"
+    },
+    "remote_relevant_suite": "9 passed",
+    "stored_40x40_raw_matches": 80,
+    "stored_40x40_group_count": 80,
+    "consumed_10x10_matches": 7,
+    "consumed_10x10_group_count": 80,
+    "train_consumed_matches": 4,
+    "train_groups": 60,
+    "dev_consumed_matches": 3,
+    "dev_groups": 20,
+    "consumer_peak_relative_difference": {
+      "median": 0.21475516396821598,
+      "p90": 0.23318963608660614,
+      "maximum": 0.23318963608660614
+    },
+    "consumer_mass_relative_difference_maximum": 1.2376395392168983e-07,
+    "consumer_support_count_absolute_difference_median": 1.0,
+    "cause": "The controlled Gaussian pair was matched on the stored 40x40 grid, but center alignment relative to the tokenizer's deterministic 4x4 area-pooling cells changed the 10x10 peak and nonzero support count before K was computed."
+  },
+  "interpretation": {
+    "runtime_failure": false,
+    "language_training_failure": false,
+    "controlled_input_contract_valid_at_model_consumer": false,
+    "new_r_failure_claim_authorized": false,
+    "existing_v101_r_release_failure_remains": true,
+    "scientific_disposition": "Engineering input-contract failure. The observed dev on/off ordering is not a valid controlled comparison because the actual consumed U magnitudes were unequal."
+  },
+  "next_required_action": "Create a new versioned control dataset whose on/off U pair is constructed and audited on the exact 10x10 consumer grid, preserve the same observation, route/ego, R checkpoint and frozen thresholds, then authorize at most one separately attested replacement. Do not weaken or remove the matched-magnitude gate.",
+  "automatic_scope_locks": {
+    "same_dataset_retry": false,
+    "automatic_retry": false,
+    "gate_relaxation": false,
+    "additional_optimizer_steps": false,
+    "formal_stage2l": false,
+    "stage2p": false,
+    "learned_u_closed_loop": false,
+    "benchmark_matrix": false
+  },
+  "claim_boundary": "This result proves a deterministic control-construction defect at the Stage2-L consumer grid and records a valid fail-closed stop. It does not establish that R passes or fails the repaired controlled-U question, that language uses U, that learned Stage1 U is valid, or that planning is safer."
+}
