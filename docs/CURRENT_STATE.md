@@ -225,6 +225,27 @@ This policy authorizes no new job by itself and does not unlock locked test or
 formal benchmark claims. The machine-readable record is
 `configs/scenario_factory/amendments/20260901_vertical_slice_soft_gate_progression_v1.json`.
 
+The first Stage2-L semantic slice is now terminal. Job `1122494` completed on
+gpu4 in `00:28:40` with all 40 steps finite and only
+`TaskRiskLanguageBridge` trainable. Independent validation reproduces all 17
+event artifacts, separate route/actor R components, derived union R and K, with
+exact zero-U/zero-K and exact `K=U*R`; the only cross-device probability
+difference is one float32 ULP (`5.96e-08`, below the fixed `1e-07` audit
+tolerance). Controlled-U on-over-off ordering is `0.9667` on train but only
+`0.6` on dev, so that diagnostic remains a soft failure.
+
+The language result exposes the earlier break more sharply. Mean target NLL
+drops from `13.9605` to `10.3044` on train and from `15.1263` to `10.7124` on
+dev, but dev target preference falls from `0.375` to `0.25`, and the full-U and
+no-U variants are both exactly `0.25` after training. The bridge therefore
+learned generic answer likelihood rather than counterfactual U semantics. This
+checkpoint is retained as `semantic-insensitive` and carried into one bounded
+Stage2-P interface smoke under the soft-gate policy; it is not a Stage2-L pass.
+The downstream smoke must consume controlled K, preserve exact zero-K native
+behavior, keep privileged route/actor/TTC/outcome labels out of its forward
+path, and train only the trajectory-response interface. The terminal record is
+`configs/scenario_factory/amendments/20260901_stage2l_v122_vertical_slice_semantic_terminal_v1.json`.
+
 Route expansion is proceeding independently without widening the first model
 smoke. At `2026-09-01T16:23:59+08:00`, the scheduler had no immediately usable
 CARLA A800: the only physically unallocated card was on gpu5, which remains

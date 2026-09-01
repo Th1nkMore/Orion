@@ -1,0 +1,55 @@
+{
+  "artifact_hashes": {
+    "report.json": "ae4c9ad19ffa83dddd1433a32e4575bc840d616b2124e8c9debf10c30248081f",
+    "spatial_u_r_k_maps.pt": "8731b252df471e71776635743008e6e0a5faaa7366f9d0ea9e136a3b80dfaae7",
+    "v122_semantic_bridge.pt": "3cd46c20a209b5c07522ea29dbe05cdda3fbfd3b51b306c39c7b5b52a6b1c7dd"
+  },
+  "claim_boundary": "Independent terminal integrity and diagnosis for one controlled-U semantic engineering slice; not a language, planning, closed-loop or safety claim.",
+  "controlled_u_diagnosis": {
+    "dev_on_over_off_fraction": 0.6,
+    "train_on_over_off_fraction": 0.9666666666666667
+  },
+  "decision": "carry_labeled_semantic_insensitive_bridge_to_bounded_stage2p_interface",
+  "integrity_valid": true,
+  "job_id": "1122494",
+  "locks": {
+    "automatic_retry": false,
+    "closed_loop_ready": false,
+    "formal_stage2l_ready": false,
+    "locked_test_read": false,
+    "stage2p_quality_ready": false
+  },
+  "optimizer_steps": 40,
+  "schema": "orion.stage2l_v12_2_vertical_slice_semantic_validation.v1",
+  "semantic_diagnosis": {
+    "dev_full_minus_no_u_after": 0.0,
+    "dev_no_u_preference_after": 0.25,
+    "dev_preference_after": 0.25,
+    "dev_preference_before": 0.375,
+    "dev_target_nll_after": 10.712395668029785,
+    "dev_target_nll_before": 15.12625503540039,
+    "interpretation": "The bridge reduced generic target NLL but did not learn U-dependent answer preference; full conditioning equals the no-U ablation on dev.",
+    "train_target_nll_after": 10.304375648498535,
+    "train_target_nll_before": 13.96054458618164
+  },
+  "spatial_checks": {
+    "checks": {
+      "component_probability_within_cross_device_tolerance": true,
+      "derived_union_within_cross_device_tolerance": true,
+      "event_count_17": true,
+      "split_counts_13_4": true,
+      "task_risk_product_exact": true,
+      "zero_k_exact": true,
+      "zero_u_exact": true
+    },
+    "cross_device_probability_tolerance": 1e-07,
+    "maximum_component_probability_error": 5.960464477539063e-08,
+    "maximum_derived_union_error": 5.960464477539063e-08,
+    "maximum_task_risk_product_error": 0.0,
+    "split_counts": {
+      "dev": 4,
+      "train": 13
+    }
+  },
+  "status": "validated_integrity_pass_soft_semantic_failure"
+}
