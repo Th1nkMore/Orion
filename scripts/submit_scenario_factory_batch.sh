@@ -16,7 +16,7 @@ fi
 project_root="${PROJECT_ROOT:-/public/home/lidachuan/project/Orion}"
 asset_root="${ASSET_ROOT:-/public/share/lidachuan/orion_assets}"
 python_bin="${SCENARIO_FACTORY_PYTHON:-python3}"
-route_dir="$(dirname "${batch_manifest}")"
+route_dir="$(cd "$(dirname "${batch_manifest}")" && pwd -P)"
 
 mapfile -t batch_rows < <("${python_bin}" - "${batch_manifest}" <<'PY'
 import json
