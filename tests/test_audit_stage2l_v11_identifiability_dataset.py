@@ -1,6 +1,5 @@
 import hashlib
 import json
-from pathlib import Path
 
 import numpy as np
 
@@ -31,9 +30,7 @@ def _records(tmp_path, *, include_ego=True):
         "schema": "orion.route_context.v2" if include_ego else None,
         "payload": route_payload,
         "sha256": hashlib.sha256(
-            json.dumps(
-                route_payload, sort_keys=True, separators=(",", ":")
-            ).encode()
+            json.dumps(route_payload, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest(),
     }
     supports = {
@@ -75,9 +72,7 @@ def _records(tmp_path, *, include_ego=True):
             uq[-1, 1, 1, 1] = 0.5
         components = np.repeat(uq[..., None], 3, axis=-1)
         path = tmp_path / (variant + ".npz")
-        np.savez_compressed(
-            path, uncertainty=uq, uncertainty_components=components
-        )
+        np.savez_compressed(path, uncertainty=uq, uncertainty_components=components)
         model_input = {
             "observation": {"observation_sha256": "a" * 64},
             "route_context": route_context,
@@ -91,20 +86,20 @@ def _records(tmp_path, *, include_ego=True):
             },
         }
         for family in ("task_relevance", "driving_implication"):
-            rows.append({
-                "event_id": "event-1",
-                "split": "train",
-                "question_family": family,
-                "counterfactual": {
-                    "group_id": "group-1",
-                    "variant": variant,
-                    "spatial_support": supports[variant],
-                },
-                "model_input": model_input,
-                "provenance": {
-                    "relevance_supervision": {"sha256": "c" * 64}
-                },
-            })
+            rows.append(
+                {
+                    "event_id": "event-1",
+                    "split": "train",
+                    "question_family": family,
+                    "counterfactual": {
+                        "group_id": "group-1",
+                        "variant": variant,
+                        "spatial_support": supports[variant],
+                    },
+                    "model_input": model_input,
+                    "provenance": {"relevance_supervision": {"sha256": "c" * 64}},
+                }
+            )
     records = tmp_path / "records.jsonl"
     records.write_text("".join(json.dumps(row) + "\n" for row in rows))
     return records
@@ -129,3 +124,66 @@ def test_v11_dataset_audit_rejects_historical_route_context(tmp_path):
     assert report["metadata_passed"] is False
     assert report["v11_ready"] is False
     assert "not version v2" in report["failed_groups"][0]["errors"][0]
+
+
+def _v111_support(on_path):
+    on_center = [0, 4, 5]
+    off_center = [0, 4, 1]
+    return {
+        "support_type": "matched_token_grid_gaussian_region_v2",
+        "center_view_y_x": on_center if on_path else off_center,
+        "matched_on_path_center_view_y_x": on_center,
+        "matched_off_path_center_view_y_x": off_center,
+        "radius_cells": 1,
+        "consumer_grid_hw": [10, 10],
+        "stored_grid_hw": [40, 40],
+        "latest_peak": 0.9,
+        "latest_spatial_sum": 72.0,
+        "latest_nonzero_patches": 80,
+        "consumer_latest_peak": 0.9,
+        "consumer_latest_spatial_sum": 4.5,
+        "consumer_latest_nonzero_cells": 5,
+        "support_weighted_relevance": 0.9 if on_path else 0.0,
+        "same_view_matched_pair": True,
+        "construction": "consumer_grid_then_exact_block_expand",
+    }
+
+
+def test_v111_support_contract_requires_consumer_grid_match(tmp_path):
+    records_path = _records(tmp_path)
+    rows = [json.loads(line) for line in records_path.read_text().splitlines()]
+    written = set()
+    shapes = {}
+    for row in rows:
+        variant = row["counterfactual"]["variant"]
+        reference = row["model_input"]["stage1_observation_uq"]
+        if variant not in written:
+            uq = np.zeros((2, 6, 40, 40), dtype=np.float32)
+            if variant in {"on_path_uq", "off_path_uq"}:
+                center = (0, 4, 5) if variant == "on_path_uq" else (0, 4, 1)
+                token_grid = np.zeros((6, 10, 10), dtype=np.float32)
+                view, y, x = center
+                for dy, dx in ((0, 0), (-1, 0), (1, 0), (0, -1), (0, 1)):
+                    token_grid[view, y + dy, x + dx] = 0.9
+                uq[-1] = np.repeat(np.repeat(token_grid, 4, axis=1), 4, axis=2)
+            elif variant in {"observed", "view_shuffled_uq"}:
+                uq[-1, 1, 4:8, 4:8] = 0.5
+            components = np.repeat(uq[..., None], 3, axis=-1)
+            path = tmp_path / (variant + ".npz")
+            np.savez_compressed(path, uncertainty=uq, uncertainty_components=components)
+            shapes[variant] = (list(uq.shape), list(components.shape))
+            written.add(variant)
+        reference.update(
+            {
+                "sha256": _sha256(tmp_path / (variant + ".npz")),
+                "shape": shapes[variant][0],
+                "component_shape": shapes[variant][1],
+            }
+        )
+        if variant in {"on_path_uq", "off_path_uq"}:
+            row["counterfactual"]["spatial_support"] = _v111_support(
+                variant == "on_path_uq"
+            )
+    records_path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    result = audit_dataset(records_path, verify_tensors=True)
+    assert result["v11_ready"] is True

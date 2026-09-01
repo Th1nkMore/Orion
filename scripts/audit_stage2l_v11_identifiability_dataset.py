@@ -119,16 +119,46 @@ def _route_context_check(route_context: Mapping[str, Any]) -> Tuple[bool, str]:
 def _matched_support_check(
     on: Mapping[str, Any], off: Mapping[str, Any]
 ) -> Tuple[bool, str]:
-    required_equal = (
-        "latest_nonzero_patches",
-        "radius_patches",
-        "matched_on_path_center_view_y_x",
-        "matched_off_path_center_view_y_x",
-    )
+    support_type = on.get("support_type")
+    if support_type != off.get("support_type"):
+        return False, "on/off support types differ"
+    if support_type == "matched_local_gaussian_region_v1":
+        required_equal = (
+            "latest_nonzero_patches",
+            "radius_patches",
+            "matched_on_path_center_view_y_x",
+            "matched_off_path_center_view_y_x",
+        )
+        numeric_equal = ("latest_peak", "latest_spatial_sum")
+    elif support_type == "matched_token_grid_gaussian_region_v2":
+        required_equal = (
+            "latest_nonzero_patches",
+            "consumer_latest_nonzero_cells",
+            "radius_cells",
+            "consumer_grid_hw",
+            "stored_grid_hw",
+            "matched_on_path_center_view_y_x",
+            "matched_off_path_center_view_y_x",
+        )
+        numeric_equal = (
+            "latest_peak",
+            "latest_spatial_sum",
+            "consumer_latest_peak",
+            "consumer_latest_spatial_sum",
+        )
+        if on.get("consumer_grid_hw") != [10, 10] or on.get("stored_grid_hw") != [
+            40,
+            40,
+        ]:
+            return False, "token-grid support dimensions differ from v11.1"
+        if on.get("construction") != "consumer_grid_then_exact_block_expand":
+            return False, "token-grid support construction is not exact"
+    else:
+        return False, "unsupported on/off support type"
     for key in required_equal:
         if on.get(key) != off.get(key):
             return False, "on/off support metadata differs at %s" % key
-    for key in ("latest_peak", "latest_spatial_sum"):
+    for key in numeric_equal:
         try:
             matched = math.isclose(
                 float(on[key]), float(off[key]), rel_tol=1e-5, abs_tol=1e-6
@@ -137,13 +167,10 @@ def _matched_support_check(
             matched = False
         if not matched:
             return False, "on/off support metadata differs at %s" % key
-    if on.get("support_type") != "matched_local_gaussian_region_v1":
-        return False, "on-path support type is not matched local Gaussian"
-    if off.get("support_type") != "matched_local_gaussian_region_v1":
-        return False, "off-path support type is not matched local Gaussian"
-    if on.get("same_view_matched_pair") is not True or off.get(
-        "same_view_matched_pair"
-    ) is not True:
+    if (
+        on.get("same_view_matched_pair") is not True
+        or off.get("same_view_matched_pair") is not True
+    ):
         return False, "on/off support is not attested as a same-view pair"
     if on.get("center_view_y_x") == off.get("center_view_y_x"):
         return False, "on/off support centers are identical"
@@ -212,6 +239,28 @@ def _tensor_group_check(
             errors.append("on/off tensor %s differs" % name)
     if np.array_equal(on, off):
         errors.append("on/off tensor support is not spatially distinct")
+    support_type = selected["on_path_uq"]["counterfactual"]["spatial_support"].get(
+        "support_type"
+    )
+    if support_type == "matched_token_grid_gaussian_region_v2":
+        if on.shape[-2:] != (40, 40):
+            errors.append("v11.1 stored U grid is not 40x40")
+        else:
+            on_consumer = on.reshape(6, 10, 4, 10, 4).mean(axis=(2, 4))
+            off_consumer = off.reshape(6, 10, 4, 10, 4).mean(axis=(2, 4))
+            for name, left, right in (
+                ("consumer mass", float(on_consumer.sum()), float(off_consumer.sum())),
+                ("consumer peak", float(on_consumer.max()), float(off_consumer.max())),
+                (
+                    "consumer support count",
+                    int(np.count_nonzero(on_consumer)),
+                    int(np.count_nonzero(off_consumer)),
+                ),
+            ):
+                if not np.isclose(left, right, rtol=1e-5, atol=1e-6):
+                    errors.append("on/off tensor %s differs" % name)
+            if np.array_equal(on_consumer, off_consumer):
+                errors.append("on/off consumer support is not spatially distinct")
     return not errors, errors
 
 
@@ -294,9 +343,7 @@ def audit_dataset(
         tensor_passed = None
         tensor_errors: List[str] = []
         if verify_tensors:
-            tensor_passed, tensor_errors = _tensor_group_check(
-                selected, records_path
-            )
+            tensor_passed, tensor_errors = _tensor_group_check(selected, records_path)
         group_results.append(
             {
                 "group_id": group_id,
@@ -354,13 +401,18 @@ def main() -> int:
         json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8",
     )
-    print(json.dumps({
-        "metadata_passed": report["metadata_passed"],
-        "tensor_passed": report["tensor_passed"],
-        "v11_ready": report["v11_ready"],
-        "failed_group_count": report["failed_group_count"],
-        "output": str(args.output.resolve()),
-    }, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "metadata_passed": report["metadata_passed"],
+                "tensor_passed": report["tensor_passed"],
+                "v11_ready": report["v11_ready"],
+                "failed_group_count": report["failed_group_count"],
+                "output": str(args.output.resolve()),
+            },
+            sort_keys=True,
+        )
+    )
     return 1 if args.require_pass and not report["v11_ready"] else 0
 
 
