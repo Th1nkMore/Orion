@@ -1,0 +1,96 @@
+{
+  "schema": "orion.stage2l-v14-u-concept-lora-protocol/v1",
+  "created_at": "2026-09-02T14:44:30+08:00",
+  "status": "bounded_u_concept_lora_smoke",
+  "purpose": "Teach the native ORION language model through LoRA to read frozen task-agnostic Stage-1 U before introducing route relevance, driving risk, actions, trajectories, or control.",
+  "input_sha256": {
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "v11_records_sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101",
+    "dataset_audit_report_sha256": "2d8d2879a5ac9383887a95304bc5c9d3c3740aadaee3d720dac9a272c9c9c2f7",
+    "view_feature_cache_sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61",
+    "u_tokenizer_checkpoint_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "orion_config_sha256": "0920526b2eae94a25110bee882f8df9d51fdff6625d465d6d2d62ee96274f576",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v14_u_concept_lora_17event_200_v1/training",
+  "architecture": {
+    "stage1_output": "Frozen task-agnostic spatial-temporal observation uncertainty U with three components over six camera views.",
+    "language_input": "The native 529 ORION visual tokens concatenated directly with 600 frozen U tokens.",
+    "direct_u_tokens_enter_orion": true,
+    "r_input_present": false,
+    "route_or_task_prompt_present": false,
+    "stage1_trainable": false,
+    "u_tokenizer_trainable": false,
+    "orion_trainable_scope": "lora_only",
+    "trajectory_or_control_loss": false,
+    "density_uq_or_governor_used": false
+  },
+  "data": {
+    "events": 17,
+    "train_events": 13,
+    "dev_events": 4,
+    "matched_groups": 80,
+    "train_groups": 60,
+    "dev_groups": 20,
+    "u_variants_per_group": 6,
+    "u_variants": [
+      "zero_u",
+      "observed_u",
+      "view_shifted_u",
+      "spatial_shifted_u",
+      "component_shifted_u",
+      "temporal_reversed_u"
+    ],
+    "observed_u_source": "frozen_stage1_observation_adapter",
+    "counterfactual_contract": "Except for the exact zero definition anchor, every counterfactual is a permutation of the observed U values and therefore preserves its exact value multiset and amplitude distribution.",
+    "qa_fields": [
+      "U_PRESENT",
+      "U_VIEW",
+      "U_REGION",
+      "U_LEVEL",
+      "U_TREND",
+      "U_COMPONENT"
+    ],
+    "visual_shortcut_control": "All matched U variants reuse the exact same frozen native ORION visual context."
+  },
+  "training": {
+    "optimizer_steps": 200,
+    "event_sampling": "Round-robin over thirteen train events with deterministic within-event shuffling.",
+    "variant_sampling": "Deterministic rotation through all six U variants.",
+    "supervision_per_step": "One full six-field answer plus one rotating single-field answer.",
+    "learning_rate": 0.00002,
+    "weight_decay": 0.0001,
+    "preference_margin": 0.5,
+    "preference_weight": 1.0,
+    "field_loss_weight": 0.5,
+    "gradient_clip_norm": 1.0,
+    "conditioning_gradient_anchor": "Detached leaf required only by re-entrant ORION checkpointing; no gradient reaches frozen visual or U encoders.",
+    "first_nonfinite_value_fail_fast": true,
+    "automatic_retry": false,
+    "automatic_extension": false
+  },
+  "soft_diagnostics": {
+    "minimum_dev_target_preference": 0.75,
+    "minimum_dev_zero_preference": 0.75,
+    "minimum_full_minus_removed_u": 0.25,
+    "minimum_generated_field_accuracy": 0.5,
+    "quality_diagnostics_block_completion": false
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "04:00:00",
+    "maximum_submissions": 1
+  },
+  "locks": {
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "locked_test_allowed": false,
+    "extra_epochs_allowed": false,
+    "automatic_downstream_unlock": false
+  },
+  "claim_boundary": "This is a bounded concept-acquisition smoke. It can show whether ORION LoRA learns to read frozen U under controlled counterfactuals; it is not task-relevance, trajectory, closed-loop, safety, or external-generalization evidence."
+}
