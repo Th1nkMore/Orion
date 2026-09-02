@@ -6,8 +6,10 @@ from uq_estimator.stage2l_u_concept_qa_v14 import (
     audit_u_variant_group,
     build_distribution_preserving_u_variants,
     build_u_qa_row,
+    find_distinct_u_variant,
     render_u_answer,
     summarize_u_components,
+    u_field_curriculum_pair,
 )
 
 
@@ -73,3 +75,25 @@ def test_invalid_component_range_fails_closed():
         assert "[0,1]" in str(error)
     else:
         raise AssertionError("out-of-range U did not fail closed")
+
+
+def test_curriculum_covers_every_variant_field_pair_without_binding():
+    pairs = [u_field_curriculum_pair(step) for step in range(1, 37)]
+    assert len(set(pairs)) == len(U_VARIANTS) * len(TAG_ORDER)
+    assert {variant for variant, _ in pairs} == set(U_VARIANTS)
+    assert {tag for _, tag in pairs} == set(TAG_ORDER)
+    for tag in TAG_ORDER:
+        assert {
+            variant for variant, current_tag in pairs if current_tag == tag
+        } == set(U_VARIANTS)
+
+
+def test_absent_field_counterfactual_is_valid_and_does_not_invent_a_label():
+    stable = {variant: "<U_TREND> stable" for variant in U_VARIANTS}
+    assert find_distinct_u_variant(stable, "component_shifted_u") is None
+    mixed = dict(stable)
+    mixed["temporal_reversed_u"] = "<U_TREND> falling"
+    assert (
+        find_distinct_u_variant(mixed, "component_shifted_u")
+        == "temporal_reversed_u"
+    )

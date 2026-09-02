@@ -37,8 +37,10 @@ from uq_estimator.stage2l_u_concept_qa_v14 import (
     audit_u_variant_group,
     build_distribution_preserving_u_variants,
     build_u_qa_row,
+    find_distinct_u_variant,
     render_u_answer,
     summarize_u_components,
+    u_field_curriculum_pair,
 )
 
 
@@ -146,6 +148,7 @@ def _validated_inputs(args: argparse.Namespace) -> dict[str, str]:
 def _protocol_checks(args: argparse.Namespace, protocol: Mapping[str, Any]) -> None:
     architecture = protocol.get("architecture", {})
     training = protocol.get("training", {})
+    runtime_fix = protocol.get("runtime_fix", {})
     if (
         protocol.get("schema") != PROTOCOL_SCHEMA
         or protocol.get("status") != "bounded_u_concept_lora_smoke"
@@ -157,6 +160,12 @@ def _protocol_checks(args: argparse.Namespace, protocol: Mapping[str, Any]) -> N
         or architecture.get("u_tokenizer_trainable") is not False
         or architecture.get("orion_trainable_scope") != "lora_only"
         or architecture.get("trajectory_or_control_loss") is not False
+        or runtime_fix.get("full_answer_same_group_preference_required") is not True
+        or runtime_fix.get("field_preference_applied_only_when_same_group_answer_differs")
+        is not True
+        or runtime_fix.get("field_without_contrast_policy") != "target_nll_only"
+        or runtime_fix.get("cross_scene_negative_used") is not False
+        or runtime_fix.get("synthetic_label_used") is not False
         or int(training.get("optimizer_steps", 0)) != int(args.optimizer_steps)
         or training.get("automatic_retry") is not False
         or training.get("automatic_extension") is not False
@@ -171,6 +180,10 @@ def _dataset_audit(assets: UConceptAssets) -> dict[str, Any]:
     field_values: dict[str, dict[str, set[str]]] = {
         split: {tag: set() for tag in TAG_ORDER} for split in ("train", "dev")
     }
+    field_contrast = {
+        split: {tag: {"available": 0, "total": 0} for tag in TAG_ORDER}
+        for split in ("train", "dev")
+    }
     for group_id, audit in assets.group_audits.items():
         split = assets.group_split[group_id]
         by_split[split].append(audit["distinct_answer_count"])
@@ -178,6 +191,14 @@ def _dataset_audit(assets: UConceptAssets) -> dict[str, Any]:
             fields = assets.summaries[(group_id, variant)].fields()
             for tag, value in fields.items():
                 field_values[split][tag].add(value)
+                field_contrast[split][tag]["total"] += 1
+                if (
+                    _different_answer_variant(
+                        assets, group_id, variant, tag
+                    )
+                    is not None
+                ):
+                    field_contrast[split][tag]["available"] += 1
     checks = {
         "event_count_17": len(assets.event_meta) == 17,
         "train_events_13": len(assets.event_groups["train"]) == 13,
@@ -209,6 +230,17 @@ def _dataset_audit(assets: UConceptAssets) -> dict[str, Any]:
             split: {tag: sorted(values) for tag, values in tags.items()}
             for split, tags in field_values.items()
         },
+        "field_preference_availability_by_split": {
+            split: {
+                tag: {
+                    **counts,
+                    "fraction": counts["available"] / counts["total"],
+                }
+                for tag, counts in tags.items()
+            }
+            for split, tags in field_contrast.items()
+        },
+        "field_preference_unavailable_policy": "target_nll_only",
     }
 
 
@@ -287,6 +319,8 @@ def _preflight(
             "r_k_route_risk_action_absent": True,
             "stage1_and_u_tokenizer_frozen": True,
             "orion_trainable_scope": "lora_only",
+            "field_without_same_group_contrast_uses_target_nll_only": True,
+            "variant_field_curriculum_pairs_per_cycle": 36,
         },
     }
 
@@ -322,14 +356,12 @@ def _different_answer_variant(
     group_id: str,
     variant: str,
     tag: str | None = None,
-) -> str:
-    target = assets.answer(group_id, variant, tag)
-    start = U_VARIANTS.index(variant)
-    for offset in range(1, len(U_VARIANTS)):
-        candidate = U_VARIANTS[(start + offset) % len(U_VARIANTS)]
-        if assets.answer(group_id, candidate, tag) != target:
-            return candidate
-    raise RuntimeError("U-concept group has no distinct negative answer")
+) -> str | None:
+    answers = {
+        candidate: assets.answer(group_id, candidate, tag)
+        for candidate in U_VARIANTS
+    }
+    return find_distinct_u_variant(answers, variant)
 
 
 def _parse_generated_fields(text: str) -> dict[str, str]:
@@ -565,8 +597,7 @@ def _train(
     history = []
     for step in range(1, args.optimizer_steps + 1):
         group_id = sampler.next()
-        variant = U_VARIANTS[(step - 1) % len(U_VARIANTS)]
-        tag = TAG_ORDER[(step - 1) % len(TAG_ORDER)]
+        variant, tag = u_field_curriculum_pair(step)
         lm.train()
         optimizer.zero_grad(set_to_none=True)
         vision_value = _condition(
@@ -577,6 +608,8 @@ def _train(
 
         full_row = assets.row(group_id, variant)
         negative_variant = _different_answer_variant(assets, group_id, variant)
+        if negative_variant is None:
+            raise RuntimeError("full U answer has no distinct same-group negative")
         full_anchor = detached_conditioning_gradient_anchor(vision_value)
         full_values = base._answer_nlls_mr1(
             lm=lm,
@@ -602,24 +635,31 @@ def _train(
             assets, group_id, variant, tag
         )
         field_anchor = detached_conditioning_gradient_anchor(vision_value)
+        field_answers = (assets.answer(group_id, variant, tag),)
+        if field_negative_variant is not None:
+            field_answers += (
+                assets.answer(group_id, field_negative_variant, tag),
+            )
         field_values = base._answer_nlls_mr1(
             lm=lm,
             tokenizer=tokenizer,
             vision=field_anchor,
             row=field_row,
             route_text="",
-            answers=(
-                assets.answer(group_id, variant, tag),
-                assets.answer(group_id, field_negative_variant, tag),
-            ),
+            answers=field_answers,
             micro_batch_size=args.answer_batch_size,
         )
-        field_nll, field_negative_nll = field_values.unbind()
-        field_preference = F.relu(
-            float(training["preference_margin"])
-            + field_nll
-            - field_negative_nll
-        )
+        field_nll = field_values[0]
+        if field_negative_variant is None:
+            field_negative_nll = None
+            field_preference = torch.zeros_like(field_nll)
+        else:
+            field_negative_nll = field_values[1]
+            field_preference = F.relu(
+                float(training["preference_margin"])
+                + field_nll
+                - field_negative_nll
+            )
         field_loss = float(training["field_loss_weight"]) * (
             field_nll + float(training["preference_weight"]) * field_preference
         )
@@ -645,11 +685,17 @@ def _train(
             "event_id": assets.group_event[group_id],
             "variant": variant,
             "field_tag": tag,
+            "field_preference_available": field_negative_variant is not None,
+            "field_negative_variant": field_negative_variant,
             "full_nll": float(full_nll.item()),
             "full_negative_nll": float(negative_nll.item()),
             "full_preference_loss": float(full_preference.item()),
             "field_nll": float(field_nll.item()),
-            "field_negative_nll": float(field_negative_nll.item()),
+            "field_negative_nll": (
+                float(field_negative_nll.item())
+                if field_negative_nll is not None
+                else None
+            ),
             "field_preference_loss": float(field_preference.item()),
             "gradient_norm_before_clip": float(norm.item()),
             "finite": finite,
@@ -850,6 +896,15 @@ def main() -> int:
         "soft_diagnostics": quality,
         "soft_diagnostics_passed": all(quality.values()),
         "history": history,
+        "field_preference_coverage": {
+            "available_steps": sum(
+                bool(item["field_preference_available"]) for item in history
+            ),
+            "unavailable_steps": sum(
+                not bool(item["field_preference_available"]) for item in history
+            ),
+            "unavailable_is_target_nll_only": True,
+        },
         "architecture_invariants": {
             "direct_u_tokens_enter_orion": True,
             "same_visual_context_across_matched_u": True,

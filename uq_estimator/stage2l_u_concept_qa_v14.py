@@ -187,6 +187,39 @@ def build_u_qa_row(summary: UConceptSummary, tag: str | None = None) -> dict:
     }
 
 
+def u_field_curriculum_pair(step: int) -> tuple[str, str]:
+    """Cover every U-variant/field pair once per 36 optimizer steps.
+
+    Advancing both axes at the same rate would permanently bind each field to
+    one U variant and create a curriculum shortcut.  The block schedule below
+    rotates variants within a field and fields across consecutive blocks.
+    """
+
+    if int(step) != step or step < 1:
+        raise ValueError("curriculum step must be a positive integer")
+    index = int(step) - 1
+    return (
+        U_VARIANTS[index % len(U_VARIANTS)],
+        TAG_ORDER[(index // len(U_VARIANTS)) % len(TAG_ORDER)],
+    )
+
+
+def find_distinct_u_variant(
+    answers: Mapping[str, str], variant: str
+) -> str | None:
+    """Return an ordered same-group negative, or None when none exists."""
+
+    if tuple(answers) != U_VARIANTS or variant not in answers:
+        raise ValueError("answers must follow the complete U variant contract")
+    target = answers[variant]
+    start = U_VARIANTS.index(variant)
+    for offset in range(1, len(U_VARIANTS)):
+        candidate = U_VARIANTS[(start + offset) % len(U_VARIANTS)]
+        if answers[candidate] != target:
+            return candidate
+    return None
+
+
 def _token_aligned_spatial_shift(
     observed: torch.Tensor, group_id: str
 ) -> torch.Tensor:
@@ -290,6 +323,8 @@ __all__ = [
     "audit_u_variant_group",
     "build_distribution_preserving_u_variants",
     "build_u_qa_row",
+    "find_distinct_u_variant",
     "render_u_answer",
     "summarize_u_components",
+    "u_field_curriculum_pair",
 ]
