@@ -19,7 +19,8 @@ multi-view observations + temporal context
 Stage 1: frozen task-agnostic spatial observation-UQ adapter
                     |
                     v
-frozen U-tokenizer preserving view, position, component and time
+task-agnostic U-tokenizer preserving view, position, component and time
+(language-facing projection trainable only in the bounded v15 alignment)
                     |
                     v
 ORION visual evidence + navigation + ego state
@@ -404,6 +405,36 @@ objective, another capacity arm, task relevance, formal Stage2-L, Stage2-P,
 closed loop and locked test remain unauthorized. The terminal record is
 `configs/scenario_factory/amendments/20260902_stage2l_v14_1_v14_2_u_concept_terminal_v1.json`.
 
+### 3.6 U-to-language alignment pilot is submitted
+
+The v15 repair implements the missing task-free U-to-language alignment stage
+without adding a semantic bridge. The frozen Stage-1 observation estimator
+still produces U. Its existing task-agnostic tokenizer is initialized from the
+released Stage-1 checkpoint, but its current projection, coordinate/view
+embeddings and normalization are now trainable together with the 16.78 M ORION
+LoRA parameters. A disposable reconstruction head retains direct supervision
+of the original latest/mean/delta summaries and is excluded from the released
+checkpoint. R, K, routes, task relevance, risk, action, trajectory and control
+remain absent.
+
+The preflight passes on all 80 matched groups. The deterministic 720-step
+schedule presents all thirteen train events, balances all six U fields, and
+covers every canonical field value without inventing random U; nonzero
+counterfactuals remain exact permutations of observed Stage-1 values. Every
+field is trained against its complete legal vocabulary rather than one sampled
+negative. Sequence audit covers the explicit training prompt and peaks at
+`1487 < 2048` expanded tokens. The primary evaluation covers all 20 dev groups,
+six U variants and six fields (`120` U states, `720` field decisions); free
+six-line generation remains secondary.
+
+Exactly one Job `1131873` was submitted with one A800, two CPU cores, 192 GB
+host memory and a 20-hour limit. At the submission record it is
+`PENDING (Priority)`. Quality thresholds remain soft diagnostics: they neither
+invalidate a finite completed pilot nor authorize automatic retries, extra
+epochs, task relevance, Stage2-P, closed loop or locked-test access. The
+hash-bound launch record is
+`configs/scenario_factory/amendments/20260902_stage2l_v15_u_language_alignment_submission_v1.json`.
+
 ## 4. Formal Stage-2L data readiness
 
 The frozen formal target is 24 independent events with a 16 train / 4 dev / 4
@@ -502,17 +533,14 @@ cannot repair the missing U-identifiability failure.
 
 ## 7. Next executable vertical slice
 
-**Current decision (2026-09-02):** the v14.1/v14.2 U-only result in Section 3.5
-supersedes the older bridge- and task-relevance-oriented execution notes below.
-The next bounded slice stays U-only and keeps direct frozen Stage-1 U tokens,
-zero Stage-1 gradients, no bridge and no R/K/risk/action/trajectory input. Its
-loss must contrast every legal value for each field, balance nonzero values,
-and make matched U variants share the same visual context. Acceptance is based
-first on nonzero-only view/region/level/trend/component metrics, with presence
-reported separately; free six-line generation is a secondary interface check.
-Do not respond with more epochs or capacity on the current objective. Task
-relevance, formal Stage2-L, Stage2-P, closed loop and locked test remain locked
-until this U-only concept check is meaningfully above its frozen baselines.
+**Current decision (2026-09-02):** the v15 U-to-language alignment pilot in
+Section 3.6 is the only active GPU experiment. Do not submit another training
+job while Job `1131873` is pending or running. Its all-candidate field metrics,
+counterfactual changed/unchanged-field behavior and reconstruction retention
+will determine which U semantics remain weak. Free generation is secondary.
+Regardless of the soft diagnostic outcome, there is no automatic retry, extra
+epoch, task-relevance training, formal Stage2-L, Stage2-P, closed loop or
+locked-test unlock.
 
 The remainder of this section records the earlier vertical-slice contract and
 is retained as historical lineage; it is not current launch authority.
