@@ -358,6 +358,52 @@ capacity arm, formal Stage2-L, Stage2-P, learned-U closed loop and locked test
 remain unauthorized. The terminal record is
 `configs/scenario_factory/amendments/20260902_stage2l_v13_1_direct_u_r_capacity_terminal_v1.json`.
 
+### 3.5 U-only concept slice and explicit-output diagnostic are terminal
+
+The v14 line removes route, R, K, risk, action, trajectory and control from the
+question entirely. ORION receives its native visual context plus the frozen
+Stage-1 U tokens directly, and only the 16.78 M LoRA parameters are trainable.
+Job `1131456` completed 200 finite optimizer steps with zero exit code. Its
+dev target NLL fell from `13.9120` to `1.7346`, overall target preference rose
+from `0.4583` to `0.5833`, and zero-U preference passed. Free generation was
+nevertheless unusable: exact six-field accuracy was `0` and mean field
+accuracy was `0.0069`.
+
+To distinguish a rendering failure from a concept failure, frozen-checkpoint
+diagnostic Job `1131500` changed no weights and took no optimizer step. It used
+a literal six-line schema in the question and, separately, exhaustively scored
+every legal one-line answer for every field. The job completed on `gpu5` in
+`00:20:39` with exit code `0:0`; all candidate NLLs were finite and an
+independent recomputation reproduced every argmin, margin and aggregate.
+
+| v14.2 dev diagnostic | Result |
+|---|---:|
+| Explicit-schema free answers parseable | 0 / 24 |
+| Constrained accuracy, all fields/all variants | 0.5208 |
+| Zero-U constrained field accuracy | 0.9583 |
+| Nonzero constrained accuracy, including presence | 0.4333 |
+| Nonzero constrained accuracy, excluding presence | 0.3200 |
+| Nonzero per-field majority baseline, excluding presence | 0.4200 |
+| Nonzero `U_VIEW` accuracy | 0.0000 |
+
+The aggregate `0.5208` must not be read as useful U understanding: it is
+inflated by the easy zero-U anchor and by `U_PRESENT=yes` on every nonzero
+sample. On nonzero samples the model always chooses `high` for `U_LEVEL` and
+always chooses `mixed` for `U_COMPONENT`; it never predicts the correct view.
+The checkpoint therefore learned a coarse absence/presence distinction, while
+the requested view, region, level, component and temporal semantics remain
+dominated by label priors. The literal prompt also proves that malformed output
+is not repaired by inference-time wording alone.
+
+This result narrows the next repair. Keep the explicit schema, but train each
+field against all legal candidates (classification or equivalent all-candidate
+margin loss), balance the nonzero target values, and evaluate nonzero samples
+with `U_PRESENT` excluded. Matched U variants must share the same image/context
+so that only the direct U tokens explain the target. Extra epochs on the current
+objective, another capacity arm, task relevance, formal Stage2-L, Stage2-P,
+closed loop and locked test remain unauthorized. The terminal record is
+`configs/scenario_factory/amendments/20260902_stage2l_v14_1_v14_2_u_concept_terminal_v1.json`.
+
 ## 4. Formal Stage-2L data readiness
 
 The frozen formal target is 24 independent events with a 16 train / 4 dev / 4
@@ -456,18 +502,17 @@ cannot repair the missing U-identifiability failure.
 
 ## 7. Next executable vertical slice
 
-**Current decision (2026-09-02):** the direct-U/R v13.1 capacity comparison in
-Section 3.4 supersedes the older bridge-oriented execution notes below. Do not
-run more epochs or another capacity arm. The next bounded repair must make U
-counterfactuals identifiable to ORION: matched prompts and answer candidates
-must prevent route/event/template priors from producing the same likelihood
-ranking when U is removed or moved off path. The repair must retain direct
-frozen U tokens, U-independent R, zero Stage-1 gradients, all four structured
-process steps, no bridge and no K model input. It should first be tested on the
-existing train/dev bank with exact no-U and matched spatial counterfactuals;
-only an integrity-valid result that materially improves held-out on-path and
-zero-U preference justifies a later formal-data run. Formal Stage2-L, Stage2-P,
-closed loop, locked test, extra epochs and a new GPU job are currently locked.
+**Current decision (2026-09-02):** the v14.1/v14.2 U-only result in Section 3.5
+supersedes the older bridge- and task-relevance-oriented execution notes below.
+The next bounded slice stays U-only and keeps direct frozen Stage-1 U tokens,
+zero Stage-1 gradients, no bridge and no R/K/risk/action/trajectory input. Its
+loss must contrast every legal value for each field, balance nonzero values,
+and make matched U variants share the same visual context. Acceptance is based
+first on nonzero-only view/region/level/trend/component metrics, with presence
+reported separately; free six-line generation is a secondary interface check.
+Do not respond with more epochs or capacity on the current objective. Task
+relevance, formal Stage2-L, Stage2-P, closed loop and locked test remain locked
+until this U-only concept check is meaningfully above its frozen baselines.
 
 The remainder of this section records the earlier vertical-slice contract and
 is retained as historical lineage; it is not current launch authority.

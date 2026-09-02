@@ -1,0 +1,117 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-02T19:09:00+08:00",
+  "status": "hard_valid_u_only_smoke_partial_concept_failed",
+  "scope": "Stage2-L v14.1 U-only LoRA and v14.2 frozen explicit-output diagnostic",
+  "jobs": {
+    "u_only_lora": {
+      "job_id": "1131456",
+      "job_name": "s2l_v141_u",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "optimizer_steps": 200,
+      "elapsed": "01:06:53"
+    },
+    "explicit_output_diagnostic": {
+      "job_id": "1131500",
+      "job_name": "s2l_v142_out",
+      "node": "gpu5",
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "optimizer_steps": 0,
+      "elapsed": "00:20:39",
+      "maximum_rss": "3944368K"
+    }
+  },
+  "hard_validation": {
+    "passed": true,
+    "checks": {
+      "both_jobs_completed_zero_exit": true,
+      "v14_1_history_has_200_finite_steps": true,
+      "v14_2_training_performed": false,
+      "v14_2_optimizer_steps": 0,
+      "trained_lora_tensor_count": 256,
+      "trained_lora_parameter_count": 16777216,
+      "all_lm_parameters_frozen_during_diagnostic": true,
+      "candidate_nlls_finite": true,
+      "candidate_argmins_recomputed_exactly": true,
+      "candidate_margins_recomputed_exactly": true,
+      "aggregate_metrics_recomputed_exactly": true,
+      "protocol_and_input_hashes_match": true,
+      "complete_log_has_no_traceback_oom_or_nonfinite_error": true
+    }
+  },
+  "artifacts": {
+    "v14_1": {
+      "report_local": "artifacts/stage2l_v14_1_u_concept_terminal/report.json",
+      "report_sha256": "c9ac02864a2f043e4a0299bdbcc1e8bbd4c4755dd25ef5dffc2d30f49fbd28ed",
+      "preflight_local": "artifacts/stage2l_v14_1_u_concept_terminal/preflight.json",
+      "preflight_sha256": "02f484ebcbeec9084f1bf4e37c854f8c6764f803bfaa9af4ac357012a5b7ad43",
+      "complete_log_local": "artifacts/stage2l_v14_1_u_concept_terminal/complete.log",
+      "complete_log_sha256": "9347b73cfb48d6ad94289fd120b41281b4833fdc9500f41e7fea4e20eae0c01a",
+      "checkpoint_sha256": "ebebdb5fb0344de7a589456a8602ef36da4e0fb242e4666d29205966648ad241"
+    },
+    "v14_2": {
+      "report_local": "artifacts/stage2l_v14_2_explicit_output_terminal/report.json",
+      "report_sha256": "b5bba2f2a98f63d562116c74d56c119c839637a3caca82a32ab103db1677fd8d",
+      "preflight_local": "artifacts/stage2l_v14_2_explicit_output_terminal/preflight.json",
+      "preflight_sha256": "1ec9f354898d0c6b86bacb3b54b2a0e2554b7d2ebdfb5f13794fdc7dccde4185",
+      "complete_log_local": "artifacts/stage2l_v14_2_explicit_output_terminal/complete.log",
+      "complete_log_sha256": "cae7b80e8a2c2e811e3b13369a8d6bcb2c8739c584f3e009f9432dfee0131cd3",
+      "protocol_sha256": "e9ed7e7767db23e57196deb36e4f05c8abbcf70ab7a4607f542293559e2e31d3",
+      "evaluator_sha256": "efaea970bc0de5ec0efdd5f8754aa9f2fdec1954a48a931255503488b15e1cd1"
+    }
+  },
+  "v14_1_training_result": {
+    "train_target_nll_before": 14.116149731171436,
+    "train_target_nll_after": 1.3913667117938018,
+    "dev_target_nll_before": 13.911996523539225,
+    "dev_target_nll_after": 1.7346493552128475,
+    "dev_overall_target_preference_before": 0.4583333333333333,
+    "dev_overall_target_preference_after": 0.5833333333333334,
+    "dev_full_minus_removed_u_preference_after": 0.25,
+    "free_generation_mean_field_accuracy": 0.006944444444444444,
+    "free_generation_exact_all_fields_fraction": 0.0
+  },
+  "v14_2_diagnostic_result": {
+    "sample_count": 24,
+    "free_generation_strict_parseable_fraction": 0.0,
+    "free_generation_mean_field_accuracy": 0.0,
+    "constrained_mean_field_accuracy_all_samples": 0.5208333333333334,
+    "zero_u_mean_field_accuracy": 0.9583333333333334,
+    "nonzero_accuracy_including_presence": 0.43333333333333335,
+    "nonzero_accuracy_excluding_presence": 0.32,
+    "nonzero_macro_majority_baseline_excluding_presence": 0.42,
+    "nonzero_accuracy_by_field": {
+      "U_PRESENT": 1.0,
+      "U_VIEW": 0.0,
+      "U_REGION": 0.25,
+      "U_LEVEL": 0.5,
+      "U_TREND": 0.55,
+      "U_COMPONENT": 0.3
+    },
+    "observed_shortcuts": {
+      "U_LEVEL": "always_high",
+      "U_COMPONENT": "always_mixed",
+      "U_VIEW": "never_correct_on_nonzero_samples"
+    }
+  },
+  "interpretation": [
+    "The explicit six-line prompt does not repair generation: none of 24 answers is strictly parseable.",
+    "Constrained decoding proves that the failure is not only expression. The checkpoint recognizes zero U and U presence, but nonzero view, region, level, trend and component semantics are not learned above their frozen baselines.",
+    "The all-sample 0.5208 field accuracy is inflated by zero-U and presence anchors and must not be presented as useful U understanding.",
+    "The next repair belongs in balanced U-identifiable field supervision, not extra epochs, more model capacity, task relevance or planning training."
+  ],
+  "disposition": {
+    "extra_epochs_authorized": false,
+    "automatic_retry_authorized": false,
+    "new_capacity_arm_authorized": false,
+    "task_relevance_training_unlocked": false,
+    "formal_stage2l_unlocked": false,
+    "stage2p_unlocked": false,
+    "closed_loop_unlocked": false,
+    "locked_test_unlocked": false,
+    "next_repair": "Keep direct frozen U tokens and the explicit schema; train balanced per-field all-candidate contrasts on matched visual contexts, then evaluate nonzero fields excluding presence in one bounded smoke."
+  },
+  "claim_boundary": "This is a bounded U-only concept diagnostic. It is not task-relevance, planning, closed-loop, safety, or external-generalization evidence."
+}
