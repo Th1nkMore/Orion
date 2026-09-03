@@ -32,6 +32,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from mmcv.utils import Config, load_checkpoint, set_random_seed, ProgressBar
 from mmcv.models import build_model
 from mmcv.datasets import build_dataset, build_dataloader
+from uq_estimator.grounding import grounding_loss
+from uq_estimator.training import low_uq_consistency_loss
 
 
 def parse_args():
@@ -50,6 +52,12 @@ def parse_args():
                    help='weight for collision margin loss (0 to disable)')
     p.add_argument('--col-margin', type=float, default=4.0,
                    help='safety margin in meters for collision loss')
+    p.add_argument('--lambda-film-reg', type=float, default=0.0,
+                   help='weight for low-UQ FiLM amplitude regularization')
+    p.add_argument('--lambda-progress', type=float, default=0.0,
+                   help='weight for under-progress penalty against GT trajectory')
+    p.add_argument('--lambda-comfort', type=float, default=0.0,
+                   help='weight for trajectory smoothness penalty (acc + jerk)')
     p.add_argument('--out', default='checkpoints/film/best.pt')
     p.add_argument('--seed', type=int, default=42)
     return p.parse_args()
@@ -152,7 +160,72 @@ def freeze_all_except_film(model):
     return [p for _, p in film_params]
 
 
-def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
+def compute_film_reg_loss(orion, uncertainty_score):
+    """Regularize FiLM to stay near identity on low-UQ samples."""
+    losses = []
+    sample_weight = None
+    if uncertainty_score is not None:
+        sample_weight = (1.0 - uncertainty_score.detach()).view(-1, 1)
+
+    def _weighted_identity(gamma_layer, beta_layer):
+        gamma_w = gamma_layer.weight
+        gamma_b = gamma_layer.bias - 1.0
+        beta_w = beta_layer.weight
+        beta_b = beta_layer.bias
+        base = gamma_w.pow(2).mean() + gamma_b.pow(2).mean()
+        base = base + beta_w.pow(2).mean() + beta_b.pow(2).mean()
+        if sample_weight is None:
+            return base
+        return sample_weight.mean() * base
+
+    transformer = orion.pts_bbox_head.transformer
+    if hasattr(transformer, 'film_gamma') and hasattr(transformer, 'film_beta'):
+        losses.append(_weighted_identity(transformer.film_gamma, transformer.film_beta))
+    if hasattr(orion, 'film_gamma_l2') and hasattr(orion, 'film_beta_l2'):
+        losses.append(_weighted_identity(orion.film_gamma_l2, orion.film_beta_l2))
+
+    if not losses:
+        return torch.tensor(0.0, device='cuda')
+    return sum(losses)
+
+
+def compute_progress_loss(ego_fut_preds, ego_fut_trajs, ego_fut_masks):
+    """Penalize predictions that lag behind GT forward progress."""
+    pred_abs = ego_fut_preds[:, 0].cumsum(dim=1)  # [B, 6, 2]
+    gt_abs = ego_fut_trajs[:, 0].cumsum(dim=1)    # [B, 6, 2]
+    valid = ego_fut_masks.float()                 # [B, 6]
+    pred_forward = pred_abs[..., 1]
+    gt_forward = gt_abs[..., 1]
+    under_progress = torch.relu(gt_forward - pred_forward)
+    denom = valid.sum().clamp_min(1.0)
+    return (under_progress * valid).sum() / denom
+
+
+def compute_comfort_loss(ego_fut_preds, ego_fut_masks):
+    """Smooth trajectory in offset space via acceleration and jerk penalties."""
+    pred_abs = ego_fut_preds[:, 0].cumsum(dim=1)  # [B, 6, 2]
+    vel = pred_abs[:, 1:] - pred_abs[:, :-1]      # [B, 5, 2]
+    acc = vel[:, 1:] - vel[:, :-1]                # [B, 4, 2]
+    jerk = acc[:, 1:] - acc[:, :-1]               # [B, 3, 2]
+
+    mask = ego_fut_masks.float()
+    acc_mask = (mask[:, 2:] * mask[:, 1:-1] * mask[:, :-2]).unsqueeze(-1)
+    jerk_mask = (mask[:, 3:] * mask[:, 2:-1] * mask[:, 1:-2] * mask[:, :-3]).unsqueeze(-1)
+
+    acc_loss = (acc.pow(2) * acc_mask).sum() / acc_mask.sum().clamp_min(1.0)
+    jerk_loss = (jerk.pow(2) * jerk_mask).sum() / jerk_mask.sum().clamp_min(1.0)
+    return acc_loss + jerk_loss
+
+
+def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0,
+                          lambda_film_reg=0.0, lambda_progress=0.0,
+                          lambda_comfort=0.0, lambda_uq_consistency=0.0,
+                          lambda_plan=1.0, lambda_vae=0.1, lambda_vlm=0.01,
+                          lambda_ground=0.0, uq_mode="correct",
+                          shuffled_uq=None, grounding_only=False,
+                          counterfactual_grounding=False,
+                          token_input="score_direction",
+                          conditioning="token"):
     """Custom forward for FiLM training with test-format data.
 
     Replicates ORION's inference path through QT-Former + FiLM, then
@@ -202,7 +275,7 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
 
     # Skip samples without valid future trajectory
     ego_fut_masks = data['ego_fut_masks']  # [1, 1, 1, 6] after unpacking
-    if ego_fut_masks.sum() == 0:
+    if not grounding_only and ego_fut_masks.sum() == 0:
         return None
 
     # ─── Step 2: extract features ───
@@ -218,7 +291,14 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
     pos_embed = orion.position_embeding(data, location, img_metas_list)
 
     # ─── Step 4: detection + UQ + FiLM L1 ───
-    outs_bbox, det_query, uncertainty_emb = orion.pts_bbox_head(img_metas_list, pos_embed, **data)
+    outs_bbox, det_query, uncertainty_emb, uncertainty_score = orion.pts_bbox_head(img_metas_list, pos_embed, **data)
+    target_uncertainty_score = uncertainty_score.detach()
+    uq_output = getattr(orion.pts_bbox_head, 'uq_output', None)
+    active_embedding = getattr(uq_output, 'active_embedding', None)
+    if token_input == "score_only":
+        active_embedding = torch.zeros_like(active_embedding)
+    elif token_input != "score_direction":
+        raise ValueError(f"Unknown token_input mode: {token_input}")
     vision_embeded_obj = det_query.clone()
 
     # ─── Step 5: map head ───
@@ -230,6 +310,54 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
     if not (orion.with_lm_head and orion.use_gen_token):
         return None
     vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1)
+    baseline_vision_embeded = vision_embeded
+    if conditioning == "vision_adapter":
+        if uq_mode == "correct":
+            adapter_score = uncertainty_score
+        elif uq_mode == "zero":
+            adapter_score = torch.zeros_like(uncertainty_score)
+        elif uq_mode == "shuffled":
+            if shuffled_uq is None:
+                raise ValueError("shuffled mode requires shuffled_uq")
+            _, adapter_score = shuffled_uq
+        elif uq_mode == "none":
+            adapter_score = None
+        else:
+            raise ValueError(f"Unknown UQ mode: {uq_mode}")
+        if adapter_score is not None:
+            vision_embeded = orion._adapt_vision_tokens(
+                vision_embeded, adapter_score
+            )
+    elif conditioning != "token":
+        raise ValueError(f"Unknown conditioning mode: {conditioning}")
+    elif uq_mode == "correct":
+        vision_embeded = orion._append_uq_tokens(
+            vision_embeded,
+            uncertainty_emb,
+            uncertainty_score,
+            active_embedding=active_embedding,
+        )
+    elif uq_mode == "zero":
+        vision_embeded = orion._append_uq_tokens(
+            vision_embeded,
+            torch.zeros_like(uncertainty_emb),
+            torch.zeros_like(uncertainty_score),
+            active_embedding=torch.zeros_like(active_embedding),
+        )
+    elif uq_mode == "shuffled":
+        if shuffled_uq is None:
+            raise ValueError("shuffled mode requires shuffled_uq")
+        shuffled_active, shuffled_score = shuffled_uq
+        if token_input == "score_only":
+            shuffled_active = torch.zeros_like(shuffled_active)
+        vision_embeded = orion._append_uq_tokens(
+            vision_embeded,
+            uncertainty_emb,
+            shuffled_score,
+            active_embedding=shuffled_active,
+        )
+    elif uq_mode != "none":
+        raise ValueError(f"Unknown UQ token mode: {uq_mode}")
 
     if orion.tokenizer is None:
         return None
@@ -252,6 +380,89 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
     else:
         vlm_loss = vlm_output
 
+    consistency_loss_val = torch.tensor(0.0, device=ego_feature.device)
+    if lambda_uq_consistency > 0:
+        with torch.no_grad():
+            _, baseline_ego_feature = orion.lm_head(
+                input_ids=input_ids,
+                attention_mask=vlm_attn_mask,
+                labels=None,
+                images=baseline_vision_embeded,
+                use_cache=False,
+                return_ego_feature=True,
+            )
+        consistency_loss_val = low_uq_consistency_loss(
+            ego_feature,
+            baseline_ego_feature,
+            uncertainty_score,
+        )
+
+    predicted_grounding_score = orion.uq_grounding_head(ego_feature)
+    grounding_loss_val = grounding_loss(
+        predicted_grounding_score,
+        target_uncertainty_score,
+    )
+    counterfactual_loss_val = torch.tensor(0.0, device=ego_feature.device)
+    if counterfactual_grounding:
+        if shuffled_uq is None:
+            raise ValueError(
+                "counterfactual grounding requires shuffled_uq"
+            )
+        shuffled_active, shuffled_score = shuffled_uq
+        if token_input == "score_only":
+            shuffled_active = torch.zeros_like(shuffled_active)
+        counterfactual_vision = orion._append_uq_tokens(
+            baseline_vision_embeded,
+            uncertainty_emb,
+            shuffled_score,
+            active_embedding=shuffled_active,
+        )
+        _, counterfactual_feature = orion.lm_head(
+            input_ids=input_ids,
+            attention_mask=vlm_attn_mask,
+            labels=None,
+            images=counterfactual_vision,
+            use_cache=False,
+            return_ego_feature=True,
+        )
+        counterfactual_prediction = orion.uq_grounding_head(
+            counterfactual_feature
+        )
+        counterfactual_loss_val = grounding_loss(
+            counterfactual_prediction,
+            shuffled_score,
+        )
+        grounding_loss_val = 0.5 * (
+            grounding_loss_val + counterfactual_loss_val
+        )
+
+    if grounding_only:
+        total = lambda_vlm * vlm_loss + lambda_ground * grounding_loss_val
+        total = total + lambda_uq_consistency * consistency_loss_val
+        return {
+            'loss': total,
+            'predicted_score': predicted_grounding_score.detach(),
+            'target_score': target_uncertainty_score.detach(),
+            'log_vars': {
+                'vlm': float(vlm_loss.detach()),
+                'uq_ground': float(grounding_loss_val.detach()),
+                'uq_ground_counterfactual': float(
+                    counterfactual_loss_val.detach()
+                ),
+                'uq_consistency': float(consistency_loss_val.detach()),
+                'weighted_vlm': float((lambda_vlm * vlm_loss).detach()),
+                'weighted_ground': float(
+                    (lambda_ground * grounding_loss_val).detach()
+                ),
+                'weighted_consistency': float(
+                    (lambda_uq_consistency * consistency_loss_val).detach()
+                ),
+                'total': float(total.detach()),
+                'target_score': float(target_uncertainty_score.mean()),
+                'predicted_score': float(predicted_grounding_score.mean()),
+            },
+        }
+
     # Handle mixed QA training
     if orion.mix_qa_training:
         dummy_ego_feature = orion.lm_head.get_model().embed_tokens(
@@ -264,11 +475,18 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
 
     current_states = ego_feature.unsqueeze(1)
 
-    # [UQ] FiLM L2: modulate before VAE
+    # [UQ] Score-Gated FiLM L2: modulate before VAE
     if hasattr(orion, 'use_uncertainty_l2') and orion.use_uncertainty_l2 and uncertainty_emb is not None:
-        gamma_l2 = orion.film_gamma_l2(uncertainty_emb)
-        beta_l2 = orion.film_beta_l2(uncertainty_emb)
-        current_states = gamma_l2.unsqueeze(1) * current_states + beta_l2.unsqueeze(1)
+        gamma_raw_l2 = orion.film_gamma_l2(uncertainty_emb)
+        beta_raw_l2 = orion.film_beta_l2(uncertainty_emb)
+        if uncertainty_score is not None:
+            s = uncertainty_score.unsqueeze(-1)  # [B, 1, 1]
+            gamma_l2 = 1.0 + s * (gamma_raw_l2.unsqueeze(1) - 1.0)
+            beta_l2 = s * beta_raw_l2.unsqueeze(1)
+        else:
+            gamma_l2 = gamma_raw_l2.unsqueeze(1)
+            beta_l2 = beta_raw_l2.unsqueeze(1)
+        current_states = gamma_l2 * current_states + beta_l2
 
     # ─── Step 7: VAE → trajectory ───
     if not orion.use_diff_decoder and not orion.use_mlp_decoder:
@@ -310,7 +528,13 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
         # Combine losses
         plan_loss = loss_planning.get('loss_plan_reg', torch.tensor(0.0, device='cuda'))
         vlm_loss_val = vlm_loss if torch.is_tensor(vlm_loss) else torch.tensor(0.0, device='cuda')
-        total = plan_loss + 0.1 * loss_vae + 0.01 * vlm_loss_val
+        total = (
+            lambda_plan * plan_loss
+            + lambda_vae * loss_vae
+            + lambda_vlm * vlm_loss_val
+        )
+        total = total + lambda_uq_consistency * consistency_loss_val
+        total = total + lambda_ground * grounding_loss_val
 
         # Collision margin loss (Plan C)
         col_loss_val = torch.tensor(0.0, device='cuda')
@@ -328,14 +552,64 @@ def forward_film_training(model, data, lambda_col=0.0, col_margin=2.0):
                 margin=col_margin)
             total = total + lambda_col * col_loss_val
 
+        film_reg_val = torch.tensor(0.0, device='cuda')
+        if lambda_film_reg > 0:
+            film_reg_val = compute_film_reg_loss(orion, uncertainty_score)
+            total = total + lambda_film_reg * film_reg_val
+
+        progress_loss_val = torch.tensor(0.0, device='cuda')
+        if lambda_progress > 0:
+            progress_loss_val = compute_progress_loss(
+                ego_fut_preds,
+                ego_fut_trajs,
+                data['ego_fut_masks'][:, 0, 0],
+            )
+            total = total + lambda_progress * progress_loss_val
+
+        comfort_loss_val = torch.tensor(0.0, device='cuda')
+        if lambda_comfort > 0:
+            comfort_loss_val = compute_comfort_loss(
+                ego_fut_preds,
+                data['ego_fut_masks'][:, 0, 0],
+            )
+            total = total + lambda_comfort * comfort_loss_val
+
         log_vars = {
             'plan_reg': plan_loss.item(),
             'vae': loss_vae.item(),
             'vlm': vlm_loss_val.item() if torch.is_tensor(vlm_loss_val) else 0,
             'col': col_loss_val.item(),
+            'film_reg': film_reg_val.item(),
+            'progress': progress_loss_val.item(),
+            'comfort': comfort_loss_val.item(),
+            'uq_consistency': consistency_loss_val.item(),
+            'uq_ground': grounding_loss_val.item(),
+            'weighted_plan': (lambda_plan * plan_loss).item(),
+            'weighted_vae': (lambda_vae * loss_vae).item(),
+            'weighted_vlm': (lambda_vlm * vlm_loss_val).item(),
+            'weighted_consistency': (
+                lambda_uq_consistency * consistency_loss_val
+            ).item(),
+            'weighted_ground': (lambda_ground * grounding_loss_val).item(),
             'total': total.item(),
         }
-        return {'loss': total, 'log_vars': log_vars}
+        ego_command = data['ego_fut_cmd'][:, 0, 0].to(
+            dtype=ego_fut_preds.dtype
+        )
+        active_ego_fut_preds = (
+            ego_fut_preds * ego_command[..., None, None]
+        ).sum(dim=1)
+        return {
+            'loss': total,
+            'log_vars': log_vars,
+            'predicted_score': predicted_grounding_score.detach(),
+            'target_score': target_uncertainty_score.detach(),
+            'planning_prediction': active_ego_fut_preds.detach(),
+            'planning_prediction_raw': active_ego_fut_preds,
+            'planning_feature_raw': ego_feature,
+            'planning_target': ego_fut_trajs[:, 0].detach(),
+            'planning_mask': data['ego_fut_masks'][:, 0, 0].detach(),
+        }
 
     return None
 
@@ -349,7 +623,7 @@ def main():
     # (individual frames in the small val set may lack sequential neighbors)
     cfg = Config.fromfile(args.config)
     cfg.model.pts_bbox_head.use_uncertainty = True
-    cfg.model.pts_bbox_head.uq_checkpoint = 'checkpoints/uq/best.pt'
+    cfg.model.pts_bbox_head.uq_checkpoint = 'checkpoints/density_uq/best.pt'
 
     # Training mode selection via env vars (used by run_ablation.sh)
     l2_only = os.environ.get('USE_FILM_L2_ONLY', '0') == '1'
@@ -413,8 +687,9 @@ def main():
         uq_ckpt_path = pts_cfg['uq_checkpoint']
         if os.path.exists(uq_ckpt_path):
             uq_ckpt = torch.load(uq_ckpt_path, map_location='cpu', weights_only=False)
+            from uq_estimator.density import get_uq_state_dict
             model.pts_bbox_head.uq_estimator.load_state_dict(
-                uq_ckpt['model_state_dict'], strict=False)
+                get_uq_state_dict(uq_ckpt), strict=False)
             print(f'[UQ] Reloaded UQEstimator from {uq_ckpt_path}')
 
     if 'CLASSES' in checkpoint.get('meta', {}):
@@ -463,7 +738,10 @@ def main():
                 outputs = forward_film_training(
                     model, data,
                     lambda_col=args.lambda_col,
-                    col_margin=args.col_margin)
+                    col_margin=args.col_margin,
+                    lambda_film_reg=args.lambda_film_reg,
+                    lambda_progress=args.lambda_progress,
+                    lambda_comfort=args.lambda_comfort)
             except Exception as e:
                 import traceback
                 tb = traceback.format_exc()

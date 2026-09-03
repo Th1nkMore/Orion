@@ -1,0 +1,25 @@
+{
+  "schema": "orion.stage2l_v101_phase_a_milestone_correction.v1",
+  "timestamp": "2026-08-31T19:16:00+08:00",
+  "status": "precision_only_correction_decision_unchanged",
+  "corrects": "configs/scenario_factory/amendments/20260831_stage2l_v101_phase_a_step040_milestone_v1.json",
+  "reason": "The original milestone transcribed rounded baseline values instead of reading the exact replay-analysis values. The differences are approximately 1e-6 and do not change any gate or decision.",
+  "authoritative_baseline": {
+    "path": "results/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/phase_a_replay_v1/analysis.json",
+    "sha256": "9e00884db753acf07153162000b0556e67d2a4b2b895183bfd91d22aa62a03aa"
+  },
+  "corrected_metrics": {
+    "v10_replay_train_average_precision": 0.4402708267918087,
+    "v101_train_average_precision": 0.7852973079054499,
+    "train_average_precision_delta": 0.34502648111364126,
+    "v10_replay_dev_average_precision": 0.22944109034071786,
+    "v101_dev_average_precision": 0.34031795945651283,
+    "dev_average_precision_delta": 0.11087686911579497
+  },
+  "decision_unchanged": {
+    "continue_to_step080": true,
+    "phase_b_unlocked": false,
+    "formal_stage2l_unlocked": false,
+    "stage2p_unlocked": false
+  }
+}

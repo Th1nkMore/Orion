@@ -1,0 +1,26 @@
+{
+  "schema": "orion.stage2l_protocol_amendment.v1",
+  "created_at": "2026-08-29T16:10:00+08:00",
+  "status": "active_before_stage2l_pilot_freeze",
+  "title": "Cap rearward high-risk Stage2-L language targets at caution",
+  "reason": {
+    "audit_finding": "Human U/R/K review found valid time-aligned conflicts whose highest task-risk support was in a rear camera. The v1 QA renderer mapped every high K value to prepare_to_yield, even though abrupt yielding or braking may worsen a rear-approach conflict.",
+    "architecture_boundary": "Stage2-L teaches uncertainty semantics, task relevance, and a non-binding planning posture. It does not train a trajectory or issue direct brake/steering commands. Stage2-P remains responsible for motion-conditioned action learning."
+  },
+  "change": {
+    "unchanged": [
+      "frozen Stage1 spatial observation-UQ adapter",
+      "task-relevance geometry and R-map targets",
+      "K = U * R definition",
+      "matched on-path/off-path counterfactual construction",
+      "frontward high-risk prepare_to_yield target"
+    ],
+    "new_rule": "When the highest K support lies in CAM_BACK, CAM_BACK_LEFT, or CAM_BACK_RIGHT, a high score is rendered as caution rather than prepare_to_yield.",
+    "direct_control_command": false
+  },
+  "affected_artifacts": {
+    "existing_multiframe_qa": "engineering-only and must be regenerated before the 8-event pilot dataset is frozen",
+    "route196_smoke": "not invalidated when its on-path peak is frontward; it remains a one-event learnability check only"
+  },
+  "claim_boundary": "This correction prevents a known unsafe language-label shortcut. It does not establish optimal rear-conflict behavior, closed-loop safety, or Stage2-P readiness."
+}

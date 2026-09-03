@@ -1,0 +1,82 @@
+{
+  "schema": "orion.corruption_hardcase_visual_rejection.v1",
+  "timestamp": "2026-08-31T20:08:00+08:00",
+  "status": "visual_bakeoff_rejected_before_orion_screening",
+  "rejected_result": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_v1/visual_review/result.json",
+    "sha256": "a29c01cd8908613a72fde31a79cf2ab4abc0fea9ac6bcba7fd7ea65884400497",
+    "local_mirror": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_v1"
+  },
+  "independent_failures": [
+    {
+      "id": "invalid_clean_render_baseline",
+      "finding": "Large black square artifacts are present in the clean column and every native-motion-blur profile.",
+      "impact": "The capture cannot establish visual plausibility or isolate any corruption effect."
+    },
+    {
+      "id": "lens_waterdrop_v1_unrealistic",
+      "finding": "The prototype uses analytic elliptical radial offsets and average blur without credible refractive magnification, local inversion, crescent boundary structure, or physically plausible highlights.",
+      "impact": "lens_waterdrop_v1 is a failed visual prototype; severity tuning is prohibited."
+    },
+    {
+      "id": "waterdrop_applied_after_early_downsample",
+      "finding": "The renderer resized clean CARLA frames to 480x270 before applying lens_waterdrop_v1.",
+      "impact": "The low-resolution displacement worsens block-like appearance and does not match the planned 1600x900 or exact 640x640 model-input intervention."
+    }
+  ],
+  "raw_frame_confirmation": {
+    "reviewed_after_rejection": true,
+    "clean_1600x900": {
+      "local_path": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_v1/raw_review/clean_0028.png",
+      "sha256": "118947970445c00b6d769058e8fbbaec4635c96d02b035ce28d22e784545012d",
+      "finding": "Black square artifacts are present before offline resize or corruption."
+    },
+    "native_motion_blur_medium_1600x900": {
+      "local_path": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_v1/raw_review/medium_0028.png",
+      "sha256": "07df752d72d0840c4b92e67cd9acb8a0f601459c15af017f3d73e3d653d05f7d",
+      "finding": "The same artifact field remains under the medium native-motion-blur profile."
+    },
+    "historical_route151_clean_reference": {
+      "local_path": "results/closedloop_scenario_bank/route151_clean_1082398/records_orion_traj_0/RouteScenario_24294_rep0_Town02_ParkingCrossingPedestrian_1_6_08_28_13_30_02/rgb_front/0028.png",
+      "finding": "The earlier unmodified Route151 RGB capture is artifact-free, narrowing the regression to the new capture/render path."
+    }
+  },
+  "decisions": {
+    "severity_freeze_revoked": true,
+    "orion_hardcase_screen_submitted": false,
+    "lens_waterdrop_v1_status": "failed_visual_prototype_do_not_tune",
+    "front_stale_status": "implementation_retained_pending_clean_recapture",
+    "native_motion_blur_status": "implementation_retained_pending_clean_recapture",
+    "native_glare_promoted": false
+  },
+  "replacement_requirements": {
+    "clean": [
+      "no black-square or texture corruption artifacts",
+      "same pose and weather contract across clean and native-motion-blur profiles",
+      "full-resolution capture retained before review downsampling"
+    ],
+    "lens_waterdrop_v2": [
+      "use an auditable real-waterdrop displacement/alpha pattern source",
+      "apply refraction at 1600x900 or the exact ORION 640x640 input before any review resize",
+      "include refractive magnification or local inversion, crescent edge, and highlight structure",
+      "keep a fixed actor-independent lens-space mask with temporal continuity"
+    ],
+    "mandatory_review_artifacts": [
+      "artifact-free clean frame and GIF",
+      "waterdrop displacement/alpha mask",
+      "localized high-resolution crop comparing clean and waterdrop",
+      "final front-view GIF",
+      "clean BEV context GIF"
+    ],
+    "human_review_required_before_orion": true
+  },
+  "execution_locks": {
+    "offline_orion_screen": false,
+    "closed_loop_route_jobs": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "root_cause_diagnostic": "configs/scenario_factory/corruption_hardcase_clean_render_diagnostic_route151_v1.json",
+  "claim_boundary": "Negative engineering result only. The rejected artifacts must not be presented as a valid corruption implementation or used to select ORION hard cases."
+}

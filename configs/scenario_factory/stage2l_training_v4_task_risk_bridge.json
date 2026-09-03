@@ -1,0 +1,71 @@
+{
+  "schema": "orion.stage2l_uq_language_grounding_protocol.v1",
+  "created_at": "2026-08-29T20:30:44+08:00",
+  "status": "preregistered_not_launched_route196_task_risk_bridge_smoke_only",
+  "launch_authorization_key": "route196_task_risk_bridge_smoke_allowed",
+  "triggering_diagnosis": {
+    "path": "results/scenario_factory/stage2l_smokes/route196_answer_preference_v1_240/diagnosis.json",
+    "sha256": "3eb044d78ecb7d5deac5246d828d12b0f11fd3b0399dc6962381d1369ef0c032",
+    "finding": "R/K optimization passed, but on-path answer preference and all free-generation stance checks failed."
+  },
+  "objective": "Test whether an explicit, inspectable K-to-language bridge resolves the communication bottleneck without assigning task relevance to Stage1 UQ or adding direct control.",
+  "task_risk_language_bridge": {
+    "passes": 2,
+    "pass_1": "ORION visual tokens plus route text and 600 U-independent spatial relevance queries predict R.",
+    "relevance_queries_receive_uq": false,
+    "fusion": "K = U * sigmoid(R)",
+    "pass_2": "ORION visual tokens plus 600 Stage1-UQ tokens plus compact K bridge tokens generate QA text.",
+    "bridge_token_count": 7,
+    "bridge_layout": "six view tokens plus one global token",
+    "bridge_features": [
+      "max task risk",
+      "mean task risk",
+      "RMS task risk",
+      "risk-weighted vertical coordinate",
+      "risk-weighted horizontal coordinate",
+      "view coordinate"
+    ],
+    "zero_uq_contract": "Bridge output is independent of R when U is identically zero.",
+    "is_direct_control": false
+  },
+  "sampling": {
+    "balance_driving_stances": true,
+    "scope": "driving_implication QA only",
+    "method": "oversample each target stance to the majority count; every non-driving record remains once per epoch"
+  },
+  "losses": {
+    "qa_causal_language_modeling": 1.0,
+    "dense_soft_relevance_bce": 2.0,
+    "matched_onpath_offpath_risk_ranking": 1.0,
+    "matched_answer_preference": {
+      "weight": 2.0,
+      "margin": 0.2,
+      "scope": "driving_implication only"
+    },
+    "trajectory": 0.0,
+    "yield_state": 0.0,
+    "direct_control": 0.0
+  },
+  "route196_bridge_smoke": {
+    "maximum_steps": 240,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "single_run_only": true,
+    "reuse_same_20_qa_records": true,
+    "reuse_same_u_r_k_targets": true
+  },
+  "evaluation_gates": [
+    "language NLL and dense R BCE improve",
+    "on-path K exceeds matched off-path K by at least 0.2",
+    "zero-UQ and off-path target answers outrank the matched conservative answer",
+    "on-path target answer outranks the matched maintain answer",
+    "free generation is maintain for zero-UQ and off-path",
+    "free generation matches the conservative target stance for on-path"
+  ],
+  "launch_locks": {
+    "route196_task_risk_bridge_smoke_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "stop_policy": "No GPU launch until the two-pass entry point passes interface preflight and an explicit single-run amendment is activated. Failure of the bridge smoke pauses Route196 overfit iterations for architecture review.",
+  "claim_boundary": "One-event architecture learnability test only; no held-out generalization, trajectory, closed-loop, or safety evidence."
+}

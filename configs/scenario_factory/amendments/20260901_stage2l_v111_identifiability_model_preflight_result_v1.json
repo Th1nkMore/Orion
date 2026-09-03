@@ -1,0 +1,104 @@
+{
+  "schema": "orion.stage2l_v11_1_identifiability_model_preflight_result.v1",
+  "created_at": "2026-09-01T12:43:42+08:00",
+  "status": "complete_v11_1_output_side_preflight_pass_training_still_locked",
+  "title": "Stage2-L v11.1 consumer-grid-repaired shared-R/K/QA model preflight",
+  "parent_contract": {
+    "path": "configs/scenario_factory/stage2l_v11_identifiable_factorized_bridge_v1.json",
+    "sha256": "57c3ba89b3b51df1aa176b5bfbeaf9f2a029758fc8f50ad7a50ec8a38808f1e3"
+  },
+  "data_preflight": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v111_consumer_grid_preflight_result_v1.json",
+    "records_sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101",
+    "dataset_audit_sha256": "2d8d2879a5ac9383887a95304bc5c9d3c3740aadaee3d720dac9a272c9c9c2f7",
+    "consumer_grid_audit_sha256": "6b069fe28ce9a85fd693bc5014a7073f9f6ec56f8210fbc096498d2f1060d182",
+    "raw_and_consumer_grid_matches": "80/80"
+  },
+  "protocol": {
+    "path": "configs/scenario_factory/stage2l_v11_1_bounded_identifiability_smoke_protocol_v1.json",
+    "sha256": "484810725025d3f9eddbecded8e1d6c7fc4d361dfbde10e7296136ec1f6cddf1"
+  },
+  "implementation": {
+    "trainer": {
+      "path": "scripts/train_stage2l_v11_identifiable_smoke.py",
+      "sha256": "4d4b87499b96c65eacc0b8254e6eef6ae883b2a6e99dd37a5e99974d88a774c5"
+    },
+    "factorized_runtime": {
+      "path": "uq_estimator/stage2l_factorized_runtime_v11.py",
+      "sha256": "603cb46493f50907bedba1e7caabb8e200644a3c7a6484c2f902238b75872e77"
+    },
+    "identifiability_audit": {
+      "path": "uq_estimator/stage2l_identifiability.py",
+      "sha256": "7f38def48f14ef7f4de71fe63a82ee432ed9650cb8f5336e6d9be95efd57c49a"
+    },
+    "submitter": {
+      "path": "scripts/submit_stage2l_v111_identifiable_smoke.sh",
+      "sha256": "bf82169742b5151d2a63658e850869234e0393117138f6dc5d38cdd66911d09d"
+    },
+    "submission_attester": {
+      "path": "scripts/write_stage2l_v111_submission_attestation.py",
+      "sha256": "15dba53d9ced16b020b9297b5b2058ae0d73f099d20a0f7d05f4b24056a9d573"
+    }
+  },
+  "terminal_preflight": {
+    "path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/trainer_preflight.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/trainer_preflight.json",
+    "sha256": "a64221e33af08ff06b8950a909caa10aed50c78978b3b08dd081ede4b279a6dc",
+    "schema": "orion.stage2l_v11_identifiable_smoke_preflight.v1",
+    "passed": true,
+    "gpu_used": false,
+    "training_started": false,
+    "event_count": 17,
+    "group_count": 80,
+    "fresh_dataset_metadata_passed": true,
+    "fresh_dataset_tensor_passed": true,
+    "fresh_dataset_v11_ready": true,
+    "failed_group_count": 0
+  },
+  "validated_architecture": {
+    "contextual_relevance_computed_once_per_group": true,
+    "u_enters_relevance_query": false,
+    "shared_r_reused_for_all_matched_variants": true,
+    "task_risk_formula": "K = U * sigmoid(R_context)",
+    "baseline_only_no_u_ablation_present": true,
+    "only_trainable_module_if_launched": "TaskRiskLanguageBridge",
+    "orion_lora_trainable": false,
+    "contextual_relevance_trainable": false,
+    "stage1_and_u_tokenizer_trainable": false,
+    "trajectory_or_control_loss": false
+  },
+  "checkpoint_contracts": {
+    "contextual_relevance": {
+      "sha256": "3a722ffdeedf682dc58753b3997b0e68143b027f4ae757f2d57362fad026bb16",
+      "schema": "orion.stage2l_v101_view_aligned_phase_a.v1",
+      "status": "phase_a_failed_gate",
+      "optimizer_steps": 120,
+      "use": "frozen engineering warm start only"
+    },
+    "u_tokenizer": {
+      "sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+      "status": "bounded_task_agnostic_tokenizer_pretraining_pass",
+      "task_agnostic": true,
+      "use": "frozen"
+    }
+  },
+  "verification": {
+    "local_targeted_pytest": "9 passed",
+    "remote_data_and_runtime_pytest_before_preflight": "15 passed",
+    "remote_python": "3.8.20",
+    "remote_fresh_full_400_u_tensor_reaudit": true,
+    "consumer_grid_contract_bound_separately": true,
+    "shell_syntax_passed": true,
+    "pyflakes_passed": true,
+    "json_parse_passed": true
+  },
+  "decision": {
+    "cpu_preflight_complete": true,
+    "separate_single_replacement_launch_amendment_required": true,
+    "single_replacement_run_authorized": false,
+    "formal_stage2l_unlocked": false,
+    "stage2p_unlocked": false,
+    "closed_loop_unlocked": false
+  },
+  "claim_boundary": "The repaired input, lineage and implementation contracts are ready for one separately authorized bounded replacement. This is not a model forward result, learned semantic result, planning result or safety claim."
+}

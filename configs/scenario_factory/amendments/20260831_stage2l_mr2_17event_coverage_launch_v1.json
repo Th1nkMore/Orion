@@ -1,0 +1,94 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T23:55:00+08:00",
+  "status": "immutable_single_run_authorization",
+  "title": "Stage2-L MR2 fresh 17-event 40-step coverage diagnostic",
+  "authorization_basis": {
+    "user_instruction": "以后无需我审计，预实验可以直接开始",
+    "machine_evidence": {
+      "mr1_duration_comparison": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr1e_8event_v1_80/duration_comparison_40_vs_80.json",
+        "sha256": "f615847385e42a570631d4829f4e4d5c1288198ece82147cce1abb5eeefb28e4",
+        "decision": "duration_overfit_stop"
+      },
+      "expanded_dataset_manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v1/manifest.json",
+        "sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3"
+      },
+      "trainer_preflight": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr2_17event_v1_40/trainer_preflight.json",
+        "sha256": "d10ad2034b2e9bd6f54b968943b235afd4c07e0c79ac60f3a3228329ff70372e"
+      }
+    },
+    "interpretation": "The preregistered MR1 duration comparison stopped epoch scaling and explicitly directed the next diagnostic toward event/class coverage. The 17-event dataset more than doubles matched groups and adds previously absent dev camera/stance cells while preserving clean sources, frozen Stage1 U, formal train/dev identities, and all locked-test exclusions.",
+    "does_not_authorize": [
+      "formal Stage2-L training",
+      "locked-test evaluation",
+      "Stage2-P training",
+      "trajectory or control loss",
+      "closed-loop experiment matrix",
+      "automatic retry",
+      "step-count extension",
+      "a generalization or safety claim"
+    ]
+  },
+  "authorized_run": {
+    "name": "stage2l_mr2_17event_v1_40",
+    "dataset_event_count": 17,
+    "train_event_count": 13,
+    "dev_event_count": 4,
+    "maximum_submissions": 1,
+    "maximum_optimizer_steps": 40,
+    "answer_micro_batch_size": 2,
+    "language_anchors_per_step": 6,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "optimizer_state_resumed": false,
+    "automatic_retry_or_extension": false,
+    "formal_training": false,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr2_17event_v1_40/training"
+  },
+  "validated_inputs": {
+    "trainer_sha256": "06099e056af117480dce95caf3bddb1abda450e9a638bccfad7a8b8b26e304d5",
+    "base_mr1_trainer_sha256": "dbf03178d1d748c8b2004d82e91cedd4976bd57bd1e0b82822332229e89227d6",
+    "training_protocol_sha256": "42a4dd1296098e4cf7d4e9818c8717026bee7d82325ea4e6426824eb14856f67",
+    "trainer_preflight_sha256": "d10ad2034b2e9bd6f54b968943b235afd4c07e0c79ac60f3a3228329ff70372e",
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "records_sha256": "2a4edbc48e031b15cea91f81efd5af3bfde758ca8b41606b79ba6f73e2b7993d",
+    "aggregate_audit_sha256": "d212b24fdb059d52ed5a94e8aa083318e32728a55b4aa10363d85365ce1662ba",
+    "train_audit_sha256": "9707105b3bf58e13d335c54d26a29d91d1328858a03e36fea97fd618f691fe06",
+    "dev_audit_sha256": "5730c85d3d7016b507e5737eb5f414d7a4c366d3a23f89d02f28c86d04794811",
+    "reference_audit_sha256": "4eea4992a68795a7aa1a6ae0d758835d5ed0f287ae3abb88b42d3c4d8f2b0850",
+    "visual_cache_sha256_by_event": {
+      "route147_step223": "e3248361d5c9ef28184d3590797f05e1df622e162582aaa259b4f9ed7b054fe8",
+      "route151_step218": "2058b2fa86ffc900aefc38df496ac7fa7117a96641ad58cdebe019b060f16623",
+      "route152_step125": "3a28f4a78bfab6c5d74e2d3b3e0d9406c288b0169cdd2f092150a18ad4ab185b",
+      "route157_step193": "ad518ed2ff0c08fcfacec7e086869f5785c486e248871d9090ed920b38730bb8",
+      "route158_step154": "ee46507542de24c8ed06a8a9c74239134b7bc20576eb44d1c6d56f1bf56bf557",
+      "route160_step518": "1f65fc890acc8910efaeda816e40eb5e3ae7dc5fb32fdc8b5c85ef99a8236f79",
+      "route161_step308": "422d5fc84e01203b924a0ddaf07d3f8d79b3aa5d69dbc34486eecf522157b7a8",
+      "route162_step277": "e074f20717474f3ec1b90b973b9b911c51dfa59afe2d05b30c77e958f8d2f5cc",
+      "route164_step522": "15f993466a06260f4407bbe957f988c4cd8d0549edb106c788fd6ae9c2aa15aa",
+      "route165_step421": "07427edac9d78bb6cd718667b3a9b16dc0975f8aa1cef9e6e61fb69c16e707b3",
+      "route168_step482": "3a995c59b03e4a1b232721347c273fb4718eb76642dc2237ef09bb68bccb4916",
+      "route180_step696": "30214a2478684f7eb68b8ee88d7748b084d3747de0e4ac2eaa43d45345f66a4c",
+      "route185_step304": "894bfa27541e1642a9a431d4ae8e5750f32377281f2f07f1e722bbafd4ca9ba0",
+      "route188_step139": "617d7d9128571ff81a75b96402eb82a4c4a2bde1c7e9211c1dcb4b70ad65f6be",
+      "route194_step684": "845ae1315b67da9745c6ce6d417e007b81d3a321045e9cf0a9d7904bc8e512e9",
+      "route195_step230": "7a73233793a51ab99cd847923d7a20b30eaa1b28878f3906f28bd837f62c48f5",
+      "route207_step924": "2579b1fccf9652948e3af64d2226f0e540c6a2fa88303145c05a15a0943457b8"
+    },
+    "orion_config_sha256": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "base_orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "submission_sources": {
+    "attestation_writer_sha256": "0089838515342c393ee88894c7c7df42634099de88ea3fc29b3397faeca46f6b",
+    "submit_wrapper_sha256": "8ff1607854b9c2e3c9afd7ed63d1e1f5e1b1bb40f586189763d2241741b5b009"
+  },
+  "launch_locks": {
+    "stage2l_mr2_bounded_preexperiment_allowed": true,
+    "stage2l_mr1_bounded_preexperiment_allowed": true,
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "One fresh 17-event/40-step engineering coverage diagnostic only. Its held-out development metrics are diagnostic evidence, not a formal generalization, planning, closed-loop, or safety result."
+}

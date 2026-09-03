@@ -1,0 +1,148 @@
+{
+  "candidate_accepted": false,
+  "claim_boundary": "CPU geometry diagnosis of aligned frames salvaged from an incomplete train-only collection. It cannot be accepted as a complete event package or used as held-out, model, U, language, planning, closed-loop, or safety evidence.",
+  "coverage_gate_passed_on_partial_frames": false,
+  "diagnostic_completed": true,
+  "disposition": "retire Route167 as the CAM_BACK_RIGHT coverage fallback; do not spend another GPU retry on this candidate",
+  "formal_bank_modified": false,
+  "geometry": {
+    "geometry_error_counts": {},
+    "geometry_valid_frame_count": 15,
+    "grid": [
+      40,
+      40
+    ],
+    "minimum_back_right_positive_frames": 3,
+    "per_view_positive_cell_total": {
+      "CAM_BACK": 59,
+      "CAM_BACK_LEFT": 0,
+      "CAM_BACK_RIGHT": 0,
+      "CAM_FRONT": 2082,
+      "CAM_FRONT_LEFT": 0,
+      "CAM_FRONT_RIGHT": 0
+    },
+    "per_view_positive_frame_count": {
+      "CAM_BACK": 2,
+      "CAM_BACK_LEFT": 0,
+      "CAM_BACK_RIGHT": 0,
+      "CAM_FRONT": 15,
+      "CAM_FRONT_LEFT": 0,
+      "CAM_FRONT_RIGHT": 0
+    },
+    "per_view_positive_frames": {
+      "CAM_BACK": [
+        4,
+        5
+      ],
+      "CAM_BACK_LEFT": [],
+      "CAM_BACK_RIGHT": [],
+      "CAM_FRONT": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "CAM_FRONT_LEFT": [],
+      "CAM_FRONT_RIGHT": []
+    },
+    "per_view_target_mass": {
+      "CAM_BACK": 59.0,
+      "CAM_BACK_LEFT": 0.0,
+      "CAM_BACK_RIGHT": 0.0,
+      "CAM_FRONT": 575.6790199279785,
+      "CAM_FRONT_LEFT": 0.0,
+      "CAM_FRONT_RIGHT": 0.0
+    },
+    "support_mode_counts": {
+      "visible_route_and_conflict_actor": 2,
+      "visible_route_only": 13
+    }
+  },
+  "gpu_used_by_diagnostic": false,
+  "inputs": {
+    "batch_manifest": {
+      "path": "/public/home/lidachuan/project/Orion/results/scenario_factory/batches/stage2l_v12_coverage_repair_route167_retry1/batch_manifest.json",
+      "sha256": "04a9443471ef81be8b132d81212f3fbe0297fe5a337c0150165cc6d452529d04"
+    },
+    "control_trace": {
+      "path": "/public/share/lidachuan/orion_assets/results/stage2l_v12_coverage_repair_route167_retry1/route167_hazard_clean_off-1121244/records_orion_traj_0/RouteScenario_25378_rep0_Town03_YieldToEmergencyVehicle_1_9_09_01_14_01_02/control_trace.jsonl",
+      "sha256": "bd65778916d38198db28232088ef0667f5a908b901d3fcd8f1df6ffa92079f80"
+    },
+    "protocol": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/stage2l_v12_train_coverage_repair_protocol_v1.json",
+      "sha256": "46e3b0637daa6feb7141b492207decdce7e5eed0f1419e7d081481ee3613e2c7"
+    },
+    "run_manifest": {
+      "path": "/public/share/lidachuan/orion_assets/results/stage2l_v12_coverage_repair_route167_retry1/route167_hazard_clean_off-1121244/manifest.json",
+      "sha256": "2c87e1a5fdb1f041d9709437c3f49fe1d82cf2a6fc13918e3ea6d2259812ea13"
+    }
+  },
+  "inspection_boundary": {
+    "collision_or_infraction_outcomes_used_for_selection": false,
+    "dev_or_locked_test_artifacts_read": false,
+    "model_predictions_or_losses_used_for_selection": false,
+    "observation_uq_or_qa_answers_read": false,
+    "partial_train_only_frames_read": true
+  },
+  "launch_locks": {
+    "additional_route167_retry": false,
+    "gpu_r_only_smoke": false,
+    "language_bridge": false,
+    "stage2p": false
+  },
+  "orion_forward_run_by_diagnostic": false,
+  "partial_runtime": {
+    "aligned_frame_count": 15,
+    "aligned_six_view_meta_frames": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "control_trace_rows": 144,
+    "event_package_built": false,
+    "last_route_progress": 0.24662508802012478,
+    "last_sim_time_seconds": 7.15,
+    "last_step": 143
+  },
+  "route": {
+    "formal_plan_member": false,
+    "held_out_evidence_eligible": false,
+    "route_index": 167,
+    "scenario_type": "YieldToEmergencyVehicle",
+    "town": "Town03"
+  },
+  "runtime_complete": false,
+  "schema": "orion.stage2l_v12_partial_coverage_collection_diagnostic.v1",
+  "status": "partial_collection_back_right_geometry_absent",
+  "terminal_job": {
+    "exit_code": "124:0",
+    "job_id": 1121244,
+    "run_dir": "/public/share/lidachuan/orion_assets/results/stage2l_v12_coverage_repair_route167_retry1/route167_hazard_clean_off-1121244",
+    "scenario_root": "/public/share/lidachuan/orion_assets/results/stage2l_v12_coverage_repair_route167_retry1/route167_hazard_clean_off-1121244/records_orion_traj_0/RouteScenario_25378_rep0_Town03_YieldToEmergencyVehicle_1_9_09_01_14_01_02",
+    "state": "FAILED"
+  },
+  "training_started": false
+}

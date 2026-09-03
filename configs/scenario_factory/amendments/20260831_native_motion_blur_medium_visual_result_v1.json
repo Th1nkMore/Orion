@@ -1,0 +1,71 @@
+{
+  "schema": "orion.native_motion_blur_medium_visual_result.v1",
+  "timestamp": "2026-08-31T22:55:06+08:00",
+  "status": "machine_gates_passed_pending_human_visual_review",
+  "capture_job": {
+    "job_id": 1116035,
+    "state": "FAILED",
+    "exit_code": "1:0",
+    "formal_job_success": false,
+    "failure_stage": "post-capture CPU renderer OpenCV import"
+  },
+  "postprocess_recovery": "configs/scenario_factory/amendments/20260831_native_motion_blur_medium_postprocess_recovery_v1.json",
+  "remote_result": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_native_motion_blur_medium_recovery_v2/visual_review/result.json",
+  "remote_result_sha256": "5b8f93912813076162a14dcfaf4882642349f42ec94fb6dfe28c523c1407521b",
+  "machine_validation": {
+    "clean_front_frames": 34,
+    "medium_front_frames": 34,
+    "matched_frames": 34,
+    "maximum_route_progress_matching_error": 0.0,
+    "clean_black_block_suspicious_frames": 0,
+    "medium_black_block_suspicious_frames": 0,
+    "medium_front_actor_readback": {
+      "status": "verified",
+      "motion_blur_intensity": "0.7",
+      "motion_blur_max_distortion": "0.45",
+      "motion_blur_min_object_screen_size": "0.05"
+    },
+    "medium_bev_postprocess_enabled": false,
+    "edge_variance": {
+      "none_mean": 81.9130185061296,
+      "medium_mean": 70.78457412940057,
+      "medium_to_none_ratio": 0.8641431535587193,
+      "interpretation": "The renderer produced a measurable moderate blur effect; this scalar is diagnostic only and does not establish visual adequacy or model degradation."
+    }
+  },
+  "visual_artifacts": {
+    "contact_none_vs_medium.png": "eede871a702ec45616cab2c7c44769fee11c60344aed8445ca1c47b569f053bc",
+    "front_none_fullres.gif": "00c592faead1adb5f273943e22c77f3710aa87b3810a43d5b5dbb78636da351b",
+    "front_medium_fullres.gif": "0e1b9cbe296eaf45bc954e6b9498720893332fc1a9e46d32c3d8c66929eed949",
+    "front_none_vs_medium.gif": "0f48c3e842f6d6c2bc7ac250a15287b269712a0107226526062dc1cb35b715b4",
+    "none_bev_context.gif": "1e286b8f2d11e04c785ace9f4ffc7d2079fc261717f614905198e752264f0896",
+    "front_none_vs_medium_review.gif": "6ae34e0423146c59ce90378c7fdc5da58e41f71ca67357fac8edfe94c6c95f73",
+    "none_bev_context_review.gif": "31bdcf690559a2ad028df5971b42030bc3f79ac4173b5d2d4e59b8652d4de5a1"
+  },
+  "postprocess_source_sha256": {
+    "scripts/render_native_motion_blur_clean_revalidation.py": "1a4cfecacd8d25b573d0636e6a93e2352c629b031cacf5147871e4310a1a82a6",
+    "postprocess_recovery_amendment": "36dd003895f225207062f0a20972fd1535f275b62acd07980c819b45fc7c30c3"
+  },
+  "local_review_root": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_native_motion_blur_medium_recovery_v2",
+  "local_review_files": [
+    "contact_none_vs_medium.png",
+    "front_none_vs_medium_review.gif",
+    "none_bev_context_review.gif",
+    "result.json"
+  ],
+  "human_review": {
+    "status": "pending",
+    "decision_options": [
+      "accept medium as the first ORION-screen candidate",
+      "retain implementation but reject medium as visually too weak",
+      "reject native motion blur candidate"
+    ]
+  },
+  "locks": {
+    "orion_screen": false,
+    "profile_freeze": false,
+    "closed_loop": false,
+    "safety_claim": false
+  },
+  "claim_boundary": "CARLA renderer and visual-effect validation only. No evidence yet that native motion blur degrades ORION or changes closed-loop safety."
+}

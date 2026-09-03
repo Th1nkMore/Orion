@@ -1,0 +1,37 @@
+{
+  "schema": "orion.stage2l_mr2_recovery_amendment.v1",
+  "created_at": "2026-08-31T10:25:00+08:00",
+  "status": "immutable_zero_optimizer_report_recovery_authorization",
+  "title": "Stage2-L MR2 report recovery after terminal schema mismatch",
+  "amendment_path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260831_stage2l_mr2_report_recovery_v1.json",
+  "failure_evidence": {
+    "source_slurm_job_id": "1109479",
+    "source_slurm_state": "FAILED",
+    "completed_optimizer_steps": 40,
+    "terminal_error": "KeyError: 'known_coverage_gaps'",
+    "ordering": "after-evaluation completed and the trained checkpoint was saved before report construction accessed the missing protocol key",
+    "interpretation": "This is a report-schema finalization failure, not a training, CUDA, memory, or numerical failure."
+  },
+  "authorized_recovery": {
+    "name": "stage2l_mr2_17event_v1_40_report_recovery",
+    "maximum_recovery_submissions": 1,
+    "optimizer_steps": 0,
+    "may_update_weights": false,
+    "may_submit_training": false,
+    "method": "deterministically reconstruct the frozen initial evaluation, load the already-saved 40-step trainable state, recompute final evaluation, and serialize one provenance-marked report",
+    "output_report": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr2_17event_v1_40/training/report.recovered.json",
+    "automatic_retry_or_extension": false
+  },
+  "validated_inputs": {
+    "recovery_script_sha256": "4ce8a7635bea0769066979588a2d6eaa3545fe84e216641b8067be8cc78b94e5",
+    "failed_log_sha256": "a367b8d7958a5a9711a016d5b7ddbaaac7ca11361cdb3cc0e76ce6bcd7e3092f",
+    "trained_checkpoint_sha256": "b82f140432b5afe51148780f4a296a41c4e650907d19a3db48d048e48468627a"
+  },
+  "launch_locks": {
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false,
+    "route203_glare_allowed": false,
+    "locked_test_reading_allowed": false
+  },
+  "claim_boundary": "Technical recovery of the already completed MR2 engineering diagnostic only. It performs no optimizer step, changes no weight, and does not authorize a repeat, extension, formal Stage2-L, Stage2-P, Route203 glare, closed-loop, generalization, or safety claim."
+}

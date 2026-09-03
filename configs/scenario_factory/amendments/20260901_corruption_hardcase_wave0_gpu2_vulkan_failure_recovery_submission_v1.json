@@ -1,0 +1,57 @@
+{
+  "schema": "orion.corruption_hardcase_wave0_node_environment_recovery_submission.v1",
+  "created_at": "2026-09-01T02:15:12+08:00",
+  "status": "five_exact_replacements_submitted_pending_priority",
+  "preregistration": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave0_gpu2_vulkan_failure_recovery_prereg_v1.json",
+    "sha256": "8538897f815d93c019db44f5f9a0b943f8818f654a24f24e013ca2d9b1e39546"
+  },
+  "route180_recovery": {
+    "plan": {
+      "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/gpu2_recovery_route180_plan.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/gpu2_recovery_route180_plan.json",
+      "sha256": "f096b1ee3eb74d6da000bac02d3743487225496729f8821816bc9e00312dbfd3"
+    },
+    "submission": {
+      "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/gpu2_recovery_route180_submission.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/gpu2_recovery_route180_submission.json",
+      "sha256": "5b6662a497d6ba2b65564f9d59fbd003f2cf42c87d81d8e329d9c182bd3e8f75"
+    },
+    "excluded_nodes": ["gpu2", "gpu5"],
+    "job_ids": {
+      "route180.clean_off": 1116939,
+      "route180.front_stale_200ms": 1116940
+    }
+  },
+  "route194_recovery": {
+    "plan": {
+      "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/gpu2_recovery_route194_plan.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/gpu2_recovery_route194_plan.json",
+      "sha256": "b8c11ff9f7cd81d4a2d66e8be88a5b8fb81a7e7e1d65cfb99e8b977f943824df"
+    },
+    "submission": {
+      "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/gpu2_recovery_route194_submission.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/gpu2_recovery_route194_submission.json",
+      "sha256": "29629e0789a9b6b5fc0d1109b5462af42aaa9acd2c076f2b915d9136073b5cfd"
+    },
+    "excluded_nodes": ["gpu2", "gpu4", "gpu5"],
+    "job_ids": {
+      "route194.clean_off": 1116941,
+      "route194.waterdrop_medium": 1116942,
+      "route194.native_motion_blur_medium": 1116943
+    }
+  },
+  "effective_scientific_matrix_update": {
+    "replacements": {
+      "1116358": 1116939,
+      "1116359": 1116940,
+      "1116855": 1116941,
+      "1116924": 1116942,
+      "1116925": 1116943
+    },
+    "effective_matrix_size": 12,
+    "duplicate_scientific_jobs": 0,
+    "all_five_replacements_pending_at_record": true
+  },
+  "claim_boundary": "Submission and environment-recovery record only. Each replacement needs its own terminal runtime and pair-validity evidence before entering Wave0 analysis."
+}

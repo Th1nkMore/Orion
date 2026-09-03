@@ -1,0 +1,127 @@
+{
+  "schema": "orion.native_glare_failure_induction_protocol.v1",
+  "created_at": "2026-08-31T15:42:00+08:00",
+  "status": "one_pair_prepared_remote_interface_activation_pending",
+  "purpose": "Find a natural-looking observation degradation under which original ORION changes from a valid clean run to worse closed-loop safety or completion. This route-screening track is independent of Stage2-L v10 learnability.",
+  "first_pair": {
+    "route": 151,
+    "role": "development and interface smoke only; already used to tune native-glare severity",
+    "event_window": {
+      "start_route_progress": 0.375,
+      "end_route_progress": 0.475,
+      "recovery_seconds": 3.0,
+      "frozen_before_closed_loop_pair": true,
+      "selection_basis": "The pre-contact Route151 window previously frozen for the visual bake-off; not selected from native-glare safety outcomes."
+    },
+    "exact_model_tensor_gate": {
+      "image_stage": "exact post-corruption 640x640 ORION CAM_FRONT tensor reversed to uint8 BGR only for lossless PNG evidence",
+      "minimum_event_pairs": 1,
+      "minimum_median_mean_absolute_delta_8bit": 1.0,
+      "all_compared_event_pairs_must_have_distinct_sha256": true,
+      "frozen_before_closed_loop_pair": true
+    },
+    "conditions": [
+      {
+        "name": "low_sun_clean",
+        "native_glare_profile": "clean",
+        "lens_flare_intensity": 0.0,
+        "bloom_intensity": 0.0
+      },
+      {
+        "name": "low_sun_medium",
+        "native_glare_profile": "medium",
+        "lens_flare_intensity": 0.75,
+        "bloom_intensity": 1.5
+      }
+    ],
+    "shared": {
+      "route_geometry": "identical",
+      "scenario_seed": "identical",
+      "low_sun_weather": "identical and frozen in the derived route XML",
+      "bev_postprocess": false,
+      "orion_checkpoint": "original Orion.pth",
+      "risk_mode": "off",
+      "planning_response_mode": "off",
+      "synthetic_corruption": "none",
+      "density_uq": false,
+      "governor": false,
+      "stage2l_v10_checkpoint_loaded": false
+    }
+  },
+  "first_pair_gates": {
+    "both_runs_require_verified_sensor_and_weather_readback": true,
+    "clean_must_be_liveness_and_baseline_valid": true,
+    "medium_must_change_exact_640x640_orion_front_tensor": true,
+    "minimum_required_failure_induction": "At least one prespecified safety/completion metric is meaningfully worse under medium glare without a route/scenario mismatch.",
+    "metrics": [
+      "collision count and type",
+      "route completion",
+      "traffic-rule infractions",
+      "minimum dynamic-actor TTC",
+      "time below TTC thresholds",
+      "near-miss count",
+      "event-window speed and progress"
+    ],
+    "ade_fde_role": "diagnostic only and not a release gate"
+  },
+  "evaluation_contract": {
+    "implementation": "scripts/evaluate_native_glare_failure_induction.py",
+    "render_protocol": "configs/glare_visual_bakeoff_route151_v1.json",
+    "safety_thresholds": "configs/closedloop_scenario_bank/failure_induction_gate_v1.json",
+    "hard_endpoint_rule": "Any prespecified completion, score-penalty, collision, traffic-rule, blocked or timeout degradation.",
+    "surrogate_rule": "Within the frozen per-run route-progress window plus recovery: category-specific TTC must drop by max(0.20 seconds, 20 percent of clean) and TTC<=2s exposure must increase by at least 0.50 seconds.",
+    "native_glare_is_not_a_synthetic_corruption_event": true
+  },
+  "expansion_if_first_pair_is_valid": {
+    "maximum_additional_routes": 4,
+    "maximum_conditions_per_route": 2,
+    "selection_before_glare_outcomes": true,
+    "selection_requirements": [
+      "valid original-ORION clean baseline",
+      "supported CARLA Town01-Town05 or Town10HD",
+      "dynamic actor, crossing, junction or traffic-rule interaction",
+      "low-sun direction can place the sun near the front camera during the event",
+      "no route is selected because a preliminary glare run happened to collide"
+    ],
+    "stop_if": [
+      "clean baseline is invalid or stationary",
+      "actual render-condition readback is missing or mismatched",
+      "medium glare produces no meaningful exact-model-input change",
+      "two consecutive valid routes show no closed-loop degradation"
+    ]
+  },
+  "separation_from_model_track": {
+    "stage2l_v10_job": "1112878",
+    "stage2l_v10_result_used_for_route_selection": false,
+    "route_outcomes_used_for_stage2l_v10_checkpoint_selection": false,
+    "allowed_conclusion": "A bounded native-glare intervention can induce an original-ORION closed-loop failure on the selected route.",
+    "forbidden_conclusions": [
+      "Stage2-L v10 improves the route",
+      "the VLM understands uncertainty",
+      "the Stage1 adapter detects native glare",
+      "closed-loop safety improves because of U-tokens"
+    ]
+  },
+  "source_contract": {
+    "team_code/orion_native_glare.py": "ec6cf3f3237b36c340e56462585506cdfc0180193b5ca2171e82f82d7ba05499",
+    "team_code/orion_b2d_agent.py": "79ea4a3858d4ab8326722e097579647e7402b2c357bfa49cd28f169e7d53b1bf",
+    "scripts/run_closedloop_uq_pilot.sh": "d4f0c9e4996882577b7b497ceac41e60be4b55316f1ac586fa0f0dff1a71930f",
+    "scripts/evaluate_native_glare_failure_induction.py": "dd9bfe5b8a433ddebb199b2605618c23b12f679634946fcb5d9e01c011f5e8f5",
+    "scripts/run_native_glare_route151_bundle.sh": "b36b85f422906db6cdd119b5bbd3595a5038cda745f0b54623bc5253d7582396",
+    "scripts/submit_native_glare_route151_bundle.sh": "20168eaa68155921c6ea586db87ffb911eef75b94e92345f24ea85b55a199b41",
+    "scripts/write_native_glare_activation_amendment.py": "ef4161ed99ec19b82fc4cd49d5243cbd5619090ad45ba14e2563027d68d59123",
+    "tests/test_orion_native_glare.py": "3cfad4bb22f13fa28e5ead9301c9d2661a378df583f785fa847710a0bd1e838e",
+    "tests/test_evaluate_native_glare_failure_induction.py": "a9f958c4373d5a3ff0004a99cd1e5149d885ad8905bcf03f2a60d44933e56eb4",
+    "tests/test_native_glare_route151_bundle.py": "3beea290af7dead805a4a1baf7f89a6c30b3891c59a7145787a2ac4dd9306a03",
+    "tests/test_write_native_glare_activation_amendment.py": "64ab17b14fb5d0d3e8946d1fb792948a2994eb65a97414454995616bdf3df8a5"
+  },
+  "launch_locks": {
+    "first_pair_allowed_after_platform_interface_activation_amendment": true,
+    "first_pair_allowed_now": false,
+    "automatic_route_expansion_allowed_now": false,
+    "route203_native_glare_submission_allowed": false,
+    "stage2l_v10_aware_closed_loop_allowed": false,
+    "formal_200_route_evaluation_allowed": false
+  },
+  "claim_boundary": "At most one development pair followed by three to four outcome-blind engineering route screens. No v10-aware behavior, adapter detection, formal generalization, 200-route or safety-improvement claim."
+}

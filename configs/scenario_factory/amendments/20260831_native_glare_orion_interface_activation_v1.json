@@ -1,0 +1,52 @@
+{
+  "activated_sources": {
+    "scripts/evaluate_native_glare_failure_induction.py": "dd9bfe5b8a433ddebb199b2605618c23b12f679634946fcb5d9e01c011f5e8f5",
+    "scripts/run_closedloop_uq_pilot.sh": "293fc28633643c56bd70d8f52c0c80e4f653a030ab31e6a56cf14bc0e4adeb8f",
+    "scripts/run_native_glare_route151_bundle.sh": "68e43b66b1767cfa4611d09c93eb20f6fbe7d9fd255cad25741827f7bb2d82c6",
+    "scripts/submit_native_glare_route151_bundle.sh": "426138a2b494e15faeb4f739e36875debe21d2248199173aa4e582481f8abbb5",
+    "scripts/write_native_glare_activation_amendment.py": "ef4161ed99ec19b82fc4cd49d5243cbd5619090ad45ba14e2563027d68d59123",
+    "team_code/orion_b2d_agent.py": "79ea4a3858d4ab8326722e097579647e7402b2c357bfa49cd28f169e7d53b1bf",
+    "team_code/orion_native_glare.py": "ec6cf3f3237b36c340e56462585506cdfc0180193b5ca2171e82f82d7ba05499",
+    "tests/test_evaluate_native_glare_failure_induction.py": "a9f958c4373d5a3ff0004a99cd1e5149d885ad8905bcf03f2a60d44933e56eb4",
+    "tests/test_native_glare_route151_bundle.py": "2c88bfb6049d9e65c5e583e1d496cdabf749adbd6ded0697ee871fd38cd34734",
+    "tests/test_orion_native_glare.py": "3cfad4bb22f13fa28e5ead9301c9d2661a378df583f785fa847710a0bd1e838e",
+    "tests/test_write_native_glare_activation_amendment.py": "64ab17b14fb5d0d3e8946d1fb792948a2994eb65a97414454995616bdf3df8a5"
+  },
+  "claim_boundary": "Source activation and platform tests only. The first clean run remains the real CARLA interface/readback smoke; this amendment is not a glare, behavior, UQ or safety result.",
+  "created_at": "2026-08-31T08:11:39.642063+00:00",
+  "dependency_freeze_release": {
+    "job_id": "1112878",
+    "terminal_state": "COMPLETED",
+    "terminal_verified_before_source_activation": true
+  },
+  "launch_locks": {
+    "automatic_retry_allowed": false,
+    "automatic_route_expansion_allowed": false,
+    "formal_200_route_evaluation_allowed": false,
+    "maximum_route151_bundle_submissions": 1,
+    "route151_native_glare_pair_allowed": true,
+    "route203_native_glare_submission_allowed": false,
+    "stage2l_v10_aware_closed_loop_allowed": false,
+    "stage2p_allowed": false
+  },
+  "platform_validation": {
+    "carla_runtime_readback": "required_fail_closed_during_first_clean_bundle_run",
+    "passed_tests": 26,
+    "python_compile": "passed",
+    "shell_syntax": "passed",
+    "test_log": "/public/share/lidachuan/orion_assets/scenario_factory/native_glare_interface_activation/20260831_v1/platform_tests.log",
+    "test_log_sha256": "47035ba857d924689725578537bf70be89472d89dc4081b17458575f90ab6823"
+  },
+  "protocol": {
+    "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/native_glare_failure_induction_72h_v1.json",
+    "sha256": "2062c1fa9e5de33e62e2de146e7bc6fef372451f2ebb182506a9bc8ead096f06"
+  },
+  "runtime_gate": "The Route151 bundle must abort before medium if the clean run lacks verified CARLA sensor/weather readback, exact original-ORION lineage, or a valid clean safety baseline.",
+  "schema": "orion.scenario_factory.amendment.v1",
+  "staging_amendment": {
+    "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260831_native_glare_orion_interface_staging_v1.json",
+    "sha256": "42120c448ccbfb359b3f15e72b29ed4d1a76365b7d481036f2cbcc216256228d"
+  },
+  "status": "native_glare_orion_interface_activated",
+  "title": "Activate CARLA-native glare on the real ORION closed-loop path"
+}

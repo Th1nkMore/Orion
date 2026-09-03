@@ -1,0 +1,101 @@
+schema_version: spatial_uq_orion_stage2/v2
+status: preregistered_design_not_yet_launched
+architecture_contract: docs/spatial_uq_two_stage_v2.md
+
+inputs:
+  visual_tokens: frozen_orion_multiview_features
+  uncertainty:
+    source: stage1_spatial_observation_uq
+    map_shape: dynamic_B_V_H_W_K
+    tokenization: learned_compact_uq_tokens
+    task_agnostic: true
+  task_context:
+    - navigation_command
+    - ego_state
+    - orion_scene_and_planning_features
+  forbidden_stage1_inputs:
+    - route_or_navigation
+    - hazard_or_scenario_identity
+    - planned_action
+    - collision_or_governor_state
+
+optimization_boundary:
+  stage1_adapter_frozen_during_behavior_warmstart: true
+  stop_collision_gradient_at_stage1_output: true
+  trainable_first:
+    - uq_token_projector
+    - orion_lora_or_behavior_adapter
+    - trajectory_conditioning_layers
+  full_orion_finetuning_initially_allowed: false
+
+curriculum:
+  phase_2a:
+    name: privileged_oracle_uq_behavior_warmstart
+    uq_mix: {oracle: 1.0, learned: 0.0}
+    required_pairs:
+      - hazard_on_path
+      - hazard_off_path
+      - nohazard_on_path
+      - clean_hazard
+      - clean_nohazard
+    targets:
+      - privileged_safe_expert_trajectory
+      - original_orion_identity_when_response_unneeded
+      - prompt_recovery_after_uncertainty_ends
+  phase_2b:
+    name: learned_uq_substitution_distillation
+    uq_mix_schedule:
+      - {oracle: 0.75, learned: 0.25}
+      - {oracle: 0.50, learned: 0.50}
+      - {oracle: 0.25, learned: 0.75}
+      - {oracle: 0.00, learned: 1.00}
+    controls:
+      - temporal_shuffle
+      - spatial_shuffle
+      - global_mean_only
+      - matched_constant
+  phase_2c:
+    name: constrained_carla_closedloop_finetuning
+    method_candidates:
+      - dagger_expert_relabeling
+      - offline_or_onpolicy_advantage_on_small_adapter
+    outcome_terms:
+      collision_cost: primary
+      traffic_violation_cost: primary
+      route_failure_cost: primary
+      unnecessary_slowing_cost: primary
+      prolonged_stop_cost: primary
+      progress_reward: primary
+      discomfort_cost: secondary
+
+decoder:
+  initial: existing_orion_trajectory_decoder
+  optional_ablation: conditional_diffusion_trajectory_decoder
+  diffusion_launch_gate: >-
+    Launch only after the existing decoder demonstrates oracle-UQ behavior
+    learning and the scenario-bank protocol is frozen. Compare under identical
+    data, safety gates, latency, and intervention budget.
+
+closed_loop_entry_gate:
+  - route147_clean_replay_valid
+  - one_localized_onpath_intervention_induces_failure
+  - matched_offpath_and_nohazard_specificity_valid
+  - stage1_localizes_heldout_intervention
+  - relevance_aware_oracle_improves_safety_without_false_stops
+
+headline_metrics:
+  safety:
+    - collision_count_and_type
+    - traffic_rule_infractions
+    - route_completion
+  utility:
+    - unnecessary_stop_time
+    - completion_time
+    - mean_speed
+    - intervention_duty_cycle
+    - recovery_latency
+  reporting: safety_utility_pareto
+
+execution:
+  current_state: blocked_by_scenario_bank_gates_not_compute
+  do_not_launch_before_gate: true

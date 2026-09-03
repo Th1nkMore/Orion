@@ -1,0 +1,63 @@
+{
+  "schema_version": "orion.counterfactual-evidence-reference-semantics-amendment/v1",
+  "frozen_at": "2026-08-28T03:20:00+08:00",
+  "reason": "Clarify that the Stage-1 target is intervention-induced evidence loss relative to an unintervened mixed-weather reference, not absolute scene uncertainty.",
+  "terminology": {
+    "deprecated_name": "clean",
+    "replacement_name": "unintervened_mixed_weather_reference",
+    "local_blur": "synthetic local average-pooling intervention; not CARLA native fog",
+    "local_dark": "synthetic local intensity attenuation; not CARLA native night"
+  },
+  "quantity": {
+    "adapter_output": "counterfactual spatial observation evidence-loss proxy relative to an unintervened reference",
+    "reference_zero_meaning": "zero additional loss caused by the controlled intervention",
+    "reference_zero_does_not_mean": "the native scene, weather, or every reference patch is absolutely certain",
+    "counterfactual_target_is_unique_uncertainty_truth": false,
+    "task_relevance_is_adapter_output": false,
+    "path_risk_is_adapter_output": false
+  },
+  "frozen_inputs": {
+    "dataset_manifest_sha256": "9c6166a44219a186f3bc52e4e40c8065ecf5a7b47d38e29c3c16a45e973148d6",
+    "no_view_checkpoint_sha256": "6548763f9735c05152c1499501c864775bbcc9fcc1b51112b4beecc33acb7cc3",
+    "no_view_training_report_sha256": "cc385197eac182d7f5915d5e98869bb949bec00d71cf239df7e3b25b37d564de",
+    "no_view_training_config_sha256": "364b2cc0d976aa77c7f3696a68eb73dc8e08ed2345a9d4c57de3e4aaeeaa5614"
+  },
+  "historical_gate_amendment": {
+    "thresholds_retroactively_changed": false,
+    "reference_prediction_p95": {
+      "historical_threshold": 0.2,
+      "historical_value": 0.34987425804138184,
+      "historical_status": "failed",
+      "new_role": "reported calibration and route-shift diagnostic; not a hard prerequisite for the bounded held-out-family read"
+    },
+    "required_core_condition": "all seven original non-reference checks remain passed",
+    "justification": "The absolute-zero interpretation is stronger than the relative counterfactual quantity identified by the paired supervision."
+  },
+  "bounded_next_read": {
+    "family": "local_glare",
+    "splits": [
+      "validation",
+      "held_out"
+    ],
+    "checkpoint_updates": false,
+    "adapter_training": false,
+    "native_weather_read": false,
+    "orion_finetuning": false,
+    "closed_loop_stage_b": false,
+    "corruption_mask_used_for_scoring": false
+  },
+  "transfer_gate": {
+    "combined_patch_spearman_min": 0.1,
+    "combined_target_top20_auroc_min": 0.6,
+    "median_record_within_intervened_view_target_top20_auroc_min": 0.55,
+    "severity_1_uplift_over_reference_min": 0.0,
+    "severity_3_uplift_over_reference_min": 0.0,
+    "severity_3_minus_severity_1_min": 0.0,
+    "all_checks_required_on_each_split": true
+  },
+  "decision": {
+    "both_splits_pass": "Proceed to the separately frozen native-weather evaluation without retraining the adapter.",
+    "validation_pass_held_out_fail": "Treat the adapter as route-domain dependent; diagnose before native or closed-loop expansion.",
+    "family_transfer_fail": "The adapter is blur/dark-intervention specific; revise supervision diversity before ORION integration."
+  }
+}

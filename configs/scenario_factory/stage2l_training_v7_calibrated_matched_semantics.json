@@ -1,0 +1,114 @@
+{
+  "schema": "orion.stage2l_calibrated_training_protocol.v1",
+  "created_at": "2026-08-30T14:58:44+08:00",
+  "status": "route151_preflight_prepared_training_locked",
+  "supersedes_for_future_runs_only": "configs/scenario_factory/stage2l_training_v6_matched_magnitude_cross_family.json",
+  "triggering_v6_failure": {
+    "diagnosis": {
+      "path": "results/scenario_factory/stage2l_smokes/route151_v6_matched_magnitude_v1_20/diagnosis_20260830.json",
+      "sha256": "0931c8e4b99ca5b284dcebf703fbfa21c42e377b139c8e2f00b79965b8979a40"
+    },
+    "frozen_findings": [
+      "Unweighted dense BCE could be small on a target R map whose mean support was below 0.005.",
+      "The fixed absolute 0.2 on/off-path gap was unattainable under target R for four of five groups.",
+      "Overall 2/3 stance accuracy equalled the all-maintain majority baseline.",
+      "Cross-family answer preference worsened and free generation remained malformed."
+    ]
+  },
+  "architecture": {
+    "stage1_adapter": "frozen task-agnostic spatial observation uncertainty U",
+    "stage2_l_role": "ORION/VLM predicts task relevance R, task risk K=U*R, interpretable QA semantics and planning stance",
+    "ground_truth_stance_enters_forward": false,
+    "trajectory_training_enabled": false,
+    "direct_control_training_enabled": false,
+    "legacy_density_uq_used": false,
+    "hard_governor_used": false
+  },
+  "matched_training_unit": {
+    "records": 20,
+    "variants": 5,
+    "question_families": 4,
+    "hard_language_anchors": 18,
+    "optimizer_steps_inside_group": 0,
+    "optimizer_step_after_complete_group": 1
+  },
+  "losses": {
+    "qa_causal_language_modeling": {
+      "weight": 1.0
+    },
+    "foreground_balanced_relevance": {
+      "weight": 2.0,
+      "kind": "foreground_background_balanced_brier_plus_proper_bce",
+      "support_fraction_of_peak": 0.1,
+      "calibration_bce_weight": 0.1,
+      "calibrated_optimum_remains_target_r": true
+    },
+    "geometry_normalized_on_off_ranking": {
+      "weight": 1.0,
+      "required_oracle_fraction": 0.8,
+      "fixed_absolute_margin": null,
+      "every_group_requires_positive_target_oracle_gap": true
+    },
+    "class_balanced_stance": {
+      "weight": 2.0,
+      "average_within_class_then_across_present_classes": true,
+      "overall_accuracy_release_gate": false
+    },
+    "same_family_counterfactual_preference": {
+      "weight": 2.0,
+      "margin": 0.2,
+      "exact_duplicate_answers_are_negatives": false,
+      "cross_family_answers_are_negatives": false
+    },
+    "observed_consequence_calibration": 0.0,
+    "trajectory": 0.0,
+    "direct_control": 0.0
+  },
+  "route151_prerequisites": {
+    "objective_feasibility": {
+      "path": "results/scenario_factory/stage2l_smokes/route151_v7_objective_feasibility_v2/report.json",
+      "sha256": "d06c99f4cfe5903a01e9ea8a344b668105d45cee272fe56d2c48354a4a22bd9d",
+      "required_status": "objective_feasibility_pass"
+    },
+    "qa_records": {
+      "path": "artifacts/stage2l_route151_v7_preflight/qa_dataset_v3_rebased_v1/records.jsonl",
+      "sha256": "f45be2ab48bb93767ae81d56dfce517a4cc3bbadd967cebc16683106c3d63fc1"
+    },
+    "qa_static_audit": {
+      "path": "artifacts/stage2l_route151_v7_preflight/qa_dataset_v3_rebased_v1/audit.json",
+      "sha256": "5e9d1dad59940aba93fc558584c97e1b1b59a9a6b5e9172473ace057743e0427",
+      "required_passed": true
+    }
+  },
+  "smoke_release_gates": {
+    "language_nll_must_decrease": true,
+    "minimum_same_family_margin_pass_fraction": 0.8,
+    "minimum_relevance_foreground_recall": 0.95,
+    "maximum_relevance_background_false_positive_rate": 0.05,
+    "minimum_on_off_oracle_gap_fraction_every_group": 0.8,
+    "positive_on_off_order_every_group": true,
+    "minimum_per_variant_stance_accuracy": 1.0,
+    "minimum_per_target_class_stance_recall": 1.0,
+    "minimum_stance_target_probability": 0.5,
+    "generated_family_tag_accuracy": 1.0,
+    "generated_nonrepeating_fraction": 1.0,
+    "generated_driving_stance_parse_rate": 1.0,
+    "generated_driving_stance_agreement": 1.0
+  },
+  "implementation_hashes": {
+    "uq_estimator/stage2l_calibrated_objective.py": "8775ff03348e228bcce28ba7121e996cb8d25776baa567cddb99260aa592aaae",
+    "uq_estimator/stage2l_qa_contract_v3.py": "285b549d64433cefca1d9e7f9f4d62408d557c74b0c6ca9bda6589da7311af59",
+    "uq_estimator/stage2l_semantic_bottleneck_v2.py": "4d5ad94e149f963661df2de8debe5c174c64403c2042ea6db95032e1262a6a37",
+    "uq_estimator/stage2l_semantic_runtime_v2.py": "bf464af987d61f769bfe8559d8a60eead1728847342f34d9321294d9e3397807",
+    "scripts/train_stage2l_v7_route151_smoke.py": "4f18871e5803cb5197b0b1b05c2198585839038ac5ea45e32346363838b7adca",
+    "scripts/diagnose_stage2l_v7_objective_feasibility.py": "7c11deb8967a1215467f6107b90a05ee48d1588a8fe8799af5117f779b13f770",
+    "configs/scenario_factory/qa_factory_v3_calibrated_semantics.json": "095351ca92fc3f222faca2310634c250160e3900f7dae49e47d149be822b78c3"
+  },
+  "launch_locks": {
+    "real_orion_smoke_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "unlock_policy": "A separate immutable amendment may authorize exactly one bounded Route151 v7 smoke after source-hash tests and a no-training preflight pass. The result cannot unlock the formal pilot unless every smoke gate passes.",
+  "claim_boundary": "Prepared calibrated Stage2-L smoke protocol only; no real-ORION learning, held-out, planning, closed-loop, generalization or safety evidence."
+}

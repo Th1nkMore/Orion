@@ -1,0 +1,55 @@
+{
+  "schema": "orion.stage2l_v11_identifiability_smoke_submission_amendment.v1",
+  "created_at": "2026-09-01T12:00:05+08:00",
+  "status": "single_hash_bound_v11_job_submitted_and_running",
+  "authorization": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v11_identifiability_smoke_launch_v1.json",
+    "sha256": "5a5fc7aa52e3bbcd09f81a0da8467a49a5ef2e6341f542a4204d5e97f660f8b6"
+  },
+  "submission_attestation": {
+    "local_path": "results/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/submission_attestation.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/submission_attestation.json",
+    "sha256": "c740aefd8c71610d55c64b973dcd5bd5b2f0872d023d09d5e71ed60101edc874",
+    "status": "single_v11_identifiability_job_submitted_and_attested"
+  },
+  "submitted_job": {
+    "job_id": 1120666,
+    "job_name": "s2l_v11_ident",
+    "partition": "Nvidia_A800",
+    "submitted_at": "2026-09-01T11:58:20+08:00",
+    "started_at": "2026-09-01T11:59:08+08:00",
+    "state_at_record": "RUNNING",
+    "node_at_record": "gpu4",
+    "gpus": 1,
+    "cpus": 2,
+    "memory": "192G",
+    "time_limit": "08:00:00",
+    "remote_log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/stage2l_smokes/v11_identifiable_17event_40_v1-1120666.out",
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_identifiable_17event_40_v1/training"
+  },
+  "exact_scope": {
+    "events": 17,
+    "matched_groups": 80,
+    "qa_records": 1600,
+    "maximum_optimizer_steps": 40,
+    "only_trainable_module": "TaskRiskLanguageBridge",
+    "contextual_relevance": "frozen v10.1 step-120 checkpoint that failed its preregistered R release gate",
+    "stage1_adapter_trainable": false,
+    "u_tokenizer_trainable": false,
+    "orion_lora_trainable": false,
+    "trajectory_or_control_loss": false,
+    "automatic_retry": false,
+    "maximum_submissions": 1
+  },
+  "interpretation_locks": {
+    "controlled_u_gate_pass_proves_heldout_r_generalization": false,
+    "language_gate_pass_proves_learned_stage1_u_validity": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "learned_u_closed_loop_allowed": false,
+    "benchmark_matrix_allowed": false,
+    "automatic_extension_allowed": false
+  },
+  "next_required_record": "After Job 1120666 reaches a Slurm terminal state, preserve sacct, log, report and any checkpoint hashes, then write one terminal result amendment before changing the R interface, Stage1, data bank or downstream stage.",
+  "claim_boundary": "Submission and initial scheduler state only. This record is not a controlled-U gate result, language result, held-out R result, learned-U validation, planning result or safety claim."
+}

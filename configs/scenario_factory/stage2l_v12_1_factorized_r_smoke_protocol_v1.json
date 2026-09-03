@@ -1,0 +1,144 @@
+{
+  "schema": "orion.stage2l_v12_1_factorized_r_smoke_protocol.v1",
+  "created_at": "2026-09-01T15:08:01+08:00",
+  "status": "frozen_bounded_r_only_protocol_launch_locked",
+  "purpose": "Test whether separating route-corridor and future-path-conflict-actor supervision repairs held-out actor localization without changing the U-independent contextual interface or adding U, language, planning or control training.",
+  "validated_inputs": {
+    "trainer_sha256": "05fc37aee17aaccdcfc680669c814dfb199eceb6dbc0cd5759f4409635f2e31a",
+    "factorized_module_sha256": "616831dac43593551e5263ce7d7f28da4b7d8898e70ec0ec8ef998b181fd4d08",
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "view_feature_cache_sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61",
+    "orion_config_sha256": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+    "v101_checkpoint_sha256": "3a722ffdeedf682dc58753b3997b0e68143b027f4ae757f2d57362fad026bb16",
+    "v101_report_sha256": "334409434e79a153496e590a27ee4db8d4e173c0af40f1682a02bfd384d08c25",
+    "factorized_cpu_report_sha256": "8d5827dc2914db45e3ad5a0ccd3ebe02fe0289b560ef485d17b23f4bc4dc7e45"
+  },
+  "input_paths": {
+    "dataset_manifest": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_expanded_coverage_17event_v1/manifest.json",
+    "view_feature_cache": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_view_aligned_feature_cache_v1/features.pt",
+    "v101_checkpoint": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/phase_a_step120.pt",
+    "v101_report": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/report.json",
+    "factorized_cpu_report": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v12_1_factorized_r_cpu_preflight_v1/report.json",
+    "orion_config": "/public/home/lidachuan/project/Orion/adzoo/orion/configs/orion_stage3_agent_spatial_stage2.py",
+    "orion_checkpoint": "/public/share/lidachuan/orion_assets/checkpoints/Orion.pth"
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/training",
+  "architecture": {
+    "warm_start": "v10.1 step-120 LoRA, same-view query tokenizer and single relevance head",
+    "warm_start_identity": "copy the old shared head trunk and duplicate the old output layer into route and actor branches; both branch probabilities and their maximum must be bitwise identical to old R before training",
+    "trainable": ["existing ORION LoRA", "same-view relevance queries", "factorized relevance head"],
+    "task_relevance_owner": "Stage2-L ORION/VLM",
+    "component_outputs": ["route_relevance", "conflict_actor_relevance"],
+    "derived_union": "report-only maximum of component probabilities",
+    "old_pooled_raw_union": "report-only continuity target",
+    "union_training_loss": false,
+    "stage1_or_u_tokenizer_loaded": false,
+    "language_or_structured_answer_training": false,
+    "trajectory_or_control_training": false
+  },
+  "data_scope": {
+    "events": 17,
+    "train_events": 13,
+    "dev_events": 4,
+    "groups": 80,
+    "train_groups": 60,
+    "dev_groups": 20,
+    "records": 1600,
+    "locked_test_read": false,
+    "event_and_group_identities_unchanged_from_v10_1": true
+  },
+  "camera_order": [
+    "CAM_FRONT",
+    "CAM_FRONT_LEFT",
+    "CAM_FRONT_RIGHT",
+    "CAM_BACK",
+    "CAM_BACK_LEFT",
+    "CAM_BACK_RIGHT"
+  ],
+  "supported_component_views": [
+    "route/CAM_FRONT",
+    "actor/CAM_FRONT",
+    "actor/CAM_FRONT_LEFT",
+    "actor/CAM_FRONT_RIGHT",
+    "actor/CAM_BACK",
+    "actor/CAM_BACK_LEFT"
+  ],
+  "unsupported_component_views": [
+    "route/CAM_FRONT_LEFT",
+    "route/CAM_FRONT_RIGHT",
+    "route/CAM_BACK",
+    "route/CAM_BACK_LEFT",
+    "route/CAM_BACK_RIGHT",
+    "actor/CAM_BACK_RIGHT"
+  ],
+  "support_fraction_of_peak": 0.1,
+  "objective": {
+    "base": "factorized soft-target Brier",
+    "route_component_weight": 0.5,
+    "actor_component_weight": 0.5,
+    "inactive_view_background_anchor_weight": 0.25,
+    "empty_component_background_anchor_weight": 1.0,
+    "derived_union_loss_weight": 0.0
+  },
+  "maximum_optimizer_steps": 40,
+  "evaluation_milestones": [20, 40],
+  "train_events_per_step": 13,
+  "learning_rates": {
+    "lora": 0.00002,
+    "relevance": 0.0003,
+    "weight_decay": 0.0001
+  },
+  "engineering_gates": {
+    "interpretation": "Improvement/retention gates for one engineering smoke only; they do not replace the formal 0.8 held-out release requirement.",
+    "train_min_supported_macro_recall": 0.8,
+    "dev_min_route_front_recall": 0.62,
+    "dev_min_actor_front_recall": 0.4,
+    "dev_min_actor_nonfront_macro_recall": 0.35,
+    "dev_min_each_actor_nonfront_recall": 0.05,
+    "dev_max_mean_background_fpr": 0.1,
+    "baseline_dev_actor_nonfront_macro_recall": 0.09806547619047619,
+    "minimum_actor_nonfront_absolute_improvement": 0.25,
+    "background_fpr_cells": [
+      "route/CAM_FRONT",
+      "actor/CAM_FRONT",
+      "actor/CAM_FRONT_LEFT",
+      "actor/CAM_FRONT_RIGHT",
+      "actor/CAM_BACK",
+      "actor/CAM_BACK_LEFT"
+    ]
+  },
+  "early_stop": {
+    "minimum_dev_macro_drop": 0.05,
+    "minimum_train_macro_gain": 0.05,
+    "rule": "At the second milestone, stop as clear overfit if actor non-front dev macro drops by at least 0.05 while train supported macro rises by at least 0.05; stop immediately on full engineering gate pass."
+  },
+  "decision_rules": {
+    "gate_passes": "Record factorization as an engineering repair candidate; do not start language or Stage2-P. Expand independent event coverage before a formal run.",
+    "train_improves_dev_fails": "Stop. Factorization is learnable but current event coverage or representation does not transfer; do not add epochs automatically.",
+    "route_retention_fails": "Stop and revise component sharing/normalization; actor improvement cannot be purchased by losing route binding.",
+    "actor_nonfront_does_not_improve": "Stop the current factorized-interface path and inspect actor target/representation rather than adding routes blindly.",
+    "automatic_extension": false,
+    "automatic_retry": false
+  },
+  "resource_ceiling": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "05:00:00",
+    "exclude_nodes": ["gpu5"],
+    "maximum_submissions": 1
+  },
+  "locks": {
+    "stage1_uq_input": false,
+    "u_tokenizer": false,
+    "language_training": false,
+    "trajectory_or_control": false,
+    "formal_stage2l": false,
+    "stage2p": false,
+    "closed_loop": false,
+    "locked_test_read": false
+  },
+  "claim_boundary": "One bounded R-only engineering smoke proposal. Passing is evidence about factorized weak-supervision learnability on four held-out events, not semantic R correctness, U correctness, language understanding, formal generalization, planning or safety."
+}

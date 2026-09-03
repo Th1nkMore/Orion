@@ -1,0 +1,46 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_q2_submission_preregistration.v1",
+  "created_at": "2026-09-01T05:04:41+08:00",
+  "status": "remote_preflight_passed_two_exact_clean_repeats_pending_submission",
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_clean_q2_activation_v1.json",
+    "sha256": "d76e2fa281a67fa425f159b5680eff90ca35566132c16fd7e242b6f919d45c21"
+  },
+  "submitter": {
+    "path": "scripts/submit_corruption_hardcase_wave1_clean_q2.py",
+    "sha256": "c7ee6990215b5762e7dcfb15149a0ebe2a8e6b957e131c6fe2b479b6910c2048"
+  },
+  "tests": {
+    "path": "tests/test_submit_corruption_hardcase_wave1_clean_q2.py",
+    "sha256": "6ce8300648f38f8573bde541cd89dd94bcb1f4b880fdede2e4e54f03ddc1b603",
+    "combined_local_result": "8 passed",
+    "combined_remote_result": "8 passed"
+  },
+  "validated_remote_plan": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_wave1_clean_q2_v1/plan.json",
+    "sha256": "53211278541851a6cf3e5ed06fa2fbe6ec33c1eb043e234a7fd321fd8bca7f24",
+    "jobs_planned": 2,
+    "jobs_submitted": 0,
+    "routes": [158, 185]
+  },
+  "hash_bound_scope": {
+    "q1_collection_sha256": "cef253bd19b299461a73a1583853198873b8876733fa7ac123cdd3e20ebfd357",
+    "q1_result_sha256": "95f12f2888e2d60d99ce943edeee4f9e03692480e17f3106da42025b0ade56c6",
+    "condition": "clean_off",
+    "runs_per_route": 1,
+    "run_id": "corruption_hardcase_wave1_clean_q2_v1"
+  },
+  "post_submission_rules": [
+    "Both Q1 and Q2 must pass independently before a route is stable-clean qualified.",
+    "A Q2 collision, hard infraction, incomplete route, incomplete safety telemetry, or liveness violation rejects the route.",
+    "Runtime environment failures may receive only an explicitly preregistered exact replacement and do not count scientifically.",
+    "No corruption job may be submitted before a Q2 result amendment freezes the stable-clean routes."
+  ],
+  "automatic_scope_locks": {
+    "corruption": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Prospective Q2 clean-repeat preregistration only. It contains no stable-clean, corruption, uncertainty, or safety-benefit result."
+}

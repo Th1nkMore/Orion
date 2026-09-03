@@ -1,0 +1,119 @@
+{
+  "claim_boundary": {
+    "actual_orion_failure_is_primary_target": false,
+    "adapter_quantity": "spatial observation evidence-loss proxy",
+    "closed_loop_safety_claim_supported_by_stage1": false,
+    "corruption_mask_is_primary_target": false,
+    "counterfactual_target_is_unique_uncertainty_truth": false,
+    "model_independence_claimed": false,
+    "path_risk_is_adapter_output": false,
+    "task_relevance_is_adapter_output": false
+  },
+  "continuation": {
+    "automatic_adapter_training": false,
+    "heldout_glare_read_before_train_gate": false,
+    "native_weather_read_before_train_gate": false,
+    "orion_finetuning_authorized": false,
+    "required_after_extraction": [
+      "complete manifest/count/hash/lineage validation",
+      "expanded train-only continuous-target amplitude audit",
+      "expanded train-only target spatial-support diagnostic",
+      "freeze a separate adapter architecture/loss run only after audit review"
+    ],
+    "stage_b_authorized": false
+  },
+  "diagnostic_input_sha256": "fbfa8697a3b38e596e99819aeaf348eabf55e9619bcdc58e26cd07e3757f052c",
+  "expanded_data_lineage": {
+    "expansion_plan": "/public/share/lidachuan/orion_assets/observation_uq_v3/plans/b2d_expansion100_seed20260827/b2d_expansion100_plan_seed20260827.json",
+    "expansion_plan_sha256": "e8e4fb2573713d8c0daf4139d551bd0ae4388678ae20ff1dc70032890be0d6b5",
+    "heldout_town_overlap": [],
+    "heldout_towns": [
+      "Town02",
+      "Town05",
+      "Town11"
+    ],
+    "infos": "/public/share/lidachuan/orion_assets/data/infos_expansion100_seed20260827/b2d_infos_val.pkl",
+    "infos_sha256": "e50584ee0eb39df11068a726418117958a0b2f3e5cd82ba76fe20ca63814d1d3",
+    "route_manifest": "/public/home/lidachuan/project/Orion/configs/spatial_uq_route_manifests/b2d_expansion100_seed20260827.json",
+    "route_manifest_sha256": "9f2acaaf8b9ec291ac803bb3a014e880265f0399bcc22e3d1fdb66dd5a628fd3",
+    "split_counts": {
+      "calibration": 10,
+      "held_out": 10,
+      "train": 70,
+      "validation": 10
+    }
+  },
+  "extraction": {
+    "direct_from_frozen_backbone": true,
+    "feature_only": true,
+    "monolithic_intermediate_created": false,
+    "observed_frames": 5760,
+    "projected_feature_storage_gib": 131.84,
+    "reference_frames": 1440,
+    "resumable_at_verified_route_boundaries": true,
+    "seed": 20260827,
+    "storage_dtype": "float16",
+    "target_storage_dtype": "float32",
+    "total_feature_grids": 7200,
+    "whole_route_shards": true
+  },
+  "frozen_at": "2026-08-27T15:48:44+08:00",
+  "intervention_split": {
+    "heldout_family_development": "local_glare on validation and held-out B2D routes; read only after train diagnostics",
+    "native_development": "existing exact-pose Epic fog on Town01/Route146 and Town04/Route203",
+    "optimizer_families": [
+      "local_blur",
+      "local_dark"
+    ],
+    "optimizer_region": "deterministic sample-specific local region",
+    "optimizer_severities": [
+      1,
+      3
+    ],
+    "optimizer_views": "deterministic four-frame window cycle over camera views",
+    "route_validation": "same optimizer families on ten disjoint B2D validation routes",
+    "view_schedule": {
+      "offset": "sha256(seed, route_id, family, severity) modulo six",
+      "rationale": "preserve short temporal sensor continuity while preventing one route/family/severity key from labeling one camera for all 16 frames",
+      "version": "route_condition_window_cycle/v2",
+      "view": "(offset + floor(frame_idx / 4)) modulo six",
+      "window_frames": 4
+    }
+  },
+  "parent_protocol_sha256": "ac5c4ce3d97691e5e1274823256c6ca50c8a4fa67cd2f23752544584313a964d",
+  "projected_schedule_audit": {
+    "assumption": "the frozen selector takes each route's first 16-frame contiguous run; runtime rechecks actual identities and route boundaries",
+    "exact_nonzero_presence_label_authorized": false,
+    "expected_route_conditions": 360,
+    "expected_selected_routes": 90,
+    "runtime_gate": "every actual route/family/severity sequence covers at least four views before its atomic route shard is committed",
+    "unique_views_per_16_frame_route_condition_minimum": 4
+  },
+  "purpose": "Expanded route-disjoint Stage-1 evidence supervision written directly as lossless FP16 whole-route shards; no monolithic feature cache or adapter optimization is part of extraction.",
+  "reference_data": {
+    "calibration_routes_reserved_from_extraction": 10,
+    "corrected_name": "unintervened mixed-weather reference",
+    "frames_per_route": 16,
+    "historical_name": "clean",
+    "reference_frames": 1440,
+    "selected_route_quotas": {
+      "held_out": 10,
+      "train": 70,
+      "validation": 10
+    },
+    "selection_rule": "first metadata-verified contiguous 16-frame run per selected route",
+    "source": "formal expanded B2D infos plus frozen route-disjoint manifest"
+  },
+  "schema_version": "orion.observation-uq-counterfactual-evidence/v3",
+  "target": {
+    "actual_target_optimizer_weight": 0.0,
+    "exact_nonzero_presence_label_authorized": false,
+    "first_frame_transient_valid": false,
+    "future_support_auxiliary": "only target-derived high-response or soft-amplitude support frozen after v2 target audit",
+    "mask_optimizer_weight": 0.0,
+    "persistent_direction": "1 - cosine(observed_patch_feature_t, paired_reference_patch_feature_t)",
+    "persistent_magnitude": "absolute log ratio of observed/reference patch feature RMS",
+    "primary_supervision": "continuous measured paired-feature amplitude",
+    "transient": "absolute difference between observed and reference consecutive-frame cosine residuals"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_route158_corruption_submission_preregistration.v1",
+  "created_at": "2026-09-01T06:15:10+08:00",
+  "status": "remote_preflight_passed_three_exact_corruption_jobs_pending_submission",
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_route158_corruption_activation_v1.json",
+    "sha256": "2fbcfda30ffc22f2d3c5337368f7b012e0ffd77d663c337a7773b2dedbdb4dde"
+  },
+  "q2_result": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_clean_q2_result_v1.json",
+    "sha256": "94b799648266b2b388a877c447e8f2e06e4f93980c6ad13e6ec7d2dcc7952053",
+    "stable_clean_routes": [158]
+  },
+  "implementation": {
+    "submitter": {
+      "path": "scripts/submit_corruption_hardcase_wave1_route158.py",
+      "sha256": "1af79782e370862de9e2403e09d9bf64a8a8f6a9c7672b29fcb8f654aa8367f9"
+    },
+    "tests": {
+      "path": "tests/test_submit_corruption_hardcase_wave1_route158.py",
+      "sha256": "24d8283bae233b0c918dd259875e827dcfb3eaff736050717f9dbe3222135b0c",
+      "combined_local_and_remote_result": "20 passed"
+    }
+  },
+  "validated_plan": {
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_wave1_route158_corruption_v1/plan.json",
+    "local_path": "results/scenario_factory/submissions/corruption_hardcase_wave1_route158_corruption_v1/plan.json",
+    "sha256": "3fd81f07f94e0d8de5ac8908bfa4ce54cec52005c920f301cf3201dd92fbdcfa",
+    "jobs_planned": 3,
+    "jobs_submitted": 0
+  },
+  "exact_scope": {
+    "route_index": 158,
+    "clean_comparator_job_id": 1117849,
+    "clean_comparator_report_sha256": "aa07304d0aa36efa161ea750cb4ea2a351dfdb0291e3886c66c5766d57fcf55d",
+    "conditions": [
+      {
+        "condition": "front_stale_transient_off",
+        "severity": "delay_ms:200",
+        "start_progress": 0.1331479129200312,
+        "duration_seconds": 5.0
+      },
+      {
+        "condition": "lens_waterdrop_paired_template_transient_off",
+        "severity": "profile:medium",
+        "start_progress": 0.1331479129200312,
+        "duration_seconds": 5.0
+      },
+      {
+        "condition": "native_motion_blur_off",
+        "severity": "profile:medium",
+        "schedule": "whole_route_CARLA_sensor_profile"
+      }
+    ],
+    "severity_escalation": false,
+    "additional_clean_job": false,
+    "additional_route": false
+  },
+  "runtime_rules": [
+    "Do not cancel a corruption run because it slows, stops, collides, or violates a traffic rule; those are potential scientific outcomes.",
+    "The existing 300 second control-trace runtime watchdog may terminate an infrastructure stall and classify it runtime_environment_invalid.",
+    "Only valid terminal runs may be compared with the frozen Q2 clean comparator.",
+    "No runtime replacement is automatically authorized by this record."
+  ],
+  "automatic_scope_locks": {
+    "runtime_replacement": false,
+    "additional_corruption": false,
+    "learned_uq_or_governor": false,
+    "heldout_confirmation": false,
+    "route203": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Prospective submission preregistration only. It contains no corruption-induced degradation, UQ, task-relevance, control-benefit, held-out, or benchmark result."
+}

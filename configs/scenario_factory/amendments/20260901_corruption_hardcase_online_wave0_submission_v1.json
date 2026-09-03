@@ -1,0 +1,78 @@
+{
+  "schema": "orion.corruption_hardcase_online_wave0_submission_amendment.v1",
+  "created_at": "2026-09-01T00:19:44+08:00",
+  "status": "effective_12_job_wave_submitted_two_running_ten_pending",
+  "preregistration": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_online_wave0_submission_prereg_v1.json",
+    "sha256": "c69cf94467029bdac3dbb8b56ec97c693861dafb83ee39e124e346dbcc8d7633"
+  },
+  "initial_submission": {
+    "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/submission.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/submission.json",
+    "sha256": "d50f0f948443ebf9d279a04e4c4534df02e1f760985395e5489a38d26122e20a",
+    "job_ids": [
+      1116344, 1116345, 1116346, 1116347,
+      1116348, 1116349, 1116350, 1116351,
+      1116352, 1116353, 1116354, 1116355
+    ]
+  },
+  "gpu5_environment_failure": {
+    "preregistration": {
+      "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave0_gpu5_vulkan_failure_retry_prereg_v1.json",
+      "sha256": "ef2410cf69acd1dd00dab7442e15611a90c45d18092bea30cb77c22b9f609b84"
+    },
+    "failed_job_ids": [1116346, 1116347, 1116348, 1116349],
+    "classification": "platform Vulkan ICD failure before CARLA/ORION; never scientific results",
+    "permanently_excluded_from_counts": true
+  },
+  "retry1": {
+    "plan": {
+      "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/retry1_plan.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/retry1_plan.json",
+      "sha256": "3b29c4a225d0ceebacbdb68ee08c5ce1c57cc6095cf42f8b85ee31ee78717a79"
+    },
+    "submission": {
+      "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/retry1_submission.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/retry1_submission.json",
+      "sha256": "1a882a7df5a33a26fd2814b493df621a31fa7716eeb8896daa46da68f5f6689b"
+    },
+    "excluded_nodes": ["gpu5"],
+    "job_ids": [1116356, 1116357, 1116358, 1116359]
+  },
+  "effective_scientific_matrix": {
+    "route151": {
+      "clean_off": 1116344,
+      "front_stale_200ms": 1116345,
+      "waterdrop_medium": 1116356,
+      "native_motion_blur_medium": 1116357
+    },
+    "route180": {
+      "clean_off": 1116358,
+      "front_stale_200ms": 1116359,
+      "waterdrop_medium": 1116350,
+      "native_motion_blur_medium": 1116351
+    },
+    "route194": {
+      "clean_off": 1116352,
+      "front_stale_200ms": 1116353,
+      "waterdrop_medium": 1116354,
+      "native_motion_blur_medium": 1116355
+    }
+  },
+  "scheduler_snapshot": {
+    "running": [1116344, 1116345],
+    "pending_priority": [
+      1116350, 1116351, 1116352, 1116353, 1116354,
+      1116355, 1116356, 1116357, 1116358, 1116359
+    ],
+    "gpu5_excluded_from_all_pending_effective_jobs": true,
+    "effective_jobs": 12,
+    "duplicate_scientific_jobs": 0
+  },
+  "artifacts": {
+    "result_root": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1",
+    "log_root": "/public/share/lidachuan/orion_assets/logs/corruption_hardcase_online_wave0_v1",
+    "personal_home_artifacts": false
+  },
+  "claim_boundary": "Submission and environment-recovery record only. Results must be evaluated from the effective 12-job matrix after terminal completion; no current safety or uncertainty claim is permitted."
+}

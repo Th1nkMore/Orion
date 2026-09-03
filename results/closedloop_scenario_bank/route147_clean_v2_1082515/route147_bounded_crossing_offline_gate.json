@@ -1,0 +1,67 @@
+{
+  "artifacts": {
+    "clean_gate_path": "results/closedloop_scenario_bank/route147_clean_v2_1082515/clean_safety_gate.json",
+    "clean_gate_sha256": "c607b5b5ecc48162f4dbe218bcc525fa7d8bed06361b9e23201e1e34c95ef603",
+    "labels_path": "results/closedloop_scenario_bank/route147_clean_v2_1082515/privileged_yield_v1/privileged_yield_labels.jsonl",
+    "labels_sha256": "464468483d69a5651f4d549b00741f3bac3fb94c6cd13d6ba8d8198b97e6022c",
+    "trace_path": "results/closedloop_scenario_bank/route147_clean_v2_1082515/control_trace.jsonl",
+    "trace_sha256": "3416fb011f682ee092c69c20f9cd2e04697af2a5fd467b7ceeacf0f8d8504e78"
+  },
+  "checks": {
+    "certified_braking_margin_sufficient": true,
+    "clean_reference_has_walker_near_miss": true,
+    "clean_reference_officially_valid": true,
+    "conflict_clears_and_releases": true,
+    "first_hold_targets_same_critical_walker": true,
+    "historical_density_was_passive_only": true,
+    "historical_new_adapter_absent": true,
+    "oracle_acts_before_baseline_critical_frame": true,
+    "returns_to_go_with_bounded_delay": true,
+    "stage2_labels_do_not_use_density_uq_or_corruption_targets": true
+  },
+  "decision": "eligible_for_one_preregistered_route147_clean_oracle_pair",
+  "evidence": {
+    "baseline_critical_time_seconds": 11.15,
+    "baseline_min_walker_obb_ttc_seconds": 0.6807768416126619,
+    "certified_braking_margin_m": 3.847896804080019,
+    "certified_stopping_distance_m": 4.6682047509625555,
+    "conflict_actor_categories": [
+      "walker"
+    ],
+    "conflict_actor_ids": [
+      138
+    ],
+    "critical_actor_category": "walker",
+    "critical_actor_id": 138,
+    "first_hold_lead_seconds": 0.6500000000000004,
+    "first_hold_speed_mps": 5.000870542257689,
+    "first_hold_stop_path_distance_m": 8.516101555042574,
+    "first_hold_time_seconds": 10.5,
+    "first_release_time_seconds": 12.0,
+    "historical_density_note": "The valid clean reference predates Density retirement. Its score was logged but risk_mode=off, so it did not affect control. The authorized reruns must produce zero non-null Density frames.",
+    "historical_trace_density_score_nonnull_frames": 627,
+    "historical_trace_observation_adapter_nonnull_frames": 0,
+    "historical_trace_risk_modes": [
+      "off"
+    ],
+    "non_go_record_count_at_2hz": 4,
+    "response_duration_seconds": 2.0,
+    "return_to_go_time_seconds": 12.5
+  },
+  "offline_gate_pass": true,
+  "schema": "orion.route147_bounded_crossing_offline_gate.v1",
+  "scientific_role": "planning-mechanism feasibility only; not adapter efficacy and not closed-loop safety evidence",
+  "supervision_contract": {
+    "source": "privileged_actor_occupancy_x_unmodified_orion_plan",
+    "stage": "stage2_task_risk",
+    "uses_corruption_label": false,
+    "uses_density_uq": false,
+    "uses_observation_uq_target": false
+  },
+  "thresholds": {
+    "certified_deceleration_mps2": 3.0,
+    "maximum_response_duration_seconds": 3.0,
+    "minimum_braking_margin_m": 2.0,
+    "reaction_seconds": 0.1
+  }
+}

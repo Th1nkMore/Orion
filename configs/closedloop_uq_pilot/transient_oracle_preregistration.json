@@ -1,0 +1,67 @@
+{
+  "registered_at": "2026-08-26T05:14:00+08:00",
+  "study_role": "exploratory mechanism redesign after the registered spatial-window oracle failed liveness",
+  "run_id": "uqcl_p1_transient",
+  "route": {
+    "index": 146,
+    "variant": "hazard",
+    "town": "Town01",
+    "scenario": "DynamicObjectCrossing"
+  },
+  "unchanged_clean_reference": {
+    "job": 1057222,
+    "eligibility": "official",
+    "route_completion_percent": 100.0,
+    "pedestrian_collisions": 0,
+    "score_composed": 100.0,
+    "reuse_rationale": "The frozen planner, route, sensors, and clean inputs are unchanged; the new schedule is inactive when corruption is empty."
+  },
+  "corruption": {
+    "type": "camera_dropout",
+    "views": [
+      "front"
+    ],
+    "severity": 1,
+    "onset": {
+      "coordinate": "projected route arc-length fraction",
+      "start_inclusive": 0.3
+    },
+    "termination": {
+      "coordinate": "simulation time since first onset frame",
+      "duration_seconds": 5.0,
+      "end_exclusive": true,
+      "independent_of_ego_progress": true
+    }
+  },
+  "duration_selection_disclosure": "In the completed spatial-window corrupted-off run, corruption began at 9.85 s and the pedestrian collision location was reached at 14.05 s, a 4.20 s exposure. Five seconds is the next whole-second duration and covers that known failure with a 0.80 s margin. Because this value uses an observed outcome, this pair is explicitly exploratory and requires a later held-out confirmation before a paper-level confirmatory claim.",
+  "conditions_in_order": [
+    "front_corrupt_transient_off",
+    "front_corrupt_transient_oracle"
+  ],
+  "execution_gate": "Run oracle only if transient-off is an eligible completion with worse safety than the unchanged clean reference.",
+  "oracle": {
+    "signal": "known binary corruption-active state",
+    "controller": "the existing bounded UQRiskGovernor without parameter changes",
+    "risk_threshold": 0.4,
+    "risk_saturation": 0.8,
+    "minimum_speed_cap_mps": 1.5,
+    "maximum_speed_cap_mps": 5.0,
+    "maximum_added_brake": 0.5
+  },
+  "success_criteria": {
+    "transient_off": "eligible terminal record, 100% completion, and at least one collision or a lower official safety score than clean",
+    "transient_oracle": "eligible terminal record, 100% completion, zero collisions, no blocked or timeout infraction, and a strictly higher composed score than transient-off"
+  },
+  "uniform_termination_rules": {
+    "low_speed_fast_screen": "cancel and mark diagnostic-only if absolute ego speed remains below 0.25 m/s for at least 8 consecutive simulation seconds",
+    "runtime_no_progress": "cancel and mark environment-error if both trace and agent log remain unchanged for at least 8 wall-clock minutes"
+  },
+  "prohibited_expansion": [
+    "learned governor",
+    "constant governor",
+    "shuffled governor",
+    "hazard/nohazard matrix",
+    "additional routes",
+    "additional seeds"
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "schema": "orion.vertical_slice_soft_gate_progression.v1",
+  "created_at": "2026-09-01T16:06:49+08:00",
+  "status": "prospective_vertical_slice_policy_recorded_before_training_metrics_review",
+  "purpose": "Replace stage-by-stage model-quality release barriers with one auditable end-to-end engineering vertical slice, then repair the stage actually shown to be limiting.",
+  "timing_and_independence": {
+    "active_job_id": "1121553",
+    "job_state_at_policy_freeze": "RUNNING",
+    "job_elapsed_at_policy_freeze": "00:06:41",
+    "job_node": "gpu1",
+    "training_log_or_metrics_reviewed_before_policy": false,
+    "outcome_blind_for_job_1121553_model_quality": true
+  },
+  "superseded_drafts": [
+    {
+      "name": "front-only progression draft",
+      "reason": "Too narrow: central rear observation can matter during braking or yielding."
+    },
+    {
+      "name": "front-plus-back hard progression gate draft",
+      "reason": "Still repeated the same stage-blocking pattern; view quality should be diagnosed during the vertical slice rather than prevent it."
+    },
+    {
+      "name": "front-primary progression validator prototype",
+      "reason": "Removed before commit and before model metrics were reviewed because it encoded an unnecessary new hard gate."
+    }
+  ],
+  "development_principle": {
+    "statement": "Complete one bounded version of every interface before repeatedly optimizing an upstream metric. Carry weak model results forward with explicit labels so downstream integration and failure attribution become observable.",
+    "stage_specific_repair": "After the first vertical slice, repair only the stage whose outputs or causal controls fail, then rerun that stage and its downstream consumers.",
+    "formal_claim_separation": "Soft progression during engineering does not weaken later formal release requirements; hard statistical and safety gates return before locked-test evaluation or benchmark claims."
+  },
+  "hard_stop_conditions": {
+    "lineage_and_artifact_integrity": [
+      "input, protocol, checkpoint or report hash mismatch",
+      "missing, overwritten or unexpected authoritative artifacts",
+      "train/dev/locked-test identity leakage or mutable outcome-selected inputs"
+    ],
+    "responsibility_or_label_leakage": [
+      "Stage1 receives route, actor, TTC, collision, action, corruption-family or answer labels",
+      "task relevance is moved into Stage1 rather than Stage2L",
+      "privileged outcomes or answer-derived labels enter the model forward input",
+      "planning gradients cross the frozen Stage1 boundary"
+    ],
+    "numerical_interface_and_runtime": [
+      "non-finite loss, gradients, maps or model outputs",
+      "checkpoint cannot load or the declared tensor/view/grid interface is incompatible",
+      "job exits without the minimum attested report/checkpoint needed by the next consumer",
+      "CARLA or ORION runtime failure prevents a valid control trace"
+    ]
+  },
+  "soft_diagnostics_that_do_not_block_the_first_vertical_slice": [
+    "the seven original Job 1121553 factorized-R engineering gates",
+    "per-view or per-component recall, AP and background FPR",
+    "front, rear, side or oblique-view generalization differences",
+    "train/dev overfit indicators",
+    "the current Stage1 native-fog external-validity miss",
+    "controlled-U ordering, QA preference or text-consistency quality",
+    "absence of a positive corruption-induced failure route",
+    "formal 24-event bank completion",
+    "closed-loop collision, TTC or completion improvement in the first smoke"
+  ],
+  "view_analysis_scope": {
+    "primary_longitudinal_views": {
+      "CAM_FRONT": "Dominant route following and forward conflict relevance.",
+      "CAM_BACK": "Potential task relevance when braking, yielding or reducing speed."
+    },
+    "side_and_oblique_views": "Auxiliary generalization evidence; sparse support is reported and may later be strengthened through QA or new events rather than blocking the first slice.",
+    "current_rear_limit": "Actor/CAM_BACK localization does not yet prove braking-conditioned relevance; the QA stage must expose that distinction.",
+    "view_metric_role": "diagnostic_only_during_first_vertical_slice"
+  },
+  "job_1121553_handling": {
+    "original_protocol_and_seven_gate_verdict_unchanged": true,
+    "frozen_independent_terminal_validator_required": true,
+    "model_quality_failure_blocks_vertical_slice": false,
+    "terminal_integrity_failure_blocks_vertical_slice": true,
+    "checkpoint_selection": "Use the attested terminal checkpoint produced by the unchanged protocol; do not outcome-select an unregistered step.",
+    "result_labeling": "Record full seven-gate pass/fail and every per-view metric even though they no longer serve as downstream permission switches.",
+    "automatic_retry_or_extra_epochs": false
+  },
+  "first_vertical_slice": {
+    "stage2l_r": {
+      "source": "Job 1121553 terminal factorized-R checkpoint",
+      "train_again_before_next_stage": false,
+      "carry_forward_if_integrity_valid": true
+    },
+    "stage2l_semantic_qa": {
+      "objective": "Train one bounded version of the controlled-U to K to structured-QA bridge on the existing engineering data.",
+      "inputs": "Frozen visual/route/ego context, frozen factorized R, frozen Stage1/U-tokenizer lineage and matched zero/on-path/off-path/shuffled U variants.",
+      "minimum_outputs": [
+        "R component maps",
+        "spatial U and K maps",
+        "structured relevance and response fields",
+        "generated or scored QA answers",
+        "per-variant and per-event diagnostics"
+      ],
+      "rear_semantic_probe": "Include braking/yield context versus ordinary forward-travel context with rear U; treat quality as diagnostic in this first run.",
+      "formal_language_claim": false
+    },
+    "stage2p_integration": {
+      "objective": "Connect one bounded semantic output path to the existing trajectory/planning interface without first optimizing every QA metric.",
+      "curriculum": [
+        "controlled or oracle spatial U interface smoke",
+        "frozen learned-U substitution smoke"
+      ],
+      "minimum_outputs": [
+        "loadable Stage2-P checkpoint or adapter",
+        "trajectory response for zero, relevant-U and irrelevant-U variants",
+        "identity or near-identity behavior on zero-U controls"
+      ],
+      "formal_planning_claim": false
+    },
+    "closed_loop_smoke": {
+      "objective": "Run the complete current-mainline interface in CARLA on a very small development set, even if no aggregate improvement is expected yet.",
+      "minimum_outputs": [
+        "valid control trace",
+        "collision, TTC, traffic-rule, completion and unnecessary-slowing diagnostics",
+        "front GIF and BEV visualization",
+        "per-frame U, R, K, QA/stance and trajectory provenance"
+      ],
+      "positive_corruption_case_required_to_execute": false,
+      "safety_claim": false
+    }
+  },
+  "post_slice_failure_attribution": {
+    "U_not_localized_or_not_external": "Repair Stage1 supervision or held-out family coverage; retain the downstream interface.",
+    "R_not_contextual": "Repair Stage2L relevance supervision, QA coverage or event diversity; do not move task relevance into Stage1.",
+    "K_or_QA_not_counterfactual": "Repair the U/R semantic bridge and structured-language objective.",
+    "QA_valid_but_trajectory_unresponsive": "Repair Stage2-P conditioning or trajectory loss.",
+    "trajectory_changes_but_closed_loop_not_safer": "Repair policy optimization or scenario selection, using TTC, progress and false-conservatism diagnostics.",
+    "multiple_failures": "Prioritize the earliest broken causal interface, rerun it, then reuse unchanged downstream tests."
+  },
+  "formal_gate_reentry": {
+    "before_locked_test": [
+      "freeze event and corruption-family splits",
+      "freeze primary and auxiliary view claims",
+      "freeze semantic, false-conservatism and planning gates",
+      "freeze closed-loop safety and utility metrics"
+    ],
+    "before_200_route_benchmark": [
+      "one complete development vertical slice is reproducible",
+      "the dominant failure stage has received at least one targeted repair",
+      "no outcome-selected test identities or thresholds are used"
+    ]
+  },
+  "locks": {
+    "authorizes_new_gpu_submission": false,
+    "authorizes_locked_test_read": false,
+    "changes_job_1121553_protocol": false,
+    "changes_architecture_responsibility_boundary": false,
+    "claims_model_quality_or_safety": false
+  },
+  "claim_boundary": "Prospective engineering progression policy recorded without reviewing Job 1121553 training metrics. It permits carrying integrity-valid but weak model checkpoints through one bounded vertical slice; it is not a model, language, planning, closed-loop or safety result and authorizes no job by itself."
+}

@@ -1,0 +1,454 @@
+% !TEX program = xelatex
+\documentclass[12pt, a4paper]{ctexart}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{amsmath, amssymb}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+
+\definecolor{codeblue}{RGB}{0, 102, 204}
+\definecolor{okgreen}{RGB}{0, 140, 70}
+\definecolor{warnorange}{RGB}{190, 110, 0}
+\definecolor{alertred}{RGB}{190, 0, 0}
+\definecolor{softgray}{RGB}{245, 247, 250}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=codeblue,
+    citecolor=codeblue,
+    urlcolor=codeblue
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{14pt}
+\fancyhead[L]{\small 面向自动驾驶视觉骨干的不确定性感知规划}
+\fancyhead[R]{\small 中期进展报告}
+\fancyfoot[C]{\thepage}
+
+\newtcolorbox{summarybox}[1][]{
+    colback=blue!3, colframe=codeblue,
+    fonttitle=\bfseries, title={#1},
+    boxrule=0.5pt, arc=2pt
+}
+
+\newtcolorbox{riskbox}[1][]{
+    colback=orange!5, colframe=warnorange,
+    fonttitle=\bfseries, title={#1},
+    boxrule=0.5pt, arc=2pt
+}
+
+\graphicspath{{../reports/uq_token/assets/}{../reports/uq_token/assets/route_balanced_eval/}{../results/figures/baseline/}}
+
+\title{\textbf{面向端到端自动驾驶的视觉骨干不确定性感知规划}\\[0.6em]
+\large 中期进展报告}
+\author{}
+\date{2026 年 6 月}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+\begin{abstract}
+本报告总结开题以来围绕 ORION 端到端自动驾驶模型开展的不确定性量化（Uncertainty Quantification, UQ）研究进展。0521 阶段的结果表明，恶劣天气下原始 ORION 的碰撞风险显著上升，而传统 L2 轨迹误差不能充分反映该风险；同时，早期手工 UQ 估计器和后端 FiLM 调制虽然可以改变规划行为，但存在“伪标签人为设定”和“绕过大模型直接改规划输出”的说服力问题。
+
+针对上述问题，本阶段将研究重点调整为：从冻结 EVAViT 视觉骨干中提取基于特征密度的 UQ 分数与表征向量，并将不确定性作为进入大模型前的视觉证据信号，而不是直接修改轨迹解码器输出。实验结果显示：密度不确定性估计在正常/恶劣视觉条件区分上取得 AUROC 0.799、AUPRC 0.951；显式 UQ 词元能被语言模型读取，但在缺少规划监督时不能自然改善轨迹；大模型前视觉适配器在单相机丢失的路线均衡评估中取得平均 ADE 19.3\% 的改善，并且正确 UQ 相比打乱 UQ 仍有 5.3\% 的额外收益。当前主要卡点是路线级稳定性与正常输入 FDE 轻微退化，后续将围绕路线均衡训练、正常输入保持损失和更细粒度分层评估推进。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{研究背景与问题定义}
+
+\subsection{研究对象}
+
+本课题基于 ORION 视觉语言端到端自动驾驶框架\cite{fu2025orion}。ORION 的主流程为：
+\[
+\begin{aligned}
+    \text{多视角图像}
+    &\rightarrow \text{EVAViT}
+    \rightarrow \text{QT-Former}
+    \rightarrow \text{Qwen 大模型} \\
+    &\rightarrow \text{规划词元}
+    \rightarrow \text{轨迹解码器}.
+\end{aligned}
+\]
+该类 基于视觉语言模型的规划器优势是能够将视觉理解、语言推理和轨迹规划结合起来；但在雨、雾、夜间、相机受损等视觉质量下降场景下，模型缺少显式的自我可靠性估计，容易在感知不可靠时仍输出过度自信的规划。
+
+\subsection{0521 阶段发现}
+
+0521 报告的核心结论可以概括为三点。相关实验基于 Bench2Drive 验证集\cite{jia2024bench2drive}，并复用 ORION 中冻结的 EVAViT 视觉骨干特征\cite{fang2023eva,fang2023eva02}。
+
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{安全风险与 L2 不一致。} 在 Bench2Drive 验证集上，恶劣天气的碰撞风险显著高于正常天气，但 L2 轨迹误差不一定更高。这说明仅依赖开环 L2 难以定位安全风险。
+    \item \textbf{早期 UQ 估计器能监测视觉退化。} 基于 EVAViT 词元统计特征的手工 UQ 估计器可以区分正常/恶劣场景。
+    \item \textbf{直接后端调制存在叙事风险。} 将 UQ 分数直接用于 L2/解码器 FiLM 调制容易被理解为“人为控制轨迹解码器”，没有充分体现大模型自身利用不确定性的能力。
+\end{enumerate}
+
+\begin{summarybox}[中期阶段的核心调整]
+本阶段不再将“直接调制轨迹输出”作为主线，而是将问题改写为：\textbf{能否从冻结视觉骨干中得到有理论依据的不确定性表示，并把它作为进入大模型前的视觉证据调节信号，让大模型仍然承担最终规划决策？}
+\end{summarybox}
+
+\section{方法演进}
+
+\subsection{从手工 UQ 估计器到密度不确定性估计}
+
+原始 UQ 估计器的接口是：
+\[
+    \text{EVAViT 特征} \mapsto
+    (\text{不确定性分数}, \text{不确定性表征向量}).
+\]
+其中分数用于打标签或门控，表征向量用于下游调制。问题在于，早期分数依赖人为构造的伪标签，理论依据较弱。
+
+本阶段将 UQ 估计器替换为基于正常视觉特征流形的密度不确定性估计。具体做法是：在正常视觉样本上建立 EVAViT 描述子的密度分布；测试样本若偏离正常特征流形，则不确定性更高。该思路与 Mahalanobis 距离分布外检测\cite{lee2018mahalanobis}、Deep k-NN 不确定性\cite{papernot2018deepknn}以及分布外检测基线\cite{hendrycks2017baseline}一致。这样得到的分数可以解释为分布外程度，表征向量则由有效密度方向投影得到，并扩展到兼容旧接口的 256 维表示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth]{method_evolution_summary.png}
+    \caption{从 0521 报告的手工 UQ 估计器/后端 FiLM，到当前密度不确定性估计/大模型前视觉适配器的方法演进。}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{密度不确定性估计与原 UQ 估计器的接口对应}
+\begin{tabular}{lll}
+\toprule
+\textbf{输出} & \textbf{原方案} & \textbf{当前方案} \\
+\midrule
+分数 & 手工伪标签回归 & Mahalanobis 距离/密度距离 标量 \\
+表征向量 & UQ 估计器中间特征 & PCA 密度方向，兼容 256 维接口 \\
+用途 & FiLM 门控/调制 & 大模型前的视觉证据条件化、分层评估 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{三条注入路线}
+
+\begin{table}[H]
+\centering
+\caption{本阶段验证过的 UQ 注入路线}
+\small
+\begin{tabular}{p{2.8cm}p{4.9cm}p{4.1cm}p{1.5cm}}
+\toprule
+\textbf{路线} & \textbf{核心思路} & \textbf{当前结论} & \textbf{状态} \\
+\midrule
+密度不确定性估计监测 & 用 EVAViT 词元分布密度估计不确定性 & 理论依据强于手工 UQ 估计器，可保留为基础模块 & 保留 \\
+显式 UQ 词元 & 将分数与表征向量投影成大模型输入词元 & 大模型能读出可靠性语义，但规划不自然改善 & 暂停扩大 \\
+大模型前视觉适配器 & 用 UQ 条件化视觉查询向量，再交给大模型决策 & 路线均衡受损输入评估平均有效 & 主线 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{实验设置}
+
+\subsection{数据与视觉特征}
+
+实验使用 Bench2Drive 验证集\cite{jia2024bench2drive}，共 12,806 个样本。前期已在服务器上完成 ORION EVAViT 特征提取，缓存为每样本 $[6,1600,1024]$ 的 float16 图像块特征。正常/恶劣的基础划分沿用天气 ID 规则：Weather ID $0$--$3$ 为 正常，其余天气条件为 恶劣。
+
+\subsection{配对扰动监督}
+
+为了避免人为规定“高不确定性就应该刹车”，本阶段采用 配对扰动 的监督思想：对同一场景构造 正常输入 与 受损输入，使几何和专家轨迹保持一致，仅破坏视觉输入。训练目标不是让模型输出手工保守轨迹，而是让：
+\[
+\begin{aligned}
+    d(&\text{受损+正确 UQ},\ \text{正常参考})\\
+    &< d(\text{受损+打乱 UQ},\ \text{正常参考}).
+\end{aligned}
+\]
+
+扰动审计结果表明，单相机丢失强度 1 能稳定提升 密度不确定性分数，且语义清楚，因此当前用它作为主要受损视觉设置。
+
+\subsection{大模型前视觉适配器}
+
+显式 UQ 词元路线失败后，主线改为大模型前视觉适配器。其思想与 FiLM 条件调制\cite{perez2018film}和参数高效适配\cite{hu2022lora}相关，但注入位置限定在大模型前视觉查询向量，避免直接修改轨迹解码器：
+\[
+    q' = q + s_{\text{UQ}} \cdot
+    \mathrm{up}\left(\mathrm{GELU}(\mathrm{down}(\mathrm{LN}(q)))\right).
+\]
+其中 $q$ 为进入大模型的视觉查询向量，$s_{\text{UQ}}$ 为 密度不确定性分数。适配器采用零初始化，因此初始状态严格等价于 恒等，不会在训练前破坏 ORION 原有输出。该设计不直接接触 VAE 或轨迹解码器，因此比 L2 FiLM 更符合“让大模型 基于可靠性条件化后的视觉证据做决策”的研究主张。
+
+\section{实验结果}
+
+\subsection{密度不确定性估计监测能力}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{density_score_distribution.png}
+    \caption{密度不确定性分数分布}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{density_embedding_projection.png}
+    \caption{密度表征向量投影}
+\end{subfigure}
+\caption{密度不确定性估计对视觉条件变化具有可观测分离度。}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{密度不确定性估计监测结果}
+\begin{tabular}{lrp{6.5cm}}
+\toprule
+\textbf{指标} & \textbf{结果} & \textbf{说明} \\
+\midrule
+AUROC & 0.799 & 区分 留出 正常/恶劣视觉条件 \\
+AUPRC & 0.951 & 恶劣 占比较高时更稳定 \\
+路线-自助法 AUROC 95\% CI & 0.675--0.915 & 路线数量有限导致置信区间较宽 \\
+有效表征维度 & 16 & 实际密度方向维度 \\
+兼容表征维度 & 256 & 保持旧 UQ 估计器 接口兼容 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{显式 UQ 词元：语义可读但规划负结果}
+
+R2d 可靠性问答 显示，大模型 可以从连续 UQ 词元 中读出可靠性语义：正确 UQ 的 解析率/准确率 为 0.97/0.90，打乱 UQ 为 0.99/0.96；无注入/零值注入设置下没有可解析可靠性描述。这说明 UQ 词元 不是无意义噪声。
+
+但是在规划预实验中，显式词元并未带来轨迹改善。50 帧一致性预实验中，受损输入的 ADE 分别为无注入 0.1910、打乱 UQ 0.2147、正确 UQ 0.2447；反事实排序预实验中正确 UQ 也未优于打乱 UQ。因此当前判断是：\textbf{语言通道能读取 UQ，但没有规划监督时，可靠性语义不会自然转化为轨迹变化。}
+
+\subsection{大模型前视觉适配器：路线均衡受损输入评估}
+
+使用 pilot100 适配器，在校准集上做路线均衡评估：10 条路线，每条抽 50 个候选帧，其中 35 个有效规划帧，共 350 个有效样本。输入采用单相机丢失强度 1，比较无注入、零值注入、打乱 UQ 和正确 UQ 四种干预。
+
+\begin{table}[H]
+\centering
+\caption{路线均衡受损输入评估 整体结果}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{UQ 模式} & \textbf{ADE} & \textbf{FDE} & \textbf{数量} \\
+\midrule
+无注入 & 1.4429 & 2.5210 & 350 \\
+零值注入 & 1.4429 & 2.5210 & 350 \\
+打乱 UQ & 1.2286 & 2.1969 & 350 \\
+正确 UQ & \textbf{1.1641} & \textbf{2.0955} & 350 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+相对无注入，正确 UQ 的 ADE 改善为 19.3\%；相对打乱 UQ，正确 UQ 仍有 5.3\% 的额外改善。这表明适配器的收益并非完全来自随机扰动或额外参数，而与正确 UQ 条件信号有关。
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{route_balanced_ade_by_route.png}
+    \caption{逐路线 ADE}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{route_balanced_correct_improvement.png}
+    \caption{正确 UQ 相对无注入 的改善}
+\end{subfigure}
+\caption{路线均衡评估显示平均收益成立，但路线级仍有波动。}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{逐路线 ADE 摘要}
+\small
+\begin{tabular}{p{5.6cm}rrr}
+\toprule
+\textbf{路线} & \textbf{无注入} & \textbf{打乱} & \textbf{正确} \\
+\midrule
+VanillaSignalizedTurnRedLight & 2.174 & 1.049 & \textbf{0.754} \\
+OppositeVehicleRunningRedLight & 0.689 & 0.504 & \textbf{0.436} \\
+HighwayExit & 0.747 & 0.606 & \textbf{0.533} \\
+VehicleTurningRoute & 0.728 & 0.601 & \textbf{0.555} \\
+BlockedIntersection & 2.366 & 1.956 & \textbf{1.873} \\
+SignalizedJunctionLeftTurn & 0.886 & \textbf{0.814} & 0.829 \\
+YieldToEmergencyVehicle & \textbf{3.477} & 3.496 & 3.496 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{高低 UQ 分层}
+
+为了检验“高不确定性样本是否收益更明显”，进一步保存逐样本规划记录，并按 密度不确定性分数中位数划分 高 UQ/低 UQ。
+
+\begin{table}[H]
+\centering
+\caption{按 UQ 分数中位数分层的 ADE}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{分组} & \textbf{数量} & \textbf{无注入} & \textbf{打乱} & \textbf{正确} & \textbf{正确 UQ 相比打乱 UQ} \\
+\midrule
+高 UQ & 192 & 1.673 & 1.526 & \textbf{1.502} & +1.6\% \\
+低 UQ & 158 & 1.262 & 1.089 & \textbf{1.052} & +3.4\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.68\textwidth]{uq_stratified_ade.png}
+\caption{高低 UQ 分层结果。}
+\end{figure}
+
+该结果说明 正确 UQ 在两组中都优于打乱 UQ，但收益并没有集中在 高 UQ，低 UQ 组的相对改善反而更大。因此当前不能声称“高 UQ 场景收益更明显”。更稳妥的结论是：\textbf{密度不确定性估计已经能作为有效条件信号改善平均规划，但分数标量与 规划收益强度之间的单调关系尚未建立。}
+
+\subsection{正常输入安全性检查}
+
+同样的路线均衡评估也在 正常输入上进行，用于确认 适配器是否破坏正常输入。
+
+\begin{table}[H]
+\centering
+\caption{正常输入 安全性检查}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{模式} & \textbf{ADE} & \textbf{FDE} & \textbf{ADE 变化} & \textbf{FDE 变化} \\
+\midrule
+无注入 & \textbf{0.8884} & \textbf{1.3707} & +0.0\% & +0.0\% \\
+打乱 UQ & 0.9008 & 1.4265 & +1.4\% & +4.1\% \\
+正确 UQ & 0.8971 & 1.4248 & +1.0\% & +4.0\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.68\textwidth]{clean_safety_ade_fde.png}
+\caption{正常输入安全性：ADE 基本安全，FDE 有轻微退化。}
+\end{figure}
+
+结论是：正常输入 ADE 退化约 1.0\%，低于 3\% 阈值；但 正常输入 FDE 退化约 4.0\%，略高于严格阈值。下一轮训练需要显式加入正常输入保持损失或恒等正则。
+
+\section{当前进展评估}
+
+\subsection{相对开题目标的完成情况}
+
+\begin{table}[H]
+\centering
+\caption{开题目标与当前进展}
+\begin{tabular}{p{4.0cm}p{5.4cm}p{4.4cm}}
+\toprule
+\textbf{目标} & \textbf{当前进展} & \textbf{评价} \\
+\midrule
+视觉不确定性监测 & 完成 EVAViT 特征提取、密度不确定性估计、正常/恶劣检测 & 已形成可写入中期报告的结果 \\
+不确定性进入规划链路 & 验证显式词元与 大模型前视觉适配器两条路线 & 主线已明确，显式词元作为负结果诊断 \\
+证明 UQ 被模型使用 & 正确 UQ 相比打乱 UQ 对照显示 正确 UQ 有额外收益 & 初步成立，但仍需更大规模训练 \\
+保证正常场景安全 & 正常输入 ADE 基本安全，FDE 略退化 & 需作为下一阶段重点修复 \\
+可视化展示 & 已生成 路线级图和 BEV 轨迹 GIF & 可用于中期汇报 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{已完成产物}
+
+\begin{itemize}[leftmargin=2em]
+    \item 完成 12,806 个 Bench2Drive 样本的 EVAViT 特征缓存。
+    \item 实现密度不确定性估计、UQ 词元投影器、扰动流程、视觉适配器。
+    \item 完成显式 UQ 词元可靠性问答与 规划预实验。
+    \item 完成 大模型前视觉适配器的 配对扰动 预实验、路线均衡评估、高低 UQ 分层和正常输入安全性检查。
+    \item 完成若干路线的 BEV 轨迹 GIF，用于展示适配器对轨迹行为的影响。
+\end{itemize}
+
+\section{问题、风险与下一步计划}
+
+\subsection{当前卡点}
+
+\begin{riskbox}[主要问题]
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{路线级稳定性不足。} 正确 UQ 平均优于打乱 UQ，但 YieldToEmergencyVehicle 等路线没有改善。
+    \item \textbf{UQ 分数与规划收益不单调。} 高 UQ 组没有比 低 UQ 组表现出更强收益，说明当前分数还不能直接解释为 规划收益。
+    \item \textbf{正常输入 FDE 轻微退化。} 正常输入上 FDE 退化约 4.0\%，需要 正常输入保持损失。
+    \item \textbf{实验规模仍偏预实验。} 当前适配器训练规模约 100 步预实验，尚未完成 500--1000 配对样本的 路线均衡训练。
+\end{enumerate}
+\end{riskbox}
+
+\subsection{下一阶段计划}
+
+\begin{table}[H]
+\centering
+\caption{下一阶段实验计划}
+\small
+\begin{tabular}{p{2.8cm}p{4.8cm}p{2.8cm}p{2.2cm}}
+\toprule
+\textbf{任务} & \textbf{内容} & \textbf{预计耗时} & \textbf{通过标准} \\
+\midrule
+路线均衡训练 & 500--1000 配对样本，仅训练适配器，LoRA 学习率为 0 & 0.5--1 天 & 正确 UQ 稳定优于打乱 UQ \\
+正常输入保持 & 加入正常输入恒等/保持损失 & 0.5 天 & 正常输入 ADE/FDE 退化 $<3\%$ \\
+表征向量条件 & 将有效密度表征向量与分数同时注入适配器 & 0.5--1 天 & 高 UQ 分层更可解释 \\
+路线/天气分层 & 按路线类型、天气 ID、扰动强度分层 & 0.5 天 & 找出收益/失败边界 \\
+中期材料固化 & 更新报告、PPT、GIF 与考核表内容 & 已完成本版 & 口径一致、可汇报 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{总结}
+
+本阶段的核心进展不是简单扩大 0521 的后端 FiLM，而是完成了一次关键路线修正：从“用 UQ 直接改规划输出”转向“用有理论依据的视觉骨干不确定性条件化大模型前的视觉证据”。实验上，密度不确定性估计提供了比手工 UQ 估计器 更强的理论依据；显式 UQ 词元的负结果说明仅让大模型读懂可靠性还不够；大模型前视觉适配器在路线均衡受损输入评估上取得平均收益，并通过正确/打乱 UQ 对照初步证明了 UQ 条件信号的有效性。后续若进一步引入概率不确定性建模，也可参考贝叶斯深度学习与数据不确定性/模型不确定性 的经典框架\cite{gal2016dropout,kendall2017uncertainties}。
+
+当前结论应保持克制：方法已经显示可行性，但还没有达到稳定泛化。中期报告中可以将其表述为\textbf{机制验证已完成，主线方案已收敛，下一阶段进入 路线均衡扩展训练与安全性约束}。
+
+\begin{thebibliography}{99}
+\bibitem{fu2025orion}
+Haoyu Fu, Diankun Zhang, Zongchuang Zhao, Jianfeng Cui, Dingkang Liang, Chong Zhang, Dingyuan Zhang, Hongwei Xie, Bing Wang, and Xiang Bai.
+\newblock ORION: A Holistic End-to-End Autonomous Driving Framework by Vision-Language Instructed Action Generation.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}, 2025.
+
+\bibitem{jia2024bench2drive}
+Xiaosong Jia, Zhenjie Yang, Qifeng Li, Zhiyuan Zhang, and Junchi Yan.
+\newblock Bench2Drive: Towards Multi-Ability Benchmarking of Closed-Loop End-to-End Autonomous Driving.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS) Datasets and Benchmarks Track}, 2024.
+
+\bibitem{fang2023eva}
+Yuxin Fang, Quan Sun, Xinggang Wang, Tiejun Huang, Xinlong Wang, and Yue Cao.
+\newblock EVA: Exploring the Limits of Masked Visual Representation Learning at Scale.
+\newblock In \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}, 2023.
+
+\bibitem{fang2023eva02}
+Yuxin Fang, Quan Sun, Xinggang Wang, Tiejun Huang, Xinlong Wang, and Yue Cao.
+\newblock EVA-02: A Visual Representation for Neon Genesis.
+\newblock \emph{arXiv preprint arXiv:2303.11331}, 2023.
+
+\bibitem{lee2018mahalanobis}
+Kimin Lee, Kibok Lee, Honglak Lee, and Jinwoo Shin.
+\newblock A Simple Unified Framework for Detecting Out-of-Distribution Samples and Adversarial Attacks.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2018.
+
+\bibitem{papernot2018deepknn}
+Nicolas Papernot and Patrick McDaniel.
+\newblock Deep k-Nearest Neighbors: Towards Confident, Interpretable and Robust Deep Learning.
+\newblock \emph{arXiv preprint arXiv:1803.04765}, 2018.
+
+\bibitem{hendrycks2017baseline}
+Dan Hendrycks and Kevin Gimpel.
+\newblock A Baseline for Detecting Misclassified and Out-of-Distribution Examples in Neural Networks.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2017.
+
+\bibitem{perez2018film}
+Ethan Perez, Florian Strub, Harm de Vries, Vincent Dumoulin, and Aaron Courville.
+\newblock FiLM: Visual Reasoning with a General Conditioning Layer.
+\newblock In \emph{AAAI Conference on Artificial Intelligence}, 2018.
+
+\bibitem{hu2022lora}
+Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen.
+\newblock LoRA: Low-Rank Adaptation of Large Language Models.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2022.
+
+\bibitem{gal2016dropout}
+Yarin Gal and Zoubin Ghahramani.
+\newblock Dropout as a Bayesian Approximation: Representing Model Uncertainty in Deep Learning.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2016.
+
+\bibitem{kendall2017uncertainties}
+Alex Kendall and Yarin Gal.
+\newblock What Uncertainties Do We Need in Bayesian Deep Learning for Computer Vision?
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, 2017.
+\end{thebibliography}
+
+\end{document}

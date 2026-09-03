@@ -1,0 +1,28 @@
+{
+  "schema_version": "orion.observation-uq-continuation/v3.1",
+  "run_clean_only_adapter_on_pass": true,
+  "teacher_gate": {
+    "min_mask_auroc": 0.55,
+    "min_score_uplift": 0.005,
+    "min_severity_spearman": 0.1,
+    "required_splits": [
+      "validation_heldout_family",
+      "heldout_route_and_family"
+    ],
+    "policy": "all thresholds must pass on both development-diagnostic splits"
+  },
+  "adapter": {
+    "epochs": 24,
+    "batch_size": 8,
+    "learning_rate": 0.002,
+    "seed": 20270826,
+    "optimizer_inputs": "clean_train_only",
+    "target": "frozen_teacher_conditional_surprise"
+  },
+  "forbidden": {
+    "actual_target_training": true,
+    "orion_finetuning": true,
+    "stage_b": true,
+    "idle_gpu_workspace": true
+  }
+}

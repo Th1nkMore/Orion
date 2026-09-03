@@ -1,0 +1,44 @@
+{
+  "schema": "orion.corruption_hardcase_visual_bakeoff_recovery_submission.v2",
+  "timestamp": "2026-08-31T19:40:00+08:00",
+  "status": "submitted_pending",
+  "job_id": 1114545,
+  "job_name": "hardcase151_hvyrec2",
+  "parent_capture_job_id": 1114233,
+  "preflight_failed_job_id": 1114491,
+  "run_id": "route151_corruption_hardcase_visual_bakeoff_v1",
+  "environment": {
+    "HARDCAPTURE_PROFILES": "heavy",
+    "HARDCAPTURE_RECOVERY": "1",
+    "HARDCAPTURE_PARENT_JOB_ID": "1114233"
+  },
+  "verified_preconditions": {
+    "clean_png_count": 156,
+    "light_png_count": 156,
+    "medium_png_count": 156,
+    "heavy_png_count": 0,
+    "platform_tests": "18 passed in 16.97s",
+    "bash_syntax": "passed"
+  },
+  "resource_contract": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus": 2,
+    "memory": "16G",
+    "time": "00:20:00",
+    "exclude": ["gpu5"]
+  },
+  "paths": {
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_v1",
+    "log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/corruption_hardcase_bakeoffs/route151_corruption_hardcase_visual_bakeoff_heavy_recovery_v2-1114545.out",
+    "amendment": "configs/scenario_factory/amendments/20260831_corruption_hardcase_visual_bakeoff_heavy_recovery_preflight_fix_v1.json"
+  },
+  "execution_locks": {
+    "orion_loaded": false,
+    "clean_light_medium_overwrite": false,
+    "corruption_parameters_changed": false,
+    "route_jobs_submitted": false,
+    "automatic_retry_after_this_job": false
+  },
+  "claim_boundary": "Final narrow operational recovery for the visual-only bake-off; no ORION degradation or safety claim."
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": "orion.observation-uq-native-appearance-candidates/v1",
+  "frozen_at": "2026-08-26T22:31:23+08:00",
+  "purpose": "Audit deployable clean-only appearance/evidence scores on the immutable Epic native-weather feature shard after temporal_viewpos_z failed.",
+  "inputs": {
+    "clean_calibration_examples": 560,
+    "clean_calibration_routes": 35,
+    "native_feature_sha256": "debdeac1cbb1bb72227604a79ef41f38c1be13dde6562256599055d6ea20ddda",
+    "native_routes": ["Town01/Route146", "Town04/Route203"],
+    "renderer_quality": "Epic"
+  },
+  "candidates": {
+    "feature_rms_viewpos_abs_z": "Absolute robust deviation of current patch feature RMS from clean view/position statistics.",
+    "spatial_neighbor_viewpos_abs_z": "Absolute robust deviation of current patch-to-neighbour cosine residual from clean view/position statistics.",
+    "appearance_prototype_viewpos_z": "Positive robust deviation of current patch cosine distance to the clean mean normalized feature at the same view/position.",
+    "appearance_diagonal_viewpos_z": "Positive robust deviation of per-patch RMS diagonal standardized feature distance from clean view/position/channel statistics."
+  },
+  "attestation": {
+    "candidate_training": false,
+    "corruption_metadata_used_for_candidate": false,
+    "paired_clean_used_for_candidate_or_calibration": false,
+    "paired_clean_used_for_evaluation_only": true,
+    "adapter_training": false,
+    "actual_target_training": false,
+    "stage_b": false
+  },
+  "gate": {
+    "all_checks_must_pass_per_candidate": true,
+    "checks": [
+      "fog_light score uplift over clear > 0",
+      "fog_heavy score mean > fog_light score mean",
+      "sample-level fog severity Spearman >= 0.10",
+      "score versus paired-clean patch-delta Spearman >= 0.10 at both fog levels",
+      "score AUROC for the top 20 percent paired-delta patches >= 0.60 at both fog levels",
+      "paired-clean delta mean is positive and fog_heavy > fog_light",
+      "fog_heavy > fog_light > clear score mean independently on both routes"
+    ]
+  },
+  "decision": {
+    "no_candidate_passes": "Keep temporal as a transient component only and design/train a clean self-supervised appearance predictor before any adapter training.",
+    "candidate_passes": "The candidate is eligible as an appearance component in a separately preregistered multi-source adapter target; no training starts automatically."
+  }
+}

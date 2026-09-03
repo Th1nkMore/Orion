@@ -1,0 +1,66 @@
+{
+  "schema": "orion.stage2l_v12_1_factorized_r_smoke_launch.v1",
+  "created_at": "2026-09-01T15:24:11+08:00",
+  "status": "immutable_single_factorized_r_only_authorization",
+  "reason": "The factorized route/actor target interface, component-only loss, warm-start identity, exact frozen inputs and fail-closed submission contract passed CPU preflight. Authorize exactly one bounded R-only engineering smoke to test whether conflict-actor localization transfers to the four frozen dev events.",
+  "validated_inputs": {
+    "trainer_sha256": "05fc37aee17aaccdcfc680669c814dfb199eceb6dbc0cd5759f4409635f2e31a",
+    "factorized_module_sha256": "616831dac43593551e5263ce7d7f28da4b7d8898e70ec0ec8ef998b181fd4d08",
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "view_feature_cache_sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61",
+    "orion_config_sha256": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+    "v101_checkpoint_sha256": "3a722ffdeedf682dc58753b3997b0e68143b027f4ae757f2d57362fad026bb16",
+    "v101_report_sha256": "334409434e79a153496e590a27ee4db8d4e173c0af40f1682a02bfd384d08c25",
+    "factorized_cpu_report_sha256": "8d5827dc2914db45e3ad5a0ccd3ebe02fe0289b560ef485d17b23f4bc4dc7e45"
+  },
+  "protocol_sha256": "2b3afc6cac3bb9e5b583e421acab5bc03d1db6c09cf439a56dac0884dfa303e4",
+  "preflight_sha256": "0171a03ca5f79c09e810cb2ec306f1022bafe746f0901d06c4d5ecb025ccb43d",
+  "preflight_result": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v121_factorized_r_smoke_preflight_result_v1.json",
+    "terminal_report_path": "results/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/trainer_preflight.json"
+  },
+  "submission_implementation": {
+    "submitter_sha256": "a31b738010ed109ce45552c87550af18d264cb834e09fccd56547326effd1df2",
+    "attester_sha256": "262901ea610e45670272fabd7522b443a28538e12be1f22fa50528a1f690a054",
+    "contract_test_sha256": "dfe10720cbe246cf5ad129577e766ab46d63da4737a99043fd7a835c18253e03"
+  },
+  "authorized_run": {
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/training",
+    "maximum_submissions": 1,
+    "automatic_retry": false,
+    "maximum_optimizer_steps": 40,
+    "evaluation_milestones": [20, 40],
+    "only_trainable_paths": [
+      "existing_orion_lora",
+      "same_view_relevance_queries",
+      "factorized_relevance_head"
+    ],
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "05:00:00",
+    "exclude_nodes": ["gpu5"]
+  },
+  "stop_rules": {
+    "nonfinite_gradient": "Fail immediately and do not retry automatically.",
+    "gate_passes": "Stop at the first passing milestone and preserve the checkpoint/report.",
+    "gate_fails_at_step40": "Stop and localize the failure from component/view/event metrics; do not add epochs automatically.",
+    "clear_train_dev_overfit": "Stop under the frozen milestone rule and do not increase capacity or steps automatically.",
+    "runtime_failure": "No automatic retry; diagnose and preregister any exact replacement separately."
+  },
+  "launch_locks": {
+    "bounded_r_only_smoke_allowed": true,
+    "stage1_uq_input": false,
+    "u_tokenizer": false,
+    "language_training": false,
+    "trajectory_or_control": false,
+    "formal_stage2l": false,
+    "stage2p": false,
+    "closed_loop": false,
+    "locked_test_read": false,
+    "passing_run_automatically_unlocks_later_stages": false
+  },
+  "claim_boundary": "Authorization for one 17-event, 40-step factorized-R-only engineering smoke. No outcome automatically validates semantic R, learned U, language understanding, formal generalization, planning, closed loop or safety."
+}

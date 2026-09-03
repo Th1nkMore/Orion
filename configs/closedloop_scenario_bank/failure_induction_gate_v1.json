@@ -1,0 +1,65 @@
+{
+  "schema": "orion.closedloop_failure_induction_gate.v1",
+  "created_at": "2026-08-28T17:02:00+08:00",
+  "status": "frozen_before_degraded_terminal_results",
+  "pending_degraded_jobs_at_freeze": [1082531, 1082544],
+  "scope": "Single-run Stage-A failure-induction screening; not a treatment-effect estimate and not final external-validity evidence.",
+  "route_actor_category": {
+    "147": "walker",
+    "151": "walker",
+    "180": "vehicle"
+  },
+  "validity_requirements": {
+    "clean_gate_passed": true,
+    "clean_and_degraded_epic_quality": true,
+    "clean_and_degraded_risk_mode": "off",
+    "clean_and_degraded_uq_mode": "none",
+    "safety_schema": "orion.closedloop_dynamic_actor_safety.v2",
+    "telemetry_coverage": 1.0,
+    "degraded_corruption_event_contiguous": true,
+    "paired_alignment": "control_step",
+    "paired_interval": "active event plus 3.0 seconds recovery"
+  },
+  "hard_endpoint_degradation": {
+    "pass_if_any": [
+      "degraded route is ineligible or not Completed while clean is eligible and Completed",
+      "degraded route completion is lower than clean",
+      "degraded score penalty is lower than clean",
+      "degraded has more pedestrian, vehicle, or layout collisions than clean",
+      "degraded has more red-light, stop-sign, route-deviation, blocked, route-timeout, or scenario-timeout infractions than clean"
+    ],
+    "evidence_tier": "hard_failure_induction"
+  },
+  "surrogate_safety_margin_degradation": {
+    "actor_scope": "route-specific hazard category, never the best post-hoc category",
+    "interval": "paired event plus recovery",
+    "thresholds": {
+      "minimum_ttc_drop_seconds_floor": 0.20,
+      "minimum_ttc_drop_fraction_of_clean": 0.20,
+      "minimum_ttc_le_2_exposure_increase_seconds": 0.50,
+      "paired_recovery_seconds": 3.0
+    },
+    "all_required": [
+      "finite clean and degraded category-specific minimum OBB-TTC",
+      "minimum OBB-TTC drop is at least max(0.20 seconds, 20 percent of the clean value)",
+      "category-specific TTC <= 2 second exposure increases by at least 0.50 seconds"
+    ],
+    "diagnostic_only_not_sufficient": [
+      "one-frame minimum-TTC decrease without exposure increase",
+      "minimum separating-axis-gap decrease alone",
+      "disc-TTC or disc-clearance change",
+      "lower mean speed or more stopping without a safety-margin degradation"
+    ],
+    "evidence_tier": "near_miss_surrogate_failure_induction"
+  },
+  "decision": {
+    "failure_induction_pass": "hard endpoint degradation OR all surrogate safety-margin requirements",
+    "failure_induction_fail": "valid paired run but neither degradation rule passes",
+    "invalid": "any validity requirement fails",
+    "next_if_hard_pass": "eligible for minimal oracle mechanism test and retained as a hard-case candidate",
+    "next_if_surrogate_only_pass": "eligible for a minimal oracle TTC/clearance mechanism test but not counted toward the final hard-collision/serious-violation case target",
+    "next_if_fail": "stop this frozen event without increasing severity, changing its region, or adding controls",
+    "next_if_invalid": "repair the implementation or environment and rerun the exact frozen pair only"
+  },
+  "global_claim_guard": "At least three independent genuine collision or serious-violation cases remain required for the final hard-endpoint evidence; surrogate passes may support overall-distribution analysis but cannot replace that target."
+}

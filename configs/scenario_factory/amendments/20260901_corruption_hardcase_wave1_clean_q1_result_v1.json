@@ -1,0 +1,98 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_q1_result.v1",
+  "created_at": "2026-09-01T04:58:43+08:00",
+  "status": "q1_complete_two_routes_qualified_for_q2_repeat",
+  "protocol": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_clean_qualification_v1.json",
+    "sha256": "428549620d1393c2b9200263e038e5bbbbcca6c8ef0042fd00ad980156e72aa1"
+  },
+  "collection": {
+    "local_path": "results/scenario_factory/corruption_hardcase_wave1_clean_q1_v1/analysis_v1/q1_collection.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/analysis_v1/q1_collection.json",
+    "sha256": "cef253bd19b299461a73a1583853198873b8876733fa7ac123cdd3e20ebfd357"
+  },
+  "effective_jobs": {
+    "route158": {
+      "job_id": 1117509,
+      "node": "gpu4",
+      "slurm_state": "COMPLETED",
+      "qualification": "clean_qualified"
+    },
+    "route164": {
+      "invalid_runtime_attempt": 1117510,
+      "effective_job_id": 1117562,
+      "node": "gpu4",
+      "slurm_state": "COMPLETED",
+      "qualification": "clean_rejected_vehicle_collision"
+    },
+    "route185": {
+      "job_id": 1117511,
+      "node": "gpu1",
+      "slurm_state": "COMPLETED",
+      "qualification": "clean_qualified"
+    },
+    "route207": {
+      "job_id": 1117512,
+      "node": "gpu4",
+      "slurm_state": "CANCELLED_BY_PREREGISTERED_FAST_SCREEN",
+      "qualification": "clean_rejected_liveness"
+    }
+  },
+  "route_results": {
+    "158": {
+      "path": "results/scenario_factory/corruption_hardcase_wave1_clean_q1_v1/analysis_v1/route158_clean_q1_qualification.json",
+      "sha256": "ce6fbbd74fc3ae3d9fae5f6433a6eedc2fe82f9f1ea8958c205d00a5f903086b",
+      "route_completion_percent": 100.0,
+      "hard_infractions": 0,
+      "longest_low_speed_interval_seconds": 5.1,
+      "q1_status": "pass"
+    },
+    "164": {
+      "path": "results/scenario_factory/corruption_hardcase_wave1_clean_q1_v1/analysis_v1/route164_clean_q1_qualification.json",
+      "sha256": "4c1f9290f0da1f4ef227ac783144f023536b50f432a5e1f1e3a71573f287fceb",
+      "route_completion_percent": 100.0,
+      "hard_infractions": 1,
+      "hard_infraction_type": "collisions_vehicle",
+      "longest_low_speed_interval_seconds": 0.2,
+      "q1_status": "reject"
+    },
+    "185": {
+      "path": "results/scenario_factory/corruption_hardcase_wave1_clean_q1_v1/analysis_v1/route185_clean_q1_qualification.json",
+      "sha256": "88a73c3c5d1eeb215cd094115dbdc88a8152dc9fd05b349c466829e6fac0b53f",
+      "route_completion_percent": 100.0,
+      "hard_infractions": 0,
+      "longest_low_speed_interval_seconds": 0.15,
+      "q1_status": "pass"
+    },
+    "207": {
+      "path": "results/scenario_factory/corruption_hardcase_wave1_clean_q1_v1/analysis_v1/route207_clean_q1_qualification.json",
+      "sha256": "ac5880abba924a97805ea0c2f96ccb8df508f12dd6be26a49ee576a954c76dd4",
+      "route_completion_percent": null,
+      "observed_route_progress_percent": 0.23010043319988257,
+      "longest_low_speed_interval_seconds": 9.75,
+      "q1_status": "reject"
+    }
+  },
+  "decision": {
+    "q1_pass_routes": [158, 185],
+    "q1_rejected_routes": [164, 207],
+    "q2_exact_scope": [158, 185],
+    "q2_runs_per_route": 1,
+    "q2_purpose": "Independent current-code clean repeat; both Q1 and Q2 must pass before corruption screening.",
+    "corruption_jobs_authorized": false
+  },
+  "scientific_interpretation": [
+    "Route158 and Route185 are current-code clean candidates but are not stable-clean qualified until Q2 independently passes.",
+    "Route164 cannot support a corruption-induced failure narrative because its effective clean run collided.",
+    "Route207 cannot support a corruption-induced failure narrative because its clean run violated the preregistered liveness rule.",
+    "The invalid Route164 runtime attempt is excluded from scientific counting and preserved only as environment diagnostics."
+  ],
+  "automatic_scope_locks": {
+    "q2_only_for_routes_158_185": true,
+    "corruption": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Q1 clean qualification evidence only. No stable-clean, corruption, uncertainty, task-relevance, control-benefit, held-out, or benchmark claim is authorized."
+}

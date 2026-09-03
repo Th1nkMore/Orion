@@ -1,0 +1,291 @@
+{
+  "schema": "orion.stage2_l.formal_data_and_corruption_protocol.v1",
+  "created_at": "2026-08-31T04:48:00+08:00",
+  "amended_at": "2026-08-31T07:47:00+08:00",
+  "status": "frozen_data_and_corruption_isolation_training_locked",
+  "amendments": [
+    {
+      "path": "configs/scenario_factory/amendments/20260831_stage2l_clean_render_provenance_gate_v1.json",
+      "sha256": "548e8befd160f7fb1ced3a5ecfe575218f47631b97cefbc24946deb53bc9ce07"
+    },
+    {
+      "path": "configs/scenario_factory/amendments/20260831_route201_runtime_exhaustion_formal24_hold_v1.json",
+      "sha256": "0bbd3a8d40b592154a8f8128e9e6b14fc67367a9971bc21a16f01f8eba39d9d9"
+    },
+    {
+      "path": "configs/scenario_factory/amendments/20260831_stage2l_v5_qa_factory_binding_v1.json",
+      "sha256": "9765469e69c60248409e3a21fed6e78b438b7e5e1b2ec459c835df87b64f24b1"
+    },
+    {
+      "path": "configs/scenario_factory/amendments/20260831_stage2l_visual_cache_reuse_gate_v1.json",
+      "sha256": "37f67058d8b70f1bbf8c53c9c52fd9db08b9904a315936ab1ade95343e5fe9e6"
+    }
+  ],
+  "research_boundary": {
+    "stage1_adapter": "Frozen task-agnostic spatial observation evidence-loss proxy U. It estimates view, location, magnitude and temporal change; it does not decide task relevance or action.",
+    "stage2_l": "ORION/VLM learns dense task relevance R, K=U*sigmoid(R), categorical task fields and an interpretable uncertainty-response stance.",
+    "stage2_p": "Trajectory/planning response remains disabled until Stage2-L passes event-held-out semantic, counterfactual and false-conservatism gates.",
+    "legacy_density_uq": false,
+    "hard_governor": false,
+    "trajectory_training": false
+  },
+  "frozen_event_split": {
+    "unit": "whole route and actor-grounded event",
+    "counts": {
+      "train": 16,
+      "dev": 4,
+      "test": 4
+    },
+    "event_count": 24,
+    "town_count": 6,
+    "scenario_family_count": 15,
+    "adjacent_frames_cross_splits": false,
+    "dev_role": "checkpoint selection and bounded engineering release gates",
+    "test_role": "single locked read after model and thresholds are frozen",
+    "test_outcomes_may_change_route_membership": false,
+    "formal_route_plan": {
+      "path": "results/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/formal_route_plan.json",
+      "sha256": "ccc4f25b1110856873bfdedc87b2d3232a2418400acd0d2ba093d0201bd2c50c"
+    }
+  },
+  "fixed_qa_construction": {
+    "source_condition": "clean_off closed-loop traces with no Stage1, Stage2, Density UQ, governor or planning influence",
+    "candidate_offsets_seconds": [
+      -2.0,
+      -1.0,
+      0.0,
+      1.0,
+      2.0
+    ],
+    "minimum_retained_keyframes_per_event": 3,
+    "maximum_retained_keyframes_per_event": 5,
+    "drop_keyframe_only_if": "Neither the unmodified ORION route corridor nor a visible conflict actor supplies camera-space task support.",
+    "records_per_keyframe": 20,
+    "variants": [
+      "observed",
+      "zero_uq",
+      "on_path_uq",
+      "off_path_uq",
+      "view_shuffled_uq"
+    ],
+    "question_families": [
+      "observation_semantics",
+      "epistemic_limitation",
+      "task_relevance",
+      "driving_implication"
+    ],
+    "expected_record_range": [
+      1680,
+      2320
+    ],
+    "human_geometry_review_required": true,
+    "formal_qa_factory": {
+      "path": "configs/scenario_factory/qa_factory_v5_vlm_task_fields.json",
+      "sha256": "c942d85a3ac44b551397cbb4b47172d75594d520be8258147dee1aa4a2e9b476"
+    },
+    "formal_dataset_assembler": {
+      "path": "scripts/assemble_stage2l_formal_dataset.py",
+      "sha256": "7bd785b0bbbf729378928dc32edf2646b9517552a839c55e401ebdfa72bcb3f5",
+      "test_sha256": "6e7b3c59040f2901cf1c02adc535580310f8be0543d69c2600853162325c78bd"
+    }
+  },
+  "stage1_signal_role": {
+    "checkpoint": {
+      "path": "/public/home/lidachuan/orion_work/observation_uq_v3/runs/counterfactual_pairwise_native_repair_seed20260828_r1/counterfactual_evidence_pairwise_native_repair.pt",
+      "sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8"
+    },
+    "training_lineage": {
+      "synthetic_optimizer_families": [
+        "local_blur",
+        "local_dark"
+      ],
+      "native_fog_optimizer_route": "Town10HD/Route148",
+      "native_fog_checkpoint_selection_route": "Town03/Route195",
+      "route_and_town_disjoint_native_fog_evaluation_routes": [
+        "Town01/Route146",
+        "Town04/Route203"
+      ],
+      "source_protocol": {
+        "path": "configs/observation_uq_counterfactual_pairwise_native_v4.json",
+        "sha256": "626b5f6d09f44fa03306e44175fefa25550d29b077fb7f9eaeb7de3585330f6d"
+      }
+    },
+    "known_limit": "The frozen adapter missed one preregistered held-out heavy-native-fog patch-AUROC gate (0.590313 < 0.600000). It is therefore a diagnostic and auxiliary observation signal, not semantic uncertainty truth and not the sole source of Stage2-L labels.",
+    "observed_variant_role": "Measure whether current U aligns with independently defined task geometry and task fields.",
+    "counterfactual_variant_role": "Controlled intervention on U location/view/magnitude for learning and testing task relevance; not a claim that the injected map is a natural corruption ground truth.",
+    "checkpoint_update_during_stage2_l": false,
+    "corruption_family_or_severity_is_model_input": false,
+    "route_ttc_collision_or_scenario_name_is_adapter_input": false
+  },
+  "visual_context_cache": {
+    "orion_checkpoint": {
+      "path": "/public/share/lidachuan/orion_assets/checkpoints/Orion.pth",
+      "sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+    },
+    "head_memory_reset_per_keyframe": true,
+    "stage1_uq_inputs_used": false,
+    "task_relevance_targets_used": false,
+    "qa_answers_used": false,
+    "privileged_safety_inputs_used": false,
+    "llm_run_during_cache": false,
+    "trajectory_decoder_run_during_cache": false,
+    "stale_factory_report_binding_allowed_without_reuse_attestation": false,
+    "reuse_requires_same_event_group_frame_camera_bytes_and_frame_metadata": true,
+    "fresh_cache_builder": {
+      "path": "scripts/cache_stage2l_multiframe_visual_contexts.py",
+      "sha256": "56fc60fd526723fb5e7f94526a626c1846d5b324a1196e3f7e28780f9714b201",
+      "test_path": "tests/test_cache_stage2l_multiframe_visual_contexts.py",
+      "test_sha256": "a3c572081e8c427519da5b2555e4f6c6619ded9eb13ff1d9e9afb33c9ae3263a"
+    },
+    "reuse_reattestation": {
+      "path": "scripts/reattest_stage2l_visual_cache.py",
+      "sha256": "51f1aa79347f7d4fde01a170d71a55d7e8ad5acbbb6ec3eaac698bed839adc1f",
+      "test_path": "tests/test_reattest_stage2l_visual_cache.py",
+      "test_sha256": "d854ad9afd912d645d800266e6fc76972e7a17f8ba12578827758467990c84df"
+    },
+    "reuse_batch_runner": {
+      "path": "scripts/reattest_stage2l_visual_cache_batch.py",
+      "sha256": "e97fe5f214bf60f082b9cfd85adc7b1494cb79f07ae18c832b832d076485f292",
+      "test_path": "tests/test_reattest_stage2l_visual_cache_batch.py",
+      "test_sha256": "ca0728dfb8bbbbe82c246240da8c339ff914aaaaa7555f454e340dc4d7383ad1",
+      "frozen_batch_manifest": {
+        "path": "configs/scenario_factory/stage2l_visual_cache_reuse_batch_20260831_v1.json",
+        "sha256": "06d0da311ee75d167108c30a2569943ec84f0fdc2279f35bba0a0de565397567"
+      }
+    }
+  },
+  "corruption_family_isolation": {
+    "stage2_l_image_training_corruptions": [],
+    "stage2_l_training_statement": "Formal Stage2-L semantic training uses clean visual observations plus observed or controlled U maps; it does not train an image-corruption classifier.",
+    "clean_render_provenance_gate": {
+      "new_run_manifest_schema": "orion.closedloop_render_condition.v1",
+      "required_native_glare_profile": "none",
+      "camera_postprocess_override_allowed": false,
+      "historical_pre_native_glare_agent_sha256_allowlist": [
+        "185ba32012718d13322efdf19f1b23d71ec64001bcd1ee57625b1904d0eeb8a6"
+      ],
+      "unknown_or_later_agent_without_render_condition_allowed": false,
+      "scenario_factory_lib_sha256": "154ea4d1dee37e0041d23c0ed7f01aa851b9c2bb8a2f4e8c9bde12fe6cb29392",
+      "closedloop_runner_sha256": "939e507453806435aed7f450fa9a0d238d4d0874476441539dc63c3189a58450"
+    },
+    "training_seen_stage1_families": [
+      "local_blur",
+      "local_dark",
+      "CARLA_native_fog_development"
+    ],
+    "smoke_only_families": [
+      "complete_front_camera_dropout",
+      "legacy_rectangular_local_glare"
+    ],
+    "published_visual_comparator_only": [
+      "CVPR2023_3D_Corruptions_AD_ImagePointAddSun"
+    ],
+    "formal_unseen_family_primary": {
+      "family": "CARLA_0.9.15_native_low_sun_lens_flare_bloom",
+      "adapter_training_allowed": false,
+      "stage2_l_training_allowed": false,
+      "checkpoint_selection_allowed": false,
+      "Route151_role": "visual mechanism and severity development only; never a formal held-out result",
+      "primary_severity": {
+        "lens_flare_intensity": 0.75,
+        "bloom_intensity": 1.5
+      },
+      "stress_severity": {
+        "lens_flare_intensity": 1.5,
+        "bloom_intensity": 3.0
+      },
+      "severity_freeze": {
+        "path": "configs/scenario_factory/amendments/20260831_native_glare_severity_freeze_v1.json",
+        "sha256": "a3d767621580830a62dac7f35c2a25f32049faa503aa6dbc60977386e63375fd"
+      },
+      "independent_confirmation_route_required": true,
+      "confirmation_route_selection_uses_glare_outcomes": false
+    },
+    "future_external_families": {
+      "status": "not_yet_frozen_or_required_for_first_formal_run",
+      "examples": [
+        "native precipitation and spray",
+        "temporally coherent dropped or stale camera frames",
+        "night lens-scatter patterns from a source independent of CARLA glare"
+      ],
+      "may_be_added_after_test_read": false,
+      "new_pre_outcome_protocol_required": true
+    }
+  },
+  "label_and_leakage_contract": {
+    "dense_relevance_target_owner": "route-corridor and visible conflict-actor geometry, not the Stage1 adapter",
+    "task_fields": "derived from U, independently constructed R support and K=U*sigmoid(R)",
+    "forbidden_model_inputs": [
+      "corruption family name",
+      "synthetic severity label",
+      "privileged TTC",
+      "collision or infraction outcome",
+      "scenario family name",
+      "answer-derived task relevance",
+      "ground-truth stance in the forward pass"
+    ],
+    "free_language_role": "auxiliary diagnostic",
+    "release_interface": "categorical task fields plus deterministic text renderer",
+    "trajectory_loss_weight": 0.0,
+    "direct_control_loss_weight": 0.0
+  },
+  "formal_stage2_l_release_gates": {
+    "train_and_dev": [
+      "finite optimization and gradients",
+      "dense foreground recall and background false-positive gates",
+      "on-path over off-path ranking for every matched group",
+      "zero-UQ absence semantics",
+      "zero-UQ and off-path maintain-stance false-conservatism checks",
+      "on-path conservative-stance checks",
+      "task-field accuracy and deterministic render parse consistency"
+    ],
+    "locked_test": [
+      "event-held-out on-path over off-path ranking",
+      "task-relevance map quality",
+      "zero-UQ and irrelevant-UQ false-conservatism",
+      "structured field and deterministic explanation consistency"
+    ],
+    "native_glare_external_read": [
+      "adapter U response is stable, timely and spatially nontrivial",
+      "U and predicted R jointly separate on-path from off-path evidence loss",
+      "no universal cautious stance on zero-UQ or task-irrelevant glare",
+      "task or safety-proxy degradation is measured independently of the U label"
+    ],
+    "passing_does_not_establish": [
+      "unique uncertainty truth",
+      "the VLM understands every corruption family",
+      "trajectory or closed-loop safety improvement"
+    ]
+  },
+  "launch_locks": {
+    "formal_stage2_l_allowed": false,
+    "stage2_p_allowed": false,
+    "closed_loop_matrix_allowed": false,
+    "unlock_requires": [
+      "MR1-E 80-step diagnosis supports multi-event learnability without duration overfit",
+      "all 24 frozen routes have runtime-valid, actor-grounded, human-reviewed event packages",
+      "all formal keyframes and QA geometry are human-reviewed and hash-bound",
+      "the 1680-2320 record formal dataset passes the assembler",
+      "a formal training protocol freezes optimization, checkpoint selection and all thresholds",
+      "a separate immutable launch amendment authorizes exactly one formal run"
+    ],
+    "current_runtime_eligibility_hold": {
+      "route_index": 201,
+      "maximum_satisfiable_event_count_if_all_other_frozen_routes_pass": 23,
+      "automatic_second_retry_allowed": false,
+      "silent_replacement_allowed": false,
+      "amendment": "configs/scenario_factory/amendments/20260831_route201_runtime_exhaustion_formal24_hold_v1.json"
+    }
+  },
+  "validated_sources": {
+    "stage2l_schedule": {
+      "path": "configs/scenario_factory/stage2l_schedule_v2_structured_semantic.json",
+      "sha256": "15487fbc4469d62da41e4c86ccabeb3a1187c7cfaf5c5775c77a0d55851b8d34"
+    },
+    "stage2l_v9_architecture": {
+      "path": "configs/scenario_factory/stage2l_training_v9_vlm_task_fields.json",
+      "sha256": "cba9ac0957826bc6f0df59812b7ca0b263d01341fbb94ef775ec468bd8e2a5d8"
+    }
+  },
+  "claim_boundary": "This freezes data identities, QA construction and corruption-family isolation while training remains locked. It is not a model, adapter-validity, trajectory, closed-loop, generalization or safety result."
+}

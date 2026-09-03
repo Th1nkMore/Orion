@@ -1,0 +1,45 @@
+{
+  "schema": "orion.corruption_hardcase_wave0_decision_collector_implementation.v1",
+  "created_at": "2026-09-01T01:27:01+08:00",
+  "status": "implemented_and_tested_before_remaining_eight_effective_jobs_terminal",
+  "purpose": "Freeze the mechanical nine-pair collection step and preserve the scope locks before Wave0 is complete.",
+  "pair_evaluator_record": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave0_pair_evaluator_implementation_v1.json",
+    "sha256": "2eddbac8a5b1eae00baf6fe7fa5471e0f6db03636e1138bd51cdb5af9bdb5723"
+  },
+  "implementation": {
+    "path": "scripts/collect_corruption_hardcase_wave_decisions.py",
+    "sha256": "27471ed2185ad64ff361449a62e12805e74acd691b09e454fc0fcd472e67a1ff",
+    "test_path": "tests/test_collect_corruption_hardcase_wave_decisions.py",
+    "test_sha256": "1c10a35e932b7d2d2648a4eb04341e99b05f1ac50c999a93181b036dfdc6ae78",
+    "combined_local_and_remote_test_result": "9 passed",
+    "expected_pair_count": 9,
+    "expected_routes": [151, 180, 194],
+    "expected_conditions": [
+      "front_stale_200ms",
+      "waterdrop_medium",
+      "native_motion_blur_medium"
+    ]
+  },
+  "chronology": {
+    "running_at_freeze": {
+      "1116352": "route194 clean_off",
+      "1116353": "route194 front_stale_200ms"
+    },
+    "pending_at_freeze": [
+      1116354,
+      1116355,
+      1116356,
+      1116357,
+      1116358,
+      1116359
+    ]
+  },
+  "scope_locks": {
+    "heldout_confirmation_automatically_authorized": false,
+    "stage2p_automatically_authorized": false,
+    "formal_200_route_evaluation_automatically_authorized": false,
+    "positive_case_visual_review_required_before_next_scope": true
+  },
+  "claim_boundary": "Mechanical result collection only. It cannot upgrade a development positive into a method, generalization, control-benefit, or benchmark claim."
+}

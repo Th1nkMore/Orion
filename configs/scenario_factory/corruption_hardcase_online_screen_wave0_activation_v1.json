@@ -1,0 +1,60 @@
+{
+  "schema": "orion.corruption_hardcase_online_screen_wave_activation.v1",
+  "created_at": "2026-09-01T00:02:01+08:00",
+  "status": "authorized_pending_strict_preflight_and_submission",
+  "base_wave": {
+    "path": "configs/scenario_factory/corruption_hardcase_online_screen_wave0_v1.json",
+    "sha256": "59429ae9fa3cb01b0639c8694399d6ea12f12cf49cf77c14c23b317da3af5186"
+  },
+  "visual_gate": {
+    "path": "configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json",
+    "sha256": "aac9996062720f95498a85247611e0f63adf3d1cc6caea2dcb6bd55846c2e98d"
+  },
+  "authorization": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_visual_approval_authorization_v1.json",
+    "sha256": "6e2e34a73cf96a9e96fc5fe8d598834b8b6b711285572a07ebad3b5757a5f6db"
+  },
+  "primary_exact_conditions": {
+    "front_stale": "delay_ms:200",
+    "lens_waterdrop_paired_template": "profile:medium",
+    "native_motion_blur": "profile:medium"
+  },
+  "matrix": {
+    "routes": [151, 180, 194],
+    "conditions_per_route": [
+      "clean_off",
+      "front_stale_transient_off",
+      "lens_waterdrop_paired_template_transient_off",
+      "native_motion_blur_off"
+    ],
+    "total_jobs": 12,
+    "same_code_clean_pair": true
+  },
+  "runtime": {
+    "pilot_run_id": "corruption_hardcase_online_wave0_v1",
+    "slurm_partition": "Nvidia_A800",
+    "gpus_per_job": 1,
+    "cpus_per_job": 2,
+    "memory_per_job": "192G",
+    "time_limit": "02:00:00",
+    "output_root": "/public/share/lidachuan/orion_assets",
+    "personal_home_artifacts": false
+  },
+  "architecture_locks": {
+    "ORION_CLOSEDLOOP_UQ_MODE": "none",
+    "ORION_CLOSEDLOOP_CONDITIONING": "none",
+    "ORION_CLOSEDLOOP_RISK_MODE": "off",
+    "ORION_PLANNING_RESPONSE_MODE": "off",
+    "legacy_density_uq": false,
+    "learned_uq_control": false,
+    "stage2_control": false
+  },
+  "execution_authority": {
+    "wave0_slurm_submission": true,
+    "heldout_confirmation": false,
+    "route203": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Activation and resource contract only. Jobs remain development failure-induction screens and cannot by themselves support an uncertainty or safety claim."
+}

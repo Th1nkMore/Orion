@@ -1,0 +1,71 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T06:23:00+08:00",
+  "status": "formal_v5_qa_construction_bound_training_still_locked",
+  "title": "Formal Stage2-L event construction now fail-closes on the v5 task-field QA contract",
+  "scope": "QA construction and formal-dataset validation only",
+  "diagnosis": {
+    "previous_submitter_default": "configs/scenario_factory/qa_factory_v2_matched_supervision.json",
+    "previous_submitter_default_sha256": "2236bbc84bb794abc0ce69fc3b4706b131eaa1282b2942212ef429a3b381471e",
+    "frozen_formal_target": "configs/scenario_factory/qa_factory_v5_vlm_task_fields.json",
+    "frozen_formal_target_sha256": "c942d85a3ac44b551397cbb4b47172d75594d520be8258147dee1aa4a2e9b476",
+    "failure_if_unrepaired": "New multiframe event jobs would emit legacy v2 records that the formal scientific design intends to supersede, while merely changing the config argument to v5 would fail because the geometric base factory accepts only v1/v2 schemas."
+  },
+  "repair": {
+    "construction": [
+      "Generate U/R/K geometry, structured summaries and map sidecars with the frozen v2 geometric thresholds.",
+      "Apply the CPU-only v5 semantic upgrade to explicit task fields and deterministic text.",
+      "Copy the unchanged map sidecars into the v5 dataset and retain a hash reference to the v2 source records.",
+      "Keep formal training and Stage2-P locked."
+    ],
+    "unchanged_by_v5_upgrade": [
+      "Stage1 observation uncertainty U",
+      "route and actor task-relevance geometry",
+      "task-risk map sidecars",
+      "clean visual model inputs",
+      "event identity, keyframes and split",
+      "ORION visual tokens"
+    ],
+    "submitter": {
+      "path": "scripts/submit_stage2l_multiframe_event_factory.sh",
+      "sha256": "22d8bb9a84722ff52d2ae42a26f6875f056590e13e61e92576783610008bafc3"
+    },
+    "event_finalizer": {
+      "path": "scripts/finalize_uq_relevance_multiframe_event.py",
+      "sha256": "2704a2ac9246fbd8bcb0821c61882dd6c2c1e00f5320a0bbf7c7d641ea112d3a"
+    },
+    "formal_assembler": {
+      "path": "scripts/assemble_stage2l_formal_dataset.py",
+      "sha256": "c7ff218c44bab72c1750d6d9531425301b267207b38ea46741d1ea044434898a",
+      "new_gate": "Every formal record must be schema v5, name the v5 QA contract, and independently pass the v5 task-field audit."
+    }
+  },
+  "existing_artifact_policy": {
+    "legacy_v2_factory_report_is_formal_ready": false,
+    "stage1_sequence_may_be_reused": true,
+    "stage1_reuse_requires": [
+      "event-package hash match",
+      "frozen adapter checkpoint hash match",
+      "all prohibited task inputs remain false",
+      "the same fixed keyframe identity"
+    ],
+    "v2_records_may_only_be_used_as_a_hash_bound_source_for_v5_upgrade": true,
+    "old_visual_cache_manifest_may_be_silently_rebound": false,
+    "cache_reuse_requires_a_separate_validator_or_recomputation": true
+  },
+  "tests": {
+    "local_passed": 13,
+    "platform_passed": 13,
+    "files": {
+      "tests/test_finalize_uq_relevance_multiframe_event.py": "1498e082d7011dc80bd74405ca9c195115480402f06bd23f7411c6b73aa805b9",
+      "tests/test_submit_stage2l_multiframe_event_factory.py": "56b6644140792286374a1a960e37e6278e9074db5499ba5105cde2642c43c0b6",
+      "tests/test_assemble_stage2l_formal_dataset.py": "fbe771c5b147b0815894435ff1cea857fea03d17ca399a34c1d10741884d2c19"
+    }
+  },
+  "launch_locks": {
+    "formal_stage2_l_allowed": false,
+    "stage2_p_allowed": false,
+    "closed_loop_matrix_allowed": false
+  },
+  "claim_boundary": "Data-contract repair only. It does not show VLM learnability, semantic understanding, adapter validity, trajectory improvement or closed-loop safety."
+}

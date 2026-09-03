@@ -1,0 +1,112 @@
+{
+  "schema_version": "orion.counterfactual-evidence-pairwise-native-protocol/v4",
+  "frozen_at": "2026-08-28T02:10:31+08:00",
+  "purpose": "Repair Stage-1 supervision so native or mixed-weather references are not treated as absolute zero-uncertainty observations.",
+  "scientific_quantity": {
+    "adapter_output": "spatial observation evidence-loss score whose within-pair increment is supervised",
+    "identified_training_quantity": "U(observed) - U(reference) at matched world pose and camera view",
+    "generic_reference_absolute_target": null,
+    "native_night_is_automatically_uncertain": false,
+    "native_fog_is_automatically_uncertain": false,
+    "corruption_metadata_is_model_input": false,
+    "paired_reference_is_inference_input": false,
+    "counterfactual_target_is_unique_uncertainty_truth": false,
+    "task_relevance_is_adapter_output": false
+  },
+  "supervision": {
+    "target": "measured paired frozen-feature evidence delta with persistent-direction, persistent-magnitude, and transient-inconsistency components",
+    "loss": "balanced SmoothL1(asinh(U_observed-U_reference), asinh(target)) plus measured-severity ranking on predicted pairwise deltas",
+    "blanket_reference_presence_zero_loss": false,
+    "blanket_reference_score_zero_loss": false,
+    "corruption_mask_optimizer_weight": 0.0,
+    "actual_orion_failure_optimizer_weight": 0.0,
+    "synthetic_family_label_optimizer_input": false,
+    "absolute_clear_anchor": null,
+    "inference_calibration": "subtract a frozen clean/event-precondition baseline before thresholding; calibration is separate from Stage-1 pairwise training"
+  },
+  "frozen_inputs": {
+    "synthetic_dataset_manifest_sha256": "9c6166a44219a186f3bc52e4e40c8065ecf5a7b47d38e29c3c16a45e973148d6",
+    "initial_checkpoint_sha256": "6548763f9735c05152c1499501c864775bbcc9fcc1b51112b4beecc33acb7cc3",
+    "initial_checkpoint_role": "initialization only; checkpoint selection uses training/route validation losses and never native held-out validation",
+    "synthetic_training_families": [
+      "local_blur",
+      "local_dark"
+    ],
+    "unseen_family_regression_check": "local_glare"
+  },
+  "native_split": {
+    "training": [
+      {
+        "route_id": "Town10HD/Route148",
+        "route_xml": "configs/closedloop_uq_pilot/routes/route_148_nohazard.xml",
+        "positions": 16
+      },
+      {
+        "route_id": "Town03/Route195",
+        "route_xml": "configs/closedloop_uq_pilot/routes/route_195_nohazard.xml",
+        "positions": 16
+      }
+    ],
+    "held_out_validation": [
+      {
+        "route_id": "Town01/Route146",
+        "positions": 16
+      },
+      {
+        "route_id": "Town04/Route203",
+        "positions": 16
+      }
+    ],
+    "town_disjoint": true,
+    "held_out_validation_used_for_optimizer_or_checkpoint_selection": false,
+    "conditions": [
+      "clear",
+      "fog_light",
+      "fog_heavy"
+    ],
+    "renderer": "CARLA-0.9.15-native-weather",
+    "renderer_quality": "Epic",
+    "paired_world_pose": true,
+    "pixel_corruption_generator_used": false
+  },
+  "bounded_repair": {
+    "seed": 20260828,
+    "feature_dim": 1024,
+    "hidden_dim": 128,
+    "max_views": 6,
+    "use_view_embedding": false,
+    "initialize_from_previous_checkpoint": true,
+    "epochs": 4,
+    "automatic_epoch_extension": false,
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "pair_batch_size": 2,
+    "responsive_weight": 0.75,
+    "ranking_weight": 0.25,
+    "synthetic_pair_weight": 1.0,
+    "native_pair_weight": 1.0,
+    "checkpoint_selection": "minimum frozen mixture of synthetic route-validation pairwise loss and native-training leave-one-route-out loss",
+    "native_held_out_checkpoint_selection_weight": 0.0
+  },
+  "unchanged_evaluation_gates": {
+    "local_glare": {
+      "combined_patch_spearman_min": 0.1,
+      "combined_target_top20_auroc_min": 0.6,
+      "median_record_within_intervened_view_target_top20_auroc_min": 0.55,
+      "severity_monotonicity_required": true
+    },
+    "native_fog_held_out": {
+      "fog_light_uplift_over_clear_min": 0.0,
+      "fog_heavy_higher_than_light_required": true,
+      "sample_severity_spearman_min": 0.1,
+      "each_condition_patch_spearman_min": 0.1,
+      "each_condition_paired_delta_top20_auroc_min": 0.6
+    }
+  },
+  "decision": {
+    "both_gates_pass": "Integrate the frozen adapter with event-precondition baseline calibration into the minimum learned-UQ closed-loop trace and controlled-stop governor.",
+    "glare_pass_native_fog_fail": "Stop before learned closed loop; broaden independent native supervision rather than adding synthetic corruption families.",
+    "glare_fail": "Stop the repair; pairwise native supervision caused regression on unseen synthetic-family localization.",
+    "closed_loop_guard": "Do not claim that native weather itself is uncertainty; claim only that the learned signal responds to independently rendered evidence degradation and supports selective risk response."
+  }
+}

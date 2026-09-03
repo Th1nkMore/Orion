@@ -1,0 +1,44 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_route158_pair_evaluator_implementation_amendment.v1",
+  "created_at": "2026-09-01T06:19:16+08:00",
+  "status": "implemented_and_locally_tested_before_any_route158_corrupt_terminal_result",
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_route158_corruption_activation_v1.json",
+    "sha256": "2fbcfda30ffc22f2d3c5337368f7b012e0ffd77d663c337a7773b2dedbdb4dde"
+  },
+  "implementation": {
+    "path": "scripts/evaluate_corruption_hardcase_wave_pair.py",
+    "sha256": "433036e725ae6f29530952d35c014b1e107a5bb61d3d244521001e822256306f",
+    "report_schema": "orion.corruption_hardcase_wave_pair_decision.v1"
+  },
+  "tests": {
+    "path": "tests/test_evaluate_corruption_hardcase_wave_pair.py",
+    "sha256": "b178d3fdfe0b332e918f8d55f2d538b21a5ac9b6354cce35d926f49c0cbcd0a8",
+    "combined_local_result": "9 passed"
+  },
+  "only_semantic_extension": {
+    "route_index": 158,
+    "hazard_actor_category": "vehicle",
+    "basis": "HardBreakRoute is a vehicle conflict scenario and the frozen dynamic-actor telemetry reports vehicle margins."
+  },
+  "unchanged_frozen_positive_gates": {
+    "hard_endpoint": [
+      "new hard infraction relative to clean",
+      "route completion drop at least 10 percentage points"
+    ],
+    "continuous_ttc": "clean TTC minus corrupt TTC must be at least max(0.30 seconds, 20 percent of clean TTC)",
+    "continuous_gap": "clean OBB gap minus corrupt OBB gap must be at least max(0.50 meters, 20 percent of clean gap)",
+    "event_conditions": "active event plus three-second recovery",
+    "native_motion_blur": "whole route",
+    "exact_realization_and_full_telemetry_required": true
+  },
+  "automatic_scope_locks": {
+    "threshold_change_after_results": false,
+    "runtime_failure_as_scientific_result": false,
+    "learned_uq_or_governor": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Evaluator implementation freeze only. It contains no failure-induction or method result."
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "orion.scenario_factory.submission_attestation.v1",
+  "created_at": "2026-09-01T16:24:11+08:00",
+  "run_id": "vertical_slice_route211_expansion_v1",
+  "split": "development_screen",
+  "batch_manifest": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/vertical_slice_route211_20260901_v1/batch_manifest.json",
+    "sha256": "9d5de4721b2a613f1392955ef00848db34355a8b3156dc2ed1f65fcb8a4602d3"
+  },
+  "jobs": [
+    {
+      "route_index": 211,
+      "condition": "clean_off",
+      "variant": "hazard",
+      "job_id": "1121900",
+      "job_name": "uqcl_211_clean_off",
+      "partition": "Nvidia_A800",
+      "state_at_attestation": "PENDING",
+      "reason_at_attestation": "Priority",
+      "submit_time": "2026-09-01T16:23:59+08:00",
+      "requested_resources": {
+        "gpus": 1,
+        "cpus": 2,
+        "memory": "192G",
+        "time_limit": "02:00:00",
+        "excluded_nodes": [
+          "gpu2",
+          "gpu5"
+        ]
+      },
+      "scheduler_estimated_start_time": "2026-09-04T07:00:00+08:00",
+      "scheduler_estimate_is_binding": false,
+      "stdout_stderr": "/public/share/lidachuan/orion_assets/logs/vertical_slice_route211_expansion_v1/uqcl_211_hazard_clean_off-1121900.out"
+    }
+  ],
+  "submission_count": 1,
+  "no_automatic_retry": true,
+  "claim_boundary": "Submission attestation only. The route is development-only and outcome-selected; pending/running state is not a route, model, UQ, planning, or safety result."
+}

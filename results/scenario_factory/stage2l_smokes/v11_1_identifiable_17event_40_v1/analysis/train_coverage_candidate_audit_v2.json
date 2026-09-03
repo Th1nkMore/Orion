@@ -1,0 +1,155 @@
+{
+  "candidate_dispositions": [
+    {
+      "blocking_gate": "frozen_fixed_offset_geometry_gate",
+      "eligible_geometry_keyframes": 2,
+      "formal_event_reviewed": true,
+      "formal_r_data_eligible": false,
+      "formal_split": "train",
+      "may_directly_add_view_coverage": false,
+      "minimum_geometry_keyframes": 3,
+      "reason": "fewer than three fixed-offset keyframes retain visible ORION route support",
+      "route_index": 177
+    },
+    {
+      "blocking_gate": "runtime_and_sensor_integrity",
+      "eligible_geometry_keyframes": 0,
+      "formal_event_reviewed": false,
+      "formal_r_data_eligible": false,
+      "formal_split": "train",
+      "may_directly_add_view_coverage": false,
+      "minimum_geometry_keyframes": 3,
+      "reason": "A separately authorized sensor-runtime repair and new clean_off attempt, installation of a compatible Town12/Town13 map route, or a pre-outcome amendment that accepts a 23-event/14-family dataset or a different-family replacement.",
+      "route_index": 201
+    },
+    {
+      "blocking_gate": "clean_liveness",
+      "eligible_geometry_keyframes": 0,
+      "formal_event_reviewed": false,
+      "formal_r_data_eligible": false,
+      "formal_split": "train",
+      "may_directly_add_view_coverage": false,
+      "minimum_geometry_keyframes": 3,
+      "reason": "clean baseline failed the frozen liveness screen",
+      "route_index": 208
+    }
+  ],
+  "claim_boundary": "Train-only lineage/readiness audit. It proves that the currently frozen Route177/201/208 assets cannot directly repair R coverage; it does not prove that another event will supply a particular view, that R will generalize, or that uncertainty, language, planning, or safety improves.",
+  "coverage_repair": {
+    "current_candidates_can_fill_cam_back_right": false,
+    "current_candidates_can_raise_cam_front_right_independent_events": false,
+    "current_candidates_with_eligible_r_geometry": [],
+    "objective_reweighting_is_sufficient": false,
+    "reason": "No frozen formal-train remainder has an eligible 3-5-keyframe R package. A loss can redistribute mass only among support that exists."
+  },
+  "formal_identity_inventory": {
+    "accepted_train_routes": [
+      151,
+      157,
+      158,
+      160,
+      161,
+      164,
+      165,
+      168,
+      177,
+      180,
+      185,
+      188,
+      194,
+      207
+    ],
+    "dev_routes": [
+      147,
+      152,
+      162,
+      195
+    ],
+    "locked_test_routes": [
+      145,
+      173,
+      206,
+      212
+    ],
+    "missing_train_routes": [
+      201,
+      208
+    ],
+    "train_routes": [
+      151,
+      157,
+      158,
+      160,
+      161,
+      164,
+      165,
+      168,
+      177,
+      180,
+      185,
+      188,
+      194,
+      201,
+      207,
+      208
+    ]
+  },
+  "gpu_used": false,
+  "inputs": {
+    "accepted_event_bank": {
+      "path": "/public/home/lidachuan/project/Orion/results/scenario_factory/event_banks/stage2l_formal24_partial18_reviewed_v1.json",
+      "sha256": "9b1c5b6ca9f2c544110bc096e731bcd7b7f9be2cabe94c16b5573aecb9d30d89"
+    },
+    "formal_route_plan": {
+      "path": "/public/home/lidachuan/project/Orion/results/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/formal_route_plan.json",
+      "sha256": "ccc4f25b1110856873bfdedc87b2d3232a2418400acd0d2ba093d0201bd2c50c"
+    },
+    "route177_geometry_gate": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260831_route177_formal_geometry_gate_v1.json",
+      "sha256": "1e9c036217a6e11e6dcc583054e473358cb9e9352d977258ba3a8296f1e57acf"
+    },
+    "route177_reviewed_shard": {
+      "path": "/public/home/lidachuan/project/Orion/results/scenario_factory/event_banks/stage2l_formal24_route177_reused_reviewed_v1.json",
+      "sha256": "281e1e70d4fc1075a77d26bea7748f951fc06660208e2a4856e4e077a07643fd"
+    },
+    "route201_runtime_hold": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260831_route201_runtime_exhaustion_formal24_hold_v1.json",
+      "sha256": "0bbd3a8d40b592154a8f8128e9e6b14fc67367a9971bc21a16f01f8eba39d9d9"
+    },
+    "route208_liveness_hold": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/amendments/20260831_route208_clean_liveness_fast_screen_v1.json",
+      "sha256": "1c436b7452b6ceba6554561d6da58671a7da6ad4ddd9b1f1405721cd0ebdefbb"
+    }
+  },
+  "inspection_boundary": {
+    "closed_loop_outcomes_used_to_rank_candidates": false,
+    "dev_result_files_read": [],
+    "formal_train_dispositions_read": [
+      177,
+      201,
+      208
+    ],
+    "locked_test_result_files_read": [],
+    "model_predictions_read_for_selection": false,
+    "uncertainty_or_qa_outputs_read_for_selection": false
+  },
+  "lineage_discrepancies": [
+    {
+      "authoritative_formal_plan_split": "train",
+      "disposition": "recorded_clerical_lineage_mismatch; formal plan owns split and the route-specific technical exclusion remains applicable",
+      "legacy_amendment_split_label": "dev",
+      "route_index": 208
+    }
+  ],
+  "next_authorized_work": {
+    "action": "Freeze a train-only coverage-repair candidate pool using static route/event geometry before model outcomes, require accepted 3-5-keyframe support and nonzero side/rear-view contribution, then rerun the CPU coverage gate.",
+    "formal_plan_change_requires_timestamped_amendment": true,
+    "gpu_r_only_smoke": false,
+    "held_out_routes_may_move_to_train": false,
+    "language_or_stage2p_training": false
+  },
+  "passed": true,
+  "schema": "orion.stage2l_v12_train_coverage_candidate_audit.v1",
+  "status": "frozen_train_candidates_cannot_repair_r_view_coverage",
+  "training_started": false
+}

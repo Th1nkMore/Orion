@@ -1,0 +1,64 @@
+{
+  "schema": "orion.stage2l_v13_process_qa_launch.v1",
+  "created_at": "2026-09-02T00:44:15+08:00",
+  "status": "immutable_two_arm_process_qa_smoke_authorization",
+  "reason": "Replace the v12.2 bridge-only semantic slice with a bounded comparison in which frozen Stage1 U tokens and U-independent ORION R hidden tokens enter ORION directly. No TaskRiskLanguageBridge or K model input is authorized.",
+  "validated_inputs": {
+    "dataset_audit_report_sha256": "2d8d2879a5ac9383887a95304bc5c9d3c3740aadaee3d720dac9a272c9c9c2f7",
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "factorized_relevance_sha256": "616831dac43593551e5263ce7d7f28da4b7d8898e70ec0ec8ef998b181fd4d08",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+    "orion_config_sha256": "0920526b2eae94a25110bee882f8df9d51fdff6625d465d6d2d62ee96274f576",
+    "process_module_sha256": "281c619212123aaa3b79414bfa9c06428a69d6eecf9a0dd454d3ab5324e7546f",
+    "trainer_sha256": "f985f400201a8acdc48d9e40174b512b2a0277ec8783d7f7327067864bf740ae",
+    "u_tokenizer_checkpoint_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "v11_records_sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101",
+    "v121_checkpoint_sha256": "f62cbb234671fc81f1c320f42015ca99ebaf27f2c2c0ede1f616c7eaa846f23c",
+    "v121_report_sha256": "890cb682f6cd20bc5d9c14b3db04ea2454806632dda654c19afd3574239a7cc0",
+    "v121_terminal_validation_sha256": "17159ee47e008e29e4e500a74713988d96dfdd4ce4a9e24706b4f3b5782aa51d",
+    "v122_lineage_helper_sha256": "db3c37184b29ac96a7d777df9e59d0503997fa1f77be22c37317372f0646164a",
+    "view_feature_cache_sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61"
+  },
+  "protocol_sha256": "a0360e5c85719b8a21d3dd8cd754e2ec216f671706d455081df1cb7bfacc94a5",
+  "authorized_arms": {
+    "lora": {
+      "preflight_sha256": "7614ff09348a351920773f1fb364217d5722e2239757b6f3413ddfa9dfa81ab8",
+      "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v13_process_qa_lora_17event_200_v1/training",
+      "optimizer_steps": 200,
+      "maximum_submissions": 1,
+      "train_orion_lora": true,
+      "train_last_decoder_layers": false
+    },
+    "partial_unfreeze": {
+      "preflight_sha256": "865a7434713342a5f5ee5f42c497d33ba37f9d71eff0833c65ba311eb23111dd",
+      "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v13_process_qa_partial4_17event_200_v1/training",
+      "optimizer_steps": 200,
+      "maximum_submissions": 1,
+      "train_orion_lora": true,
+      "train_last_decoder_layers": true,
+      "last_decoder_layer_count": 4
+    }
+  },
+  "architecture_invariants": {
+    "stage1_u_token_count": 600,
+    "direct_language_r_token_count": 150,
+    "r_language_pool": "fixed_parameter_free_10x10_to_5x5_per_view_average",
+    "task_risk_language_bridge_present": false,
+    "k_used_as_model_input": false,
+    "full_resolution_r_supervision": "6x10x10 route and actor maps",
+    "maximum_audited_expanded_sequence_tokens": 1740,
+    "model_max_length": 2048
+  },
+  "automatic_retry": false,
+  "automatic_extension": false,
+  "locks": {
+    "bounded_v13_capacity_comparison_allowed": true,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "locked_test_allowed": false,
+    "extra_epochs_allowed": false,
+    "automatic_downstream_unlock": false
+  },
+  "claim_boundary": "Authorization for two bounded controlled-U capacity smokes only. Neither arm is formal language generalization, learned-U, planning, closed-loop or safety evidence."
+}

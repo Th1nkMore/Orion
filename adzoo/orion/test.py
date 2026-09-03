@@ -191,12 +191,20 @@ def main():
         uq_ckpt_path = pts_cfg['uq_checkpoint']
         if os.path.exists(uq_ckpt_path):
             uq_ckpt = torch.load(uq_ckpt_path, map_location='cpu', weights_only=False)
-            # best.pt has flat keys (no prefix). Orion's uq_estimator submodule
-            # stores its state_dict with "uq_estimator." prefix. Use strict=False
-            # to load what matches (the core UQ weights), ignoring structural prefix diff.
+            from uq_estimator.density import get_uq_state_dict
             model.pts_bbox_head.uq_estimator.load_state_dict(
-                uq_ckpt['model_state_dict'], strict=False)
+                get_uq_state_dict(uq_ckpt), strict=False)
             print(f'[UQ] Reloaded UQEstimator from {uq_ckpt_path} after Orion checkpoint')
+
+    # [UQ Token] Reload projector + LLM LoRA adaptation after base ORION.
+    uq_token_path = os.environ.get(
+        'UQ_TOKEN_CHECKPOINT', cfg.model.get('uq_token_checkpoint', ''))
+    if cfg.model.get('use_uq_token') and uq_token_path:
+        if not os.path.exists(uq_token_path):
+            raise FileNotFoundError(f'UQ token checkpoint not found: {uq_token_path}')
+        from uq_estimator.training import load_uq_token_weights
+        loaded = load_uq_token_weights(model, uq_token_path)
+        print(f'[UQ Token] Loaded {loaded} adaptation tensors from {uq_token_path}')
 
     # [UQ] Load trained FiLM weights if available (L1 + L2)
     film_ckpt_path = os.environ.get('UQ_FILM_CHECKPOINT', '')

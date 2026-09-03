@@ -1,0 +1,67 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-30T12:06:03+08:00",
+  "status": "active_single_submission_engineering_smoke_amendment",
+  "purpose": "Run one bounded Route151 engineering smoke of the Stage2-L v6 magnitude-preserving, complete-matched-group training implementation after explicit user authorization on 2026-08-30.",
+  "base_protocol": {
+    "path": "configs/scenario_factory/stage2l_training_v6_matched_magnitude_cross_family.json",
+    "sha256": "01afe60c0f123460480b755606dd192e37b82d2e99f3e1c9ef2c79119d46f8a0",
+    "is_modified": false,
+    "formal_training_lock_remains_active": true
+  },
+  "launch_locks": {
+    "stage2l_v6_route151_smoke_allowed": true,
+    "route196_retry_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "authorized_run": {
+    "event_id": "route151_step218",
+    "formal_split": "train",
+    "maximum_submissions": 1,
+    "maximum_optimizer_steps": 20,
+    "records_per_optimizer_unit": 20,
+    "record_equivalent_presentations": 400,
+    "answer_micro_batch_size": 2,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route151_v6_matched_magnitude_v1_20/training"
+  },
+  "validated_inputs": {
+    "trainer_sha256": "3828a217efc92324fa579c66220f6782bd7599da4c799b6db21ff32e558466cf",
+    "training_protocol_sha256": "01afe60c0f123460480b755606dd192e37b82d2e99f3e1c9ef2c79119d46f8a0",
+    "qa_factory_config_sha256": "2236bbc84bb794abc0ce69fc3b4706b131eaa1282b2942212ef429a3b381471e",
+    "semantic_bottleneck_v2_sha256": "4d5ad94e149f963661df2de8debe5c174c64403c2042ea6db95032e1262a6a37",
+    "semantic_runtime_v2_sha256": "bf464af987d61f769bfe8559d8a60eead1728847342f34d9321294d9e3397807",
+    "matched_objective_sha256": "a3c7fc1af94220a58be2df54dec97eb089396ffb3747f4fc407e1e88dbf35be8",
+    "records_sha256": "0778592ffda28a2cc7b9046dcb228e7c821d4cae0886ba056e221b5658c82cef",
+    "visual_cache_sha256": "2058b2fa86ffc900aefc38df496ac7fa7117a96641ad58cdebe019b060f16623",
+    "orion_config_sha256": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "base_orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "loss_and_optimizer_contract": {
+    "one_optimizer_step_after_complete_group": true,
+    "optimizer_steps_inside_group": 0,
+    "hard_language_anchors_per_group": 18,
+    "hard_stance_variants": [
+      "zero_uq",
+      "off_path_uq",
+      "on_path_uq"
+    ],
+    "diagnostic_only_driving_variants": [
+      "observed",
+      "view_shuffled_uq"
+    ],
+    "raw_k_magnitude_side_channel": true,
+    "trajectory_loss": 0.0,
+    "direct_control_loss": 0.0
+  },
+  "decision_policy": {
+    "success_means": "The real ORION/VLM implementation can learn the v6 matched QA, task-relevance, risk-ranking, and hard-stance contracts on one formal-train event without reintroducing diagnostic stance labels.",
+    "failure_means": "Inspect the v6 batching, raw-K path, loss routing, or optimization before starting the eight-event pilot.",
+    "formal_stage2l_pilot_unlocked_by_this_smoke": false,
+    "checkpoint_reuse_permitted": false,
+    "generalization_claim_permitted": false,
+    "closed_loop_or_safety_claim_permitted": false
+  },
+  "claim_boundary": "Single-event implementation smoke authorization only; the formal 8-event pilot and Stage2-P remain locked."
+}

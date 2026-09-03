@@ -1,0 +1,83 @@
+{
+  "schema_version": "orion.counterfactual-evidence-pairwise-native-training/v4",
+  "frozen_at": "2026-08-28T02:32:00+08:00",
+  "purpose": "One bounded repair of the Stage-1 adapter using score-difference supervision and a small native renderer development split.",
+  "inputs": {
+    "dataset_manifest_sha256": "9c6166a44219a186f3bc52e4e40c8065ecf5a7b47d38e29c3c16a45e973148d6",
+    "native_feature_sha256": "793668e73ccd4d3054c485f14f4ae70c20ab5112aa139d926240d0f3d4e2258c",
+    "initial_checkpoint_sha256": "6548763f9735c05152c1499501c864775bbcc9fcc1b51112b4beecc33acb7cc3",
+    "protocol_sha256": "626b5f6d09f44fa03306e44175fefa25550d29b077fb7f9eaeb7de3585330f6d",
+    "synthetic_train_routes": 70,
+    "synthetic_validation_routes": 10,
+    "synthetic_train_records": 4480,
+    "synthetic_validation_records": 640,
+    "native_capture_run_id": "counterfactual_pairwise_native_train_seed20260828_r2",
+    "native_route_positions": 16,
+    "native_records_per_route": 32
+  },
+  "native_development_split": {
+    "optimizer_route": "Town10HD/Route148",
+    "checkpoint_selection_route": "Town03/Route195",
+    "same_route_in_both_roles": false,
+    "final_held_out_routes": [
+      "Town01/Route146",
+      "Town04/Route203"
+    ],
+    "final_held_out_tensors_read_during_training": false,
+    "interpretation": "Route195 is a development route, not final external evidence. Town01 and Town04 remain final route/town-disjoint reads. Because all four use the same native fog family, this tests route transfer rather than corruption-family transfer."
+  },
+  "component_scales": {
+    "persistent_direction": 0.4857582449913025,
+    "persistent_magnitude": 0.3020833134651184,
+    "transient_inconsistency": 0.43770867586135864
+  },
+  "optimization": {
+    "seed": 20260828,
+    "feature_dim": 1024,
+    "hidden_dim": 128,
+    "max_views": 6,
+    "presence_bias": -3.4,
+    "magnitude_bias": 0.0,
+    "use_view_embedding": false,
+    "initialize_from_previous_checkpoint": true,
+    "epochs": 4,
+    "automatic_epoch_extension": false,
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "pair_batch_size": 2,
+    "responsive_weight": 0.75,
+    "ranking_weight": 0.25,
+    "response_floor": 1e-6,
+    "native_optimizer_passes_per_epoch": 7,
+    "native_to_synthetic_optimizer_step_ratio": 0.1,
+    "native_selection_weight": 0.5,
+    "selection_metric": "0.5 * synthetic route-validation pairwise total + 0.5 * Town03/Route195 native development pairwise total",
+    "early_stop_minimum_epochs": 3,
+    "early_stop_rule": "stop after three completed epochs whose selection composite increases twice consecutively"
+  },
+  "loss_contract": {
+    "prediction": "U(observed)-U(reference)",
+    "target": "scaled exact-pose paired frozen-feature evidence delta",
+    "transform": "asinh",
+    "blanket_reference_presence_zero_loss": false,
+    "blanket_reference_score_zero_loss": false,
+    "absolute_clear_anchor": null,
+    "corruption_mask_optimizer_weight": 0.0,
+    "actual_orion_failure_optimizer_weight": 0.0,
+    "corruption_family_is_model_input": false,
+    "severity_is_model_input": false
+  },
+  "post_training_sequence": [
+    "Freeze the minimum-composite checkpoint without reading local_glare or final native held-out tensors.",
+    "Run the unchanged local_glare validation and held-out gates.",
+    "Only if both glare splits pass, run Town01/Route146 plus Town04/Route203 native fog.",
+    "Only if both external gates pass, integrate event-precondition baseline calibration into the minimum learned-UQ closed loop."
+  ],
+  "claim_boundary": {
+    "native_fog_route_transfer_is_corruption_family_generalization": false,
+    "local_glare_is_unseen_family_regression_check": true,
+    "final_closed_loop_sensor_event_must_remain_unseen_during_adapter_training": true,
+    "native_weather_itself_is_uncertainty_truth": false,
+    "model_understands_task_risk_after_stage1": false
+  }
+}

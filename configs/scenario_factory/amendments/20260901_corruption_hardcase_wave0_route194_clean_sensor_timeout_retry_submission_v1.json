@@ -1,0 +1,38 @@
+{
+  "schema": "orion.corruption_hardcase_wave0_runtime_retry_submission.v1",
+  "created_at": "2026-09-01T01:34:54+08:00",
+  "status": "exact_retry_submitted_pending_priority",
+  "preregistration": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave0_route194_clean_sensor_timeout_retry_prereg_v1.json",
+    "sha256": "6d98a8962b3ad4b0e7234a434f31b352737535e4817ac22f129c5cb1a8954f9f"
+  },
+  "invalid_attempt": {
+    "job_id": 1116352,
+    "classification": "platform_runtime_sensor_bundle_timeout",
+    "excluded_from_scientific_counts": true
+  },
+  "retry": {
+    "job_id": 1116855,
+    "job_key": "route194_clean_off",
+    "state_at_record": "PENDING",
+    "reason_at_record": "Priority",
+    "excluded_nodes": ["gpu5"],
+    "plan": {
+      "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/route194_clean_retry2_plan.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/route194_clean_retry2_plan.json",
+      "sha256": "c59830107c97347eb6f42b55da05006bd1b4c60a2687de7fb2714426d45a801d"
+    },
+    "submission": {
+      "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/route194_clean_retry2_submission.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/route194_clean_retry2_submission.json",
+      "sha256": "301ef9ffa99ece593cc8d1434a1f2dba8e605ea028dff06104618c4d1054450e"
+    }
+  },
+  "effective_scientific_matrix_update": {
+    "route194.clean_off": 1116855,
+    "replaces_invalid_job": 1116352,
+    "effective_matrix_size": 12,
+    "duplicate_scientific_jobs": 0
+  },
+  "claim_boundary": "Submission and runtime-recovery record only. Job 1116855 becomes scientific evidence only after COMPLETED, evaluator Finished/Completed, complete trace telemetry, and clean liveness validation."
+}

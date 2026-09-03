@@ -1,0 +1,95 @@
+{
+  "schema": "orion.stage2l_v12_existing_raw_coverage_inventory_protocol.v1",
+  "created_at": "2026-09-01T14:22:10+08:00",
+  "status": "preregistered_cpu_inventory_not_training_authority",
+  "research_question": "Do already-collected clean-off train-eligible raw six-view assets contain natural CAM_BACK_RIGHT task-relevance support, without reading model or route outcomes?",
+  "authoritative_inputs": {
+    "formal_route_plan": {
+      "path": "results/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/formal_route_plan.json",
+      "sha256": "ccc4f25b1110856873bfdedc87b2d3232a2418400acd0d2ba093d0201bd2c50c"
+    },
+    "accepted_event_bank": {
+      "path": "results/scenario_factory/event_banks/stage2l_formal24_partial18_reviewed_v1.json",
+      "sha256": "9b1c5b6ca9f2c544110bc096e731bcd7b7f9be2cabe94c16b5573aecb9d30d89"
+    },
+    "route167_terminal_disposition": {
+      "path": "configs/scenario_factory/amendments/20260901_stage2l_v12_route167_retry1_terminal_and_partial_coverage_v1.json",
+      "sha256": "0ae0793e928e95e96577df67bdc1315de83c133626de11f429cc937566618753"
+    },
+    "raw_results_root": "/public/share/lidachuan/orion_assets/results"
+  },
+  "inspection_boundary": {
+    "read_run_manifest": true,
+    "read_raw_camera_file_inventory": true,
+    "read_frame_meta_plan_and_closedloop_safety": true,
+    "read_evaluator_checkpoint_or_score": false,
+    "read_control_trace": false,
+    "read_collision_infraction_or_route_outcome": false,
+    "read_observation_uq": false,
+    "read_stage2_prediction_or_loss": false,
+    "read_qa_answer": false,
+    "dev_or_locked_test_route_identity_may_be_scanned": false
+  },
+  "strict_clean_off_filter": {
+    "pilot_condition": "clean_off",
+    "pilot_variant": "hazard",
+    "closedloop_conditioning": "none",
+    "closedloop_uq_mode": "none",
+    "legacy_density_uq": false,
+    "observation_uq_checkpoint": null,
+    "stage1_spatial_uq_checkpoint": null,
+    "stage2_spatial_uq_source": [null, "disabled"],
+    "stage2_task_checkpoint": null,
+    "risk_mode": "off",
+    "planning_response": "off",
+    "corruption": null,
+    "native_glare_profile": [null, "none"],
+    "native_motion_blur_profile": [null, "none"],
+    "safety_telemetry": true
+  },
+  "geometry": {
+    "grid": [40, 40],
+    "camera_order": [
+      "CAM_FRONT",
+      "CAM_FRONT_LEFT",
+      "CAM_FRONT_RIGHT",
+      "CAM_BACK",
+      "CAM_BACK_LEFT",
+      "CAM_BACK_RIGHT"
+    ],
+    "label": "unmodified ORION route corridor union current future-path-conflict actor projection",
+    "scan_all_aligned_six_view_meta_frames": true,
+    "minimum_cam_back_right_positive_frames": 3,
+    "minimum_geometry_valid_frames": 3
+  },
+  "candidate_policy": {
+    "formal_dev_routes_excluded": true,
+    "formal_locked_test_routes_excluded": true,
+    "formal_train_routes_allowed_but_not_counted_as_new_independent_events": true,
+    "nonformal_routes_are_permanently_train_only_if_selected": true,
+    "deduplicate_by_route_after_geometry_scan": true,
+    "per_route_choice": [
+      "descending CAM_BACK_RIGHT positive frame count",
+      "descending aligned frame count",
+      "ascending Slurm job id"
+    ],
+    "route_ranking": [
+      "nonformal train-only before existing formal-train identity",
+      "descending CAM_BACK_RIGHT positive frame count",
+      "descending aligned frame count",
+      "ascending route index"
+    ],
+    "human_visual_geometry_review_required": true,
+    "runtime_integrity_review_required": true,
+    "separate_stage1_and_qa_construction_required": true
+  },
+  "release_locks": {
+    "existing_raw_scan_may_start": true,
+    "new_carla_collection": false,
+    "gpu_r_only_smoke": false,
+    "language_bridge": false,
+    "stage2p": false,
+    "learned_u_closed_loop": false
+  },
+  "claim_boundary": "Prospective CPU inventory of previously collected train-eligible raw geometry only. A hit is a candidate for separate runtime, visual, Stage1 and QA review; it is never held-out evidence and does not establish R, U, language, planning or safety performance."
+}

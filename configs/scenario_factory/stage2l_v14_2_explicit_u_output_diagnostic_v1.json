@@ -1,0 +1,61 @@
+{
+  "schema": "orion.stage2l-v14-2-explicit-u-output-protocol/v1",
+  "created_at": "2026-09-02T17:42:00+08:00",
+  "status": "frozen_checkpoint_output_diagnostic",
+  "purpose": "Separate U-concept recognition from malformed free generation on the completed v14.1 LoRA by adding a literal output schema and exhaustive constrained field decoding.",
+  "prompt_schema": "orion.stage2l-u-concept-explicit-schema/v1",
+  "input_sha256": {
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "v11_records_sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101",
+    "dataset_audit_report_sha256": "2d8d2879a5ac9383887a95304bc5c9d3c3740aadaee3d720dac9a272c9c9c2f7",
+    "view_feature_cache_sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61",
+    "u_tokenizer_checkpoint_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "orion_config_sha256": "0920526b2eae94a25110bee882f8df9d51fdff6625d465d6d2d62ee96274f576",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+    "trained_v14_1_checkpoint_sha256": "ebebdb5fb0344de7a589456a8602ef36da4e0fb242e4666d29205966648ad241"
+  },
+  "source_job": {
+    "job_id": "1131456",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "optimizer_steps": 200,
+    "checkpoint_status": "bounded_u_concept_lora_complete"
+  },
+  "training_performed": false,
+  "optimizer_steps": 0,
+  "split": "dev",
+  "diagnostic_groups": 4,
+  "u_variants": [
+    "zero_u",
+    "observed_u",
+    "view_shifted_u",
+    "spatial_shifted_u",
+    "component_shifted_u",
+    "temporal_reversed_u"
+  ],
+  "diagnostics": {
+    "free_generation": "Deterministic greedy generation under the literal six-line schema, accepted only by an exact grammar and vocabulary parser.",
+    "constrained_decode": "For each of six fields, score every allowed canonical one-line answer and select the minimum-NLL value.",
+    "interpretation": "High constrained accuracy with low free-generation accuracy localizes an expression/protocol failure; low constrained accuracy means U-concept acquisition is not demonstrated even if target NLL improved."
+  },
+  "preflight_output": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v14_2_explicit_output_diagnostic_v1/preflight.json",
+  "output": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v14_2_explicit_output_diagnostic_v1/report.json",
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "02:00:00"
+  },
+  "automatic_retry": false,
+  "locks": {
+    "model_weights_changed": false,
+    "thresholds_changed": false,
+    "extra_epochs_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "locked_test_allowed": false
+  },
+  "claim_boundary": "This is a frozen-checkpoint output diagnostic. It can distinguish constrained U-field recognition from free-generation rendering, but cannot establish task relevance, planning, closed-loop safety, or external generalization."
+}

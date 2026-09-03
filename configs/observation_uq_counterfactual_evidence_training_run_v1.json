@@ -1,0 +1,75 @@
+{
+  "schema_version": "orion.counterfactual-evidence-training-run/v1",
+  "frozen_at": "2026-08-27T01:04:00+08:00",
+  "purpose": "One bounded Stage-1 pilot after train-only amplitude, severity, and within-view spatial-support diagnostics passed.",
+  "inputs": {
+    "feature_shard_sha256": "6381c09ae3818e35f93e5c44c29c2230a7e299f7c621316bfc21e04342bc07e5",
+    "native_feature_sha256": "debdeac1cbb1bb72227604a79ef41f38c1be13dde6562256599055d6ea20ddda",
+    "target_audit_sha256": "14d72e4dbbbe12aedbb7e1d63a5924f590b0c511289e07c264a0c111a53d0076",
+    "spatial_audit_sha256": "d6907ca9c78e802b6638adf7c4de1c10d713ece61ece51243fcb4579caeec5c9",
+    "record_counts": {
+      "train": 2240,
+      "route_validation": 320,
+      "heldout_family": 320
+    }
+  },
+  "target_scaling": {
+    "population": "train-only valid cells with measured paired target > 1e-6; corruption mask is not read",
+    "quantile": 0.95,
+    "response_floor": 1e-6,
+    "component_scales": {
+      "persistent_direction": 0.4691108465194702,
+      "persistent_magnitude": 0.2978138327598572,
+      "transient_inconsistency": 0.48655763268470764
+    }
+  },
+  "optimization": {
+    "seed": 20260827,
+    "feature_dim": 1024,
+    "hidden_dim": 128,
+    "max_views": 6,
+    "epochs": 24,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "pair_batch_size": 2,
+    "scale_batch_size": 2,
+    "evaluation_batch_size": 2,
+    "ranking_weight": 0.25,
+    "reference_weight": 0.5,
+    "checkpoint_selection": "minimum route-disjoint validation total loss only"
+  },
+  "gate": {
+    "route_validation": {
+      "component_patch_spearman": 0.3,
+      "combined_target_top20_auroc": 0.7,
+      "median_route_target_top20_auroc": 0.65,
+      "median_record_within_intervened_view_target_top20_auroc": 0.65,
+      "median_route_within_intervened_view_target_top20_auroc": 0.6,
+      "reference_prediction_p95_max": 0.2
+    },
+    "heldout_family_development": {
+      "combined_patch_spearman": 0.2,
+      "combined_target_top20_auroc": 0.65,
+      "median_record_within_intervened_view_target_top20_auroc": 0.6
+    },
+    "native_development": "reuse the fully preregistered Epic fog gate without changing thresholds"
+  },
+  "data_roles": {
+    "optimizer": "35 train routes; local_blur and local_dark only",
+    "checkpoint_selection": "5 disjoint routes; local_blur and local_dark only",
+    "heldout_family": "local_glare on validation and held-out routes; never used for checkpoint selection",
+    "native_development": "exact-pose Epic fog; never used for checkpoint selection",
+    "corruption_mask_optimizer_weight": 0.0,
+    "actual_target_optimizer_weight": 0.0
+  },
+  "continuation": {
+    "automatic_epoch_extension": false,
+    "adapter_integration_authorized_by_training_start": false,
+    "orion_finetuning_authorized": false,
+    "stage_b_authorized": false,
+    "if_all_gates_pass": "freeze checkpoint and run new untouched native rain/low-sun plus finite-window sensor confirmation",
+    "if_route_validation_fails": "stop and revise adapter learnability",
+    "if_glare_fails": "stop and revise intervention diversity",
+    "if_epic_fog_fails": "stop and add physically grounded supervision"
+  }
+}

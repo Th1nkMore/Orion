@@ -1,0 +1,67 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T15:11:12+08:00",
+  "status": "immutable_single_run_authorization",
+  "title": "Single gate-staged Stage2-L v10 accelerated engineering smoke",
+  "amends_without_rewriting": [
+    {
+      "path": "configs/scenario_factory/stage2l_v10_accelerated_72h_v1.json",
+      "sha256": "9c59849afe81fa4fa0f3ff7b185ebaa6969ef882d5b714a504189a5f6897dcf1",
+      "role": "training-locked design protocol"
+    },
+    {
+      "path": "configs/scenario_factory/amendments/20260831_stage2l_v10_objective_redesign_v1.json",
+      "role": "responsibility-contract and objective-redesign record"
+    }
+  ],
+  "validated_inputs": {
+    "trainer_sha256": "03093c10b1f68b3f9c1a068a8aaaa680be8aa466d53b1e6bf0bc474fa4b31d02",
+    "protocol_sha256": "9c59849afe81fa4fa0f3ff7b185ebaa6969ef882d5b714a504189a5f6897dcf1",
+    "preflight_sha256": "464eb7222f5143cbd179c0170e8591f5ce7160cc9e5ccc4ff9417679b5852581",
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "u_tokenizer_checkpoint_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "orion_config_sha256": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "validated_preflight": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/trainer_preflight.json",
+    "schema": "orion.stage2l_v10_staged_preflight.v1",
+    "status": "stage2l_v10_staged_preflight_pass_training_locked",
+    "gpu_used": false,
+    "training_started": false,
+    "all_u_tokenizer_parameters_frozen": true,
+    "train_event_count": 13,
+    "dev_event_count": 4
+  },
+  "authorized_run": {
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v10_staged_17event_40x3_v1/training",
+    "maximum_submissions": 1,
+    "automatic_retry": false,
+    "phase_a_optimizer_steps": 40,
+    "phase_b_optimizer_steps_if_and_only_if_a_passes": 40,
+    "phase_c_optimizer_steps_if_and_only_if_b_passes": 40,
+    "resource_request": {
+      "partition": "Nvidia_A800",
+      "gpus": 1,
+      "cpus_per_task": 2,
+      "memory": "192G",
+      "time_limit": "12:00:00",
+      "exclude_nodes": ["gpu5"]
+    },
+    "fresh_initialization_from_original_orion": true,
+    "resume_optimizer_state": false,
+    "locked_test_read": false,
+    "formal_training": false
+  },
+  "launch_locks": {
+    "stage2l_v10_bounded_smoke_allowed": true,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "closed_loop_matrix_allowed": false,
+    "route203_native_glare_submission_allowed": false,
+    "automatic_retry_or_extension_allowed": false
+  },
+  "failure_policy": "Any hash mismatch, Phase-A/Phase-B gate failure, non-finite first-two-step value, frozen-U gradient, or Phase-C gradient escape stops the run. No automatic retry or step extension is authorized.",
+  "claim_boundary": "Authorization for one bounded 17-event engineering learnability smoke only. Even a full pass does not authorize formal Stage2-L, Stage2-P, native-glare closed loop, route expansion or safety claims."
+}

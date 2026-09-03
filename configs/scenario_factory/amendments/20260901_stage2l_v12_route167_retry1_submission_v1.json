@@ -1,0 +1,74 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T13:58:05+08:00",
+  "status": "route167_train_coverage_retry1_submitted_pending",
+  "title": "Route167 technical replacement submitted as Job 1121244",
+  "scope": "scheduler attestation for the one separately authorized Route167 clean-off technical replacement",
+  "authorization": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v12_route167_relative_path_failure_retry1_authorization_v1.json",
+    "sha256": "3c515bae541f8dc8d9b50ac09b25e476346ce166207b9ef747f253f3b6c69381"
+  },
+  "batch": {
+    "path": "results/scenario_factory/batches/stage2l_v12_coverage_repair_route167_retry1/batch_manifest.json",
+    "sha256": "04a9443471ef81be8b132d81212f3fbe0297fe5a337c0150165cc6d452529d04",
+    "run_id": "stage2l_v12_coverage_repair_route167_retry1",
+    "split": "train_coverage_repair"
+  },
+  "job": {
+    "job_id": 1121244,
+    "job_name": "uqcl_167_clean_off",
+    "route_index": 167,
+    "condition": "clean_off",
+    "variant": "hazard",
+    "partition": "Nvidia_A800",
+    "state_at_attestation": "PENDING",
+    "reason_at_attestation": "Priority",
+    "node_at_attestation": null,
+    "submit_time": "2026-09-01T13:57:52+08:00",
+    "start_time_at_attestation": null,
+    "time_limit": "02:00:00",
+    "resources": {
+      "nodes": 1,
+      "cpus": 2,
+      "memory": "192G",
+      "gpus": 1
+    },
+    "excluded_nodes": ["gpu2", "gpu5"],
+    "requeue": false,
+    "restarts": 0,
+    "stdout_stderr": "/public/share/lidachuan/orion_assets/logs/stage2l_v12_coverage_repair_route167_retry1/uqcl_167_hazard_clean_off-1121244.out"
+  },
+  "submission": {
+    "maximum_authorized_additional_jobs": 1,
+    "additional_jobs_submitted": 1,
+    "authorization_exhausted": true,
+    "automatic_additional_retry_allowed": false,
+    "other_jobs_submitted": false
+  },
+  "runtime_locks": {
+    "observation_uq": false,
+    "stage1_control_influence": false,
+    "stage2_spatial_uq": false,
+    "stage2_task_checkpoint": false,
+    "legacy_density_uq": false,
+    "risk_governor": false,
+    "planning_response": false,
+    "corruption": false
+  },
+  "pending_post_run_gates": [
+    "Slurm terminal state and exit code",
+    "runtime and six-camera/meta integrity",
+    "actor-grounded event package",
+    "at least three CAM_BACK_RIGHT-positive geometry frames",
+    "human visual/geometry review",
+    "separate Stage1 extraction and QA construction",
+    "aggregate CPU coverage gate"
+  ],
+  "result": {
+    "terminal": false,
+    "event_package_built": false,
+    "back_right_coverage_known": false,
+    "training_started": false
+  },
+  "claim_boundary": "Submission/resource attestation only. Job 1121244 is a train-only raw-data collection and cannot be held-out evidence or unlock R/U/language/planning training before every post-run gate passes."
+}

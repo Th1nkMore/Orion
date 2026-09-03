@@ -1,0 +1,40 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T05:58:38+08:00",
+  "status": "implementation_repair_prepared_not_authorized_for_resubmission",
+  "title": "Read exact spawned camera actors from the Leaderboard sensor registry",
+  "scope": "sensor attribute and transform readback only",
+  "failed_attempt": {
+    "job_id": 1107746,
+    "run_id": "route203_native_glare_same_tick_v2",
+    "state": "FAILED",
+    "exit_code": "1:0",
+    "failure_stage": "first simulator tick before the first RGB triplet was committed",
+    "failure": "Spawned sensor actors do not expose the Leaderboard sensor id as CARLA role_name, so world-actor role lookup returned no cameras.",
+    "visual_or_model_result_produced": false
+  },
+  "interface_evidence": {
+    "leaderboard_component": "leaderboard.autoagents.agent_wrapper.AgentWrapper.setup_sensors",
+    "registration": "CallBack(id_, type_, sensor, self._agent.sensor_interface)",
+    "registry": "AutonomousAgent.sensor_interface._sensors_objects",
+    "interpretation": "The registry is the authoritative id-to-spawned-sensor mapping used by the exact callbacks that produced input_data."
+  },
+  "prepared_repair": {
+    "file": "team_code/glare_triplet_capture_agent.py",
+    "old_sha256": "0d329fdfcbcd83f57d0aa78899aa4ac4068f365d6ffe2f71b09d79c6b0421244",
+    "new_sha256": "263d7c9bec0df26fcf5f176ead435556a5142e31b007a4c0fdf40e37fef05185",
+    "change": "Resolve CAM_FRONT_CLEAN, CAM_FRONT_MEDIUM, CAM_FRONT_HEAVY and bev directly from sensor_interface._sensors_objects, then read the spawned actors' attributes and transforms.",
+    "requested_attributes_still_verified_against_actual_spawned_actor": true,
+    "camera_profiles_changed": false,
+    "weather_changed": false,
+    "route_changed": false,
+    "visual_gates_changed": false
+  },
+  "execution_lock": {
+    "v3_submitted": false,
+    "reason": "The v2 amendment prohibited a further automatic retry.",
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "Prepared implementation repair only; no renderer, uncertainty, model, trajectory, collision, TTC or safety result."
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "orion.native_motion_blur_clean_revalidation_runtime_failure.v1",
+  "timestamp": "2026-08-31T22:26:43+08:00",
+  "status": "runtime_failed_before_visual_measurement",
+  "job": {
+    "job_id": 1115765,
+    "job_name": "hc151_blur_reval",
+    "partition": "Nvidia_A800",
+    "node": "gpu4",
+    "submit_time": "2026-08-31T22:15:39+08:00",
+    "start_time": "2026-08-31T22:15:58+08:00",
+    "end_time": "2026-08-31T22:24:27+08:00",
+    "elapsed": "00:08:29",
+    "state": "FAILED",
+    "exit_code": "1:0",
+    "batch_max_rss_kib": 3800176
+  },
+  "protocol": "configs/scenario_factory/corruption_hardcase_native_motion_blur_revalidation_route151_v1.json",
+  "submission_amendment": "configs/scenario_factory/amendments/20260831_native_motion_blur_clean_revalidation_submission_v1.json",
+  "artifact_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_native_motion_blur_clean_revalidation_v1",
+  "failure": {
+    "profile": "none",
+    "stage": "route_runtime_before_capture_window",
+    "last_game_time_seconds": 9.8,
+    "capture_window_start_progress": 0.36,
+    "front_png_count": 0,
+    "capture_trace_line_count": 0,
+    "medium_profile_started": false,
+    "scenario_runner_watchdog_seconds": 91.0,
+    "outer_timeout_seconds": 420,
+    "thread_evidence": {
+      "scenario_thread": "ScenarioManager.build_scenarios_loop -> scenario.build_scenarios",
+      "main_thread": "ScenarioManager._tick_scenario -> world.tick"
+    },
+    "interpretation": "ScenarioRunner stalled before the first visual capture. No native-motion-blur image was measured, so this is a CARLA/ScenarioRunner runtime failure rather than a visual or corruption result."
+  },
+  "immutable_log_sha256": {
+    "none_evaluator_log": "c850e8bd72896f9990d7a389fd530422906ce0accb1ac9b5ef5ab3d4014cdc1b",
+    "none_carla_server_log": "a411b10c47b0228800f87ac73636c6fec82ddef11f818c9652e5055d29bac98f",
+    "slurm_output_log": "2f525152d7b1b6b025793d1d1ef401e02cf00c05c26ba9303c7fffe0b27ca07d"
+  },
+  "claim_boundary": {
+    "visual_result": false,
+    "clean_baseline_result": false,
+    "native_motion_blur_result": false,
+    "orion_loaded": false,
+    "orion_screen": false,
+    "severity_frozen": false,
+    "closed_loop_result": false
+  },
+  "recovery_policy": {
+    "automatic_retry": false,
+    "do_not_reuse_failed_output_root": true,
+    "maximum_bounded_recovery_submissions": 1,
+    "reuse_existing_artifact_free_none_capture_as_clean_reference": true,
+    "recovery_scope": "medium native-motion-blur capture only, followed by artifact gate and human visual review"
+  }
+}

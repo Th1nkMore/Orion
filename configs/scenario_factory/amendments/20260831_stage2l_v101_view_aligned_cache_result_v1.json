@@ -1,0 +1,61 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T18:08:00+08:00",
+  "status": "immutable_cache_result_record",
+  "job": {
+    "job_id": "1113826",
+    "partition": "Nvidia_A800",
+    "node": "gpu4",
+    "slurm_state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed": "00:09:28",
+    "batch_max_rss_kb": 398496
+  },
+  "result": {
+    "status": "immutable_frozen_view_aligned_feature_cache",
+    "event_count": 17,
+    "group_count": 80,
+    "source_feature_shape": [1, 6, 1024, 40, 40],
+    "pooled_context_shape": [6, 10, 10, 1024],
+    "camera_order": [
+      "CAM_FRONT",
+      "CAM_FRONT_LEFT",
+      "CAM_FRONT_RIGHT",
+      "CAM_BACK",
+      "CAM_BACK_LEFT",
+      "CAM_BACK_RIGHT"
+    ],
+    "cache": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_view_aligned_feature_cache_v1/features.pt",
+      "sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61",
+      "size_human": "94M"
+    },
+    "manifest": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_view_aligned_feature_cache_v1/features.json",
+      "sha256": "cba0cfa19bd025d5e2234b0b14441dd98dbf55ead1117d7f2877f4a39b61942e"
+    },
+    "job_log": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/logs/stage2l_smokes/v101_view_aligned_cache_v1-1113826.out",
+      "sha256": "98ab72028b177f8b2827acf0956965104c85ae2361d9265ac3710ce085c3cb8a"
+    }
+  },
+  "negative_use_attestation": {
+    "orion_image_backbone_frozen": true,
+    "stage1_uq_inputs_used": false,
+    "task_relevance_targets_used": false,
+    "qa_answers_used": false,
+    "trajectory_or_control_inputs_used": false,
+    "training_run": false
+  },
+  "decision": {
+    "cache_valid_for_bounded_v101_phase_a_preflight": true,
+    "cache_success_automatically_authorizes_training": false,
+    "phase_b": false,
+    "phase_c": false,
+    "formal_stage2l": false,
+    "stage2p": false,
+    "closed_loop": false,
+    "route203_native_glare_submission": false
+  },
+  "claim_boundary": "Successful input-cache construction only. It does not revise v10, demonstrate R-map learning, authorize later stages, or support planning, closed-loop, generalization, or safety claims."
+}

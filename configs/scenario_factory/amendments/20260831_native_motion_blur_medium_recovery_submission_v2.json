@@ -1,0 +1,42 @@
+{
+  "schema": "orion.native_motion_blur_medium_recovery_submission.v2",
+  "timestamp": "2026-08-31T22:40:00+08:00",
+  "status": "submitted_and_started",
+  "preregistration": "configs/scenario_factory/amendments/20260831_native_motion_blur_medium_recovery_prereg_v2.json",
+  "parent_preflight_failure": "configs/scenario_factory/amendments/20260831_native_motion_blur_medium_recovery_preflight_failure_v1.json",
+  "slurm": {
+    "job_id": 1116035,
+    "job_name": "hc151_blur_med_r2",
+    "partition": "Nvidia_A800",
+    "node": "gpu4",
+    "submit_time": "2026-08-31T22:39:48+08:00",
+    "start_time": "2026-08-31T22:39:58+08:00",
+    "state_at_record": "RUNNING",
+    "time_limit": "00:15:00",
+    "cpus": 2,
+    "memory_gb": 16,
+    "gpus": 1,
+    "excluded_nodes": ["gpu5"]
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_native_motion_blur_medium_recovery_v2",
+  "log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/corruption_hardcase_diagnostics/route151_native_motion_blur_medium_recovery_v2-1116035.out",
+  "source_sha256": {
+    "scripts/render_native_motion_blur_clean_revalidation.py": "232c152b568b35db70135412bd1236618322e52301b646c7f009570ac89e273c",
+    "scripts/run_native_motion_blur_medium_recovery_route151.sh": "b3bf1781895f2a69db2e4c141bd3a4c5384e38fdb98cc0d124941f8b58d8e8e5",
+    "scripts/submit_native_motion_blur_medium_recovery_route151.sh": "5b2a3436e984e5cd522e1823fb35aef1b68bcf4f3727690455cca4f2370eb26e",
+    "configs/scenario_factory/amendments/20260831_native_motion_blur_medium_recovery_preflight_failure_v1.json": "dc1562a7e5496c871e47464eb0522c8ec0c9e0ea8587241a735a357d6e66200a",
+    "configs/scenario_factory/amendments/20260831_native_motion_blur_medium_recovery_prereg_v2.json": "ad34eb24933b5857fe89e766919d5fe15242734c7a4e6d50a19bb7004b939c0c"
+  },
+  "preflight": {
+    "remote_tests_passed": 21,
+    "preflight_only_passed": true,
+    "clean_gate_frame_count": 34,
+    "clean_gate_suspicious_frame_count": 0,
+    "source_hashes_verified": true
+  },
+  "scope": "single actual medium native-motion-blur visual capture attempt",
+  "orion_loaded": false,
+  "formal_result": false,
+  "remaining_capture_attempt_budget": 0,
+  "downstream_locks_unchanged": true
+}

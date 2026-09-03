@@ -1,0 +1,148 @@
+{
+  "schema": "orion.stage2l_uq_language_grounding_protocol.v2",
+  "created_at": "2026-08-30T15:15:00+08:00",
+  "status": "prepared_for_offline_interface_audit_training_locked",
+  "supersedes_architecture_only": "configs/scenario_factory/stage2l_training_v5_structured_semantic_bottleneck.json",
+  "triggering_failed_smoke": {
+    "report": {
+      "path": "results/scenario_factory/stage2l_smokes/route196_structured_semantic_v1_240/training/report.json",
+      "sha256": "012e3e451293c2044855139ce5522ac504269fbab7a5fd8ab581d1459eebc3d3"
+    },
+    "independent_validation": {
+      "path": "results/scenario_factory/stage2l_smokes/route196_structured_semantic_v1_240/training/independent_validation.json",
+      "sha256": "2c74ee4693e4100b85ee7f641c2758098cde35a830958482e3b77097d09238fd"
+    },
+    "diagnosis": {
+      "path": "results/scenario_factory/stage2l_smokes/route196_structured_semantic_v1_240/training/diagnosis.json",
+      "sha256": "c3e9b4b667289c6d5662f627b8251a5c78cc0e4aa3b0b95c3951ea588b76bebf"
+    },
+    "frozen_findings": [
+      "Sequential one-record optimizer steps caused strong QA-family and stance-class interference.",
+      "The v1 stance head saw a LayerNorm-normalized 4096-D K token and did not receive an explicit absolute K magnitude path.",
+      "Matched answer preference contrasted only maintain versus conservative answers and did not separate the other QA families.",
+      "Observed adapter output has no independent driving-stance truth and must not be hard-labelled maintain."
+    ]
+  },
+  "architecture": {
+    "stage1_adapter": "frozen task-agnostic spatial observation uncertainty U",
+    "stage2_l_role": "ORION/VLM learns task relevance R, task risk K = U * sigmoid(R), interpretable QA semantics and a predicted planning stance",
+    "raw_k_side_channel": {
+      "features": [
+        "max(K)",
+        "mean(K)",
+        "rms(K)",
+        "soft_y(K)",
+        "soft_x(K)",
+        "soft_view(K)"
+      ],
+      "magnitude_transform": "log1p(10*x) on max/mean/rms",
+      "magnitude_layer_norm_before_stance_classifier": false,
+      "location_and_4096d_context_paths_remain_separate": true
+    },
+    "planning_stances": [
+      "maintain",
+      "caution",
+      "prepare_to_yield"
+    ],
+    "ground_truth_stance_enters_forward": false,
+    "trajectory_training_enabled": false,
+    "legacy_density_uq_used": false,
+    "hard_governor_used": false
+  },
+  "matched_training_unit": {
+    "records": "one event/keyframe counterfactual group: 5 variants x 4 QA families = 20 records",
+    "optimizer_steps_inside_group": 0,
+    "optimizer_step_after_accumulating_complete_group": 1,
+    "variants": [
+      "observed",
+      "zero_uq",
+      "off_path_uq",
+      "on_path_uq",
+      "view_shuffled_uq"
+    ],
+    "question_families": [
+      "observation_semantics",
+      "epistemic_limitation",
+      "task_relevance",
+      "driving_implication"
+    ],
+    "cross_family_answer_preference": "For each supervised anchor, the target answer must outrank all three same-frame, same-variant answers from the other QA families.",
+    "question_routing": "The question/prompt family is an explicit fixed input prefix; target answer text and target stance never enter forward conditioning."
+  },
+  "qa_factory": {
+    "path": "configs/scenario_factory/qa_factory_v2_matched_supervision.json",
+    "sha256": "2236bbc84bb794abc0ce69fc3b4706b131eaa1282b2942212ef429a3b381471e",
+    "requires_per_record_loss_policy": true
+  },
+  "selection_preview": {
+    "path": "results/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/stage2l_pilot8_selection_preview_v2.json",
+    "sha256": "582e6c3569a5425668bd6014b5f2db32e76a838905e479ea15e6d7adb17dd029",
+    "frozen": false,
+    "training_allowed": false
+  },
+  "label_boundary": {
+    "hard_stance_cross_entropy_variants": [
+      "zero_uq",
+      "off_path_uq",
+      "on_path_uq"
+    ],
+    "observed": "No hard driving-stance CE and no hard driving-implication language target; use only spatial/epistemic consistency, R-map supervision and held-out consequence calibration.",
+    "view_shuffled_uq": "Diagnostic negative-control only for driving stance; no hard stance CE and no hard driving-implication language target.",
+    "caution_status": "Vocabulary is retained but is not considered calibrated by this pilot unless an independently consequence-grounded intermediate-risk label is added in a later frozen protocol.",
+    "rationale": "Do not turn generated adapter scores or a constructed shuffled-view expectation into independent driving truth."
+  },
+  "losses_prepared_not_activated": {
+    "qa_causal_language_modeling": {
+      "weight": 1.0,
+      "exclude": [
+        "observed/driving_implication",
+        "view_shuffled_uq/driving_implication"
+      ]
+    },
+    "dense_soft_relevance_bce": 2.0,
+    "matched_onpath_offpath_risk_ranking": 1.0,
+    "hard_stance_cross_entropy": {
+      "weight": 2.0,
+      "variants": [
+        "zero_uq",
+        "off_path_uq",
+        "on_path_uq"
+      ]
+    },
+    "same_variant_cross_family_answer_preference": {
+      "weight": 2.0,
+      "margin": 0.2,
+      "negative_count_per_anchor": 3
+    },
+    "observed_consequence_calibration": 0.0,
+    "trajectory": 0.0,
+    "direct_control": 0.0
+  },
+  "implementation_hashes": {
+    "uq_estimator/stage2l_semantic_bottleneck_v2.py": "4d5ad94e149f963661df2de8debe5c174c64403c2042ea6db95032e1262a6a37",
+    "uq_estimator/stage2l_semantic_runtime_v2.py": "bf464af987d61f769bfe8559d8a60eead1728847342f34d9321294d9e3397807",
+    "uq_estimator/stage2l_matched_objective.py": "a3c7fc1af94220a58be2df54dec97eb089396ffb3747f4fc407e1e88dbf35be8",
+    "tests/test_stage2l_semantic_bottleneck_v2.py": "e7bf22a22e7d5b1f449d9302ec7c28829706cc6ff3eccc5e93e677a767591cf6",
+    "tests/test_stage2l_matched_objective.py": "5e1f76aec999d35bdf3a01a0e627618d7d1f144c1830bf5d339202ad371a8dd6",
+    "scripts/audit_stage2l_v6_dataset_contract.py": "841fa10d816bc6218002428140f9ef159b443779b07a6315e068caae56d0933d",
+    "tests/test_audit_stage2l_v6_dataset_contract.py": "4e6742c49ec91d10d5bae2c3099a1b1bf9351292c91ae351979294d88381c46a",
+    "scripts/uq_relevance_qa_factory_lib.py": "4b50b17c333181fd8f59024eb53288d0ba69bbf58b719215b3b6c90f6fa6fca7",
+    "tests/test_uq_relevance_qa_factory.py": "87f1a447438a230d6aaa40fdb407814b721c0a68369d99f8c9e3cece3646d2ea",
+    "scripts/preview_stage2l_formal_pilot_selection.py": "6cd939b3854da30d53214cfd7b7817a6c025401c24f949e612a9a56e0f1a7f03"
+  },
+  "offline_audit_gate": [
+    "All new and regression tensor-contract tests pass in the pinned ORION environment.",
+    "A dataset dry run proves exactly one optimizer boundary per complete 20-record matched group.",
+    "Observed and view-shuffled driving answers are absent from hard language and stance losses.",
+    "Raw K max/mean/rms have a finite nonzero gradient path to stance logits.",
+    "Zero-U output remains invariant to R.",
+    "The frozen 8-event 6/2 bank and all selected geometry packages are hash-bound."
+  ],
+  "launch_locks": {
+    "route196_retry_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "unlock_policy": "Passing offline audit only makes v6 implementation reviewable. A separate immutable amendment and explicit user authorization are required for one held-out 8-event pilot; Route196 must not be rerun.",
+  "claim_boundary": "Prepared architecture and loss contracts only; no new learning, generalization, planning, closed-loop or safety evidence."
+}

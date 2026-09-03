@@ -1,0 +1,107 @@
+{
+  "schema": "orion.stage2l_protocol_amendment.v1",
+  "created_at": "2026-08-31T07:40:00+08:00",
+  "status": "visual_cache_lineage_complete_training_still_locked",
+  "scope": "Stage2-L formal visual-context cache lineage",
+  "reason": "The v5 QA factory rebuilt event reports and, for some events, changed the retained keyframe set. A cache bound only to an older factory-report hash must not be silently reused.",
+  "frozen_rule": {
+    "direct_reuse_requires_current_factory_report_hash": true,
+    "otherwise_reuse_requires_attestation": true,
+    "attestation_requires_same": [
+      "event id",
+      "group ids and count",
+      "selected saved-frame indices",
+      "six ordered camera views",
+      "camera image SHA-256 values",
+      "frame metadata SHA-256 values",
+      "ORION checkpoint SHA-256"
+    ],
+    "attestation_rejects": [
+      "Stage1 UQ inputs",
+      "task-relevance targets",
+      "QA answers",
+      "privileged safety inputs",
+      "LLM execution during cache construction",
+      "trajectory-decoder execution during cache construction"
+    ],
+    "shape_contract": "one (1, 529, 4096) ORION visual context tensor per group"
+  },
+  "validated_execution": {
+    "test_result": "14 passed for re-attestation, frame-metadata comparison, batch runner and formal assembler; 4 passed for the fresh cache builder",
+    "route152_single_event_smoke": {
+      "visual_cache_manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_visual_cache_reattested_v5_20260831_v2/route152_step125/visual_cache_manifest.json",
+        "sha256": "7aba47e24f63a6e90a3ffea6254cff5789e6b6225adaaf5edced6e0684c57d98"
+      },
+      "reuse_attestation": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_visual_cache_reattested_v5_20260831_v2/route152_step125/reuse_attestation.json",
+        "sha256": "dded58d6a7ba48de501f1b04800912ca9f95ace546fb6e7d99b6aa03439f53e2"
+      }
+    },
+    "hash_bound_batch": {
+      "slurm_job_id": 1109088,
+      "event_count": 13,
+      "status": "completed_all_cache_reuse_attestations",
+      "batch_report": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_visual_cache_reattested_v5_20260831_wave1_v2/batch_report.json",
+        "sha256": "a9de0938fd676e11f1bee1f2547f2d7e27af230630f78ed052dd7f8ddd77b5d0"
+      }
+    },
+    "accepted_reuse_event_count": 14,
+    "accepted_reuse_events": [
+      "route147_step223",
+      "route151_step218",
+      "route152_step125",
+      "route157_step193",
+      "route158_step154",
+      "route160_step518",
+      "route161_step308",
+      "route164_step522",
+      "route165_step421",
+      "route168_step482",
+      "route180_step696",
+      "route185_step304",
+      "route194_step684",
+      "route195_step230"
+    ]
+  },
+  "outcome_blind_recompute_completed": [
+    {
+      "event_id": "route162_step277",
+      "reason": "v5 retained group count differs from the historical cache",
+      "slurm_job_id": 1108942,
+      "keyframe_count": 5,
+      "fresh_cache_manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_visual_cache_fresh_v5_20260831/route162_step277/orion_visual_contexts.json",
+        "sha256": "b7e570e60065bfdde5a948ab4ca73f4d146274c74c9c7fc5ef864bf7e609d3c6"
+      }
+    },
+    {
+      "event_id": "route188_step139",
+      "reason": "v5 retained group count differs from the historical cache",
+      "slurm_job_id": 1108943,
+      "keyframe_count": 5,
+      "fresh_cache_manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_visual_cache_fresh_v5_20260831/route188_step139/orion_visual_contexts.json",
+        "sha256": "18804071c9e300e1cc461702b2958fd4311ab4d0d86a4b062bbe215c0ae6af54"
+      }
+    },
+    {
+      "event_id": "route207_step924",
+      "reason": "v5 retained group count differs from the historical cache",
+      "slurm_job_id": 1108945,
+      "keyframe_count": 5,
+      "fresh_cache_manifest": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_visual_cache_fresh_v5_20260831/route207_step924/orion_visual_contexts.json",
+        "sha256": "f4870cdf32c096e36547347bd555d3a3ec0b5c2112ccbd90b48f09c0b45176be"
+      }
+    }
+  ],
+  "accepted_visual_cache_event_count": 17,
+  "locks": {
+    "formal_stage2_l_allowed": false,
+    "stage2_p_allowed": false,
+    "closed_loop_matrix_allowed": false
+  },
+  "claim_boundary": "This amendment establishes observation-equivalent visual-cache provenance only. It is not a QA-quality, model-learning, trajectory, closed-loop, generalization or safety result."
+}

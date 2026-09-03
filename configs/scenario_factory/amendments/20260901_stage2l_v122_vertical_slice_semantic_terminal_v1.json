@@ -1,0 +1,165 @@
+{
+  "schema": "orion.stage2l_v12_2_vertical_slice_semantic_terminal.v1",
+  "created_at": "2026-09-01T19:51:15+08:00",
+  "status": "terminal_integrity_valid_soft_semantic_failure",
+  "job": {
+    "job_id": "1122494",
+    "job_name": "s2l_v122_semantic",
+    "partition": "Nvidia_A800",
+    "node": "gpu4",
+    "state": "COMPLETED",
+    "elapsed": "00:28:40",
+    "exit_code": "0:0",
+    "batch_max_rss": "46882516K",
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "gpus": 1
+  },
+  "frozen_lineage": {
+    "protocol": {
+      "path": "configs/scenario_factory/stage2l_v12_2_vertical_slice_semantic_protocol_v1.json",
+      "sha256": "df02da229f6585a468795b725e4409b5b5148ac5c703ee4dbf31c9d3e2b26dff"
+    },
+    "trainer_preflight": {
+      "path": "results/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/trainer_preflight.json",
+      "sha256": "ac38628dcd208766be8f15a72acc1d2ff65327e0023b709b7f65e202eba780b3"
+    },
+    "launch_amendment": {
+      "path": "configs/scenario_factory/amendments/20260901_stage2l_v122_vertical_slice_semantic_launch_v1.json",
+      "sha256": "469e5c000f10585fe53ba57b1577a97ed1247660979c672811e16a0b8ca4f6e9"
+    },
+    "preflight_field_repair": {
+      "path": "configs/scenario_factory/amendments/20260901_stage2l_v122_preflight_field_repair_v1.json",
+      "sha256": "f20ce069f56ac5c71859e2fb56fc1abf01a8ef97abf2d794729a7fdc40003f7f"
+    },
+    "submission_amendment": {
+      "path": "configs/scenario_factory/amendments/20260901_stage2l_v122_vertical_slice_semantic_submission_v1.json",
+      "sha256": "c0ee360666aaa33f955e51288e0857fc7869dafc4481d7233c86b72ab64340f8"
+    },
+    "submission_attestation": {
+      "path": "results/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/submission_attestation.json",
+      "sha256": "03d6212c8ab7700f04964a2c7a0d1d739b77d90bceabe5a2971694a905b7d25e"
+    },
+    "factorized_r_checkpoint_sha256": "f62cbb234671fc81f1c320f42015ca99ebaf27f2c2c0ede1f616c7eaa846f23c"
+  },
+  "terminal_artifacts": {
+    "report": {
+      "path": "results/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/training/report.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/training/report.json",
+      "sha256": "ae4c9ad19ffa83dddd1433a32e4575bc840d616b2124e8c9debf10c30248081f"
+    },
+    "semantic_bridge": {
+      "path": "results/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/training/v122_semantic_bridge.pt",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/training/v122_semantic_bridge.pt",
+      "sha256": "3cd46c20a209b5c07522ea29dbe05cdda3fbfd3b51b306c39c7b5b52a6b1c7dd"
+    },
+    "spatial_u_r_k_maps": {
+      "path": "results/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/training/spatial_u_r_k_maps.pt",
+      "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/training/spatial_u_r_k_maps.pt",
+      "sha256": "8731b252df471e71776635743008e6e0a5faaa7366f9d0ea9e136a3b80dfaae7"
+    },
+    "slurm_log": {
+      "path": "results/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/training/slurm-1122494.out",
+      "sha256": "881503e7410a99289e0d3380fc41eeff3c799826befb7fe6fab3c7e177c2ecf6"
+    },
+    "terminal_validation": {
+      "path": "results/scenario_factory/stage2l_smokes/v122_vertical_slice_semantic_17event_40_v1/terminal_validation.json",
+      "sha256": "311031aa3bf6b6fda55d52c92a064193895e2d0753784249439542fe773c1895"
+    }
+  },
+  "integrity_audit": {
+    "integrity_valid": true,
+    "optimizer_steps": 40,
+    "all_steps_present_and_finite": true,
+    "only_trainable_module": "TaskRiskLanguageBridge",
+    "event_count": 17,
+    "split_counts": {
+      "train": 13,
+      "dev": 4
+    },
+    "exact_checks": {
+      "shared_r_across_controlled_u_variants": true,
+      "zero_u": true,
+      "zero_k": true,
+      "matched_on_off_u_mass_peak_and_support": true,
+      "spatially_distinct_on_off_support": true,
+      "k_equals_u_times_r": true
+    },
+    "maximum_task_risk_product_error": 0.0,
+    "maximum_cross_device_probability_error": 5.960464477539063e-08,
+    "cross_device_probability_tolerance": 1e-07
+  },
+  "quality_diagnostics": {
+    "controlled_u": {
+      "train_on_over_off_fraction": 0.9666666666666667,
+      "dev_on_over_off_fraction": 0.6,
+      "dev_soft_gate_passed": false,
+      "off_low_fraction_train": 1.0,
+      "off_low_fraction_dev": 1.0
+    },
+    "language": {
+      "train_target_nll_before": 13.96054458618164,
+      "train_target_nll_after": 10.304375648498535,
+      "dev_target_nll_before": 15.12625503540039,
+      "dev_target_nll_after": 10.712395668029785,
+      "train_target_preference_before": 0.288461547344923,
+      "train_target_preference_after": 0.2692307773977518,
+      "train_no_u_preference_after": 0.2692307736724615,
+      "dev_target_preference_before": 0.375,
+      "dev_target_preference_after": 0.25,
+      "dev_no_u_preference_after": 0.25,
+      "dev_full_minus_no_u_after": 0.0,
+      "dev_preference_after_by_variant": {
+        "zero_uq": 0.0,
+        "off_path_uq": 0.0,
+        "on_path_uq": 0.25,
+        "view_shuffled_uq": 0.75
+      }
+    },
+    "rear_probe": {
+      "central_rear_probe_count": 14,
+      "contains_hard_brake_or_yield_context": true,
+      "scenario_families": [
+        "Accident",
+        "ConstructionObstacle",
+        "HardBreakRoute",
+        "HazardAtSideLane",
+        "ParkedObstacle",
+        "T_Junction"
+      ]
+    }
+  },
+  "interpretation": {
+    "supported": "The controlled-U to frozen factorized-R to K artifact path is finite, reproducible and spatially auditable. It preserves exact zero-U/zero-K controls and exposes separate route and actor relevance components.",
+    "not_supported": "The trained language bridge does not use U-dependent conditioning on held-out development events. It lowers generic target NLL, but full conditioning and the no-U ablation have identical dev target-preference fractions.",
+    "earliest_observed_quality_gap": "K-to-QA language conditioning is semantically insensitive in this bounded run. This is carried as a labeled soft failure rather than repaired before the first downstream interface is exercised."
+  },
+  "next_bounded_action": {
+    "stage": "Stage2-P interface smoke",
+    "input_curriculum": [
+      "zero controlled K",
+      "spatially relevant controlled K",
+      "spatially irrelevant controlled K",
+      "view-shuffled controlled K"
+    ],
+    "hard_contracts": [
+      "no route, actor, TTC, collision or outcome label enters the forward path",
+      "zero K preserves the native trajectory exactly or within the preregistered numerical tolerance",
+      "only the bounded trajectory response interface receives gradients",
+      "the v12.2 semantic-insensitivity label is retained",
+      "no formal planning or safety claim is made"
+    ],
+    "quality_expectations_are_soft": true
+  },
+  "locks": {
+    "automatic_retry": false,
+    "extra_stage2l_epochs": false,
+    "threshold_change": false,
+    "formal_stage2l_ready": false,
+    "stage2p_quality_ready": false,
+    "closed_loop_ready": false,
+    "locked_test_read": false,
+    "benchmark_claim": false
+  },
+  "claim_boundary": "Terminal integrity and quality diagnosis for one controlled-U semantic engineering slice. It is not a learned-U, formal language, trajectory, closed-loop or safety result."
+}

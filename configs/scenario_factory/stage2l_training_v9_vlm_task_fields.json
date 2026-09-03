@@ -1,0 +1,129 @@
+{
+  "schema": "orion.stage2l_vlm_task_field_training_protocol.v1",
+  "created_at": "2026-08-31T02:35:00+08:00",
+  "status": "cpu_architecture_data_preflight_prepared_training_locked",
+  "triggering_v8_failure": {
+    "report_sha256": "111a6da08cb0b578d39e4246371804fdba3dc2d493c763b11f8c23ff3af773e4",
+    "independent_validation_sha256": "a4b8e0371ce33068f7dbb93ed5f7eec77d942ec4a37b68134ddb794705c86c1c",
+    "diagnosis_sha256": "cdeb830c492e9e076761a9065ee7b98b1378dc6318fc029efda4b518f13d194b",
+    "prompt_alignment_sha256": "f23aacf01aad5aca1f288a62935ca1f8a460eb1d9b99ed48a2408ca04b087cef",
+    "failed_gate_count": 10,
+    "interpretation": "Prompt alignment was correct, but free generation, one ranking group, relevance background precision and structured stance/semantic gates failed."
+  },
+  "architecture": {
+    "stage1_adapter": "frozen task-agnostic spatial observation uncertainty U",
+    "stage1_adapter_trainable": false,
+    "stage2_l_role": "ORION/VLM predicts R, fixed K=U*sigmoid(R), categorical task fields and uncertainty-response stance",
+    "field_head_requires_both_u_and_k": true,
+    "reason_for_u_and_k": "zero U with K=0 must be distinguishable from nonzero off-path U with K=0",
+    "deterministic_qa_renderer": true,
+    "free_language_role": "auxiliary diagnostic",
+    "trajectory_training_enabled": false,
+    "direct_control_training_enabled": false,
+    "legacy_density_uq_used": false,
+    "hard_governor_used": false
+  },
+  "gradient_ownership": {
+    "qa_language_loss_to_relevance_logits": false,
+    "qa_language_loss_to_task_risk_bridge": false,
+    "qa_language_loss_to_task_field_classifiers": false,
+    "qa_language_loss_to_task_field_shared_encoder": false,
+    "qa_language_loss_to_lora_second_pass": true,
+    "qa_language_loss_to_uq_tokenizer": true,
+    "qa_language_loss_to_field_embeddings": true,
+    "task_field_loss_to_relevance_path": false,
+    "task_field_loss_to_task_risk_bridge": true,
+    "task_field_loss_to_task_field_classifiers": true,
+    "dense_relevance_and_ranking_losses_to_relevance_path": true,
+    "ground_truth_task_fields_enter_forward": false
+  },
+  "losses_for_future_bounded_smoke": {
+    "auxiliary_structured_qa_causal_language_modeling": {
+      "weight": 0.25,
+      "release_evidence": false
+    },
+    "foreground_and_background_balanced_dense_relevance": {
+      "weight": 2.0,
+      "foreground_recall_and_background_precision_both_gated": true,
+      "background_support_weight": 1.0,
+      "background_probability_margin": 0.01,
+      "support_hinge_is_aligned_with_reported_background_fpr": true
+    },
+    "geometry_normalized_on_off_ranking": {
+      "weight": 1.0,
+      "required_oracle_fraction": 0.8,
+      "evaluated_on_every_matched_group": true
+    },
+    "dataset_frequency_balanced_partial_task_fields": {
+      "weight": 2.0,
+      "task_relevance_fields_are_supervised_on_25_records": true,
+      "stance_is_supervised_on_15_controlled_records": true,
+      "absent_classes_receive_zero_weight": true
+    },
+    "language_answer_preference": 0.0,
+    "trajectory": 0.0,
+    "direct_control": 0.0,
+    "observed_consequence_calibration": 0.0
+  },
+  "optimizer_unit": {
+    "primary_groups_per_optimizer_step": 5,
+    "primary_records_per_optimizer_step": 100,
+    "language_groups_per_optimizer_step": 1,
+    "language_records_per_optimizer_step": 20,
+    "primary_loss_is_averaged_before_step": true,
+    "reason": "V8 group 0024 reached its margin during its own update but was degraded by subsequent group updates."
+  },
+  "implementation_sources": {
+    "configs/scenario_factory/qa_factory_v5_vlm_task_fields.json": "c942d85a3ac44b551397cbb4b47172d75594d520be8258147dee1aa4a2e9b476",
+    "scripts/preflight_stage2l_v9_route151.py": "fc146751c3c8377c27fb71eded96b31acc91a97f97387ad08cd140b769eb887e",
+    "scripts/train_stage2l_v9_route151_smoke.py": "184bde8a03d3abba82756bf959b4b3eb985d8f4272e39830da63bcd33f19dde6",
+    "scripts/upgrade_stage2l_v9_qa_records.py": "7ed8bce212b648818fed6e9b4107a714e682e0a9d1c2a43c8b002314815f54c3",
+    "tests/test_stage2l_qa_contract_v5.py": "887b4c5771c78d2e2bac551de38f58f0c71ff2e63cfb762ed41adb32f801e74e",
+    "tests/test_stage2l_semantic_runtime_v4.py": "71420bc81823e5085391de30e6f034b3ccc446bab90b0babe639538bfe88caff",
+    "tests/test_stage2l_support_aligned_objective_v9.py": "d885a7023c0411ebf0afc38334837f60ec7754a4edf9b1f6e525a3b61ad1106b",
+    "tests/test_stage2l_structured_field_head.py": "aa0795a2f02d64eb48eb86d0975dfd1599b882c84dd26d674bb0078f8652dfe2",
+    "tests/test_train_stage2l_v9_route151_smoke.py": "9283201388a3509f015772cb5c17caf2769bc3d066b9f79af3af3e05579e2954",
+    "tests/test_upgrade_stage2l_v9_qa_records.py": "0f12a21ed00be2e7c18c3954ddf2bbe3180e2ccddf2c11c9b671060feac6a24e",
+    "uq_estimator/stage2l_qa_contract_v5.py": "43f4bf3991f14e441b3cf6963f4dc2937422f66cc43c7ab4fcba97d7ed1cc394",
+    "uq_estimator/stage2l_semantic_runtime_v4.py": "20c023abafb0272c6e100312f0a8794b9409ef3614f745d6e6390ef321aad99b",
+    "uq_estimator/stage2l_structured_field_head.py": "715b18b5e4d31386677323c94cd6eaa97106d77dfe0ddda555b02ea088f78d94",
+    "uq_estimator/stage2l_support_aligned_objective_v9.py": "68156b0bdb46d34413c990a8fea32e45ec825e46cc39ad427a49994582c4d77d",
+    "uq_estimator/uq_relevance_tokenizer.py": "1edf59228f76c8b07fea81dd1389a7b70d6378f88508e7192cf57f50fb16011b"
+  },
+  "route151_v9_dataset": {
+    "remote_records": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_multiframe_qa/route151_step218/qa_dataset_v5_task_fields_v1/records.jsonl",
+    "records_sha256": "1ad5a891e623cad23482a9b288590a0995a0995d3a05eec9508b64e6fc4110f9",
+    "audit_sha256": "f7f4e311f4e61c7364424f4ea8e0fdc38ad50b623f561f4de27eab80889beda9",
+    "reference_audit_sha256": "b85c79c06878a2c7644f1206a328d793248ce1cf65ec3310666a931f8bfbf7dc",
+    "record_count": 100,
+    "matched_group_count": 5,
+    "task_relevance_field_record_count": 25,
+    "hard_stance_field_record_count": 15,
+    "language_auxiliary_record_count": 90,
+    "all_ninety_unique_references_and_declared_hashes_verified": true,
+    "known_smoke_coverage_limit": "Several camera and risk-region classes have zero examples; this dataset cannot establish spatial generalization."
+  },
+  "cpu_preflight_tests": {
+    "platform_python": "/public/share/lidachuan/orion_assets/envs/orion-cl-centos7/bin/python",
+    "selected_test_count": 40,
+    "selected_test_result": "40 passed",
+    "includes_four_case_structured_field_overfit": true,
+    "gpu_used": false
+  },
+  "future_probe_not_authorized": {
+    "matched_group_count": 5,
+    "proposed_optimizer_steps": 20,
+    "proposed_primary_full_group_sweeps": 20,
+    "proposed_language_full_group_sweeps": 4,
+    "bounded_trainer_implemented": true,
+    "automatic_retry_or_extension": false,
+    "reason": "The bounded trainer is implemented for review, but this protocol does not authorize its proposed 20-step A800 run."
+  },
+  "launch_locks": {
+    "real_orion_smoke_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false,
+    "new_immutable_amendment_required": true
+  },
+  "claim_boundary": "V9 architecture and CPU/data preparation only; no new model result, held-out result, trajectory, closed-loop, generalization or safety evidence."
+}

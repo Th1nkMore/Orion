@@ -1,0 +1,41 @@
+{
+  "schema": "orion.corruption_visual_approval_authorization.v1",
+  "created_at": "2026-09-01T00:02:01+08:00",
+  "status": "explicit_user_visual_approval_recorded",
+  "authorization": {
+    "source": "explicit_user_message",
+    "message_date": "2026-09-01",
+    "verbatim": "批准 stale 200ms；水滴 medium；motion blur medium",
+    "approved_exact_conditions": {
+      "front_stale": ["delay_ms:200"],
+      "lens_waterdrop_paired_template": ["profile:medium"],
+      "native_motion_blur": ["profile:medium"]
+    }
+  },
+  "evidence_reviewed": {
+    "review_bundle_amendment": "configs/scenario_factory/amendments/20260831_corruption_visual_approval_review_bundle_v1.json",
+    "review_bundle_amendment_sha256": "e4c30d169430d38eedaf7c77fc704bed3b1f0e0bd7662cb45e4f352bb0681284",
+    "visual_gate_before_authorization": {
+      "path": "configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json",
+      "sha256": "ddc2056dc0b0bf53c34b4758aebb7f2b783cdf940d5c81632e9f74283277b87e"
+    }
+  },
+  "authorized_next_action": {
+    "wave": "configs/scenario_factory/corruption_hardcase_online_screen_wave0_v1.json",
+    "scope": "Three development routes, each with a same-code clean run and the three approved corruptions; maximum 12 jobs.",
+    "same_code_clean_required": true,
+    "risk_mode": "off",
+    "planning_response_mode": "off",
+    "learned_uq_control": false,
+    "density_uq": false
+  },
+  "not_authorized": [
+    "unapproved severity/profile",
+    "heldout confirmation routes",
+    "Route203",
+    "Stage2P",
+    "learned-UQ or governor control",
+    "formal 200-route evaluation"
+  ],
+  "claim_boundary": "This message authorizes exact visual conditions and the already-preregistered development Wave0 execution only. It is not an ORION result, uncertainty result, failure-induction result, or safety claim."
+}

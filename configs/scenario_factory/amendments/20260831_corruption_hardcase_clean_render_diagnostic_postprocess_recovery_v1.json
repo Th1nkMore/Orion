@@ -1,0 +1,36 @@
+{
+  "schema": "orion.corruption_hardcase_clean_render_diagnostic_postprocess_recovery.v1",
+  "timestamp": "2026-08-31T20:35:00+08:00",
+  "status": "postprocess_only_recovery_authorized",
+  "job_id": 1114570,
+  "failure": {
+    "stage": "third profile evaluator teardown after capture window",
+    "symptom": "scenario-manager watchdog timeout before the wrapper could invoke the renderer",
+    "formal_job_success": false
+  },
+  "salvage_preconditions": {
+    "none_trace_count": 1,
+    "none_front_png_count": 34,
+    "intensity_zero_only_trace_count": 1,
+    "intensity_zero_only_front_png_count": 34,
+    "clean_trace_count": 1,
+    "clean_front_png_count": 34,
+    "all_event_matched_progress": 0.3995055568705645,
+    "all_expected_raw_profiles_present": true
+  },
+  "authorized_action": {
+    "operation": "run scripts/render_clean_camera_diagnostic.py against the immutable completed captures",
+    "gpu_required": false,
+    "carla_required": false,
+    "orion_loaded": false,
+    "new_capture": false,
+    "automatic_retry": false
+  },
+  "output": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_clean_render_diagnostic_v1/visual_review",
+  "execution_locks": {
+    "orion_hardcase_screen": false,
+    "severity_selection": false,
+    "closed_loop": false
+  },
+  "claim_boundary": "A complete visual A/B/C capture may be salvaged for root-cause diagnosis despite the failed Slurm wrapper; the job must remain recorded as failed, not rewritten as a successful run."
+}

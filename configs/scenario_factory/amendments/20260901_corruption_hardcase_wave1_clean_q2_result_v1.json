@@ -1,0 +1,82 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_q2_result_amendment.v1",
+  "created_at": "2026-09-01T06:04:36+08:00",
+  "status": "q2_complete_one_stable_clean_one_runtime_inconclusive",
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_clean_q2_activation_v1.json",
+    "sha256": "d76e2fa281a67fa425f159b5680eff90ca35566132c16fd7e242b6f919d45c21"
+  },
+  "submission": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_clean_q2_submission_v1.json",
+    "sha256": "1927fee9cbe5f72b9603276c54f26756b1baa6d3d690ea265a200076d52639b1"
+  },
+  "evaluator_implementation": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_clean_q2_evaluator_implementation_v1.json",
+    "sha256": "329a1ef4608d972bc5993506e3d73d3f6974b4074b338633d926c1ecb9784564"
+  },
+  "collection": {
+    "local_path": "results/scenario_factory/corruption_hardcase_wave1_clean_q2_v1/analysis_v1/q2_collection.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q2_v1/analysis_v1/q2_collection.json",
+    "sha256": "f2ff3b63670a530c2c9c13ef4bcf90f76552f19a77f738df0e7e5c19d3d5c726"
+  },
+  "route_results": {
+    "158": {
+      "q1_status": "pass",
+      "q2_job_id": 1117849,
+      "q2_node": "gpu4",
+      "q2_slurm_state": "COMPLETED",
+      "q2_slurm_exit_code": "0:0",
+      "q2_report_sha256": "aa07304d0aa36efa161ea750cb4ea2a351dfdb0291e3886c66c5766d57fcf55d",
+      "route_completion_percent": 100.0,
+      "hard_infractions": 0,
+      "trace_frames": 1062,
+      "longest_low_speed_interval_seconds": 5.100000000000001,
+      "q2_status": "pass",
+      "stable_clean_status": "qualified"
+    },
+    "185": {
+      "q1_status": "pass",
+      "initial_q2_job": {
+        "job_id": 1117850,
+        "node": "gpu1",
+        "slurm_state": "FAILED",
+        "slurm_exit_code": "127:0",
+        "classification": "runtime_environment_invalid_sensor_frame_mismatch"
+      },
+      "authorized_exact_replacement": {
+        "job_id": 1117862,
+        "node": "gpu4",
+        "slurm_state": "FAILED",
+        "slurm_exit_code": "124:0",
+        "classification": "runtime_environment_invalid_control_trace_stall"
+      },
+      "q2_runtime_report_sha256": "189a78849b9d5f84d5c4ebf5d0bef164b5ad34298ae6e84bd625dffc527c7bbe",
+      "q2_status": "runtime_inconclusive",
+      "stable_clean_status": "not_qualified",
+      "scientific_result": null
+    }
+  },
+  "decision": {
+    "stable_clean_routes": [158],
+    "runtime_inconclusive_routes": [185],
+    "clean_rejected_routes": [],
+    "corruption_candidate_routes": [158],
+    "additional_route185_retry_authorized": false,
+    "corruption_submission_authorized_by_this_result": false,
+    "next_required_record": "A prospective Wave1 corruption activation for Route158 only."
+  },
+  "scientific_interpretation": [
+    "Route158 independently passed both current-code clean replicates and is the only stable-clean Wave1 route eligible for a bounded corruption screen.",
+    "Route185 produced no valid Q2 driving outcome across the initial attempt and its single authorized exact replacement; both failures are runtime diagnostics and are excluded scientifically.",
+    "No conclusion about corruption-induced degradation can be drawn until Route158 corruption runs are completed under a separately frozen activation."
+  ],
+  "automatic_scope_locks": {
+    "route185_corruption": false,
+    "additional_q2_retry": false,
+    "corruption_before_new_activation": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Clean reproducibility and runtime diagnostics only. This result contains no corruption, uncertainty, task-relevance, control-benefit, held-out, or benchmark claim."
+}

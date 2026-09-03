@@ -1,0 +1,31 @@
+{
+  "schema_version": "orion.counterfactual-evidence-pairwise-native-fog-evaluation/v4",
+  "frozen_at": "2026-08-28T03:33:23+08:00",
+  "purpose": "Final route- and Town-disjoint native-fog gate for the frozen pairwise Stage-1 adapter.",
+  "inputs": {
+    "checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+    "native_feature_sha256": "debdeac1cbb1bb72227604a79ef41f38c1be13dde6562256599055d6ea20ddda"
+  },
+  "routes": [
+    "Town01/Route146",
+    "Town04/Route203"
+  ],
+  "native_development_routes": [
+    "Town10HD/Route148",
+    "Town03/Route195"
+  ],
+  "evaluation_contract": {
+    "checkpoint_update": false,
+    "optimizer_or_checkpoint_selection": false,
+    "paired_clear_feature_used_for_model_score": false,
+    "paired_clear_feature_used_for_evaluation_only": true,
+    "absolute_clear_uncertainty_target": null,
+    "requires_inference_baseline_calibration": true
+  },
+  "claim_boundary": {
+    "tests_route_and_town_transfer": true,
+    "tests_unseen_corruption_family": false,
+    "native_fog_is_uncertainty_truth": false,
+    "successful_gate_means": "The frozen adapter score transfers across held-out routes for independently rendered evidence degradation; it does not establish semantic or task risk by itself."
+  }
+}

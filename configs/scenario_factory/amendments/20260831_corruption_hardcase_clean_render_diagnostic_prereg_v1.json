@@ -1,0 +1,34 @@
+{
+  "schema": "orion.corruption_hardcase_clean_render_diagnostic_prereg.v1",
+  "timestamp": "2026-08-31T20:36:00+08:00",
+  "status": "preregistered_before_submission",
+  "trigger_amendment": "configs/scenario_factory/amendments/20260831_corruption_hardcase_visual_rejection_v1.json",
+  "protocol": "configs/scenario_factory/corruption_hardcase_clean_render_diagnostic_route151_v1.json",
+  "scope": "Route151 no-ORION clean RGB camera blueprint A/B/C diagnostic",
+  "conditions_in_order": [
+    "none: unmodified camera blueprint",
+    "intensity_zero_only: write only motion_blur_intensity=0",
+    "clean: reproduce the rejected multi-zero override"
+  ],
+  "controlled_variables": [
+    "one CARLA server process",
+    "same route-native weather",
+    "same camera geometry",
+    "same BasicAgent and capture progress interval"
+  ],
+  "resource_ceiling": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus": 2,
+    "memory_gb": 16,
+    "walltime": "00:30:00"
+  },
+  "forbidden_uses": [
+    "ORION inference",
+    "corruption severity selection",
+    "collision or TTC claim",
+    "unlocking the hard-case screen without human visual review"
+  ],
+  "automatic_retry": false,
+  "claim_boundary": "Engineering root-cause diagnostic only."
+}

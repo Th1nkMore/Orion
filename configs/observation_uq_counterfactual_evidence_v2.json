@@ -1,0 +1,88 @@
+{
+  "schema_version": "orion.observation-uq-counterfactual-evidence/v2",
+  "frozen_at": "2026-08-27T08:52:17+08:00",
+  "purpose": "Feature-only data-schedule repair after the v1 exact-nonzero presence label and fixed route-condition camera schedule produced a confirmed cross-route shortcut.",
+  "parent_protocol_sha256": "4d40c1f81455336e763b8396d02fa39ecf82b2212f010029b264b745f70b1686",
+  "diagnostic_input_sha256": "fbfa8697a3b38e596e99819aeaf348eabf55e9619bcdc58e26cd07e3757f052c",
+  "claim_boundary": {
+    "adapter_quantity": "spatial observation evidence-loss proxy",
+    "task_relevance_is_adapter_output": false,
+    "path_risk_is_adapter_output": false,
+    "counterfactual_target_is_unique_uncertainty_truth": false,
+    "corruption_mask_is_primary_target": false,
+    "actual_orion_failure_is_primary_target": false,
+    "model_independence_claimed": false,
+    "closed_loop_safety_claim_supported_by_stage1": false
+  },
+  "reference_data": {
+    "source": "frozen B2D route-disjoint observation feature selection",
+    "historical_name": "clean",
+    "corrected_name": "unintervened mixed-weather reference",
+    "train_routes": 35,
+    "frames_per_route": 16,
+    "train_frames": 560,
+    "normal_weather_routes_0_to_3": 8,
+    "adverse_weather_routes_4_plus": 27,
+    "reference_feature_sha256": "ab8d16ce9ffe67aba192ae331b102bcda8ccf917b4bbe491e86e452367b5beac"
+  },
+  "target": {
+    "persistent_direction": "1 - cosine(observed_patch_feature_t, paired_reference_patch_feature_t)",
+    "persistent_magnitude": "absolute log ratio of observed/reference patch feature RMS",
+    "transient": "absolute difference between observed and reference consecutive-frame cosine residuals",
+    "first_frame_transient_valid": false,
+    "primary_supervision": "continuous measured paired-feature amplitude",
+    "exact_nonzero_presence_label_authorized": false,
+    "future_support_auxiliary": "only target-derived high-response or soft-amplitude support frozen after v2 target audit",
+    "mask_optimizer_weight": 0.0,
+    "actual_target_optimizer_weight": 0.0
+  },
+  "intervention_split": {
+    "optimizer_families": ["local_blur", "local_dark"],
+    "optimizer_severities": [1, 3],
+    "optimizer_views": "deterministic four-frame window cycle over camera views",
+    "optimizer_region": "deterministic sample-specific local region",
+    "route_validation": "same optimizer families on five disjoint B2D validation routes",
+    "heldout_family_development": "local_glare on validation and held-out B2D routes",
+    "native_development": "existing exact-pose Epic fog on Town01/Route146 and Town04/Route203",
+    "view_schedule": {
+      "version": "route_condition_window_cycle/v2",
+      "window_frames": 4,
+      "offset": "sha256(seed, route_id, family, severity) modulo six",
+      "view": "(offset + floor(frame_idx / 4)) modulo six",
+      "rationale": "preserve short temporal sensor continuity while preventing one route/family/severity key from labeling one camera for all 16 frames"
+    }
+  },
+  "extraction": {
+    "seed": 20260827,
+    "reference_frames": 720,
+    "observed_frames": 2880,
+    "total_feature_grids": 3600,
+    "storage_dtype": "float16",
+    "projected_storage_gib": 65.92,
+    "feature_only": true
+  },
+  "projected_schedule_audit": {
+    "assumption": "the frozen selector takes each route's first 16-frame contiguous run; extraction rechecks actual metadata before saving",
+    "train_view_counts": [376, 400, 356, 336, 388, 384],
+    "validation_optimizer_view_counts": [60, 56, 44, 48, 56, 56],
+    "heldout_glare_view_counts": [24, 32, 32, 24, 24, 24],
+    "train_entropy_bits": 2.5825689889700056,
+    "maximum_entropy_bits": 2.584962500721156,
+    "unique_views_per_16_frame_route_condition": 4,
+    "view_transition_fraction": 0.2,
+    "runtime_gate": "every actual route/family/severity sequence must cover at least four views before the shard is saved"
+  },
+  "continuation": {
+    "required_after_extraction": [
+      "artifact count/hash/lineage validation",
+      "train-only continuous-target amplitude and spatial-support audit",
+      "verify responsive footprint is no longer used as a presence label",
+      "freeze a separate adapter architecture and loss smoke"
+    ],
+    "automatic_adapter_training": false,
+    "heldout_glare_read_before_route_gate": false,
+    "native_fog_read_before_route_gate": false,
+    "orion_finetuning_authorized": false,
+    "stage_b_authorized": false
+  }
+}

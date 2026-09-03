@@ -1,0 +1,105 @@
+{
+  "schema": "orion.scenario_factory.protocol.v1",
+  "created_at": "2026-08-29T09:45:00+08:00",
+  "status": "active_development_screening",
+  "purpose": "Build an auditable bank of independent driving events before Stage2-L UQ-language grounding and Stage2-P planning training.",
+  "responsibility_boundary": {
+    "stage1_adapter": "Frozen, task-agnostic spatial observation uncertainty only.",
+    "uq_tokenizer": "Preserve view, position, magnitude and temporal structure without route, TTC, collision or corruption-family inputs.",
+    "orion_vlm": "Predict task relevance and a human-readable QA explanation from visual, route and UQ context.",
+    "trajectory_decoder": "Consume task-relevant risk only after Stage2-L passes its semantic and causal gates.",
+    "retired": [
+      "legacy Density UQ",
+      "scalar UQ token",
+      "hard learned-UQ governor",
+      "standalone Stage2A yield/conflict controller"
+    ]
+  },
+  "screening_runtime": {
+    "condition": "clean_off",
+    "corruption": "none",
+    "risk_mode": "off",
+    "uq_mode": "none",
+    "planning_response": "off",
+    "legacy_density_uq": false,
+    "carla_quality": "Epic",
+    "gpus_per_route": 1,
+    "cpus_per_route": 2,
+    "memory_per_route": "192G",
+    "maximum_initial_concurrency": 3,
+    "port_policy": "Ten-port CARLA and traffic-manager lanes derived from SLURM_JOB_ID."
+  },
+  "selection_policy": {
+    "development_screen": "May use published ORION outcomes and current clean replay outcomes to find useful training/development events.",
+    "locked_test": "May use static scenario geometry and current clean runtime validity only; must not be selected based on learned-UQ or Stage2 behavior.",
+    "locked_test_freeze": "Route identities are frozen before any ORION outcome, learned-UQ, or Stage2 result is read. After replay, a route may be excluded only for attested runtime, sensor, map, spawn, or visualization integrity failure; model success or failure is not an exclusion criterion.",
+    "split_unit": "Whole route and event; adjacent frames from one event never cross splits.",
+    "corruption_split_unit": "Whole corruption family for the formal unseen-family evaluation."
+  },
+  "event_package": {
+    "schema": "orion.scenario_event_package.v1",
+    "required_sources": [
+      "run manifest",
+      "official evaluator endpoint",
+      "contiguous control trace",
+      "six camera streams",
+      "front model-input stream",
+      "BEV stream",
+      "dynamic-actor safety telemetry"
+    ],
+    "critical_event_priority": [
+      "minimum finite dynamic-actor OBB TTC",
+      "minimum finite dynamic-actor OBB separating-axis gap",
+      "no automatic event when actor-grounded geometry is absent"
+    ],
+    "review_status_initial": "pending_human_review",
+    "immutable_inputs": true
+  },
+  "event_review_and_freezing": {
+    "automatic_exclusion": [
+      "runtime invalid",
+      "required camera or BEV stream absent",
+      "no actor-grounded critical event"
+    ],
+    "required_human_checks": [
+      "visual stream integrity",
+      "actor-event semantics",
+      "front/BEV temporal alignment",
+      "absence of actor disappearance or spawn artifacts"
+    ],
+    "event_package_hash_bound_to_decision": true,
+    "one_event_per_route_in_v1": true,
+    "development_events_may_enter": ["train", "dev"],
+    "locked_test_events_may_enter": ["test"],
+    "formal_target": {
+      "events": 24,
+      "towns": 5,
+      "scenario_families": 8,
+      "route_event_split": {"train": 16, "dev": 4, "test": 4}
+    }
+  },
+  "qa_factory": {
+    "formal_training_locked_until": [
+      "event package schema audit passes",
+      "train/dev/test route split is frozen",
+      "at least 8 independent pilot events span at least 3 Towns and 4 scenario families",
+      "QA leakage, balance and map-text consistency audits pass"
+    ],
+    "qa_families": [
+      "observation semantics",
+      "epistemic limitation",
+      "task relevance",
+      "driving implication",
+      "matched on-path/off-path counterfactual",
+      "native-condition and irrelevant-UQ hard negative"
+    ],
+    "forbidden_model_inputs": [
+      "corruption family name",
+      "synthetic severity label",
+      "privileged TTC",
+      "collision outcome",
+      "answer-derived task relevance"
+    ]
+  },
+  "claim_boundary": "Scenario discovery and QA construction are development-data operations. They do not establish adapter validity, VLM semantic understanding or closed-loop safety until their independent gates pass."
+}

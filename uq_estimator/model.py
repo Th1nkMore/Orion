@@ -20,6 +20,7 @@ class UQOutput:
     embedding: torch.Tensor   # [B, d_out]
     score: torch.Tensor       # [B, 1]
     attn_weights: Optional[torch.Tensor] = None  # [B, n_query, N_patches]
+    active_embedding: Optional[torch.Tensor] = None  # [B, d_active]
 
 
 class UQEstimator(nn.Module):

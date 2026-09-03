@@ -1,0 +1,24 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T17:18:00+08:00",
+  "status": "cpu_preflight_implementation_repaired_before_launch",
+  "scope": "Stage2-L v12.2 semantic vertical-slice CPU preflight only",
+  "failed_attempt": {
+    "training_started": false,
+    "gpu_used": false,
+    "preflight_artifact_written": false,
+    "failure": "The consumer looked for terminal_validation['terminal_decision']; the independently validated v12.1 artifact names this field 'decision'."
+  },
+  "repair": {
+    "changed_field_lookup": "terminal_decision -> decision",
+    "expected_value_unchanged": "held_out_factorized_r_transfer_failed",
+    "integrity_requirement_unchanged": true,
+    "data_changed": false,
+    "model_or_checkpoint_changed": false,
+    "threshold_changed": false,
+    "training_budget_changed": false,
+    "gpu_submission_consumed": false
+  },
+  "disposition": "Rerun the CPU-only preflight from the beginning. Any later GPU launch remains separately hash-bound to the repaired trainer and fresh preflight.",
+  "claim_boundary": "Implementation repair record only; no model, language, planning, closed-loop or safety result."
+}

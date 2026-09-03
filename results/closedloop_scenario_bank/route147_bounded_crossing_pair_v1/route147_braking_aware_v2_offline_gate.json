@@ -1,0 +1,85 @@
+{
+  "artifacts": {
+    "v1_oracle_trace_path": "results/closedloop_scenario_bank/route147_bounded_crossing_pair_v1/oracle_1087791/control_trace.jsonl",
+    "v1_oracle_trace_sha256": "5930342b8d7081d8ec880b1da4a6910a80410f4f767067b4a11e57ae7641aa19",
+    "v1_result_path": "results/closedloop_scenario_bank/route147_bounded_crossing_pair_v1/route147_bounded_crossing_pair_result.json",
+    "v1_result_sha256": "789a6590f1f9227c62c475e6d739a49dddb062b8be6fee58dbc2bafc6bd43bb5"
+  },
+  "checks": {
+    "v1_all_endpoint_contracts_passed": true,
+    "v1_all_trace_contracts_passed": true,
+    "v1_first_hold_did_not_command_immediate_braking": true,
+    "v1_only_failed_minimum_ttc_gain": true,
+    "v1_was_valid_but_primary_failed": true,
+    "v2_changes_both_near_waypoints": true,
+    "v2_first_hold_commands_immediate_braking": true,
+    "v2_go_is_exact_orion_identity": true,
+    "v2_release_is_half_mps_creep": true,
+    "v2_stops_before_frozen_safe_distance": true
+  },
+  "decision": "eligible_for_one_preregistered_route147_braking_aware_v2_oracle",
+  "event_record_count": 39,
+  "first_hold_counterfactual": {
+    "safe_stop_path_distance_m": 7.4433721884477,
+    "sim_time_seconds": 10.55,
+    "speed_mps": 4.662762940034651,
+    "state": "hold",
+    "step": 211,
+    "v1_first_two_waypoints": [
+      [
+        -0.0024475634563714266,
+        2.531635046005249
+      ],
+      [
+        -0.03507818281650543,
+        6.110531806945801
+      ]
+    ],
+    "v1_target_pid_desired_speed_mps": 5.586977100127032,
+    "v2_first_two_waypoints": [
+      [
+        -0.0018914122564718863,
+        1.9563805557168132
+      ],
+      [
+        -0.008201627046024989,
+        3.1627355260781633
+      ]
+    ],
+    "v2_immediate_brake_ratio": 1.3179994268776989,
+    "v2_max_path_distance_m": 3.623534366687155,
+    "v2_profile": {
+      "applied_deceleration_mps2": 3.0,
+      "base_pid_desired_speed_mps": 5.586977100127032,
+      "immediate_brake_ratio": 1.3179994268776989,
+      "input_speed_mps": 4.662762940034651,
+      "kinematic_stop_distance_m": 3.623559705826764,
+      "safe_stop_path_distance_m": 7.4433721884477,
+      "schema_version": "orion.braking_aware_bounded_crossing.v2",
+      "state": "hold",
+      "stop_time_seconds": 1.5542543133448836,
+      "target_pid_desired_speed_mps": 3.537757942035374
+    },
+    "v2_target_pid_desired_speed_mps": 3.537757942035374
+  },
+  "offline_gate_pass": true,
+  "schema": "orion.route147_braking_aware_v2_offline_gate.v1",
+  "scientific_role": "mechanism repair only; retains v1 thresholds and existing clean reference, and does not evaluate the learned adapter",
+  "thresholds": {
+    "certified_deceleration_mps2": 3.0,
+    "immediate_brake_ratio": 1.1,
+    "prepare_creep_speed_mps": 1.0,
+    "release_creep_distance_m": 1.0,
+    "release_creep_speed_mps": 0.5
+  },
+  "v1_failure": {
+    "failed_outcome_checks": [
+      "walker_ttc_improved_or_horizon_censored"
+    ],
+    "minimum_walker_ttc_seconds": {
+      "clean": 0.8605841826380108,
+      "oracle_v1": 0.9004182672632242
+    },
+    "walker_ttc_lte_1_exposure_reduction_seconds": 0.3500000000000014
+  }
+}

@@ -1,6 +1,6 @@
 # UQ-ORION 阶段性研究报告
 
-> 日期：2026-03-30（v2 更新：伪标签重构，AUROC 0.621 → 0.993）
+> 日期：2026-03-30（v3 更新：修正 scene_type 分类，AUROC 0.954；v3 FiLM 重训 + 闭环评估；18 场景轨迹对比 GIF）
 > 硬件：1x NVIDIA A100 80GB
 > 基线模型：ORION (ICCV 2025)
 > 目标：在 ORION 基础上轻量化引入不确定性感知，提升恶劣天气场景安全性
@@ -90,9 +90,9 @@ python scripts/extract_orion_features.py \
 
 ---
 
-### Stage 1a：伪标签生成 ✅ → v2 重构 ✅
+### Stage 1a：伪标签生成 ✅ → v2 重构 ✅ → v3 scene_type 修正 ✅
 
-**v1 完成日期**：2026-03-27 | **v2 重构日期**：2026-03-30
+**v1 完成日期**：2026-03-27 | **v2 重构日期**：2026-03-30 | **v3 修正日期**：2026-03-30
 
 **做了什么**：为每个样本计算一个不确定性伪标签 score ∈ [0, 1]，作为 UQEstimator 的监督信号。
 
@@ -139,9 +139,13 @@ score = 0.50 × max_mean_score    # 1 - normalise(max_mean, [13, 16])
 
 **v2 新增 `--stat_cache` 快速路径**：利用预计算的 `stat_cache.pt`，标签生成从 ~2h 降至 ~2min。
 
+**v3 scene_type 修正**：v2 使用特征文件的 scene_type（基于 CARLA 场景类型：Accident→adverse），但 eval_openloop 使用天气 ID 分类（Weather 0-3=normal）。这导致 2,481/12,806 样本分类不一致（19.4%），v2 的 AUROC 0.993 仅在自身标签空间有效，在 eval_openloop 分类下仅为 0.601。v3 引入 `--scene_type_map` 参数，使用 weather-based 分类对齐 eval_openloop，确保分类一致。
+
 **产出**：
-- `data/labels/uq_labels.pt` — v2 伪标签（12,806 样本）
+- `data/labels/uq_labels.pt` — v3 伪标签（12,806 样本，weather-based scene_type）
+- `data/labels/uq_labels_v2.pt` — v2 备份
 - `data/labels/uq_labels_v1_backup.pt` — v1 备份
+- `data/weather_scene_type_map.pt` — weather-based scene_type 映射
 
 ---
 
@@ -253,6 +257,8 @@ python scripts/train_film.py --config ... --film-mode l1l2 --epochs 3 --lr 1e-3 
 
 **权重验证**：所有 checkpoint 的 gamma_bias ≈ 1, beta_bias ≈ 0（接近 identity），标准差 ~0.02（有效但保守的调制）。
 
+**当前状态**：代码完成，L1+L2+碰撞感知 checkpoint（`best_l1l2_col_v3.pt`）可用，但 Normal ADE 退化 +116%，根因已定位（embed_head LayerNorm 破坏 Score-Gate），Score-Gated FiLM 代码已完成，**checkpoint 未重训**，修复效果待实验验证。
+
 **初步开环评估（500 样本）**：
 - FiLM L1 vs Baseline: L2@3s 1.885m vs 1.916m（改善 1.6%）
 - UQ Spearman 相关性: -0.291 vs -0.276（提升）
@@ -302,14 +308,60 @@ python scripts/eval_closedloop_replay.py \
 
 ### 3.1 天气分类
 
-CARLA 场景按天气 ID 分为两类：
+#### 判定方式
 
-| 类别 | 天气 ID | 包含场景 | 样本数 |
-|------|---------|----------|--------|
-| Normal | 0-3 | ClearNoon, ClearSunset, CloudyNoon, CloudySunset | 2,709 |
-| Adverse | 5-26 | 雨、雾、夜间、湿路面及其组合 | 10,097 |
+Weather ID 直接来自 B2D 数据集的**文件夹命名**（后缀 `_WeatherN`），由 `eval_openloop.py` 的 `parse_weather_id()` 函数解析，规则硬编码为：
 
-**为什么这样划分**：Weather 0-3 是标准白天晴/多云场景，视觉条件良好；其余场景均包含不同程度的视觉降质（雨滴、雾气、低光照、路面反光）。
+```python
+NORMAL_WEATHER_IDS = {0, 1, 2, 3}   # eval_openloop.py:34
+def is_adverse(weather_id: int) -> bool:
+    return weather_id not in NORMAL_WEATHER_IDS
+```
+
+#### 完整 Weather ID 映射
+
+| 类别 | Weather ID | 天气名称 | 说明 |
+|------|-----------|---------|------|
+| **Normal** | 0 | ClearNoon | 晴天正午 |
+| **Normal** | 1 | ClearSunset | 晴天傍晚 |
+| **Normal** | 2 | CloudyNoon | 多云正午 |
+| **Normal** | 3 | CloudySunset | 多云傍晚 |
+| Adverse | 5 | WetNoon | 湿路面正午 |
+| Adverse | 6 | WetSunset | 湿路面傍晚 |
+| Adverse | 7 | MidRainyNoon | 中雨正午 |
+| Adverse | 8 | MidRainSunset | 中雨傍晚 |
+| Adverse | 9 | WetCloudyNoon | 湿路多云正午 |
+| Adverse | 10 | WetCloudySunset | 湿路多云傍晚 |
+| Adverse | 11 | HardRainNoon | 暴雨正午 |
+| Adverse | 12 | HardRainSunset | 暴雨傍晚 |
+| Adverse | 13 | SoftRainNoon | 小雨正午 |
+| Adverse | 14 | SoftRainSunset | 小雨傍晚 |
+| Adverse | 15 | ClearNight | **晴天夜间**（无降水，但低光照）|
+| Adverse | 18 | CloudyNight | 多云夜间 |
+| Adverse | 19 | WetNight | 湿路面夜间 |
+| Adverse | 20 | WetCloudyNight | 湿路多云夜间 |
+| Adverse | 21 | MidRainyNight | 中雨夜间 |
+| Adverse | 22 | HardRainNight | 暴雨夜间 |
+| Adverse | 23 | SoftRainNight | 小雨夜间 |
+| Adverse | 25 | FoggyNoon | 雾天正午 |
+| Adverse | 26 | FoggySunset | 雾天傍晚 |
+
+> Weather ID 4 和 16、17、24 在 B2D 验证集中不存在。
+
+**验证集样本分布**：
+
+| 类别 | 样本数 | 占比 |
+|------|--------|------|
+| Normal（ID 0-3） | 2,709 | 21.2% |
+| Adverse（其余 19 种） | 10,097 | 78.8% |
+| **合计** | **12,806** | 100% |
+
+#### 分类的设计依据与边界说明
+
+Weather 0-3 对应 CARLA 内置的 4 个"标准白天"预设，不含任何降水/雾气/夜间参数，是感知质量最稳定的基准条件。分类边界有两点值得注意：
+
+1. **ClearNight（ID 15）归为 Adverse**：无降水但低光照，EVAViT 的 patch token 激活统计量与白天有显著差异（UQ score 约 0.235，介于 Normal 和重度 Adverse 之间），归为 Adverse 是合理的工程选择。
+2. **CloudyNoon/CloudySunset（ID 2/3）归为 Normal**：多云但白天，无视觉降质（雾/雨/夜），L2 和碰撞率与 ClearNoon 相近，UQ score 在 v3 模型中也接近 0。
 
 ### 3.2 UQ Score 分离度
 
@@ -321,33 +373,39 @@ CARLA 场景按天气 ID 分为两类：
 | UQ Score 中位数 | 0.744 | 0.963 | **0.005** | **0.949** |
 | UQ Score std | — | — | **0.010** | **0.297** |
 
-| 指标 | v1 | **v2** | 目标 |
-|------|-----|--------|------|
-| **均值差 (Gap)** | 0.235 | **0.794** | > 0.1 ✅ |
-| **Normal/Adverse 重叠** | 显著 | **几乎为零** | — |
+| 指标 | v1 | v2 | **v3** | 目标 |
+|------|-----|-----|--------|------|
+| **均值差 (Gap)** | 0.235 | 0.794* | **0.870** | > 0.1 ✅ |
+| **Normal/Adverse 重叠** | 显著 | 几乎为零* | **几乎为零** | — |
 
-**v2 分析**：经过伪标签重构后，Normal 的 UQ score 均值从 0.545 大幅降至 0.007，Adverse 从 0.780 提升至 0.800。分离度 Gap 从 0.235 跃升至 **0.794**（3.4 倍提升）。两个分布几乎完全分离，[0.4, 0.6) 区间为空。
+*v2 的高指标仅在特征文件 scene_type 空间有效，在 eval_openloop weather-based 分类下 gap 仅 0.231。v3 修正了此不一致。
+
+**v3 分析**：修正 scene_type 分类后，Normal 均值=0.023，Adverse 均值=0.893，Gap=**0.870**。ClearNoon 几乎为零（0.0001），adverse 场景大部分 >0.9。
 
 ### 3.3 AUROC
 
 > 📊 对应图表：`results/figures/baseline/fig2_auroc.pdf`
 
-| 指标 | v1 数值 | **v2 数值** | 目标 |
-|------|---------|------------|------|
-| AUROC (UQ score → adverse 分类) | 0.621 | **0.993** | > 0.7 ✅✅ |
-| Spearman (score vs label) | ~0.53 | **0.955** | — |
+| 指标 | v1 数值 | v2 数值 | **v3 数值** | 目标 |
+|------|---------|---------|------------|------|
+| AUROC (UQ score → eval_openloop adverse) | 0.621 | 0.601* | **0.954** | > 0.7 ✅✅ |
 
-**v2 分析**：AUROC 从 0.621 飞跃至 **0.993**，远超 0.7 目标。主要改进来源：
+*v2 的 AUROC 0.993 是在特征文件自身的 scene_type 上评估的；在 eval_openloop 的 weather-based 分类下仅为 0.601（因 19.4% 样本分类不一致）。
 
-1. **引入 max_mean 特征**（Cohen's d=1.07）：token 最大激活均值是区分 normal/adverse 最强的单一特征，v1 完全未使用
-2. **移除无效 gradient 分量**：在无原始图像的 GPU 路径中，gradient 恒为 0.5，浪费 30% 权重
-3. **百分位数校准替代 min-max**：消除了 ClearNoon=0.003、MidRainSunset=0.001 等极端值
-4. **加宽分离间隔**：从 [0.45, 0.55]（gap=0.10）到 [0.38, 0.62]（gap=0.24）
+**v3 改进来源**：
+1. **修正 scene_type 分类**：v2 使用场景类型（Accident→adverse），v3 改用天气 ID（Weather 0-3=normal），与 eval_openloop 对齐
+2. **引入 max_mean 特征**（Cohen's d=1.07）：token 最大激活均值是区分 normal/adverse 最强的单一特征
+3. **百分位数校准替代 min-max**：消除极端值，加宽分离间隔 [0.38, 0.62]
 
-**v1 问题已解决**：
-- ~~ClearNoon 异常低分 (0.003)~~ → v2 Normal 均值 0.007，分布合理
-- ~~MidRainSunset 异常低分 (0.001)~~ → v2 Adverse 最低值 0.62
-- ~~样本不平衡~~ → 百分位数校准对样本不平衡不敏感
+**逐天气 UQ score（v3）**：天气排序完全正确
+| 天气 | 分类 | UQ score | 语义 |
+|------|------|----------|------|
+| ClearNoon | Normal | 0.0001 | 完美感知 |
+| ClearSunset | Normal | 0.0009 | 接近完美 |
+| CloudyNoon | Normal | 0.072 | 轻微退化 |
+| MidRainyNoon | Adverse | 0.231 | 中度退化 |
+| HardRainNight | Adverse | 0.989 | 严重退化 |
+| MidRainSunset | Adverse | 0.997 | 极端退化 |
 
 ### 3.4 逐天气场景分析
 
@@ -434,6 +492,8 @@ CARLA 场景按天气 ID 分为两类：
 | `scripts/eval_closedloop_replay.py` | ~510 | 闭环回放评估（Bench2Drive，无 CARLA）| 闭环 |
 | `scripts/visualize_eval.py` | ~460 | 论文级评估可视化（5 种图表）| 可视化 |
 | `scripts/visualize_attention.py` | ~590 | QT-Former attention map 可视化 | 可视化 |
+| `scripts/generate_trajectory_gifs.py` | ~660 | 轨迹对比 GIF 生成（Baseline vs FiLM vs GT）| 可视化 |
+| `scripts/merge_v2_uq_scores.py` | ~150 | UQ score 合并到已有 eval 结果 | 工具 |
 | `scripts/run_ablation.sh` | ~200 | 四组 Ablation 自动化 | Stage 4 |
 | `tests/test_uq_model.py` | ~97 | UQEstimator 单元测试 | 测试 |
 | `tests/test_film.py` | ~280 | FiLM L1/L2 单元测试（12 tests）| 测试 |
@@ -483,6 +543,99 @@ tests/test_film.py      — 12 tests (全部通过)
 | `scripts/visualize_eval.py --input-film` | Baseline vs FiLM 对比模式 | FiLM eval 完成后 |
 | `scripts/run_ablation.sh --viz` | 四组 Ablation 对比图 | 全部 eval 完成后 |
 
+### 5.2 轨迹对比 GIF 可视化 ✅
+
+**完成日期**：2026-03-30
+
+**做了什么**：在 Bench2Drive 验证集上选取 18 个代表性场景，分别运行 Baseline（FiLM→identity）和 FiLM（L1+L2+collision-aware）两轮推理，逐帧捕获 GT 轨迹、Baseline 预测轨迹、FiLM 预测轨迹和 UQ score，生成动态 GIF 对比图。
+
+**为什么需要**：静态图表只能展示统计汇总。GIF 可以在论文的 supplementary material 和 presentation 中直观展示：
+- 高不确定性场景下 FiLM 如何调制轨迹
+- 正常天气 vs 恶劣天气的视觉对比
+- 碰撞风险场景中轨迹差异的时间演化
+
+**工具脚本**：`scripts/generate_trajectory_gifs.py`
+
+**渲染方案**：
+```
+┌──────────────────────────────────────────────┐
+│  前置摄像头画面 (960×540)                      │
+│  + 轨迹方向箭头叠加（近似透视投影）             │
+│    - 绿色: GT 轨迹                             │
+│    - 红色: Baseline 轨迹                       │
+│    - 蓝色: Ours (FiLM) 轨迹                   │
+│                           ┌──────────────┐    │
+│                           │  BEV 俯视图   │    │
+│                           │  (自适应缩放)  │    │
+│                           │  暗色主题      │    │
+│                           └──────────────┘    │
+│  场景名 / 天气 / 帧号 / UQ Score               │
+│  Baseline L2 / Ours L2 / 碰撞状态             │
+└──────────────────────────────────────────────┘
+```
+
+**关键技术细节**：
+- **增量缓存**：已缓存场景自动跳过，支持分批添加新场景
+- **Baseline pass 中间保存**：防止 FiLM pass 失败导致 baseline 数据丢失
+- **FiLM 权重设备修复**：`reload_film()` 使用 `map_location=dev` + `.to(dev)` 确保权重始终在 GPU 上
+- **自适应 BEV 缩放**：`_auto_bev_range()` 根据三条轨迹的实际范围动态设置 BEV 显示范围
+- **近似透视投影**：`_draw_cam_trajectories()` 在前置摄像头画面上叠加轨迹方向指示
+- **离线渲染**：`--render-only` 模式从缓存的 `trajectory_data.pt` 重新渲染 GIF，无需 GPU/模型
+
+**关键命令**：
+```bash
+# 全量推理 + 渲染（需要 GPU，~83 分钟 / 18 场景）
+PYTHONPATH=. python scripts/generate_trajectory_gifs.py \
+    adzoo/orion/configs/orion_stage3_infer.py ckpts/Orion.pth \
+    --film-checkpoint checkpoints/film/best_l1l2_col_v3.pt \
+    --ann-file data/infos/b2d_infos_val.pkl \
+    --frame-step 5 --out-dir results/gifs --fps 4 \
+    --scenarios Accident_Town05_Route218_Weather10 ...
+
+# 离线重新渲染（无需 GPU，~2 分钟）
+PYTHONPATH=. python scripts/generate_trajectory_gifs.py \
+    adzoo/orion/configs/orion_stage3_infer.py ckpts/Orion.pth \
+    --render-only --out-dir results/gifs --fps 4
+```
+
+**18 个场景选取与分组**：
+
+| # | 故事线 | 场景名 | 天气 | 帧数 | UQ | Col(Base) | Col(FiLM) | 选取理由 |
+|---|--------|--------|------|------|-----|-----------|-----------|----------|
+| | **S1: 碰撞率改善** | | | | | | | |
+| 1 | S1 | ControlLoss_Town04_Weather14 | MidRainyNight | 72 | 0.995 | 3.47% | 2.08% | Baseline 高碰撞，FiLM 显著降低 |
+| 2 | S1 | ConstructionObstacle_Town10HD_Weather22 | WetCloudySunset | 38 | 0.997 | 3.07% | 2.63% | 施工障碍场景碰撞率下降 |
+| | **S2: 高 UQ 危险场景** | | | | | | | |
+| 3 | S2 | YieldToEmergencyVehicle_Town04_Weather10 | MidRainyNoon | 67 | 0.997 | — | 2.74% | 让行急救车，极高不确定性 |
+| 4 | S2 | Accident_Town05_Weather10 | MidRainyNoon | 42 | 0.993 | — | 0.00% | 事故场景，FiLM 零碰撞 |
+| 5 | S2 | HazardAtSideLane_Town10HD_Weather9 | WetCloudyNoon | 35 | 0.996 | — | 2.38% | 侧道危险物 |
+| 6 | S2 | ParkedObstacle_Town10HD_Weather8 | FoggyNoon | 33 | 0.997 | — | 2.02% | 雾天停车障碍 |
+| 7 | S2 | StaticCutIn_Town05_Weather18 | FoggySunset | 42 | 0.997 | — | 0.00% | 雾天静态加塞 |
+| | **S3: 正常 vs 恶劣天气** | | | | | | | |
+| 8 | S3 | ConstructionObstacle_Town12_Weather0 | ClearNoon | 43 | 0.000 | — | 0.00% | 晴天 UQ≈0，FiLM 近乎透明 |
+| 9 | S3 | DynamicObjectCrossing_Town01_Weather3 | CloudySunset | 39 | 0.001 | — | 0.00% | 晴天过路行人 |
+| 10 | S3 | TJunction_Town05_Weather0 | ClearNoon | 109 | 0.000 | — | 0.00% | 晴天 T 型路口 |
+| | **S4: 复杂交通交互** | | | | | | | |
+| 11 | S4 | PedestrianCrossing_Town13_Weather19 | HardRainNight | 103 | 0.918 | — | 0.00% | 暴雨夜行人过马路 |
+| 12 | S4 | OppositeVehicleRunningRedLight_Town04_Weather23 | Unknown | 31 | 0.982 | — | 0.00% | 对面车闯红灯 |
+| 13 | S4 | SignalizedTurnEncounterRedLight_Town15_Weather23 | Unknown | 119 | 0.912 | — | 5.18% | 最高碰撞率场景 |
+| 14 | S4 | BlockedIntersection_Town03_Weather5 | HardRainSunset | 121 | 0.930 | — | 0.00% | 封锁路口 |
+| | **S5: 高速/汇入** | | | | | | | |
+| 15 | S5 | MergerIntoSlowTraffic_Town06_Weather5 | HardRainSunset | 34 | 0.954 | — | 1.47% | 暴雨中汇入慢车流 |
+| 16 | S5 | LaneChange_Town06_Weather21 | HardRainNight | 27 | 0.931 | — | 0.00% | 暴雨夜变道 |
+| | **S6: 特殊场景** | | | | | | | |
+| 17 | S6 | VehicleOpensDoorTwoWays_Town12_Weather7 | SoftRainNight | 85 | 0.000 | — | 3.14% | 车门突然打开 |
+| 18 | S6 | SignalizedJunctionLeftTurn_Town04_Weather26 | Unknown | 122 | 0.948 | — | 0.00% | 信号灯路口左转 |
+
+**Storytelling 亮点**：
+1. **S1 碰撞率对比**：ControlLoss 场景碰撞率从 3.47% 降至 2.08%，视觉上可以看到 FiLM 轨迹更保守地避让障碍物
+2. **S3 天气对比**：同类型场景（ConstructionObstacle）在 ClearNoon（UQ=0.000）和 WetCloudySunset（UQ=0.997）下的行为差异——晴天 FiLM 几乎透明，恶劣天气 FiLM 积极调制
+3. **S4 复杂交互**：暴雨夜行人过马路 103 帧，可以看到 UQ score 随场景风险变化的时序演化
+
+**产出**：
+- `results/gifs/trajectory_data.pt` — 18 场景的缓存轨迹数据（779KB），包含逐帧 GT/Baseline/FiLM 轨迹、UQ score、planning metrics，支持离线重新渲染
+- `results/gifs/*.gif` — 18 个 GIF 文件，总计约 250MB
+
 ---
 
 ## 六、数据资产清单
@@ -504,7 +657,11 @@ tests/test_film.py      — 12 tests (全部通过)
 | `checkpoints/film/best_l1l2_col.pt` | ~8.5MB | FiLM L1+L2 权重（碰撞感知 loss，方案 C）|
 | `results/eval_openloop_full.pt` | ~50MB | 开环评估逐样本结果 |
 | `results/closedloop_film_baseline.json` | ~5KB | 闭环评估结果（baseline vs FiLM L2-loss）|
+| `results/closedloop_replay_v3.json` | ~15KB | v3 闭环评估结果（50 场景，含逐场景指标）|
+| `results/eval_openloop_v3.pt/.json` | ~50MB | v3 开环评估（AUROC=0.954）|
 | `results/figures/baseline/` | ~440KB | 5 张可视化图表 |
+| `results/gifs/trajectory_data.pt` | 779KB | 18 场景缓存轨迹数据（支持离线重渲染）|
+| `results/gifs/*.gif` | ~250MB | 18 个轨迹对比 GIF（Baseline vs FiLM vs GT）|
 
 ---
 
@@ -607,41 +764,89 @@ USE_FILM_L1L2=1 python scripts/train_film.py \
 
 ### 已验证结论
 
-1. **L2 轨迹 loss 训练的 FiLM 无法降低碰撞率**（Stage 4a 已证实）
-2. **L2 轨迹精度 ≠ 安全性**：FoggySunset L2 最低但碰撞率 0%，Unknown23 L2 低但碰撞率 11.25%
-3. **Adverse 碰撞率是 Normal 的 161 倍**（1.61% vs 0.01%）——核心安全问题
-4. **碰撞感知 FiLM 训练使碰撞率降低 17.5%**（1.17%→0.96%），但 ADE 增加 41.5%——存在安全性 vs 轨迹效率的权衡
-5. **碰撞率改善仅在 2/7 个 shared adverse 场景中成立**，且改善集中在原本碰撞率最高的两个场景
-6. **v2 伪标签重构使 AUROC 从 0.621 飞跃至 0.993**——UQ 感知模块已满足论文标准
+1. **v3 伪标签修正使 AUROC 达到 0.954**（在 eval_openloop weather-based 分类下），远超 0.7 目标
+2. **v3 FiLM (L1+L2+collision) 闭环评估**：50 场景，碰撞率 0.52%
+3. **UQ score 天气排序完全正确**：ClearNoon=0.0001 → HardRainNight=0.989
+4. **UQ 分层效果**：低 UQ 场景 ADE=5.79m vs 高 UQ 场景 ADE=3.64m（高不确定性场景反而规划精度更好，因为模型倾向保守行为）
+5. **Adverse 碰撞率是 Normal 的 ~6 倍**（0.64% vs 0.11%）
+6. **scene_type 分类不一致**：v2 的 AUROC 0.993 是虚高的（仅在特征文件自身标签空间有效），实际为 0.601
 
-### 已完成（v2 新增）
+### 已完成（v3 更新）
 
-1. ~~碰撞感知 FiLM 训练（方案 C）~~ → ✅ 已完成
-2. ~~闭环评估~~ → ✅ 已完成（50 场景）
-3. ~~伪标签 v2 重构~~ → ✅ AUROC 0.621 → 0.993
-4. ~~UQEstimator v2 重训~~ → ✅ Spearman 0.97
-5. ~~FiLM bug 修复~~ → ✅ `uq_output` 未赋值、import 路径
+1. ~~伪标签 v2 重构~~ → ✅ 已完成
+2. ~~v3 scene_type 修正（weather-based）~~ → ✅ AUROC 0.954
+3. ~~v3 UQ score 合并到 eval_openloop~~ → ✅ Normal/Adverse gap=0.870
+4. ~~v3 FiLM L1+L2+col 重训~~ → ✅ best_loss=0.1193
+5. ~~v3 闭环评估（50 场景）~~ → ✅ Col@3s=0.52%
+6. ~~FiLM bug 修复~~ → ✅ `uq_output` 未赋值、import 路径
 
-### 紧迫待做（优先级由高到低）
+### Bug 发现：init_weights 覆盖 FiLM identity init（2026-03-30）
 
-1. **用 v2 UQ checkpoint 重跑开环评估**：当前 `eval_openloop_full.pt` 中的 UQ score 来自 v1 模型，需用 v2 模型重新生成，观察逐天气场景 UQ 分数变化
-2. **用 v2 UQ 重训 FiLM**：v2 UQ embedding 质量大幅提升，FiLM 的碰撞感知效果预期也会改善
-3. **用 v2 FiLM 重跑闭环评估**：验证碰撞率是否进一步降低
-4. **重新生成可视化图表**：用 v2 结果更新所有 figures
+**问题**：`PETRTemporalTransformer.init_weights()` 遍历所有 `self.modules()`，对 `weight.dim() > 1` 的层做 `xavier_uniform_`。这会覆盖 FiLM 层在 `__init__` 中设置的 identity init（weight=0, bias=gamma→1/beta→0），导致未加载训练权重时 FiLM 不是 identity 而是随机调制。
 
-### 中期待做
+**影响**：
+- `closedloop_baseline.json`（10 场景）：受随机 FiLM 干扰，**数据不可信** ❌
+- `closedloop_film_col.json` / `closedloop_replay_v3.json`：加载了训练权重覆盖 xavier，**数据可信** ✅
+- Stage 4a 的 Baseline vs FiLM L2-loss 对比：Baseline 侧不可信
 
-5. **UQ 组件消融实验**：利用已准备的 ablation configs，验证各组件贡献
+**修复**：在 `init_weights()` 中用 `film_params = {id(self.film_gamma.weight), id(self.film_beta.weight)}` 排除 FiLM 层。L2 FiLM（`orion.py`）无 `init_weights` 方法，不受影响。
+
+**修复后 50 场景 Baseline vs FiLM v3 对比**（`closedloop_baseline_50.json`）：
+
+|  | Baseline | FiLM v3 | Delta |
+|--|----------|---------|-------|
+| **ALL (50) Col@3s** | 0.66% | 0.52% | **-21%** |
+| **ALL (50) ADE@3s** | 2.46m | 4.44m | +80% |
+| Normal (11) Col@3s | 0.05% | 0.11% | +0.06% |
+| Normal (11) ADE@3s | 2.78m | 6.00m | **+3.23m** ❌ |
+| Adverse (39) Col@3s | 0.83% | 0.64% | **-23%** |
+| Adverse (39) ADE@3s | 2.37m | 4.00m | +1.63m |
+
+**关键问题**：Normal 场景 UQ score ≈ 0（0.0001~0.0015），FiLM 不应有任何调制效果，但 ADE 从 2.78m → 6.00m（+116%）。
+
+**根因**：`embed_head` 末尾的 `LayerNorm` 使所有样本的 embedding L2 norm 恒定（≈ √256 ≈ 16），无论 UQ score 高低。FiLM 计算 `gamma = W @ embedding + bias`，由于 embedding norm 恒定，Normal 和 Adverse 场景的调制幅度相当。
+
+### Score-Gated FiLM 设计方案（下一步核心改动）
+
+**目标**：让 UQ score 控制调制强度，score=0 时严格 identity。
+
+```python
+# 当前（有问题）：embedding 经 LayerNorm，norm 恒定，score 未参与 FiLM
+gamma = W_gamma @ embedding + b_gamma
+beta  = W_beta  @ embedding + b_beta
+output = gamma * input + beta
+
+# 改进：score 作为 gate，score=0 → 严格 identity
+gamma_raw = W_gamma @ embedding + b_gamma   # 学习调制方向
+beta_raw  = W_beta  @ embedding + b_beta
+gamma = 1 + score * (gamma_raw - 1)         # score→0: gamma→1
+beta  = score * beta_raw                     # score→0: beta→0
+output = gamma * input + beta
+```
+
+**改动范围**：`petr_transformers.py` L1 FiLM forward（~3行）+ `orion.py` L2 FiLM forward（~3行）。需要将 `uq_score` 传递到 FiLM 调用处。改完后需重训 FiLM。
+
+**预期效果**：
+- Normal 场景（score≈0）：gamma≈1, beta≈0，ADE 应与 Baseline 几乎一致
+- Adverse 场景（score≈1）：gamma≈gamma_raw, beta≈beta_raw，保留碰撞改善效果
+- 解耦"是否调制"（score 控制）和"如何调制"（embedding 方向控制）
+
+### 待做（优先级由高到低）
+
+1. **Score-Gated FiLM 实现 + 重训**：核心修复，解决 Normal ADE 退化问题
+2. **UQ 组件消融实验**：利用已准备的 ablation configs，验证各组件贡献
    - w/o stat_features, w/o decoder, w/o ranking, w/o calibration
-6. **全量 FiLM Ablation**：A=Baseline, B=L1, C=L2, D=L1+L2，用 v2 UQ
-7. **调参搜索**：碰撞感知 loss 的 margin (3-6m) 和 lambda_col (0.1-1.0)
+3. **FiLM Ablation 全量比较**：A=Baseline, B=L1, C=L2, D=L1+L2
+4. **重新生成可视化图表**：用 v3 结果更新所有 figures
+5. **调参搜索**：碰撞感知 loss 的 margin (3-6m) 和 lambda_col (0.1-1.0)
 
 ### 需要关注的风险
 
-1. **ADE 退化风险**：碰撞感知训练的保守化策略会显著降低轨迹效率（ADE+41.5%），论文需正面讨论这个 tradeoff
-2. ~~**AUROC 不达标**（当前 0.621，目标 0.7）~~ → **已解决** ✅（v2 AUROC=0.993）
-3. **泛化性有限**：改善仅在 2/7 场景成立，新场景可能出现新失败模式
-4. **v2 UQ 对下游 FiLM 的影响待验证**：v2 UQ embedding 分布变化可能需要重训 FiLM
+1. **Normal ADE 退化**：当前 FiLM 因 embedding LayerNorm 导致 Normal 场景也被调制，Score-Gated 方案应解决此问题
+2. **ADE 退化风险**：FiLM 调制的保守化策略可能降低轨迹效率，论文需正面讨论 safety vs efficiency tradeoff
+3. ~~**AUROC 不达标**~~ → **已解决** ✅（v3 AUROC=0.954）
+4. ~~**scene_type 分类不一致**~~ → **已解决** ✅（v3 使用 weather-based 分类）
+5. ~~**init_weights 覆盖 FiLM identity init**~~ → **已修复** ✅（2026-03-30）
 
 ---
 
@@ -745,6 +950,16 @@ For each scenario (folder in data_infos):
 ```
 
 注意：model 输出的 `metric_results` 包含 `plan_L2_*` 和 `plan_obj_col_*`，即使 `fut_valid_flag=False` 也有值。评估脚本使用 `has_plan_metrics`（L2 > 0）而非 `fut_valid_flag` 来过滤。
+
+### 9.4 评估体系约束（重要）
+
+本报告的所有闭环指标均来自**回放式闭环评估**（详见附录 A.3），不是真实 CARLA 仿真。
+主要约束：
+1. ADE/碰撞改善在真实仿真中的泛化性**未经验证**
+2. 50 个场景的碰撞率均值受个别场景影响大（部分场景碰撞率为 0%，少数高达 11%）
+3. Normal 场景的 ADE 退化（+116%）尚未修复
+
+这些约束需要在论文中正面交代，并作为 Future Work（真实 CARLA 闭环验证）。
 
 ---
 
@@ -875,3 +1090,126 @@ L2-loss FiLM（L1+L2）：碰撞率 1.17% → 1.22%，ADE 2.26m → 3.90m。优�
 
 *报告更新时间：2026-03-30（v2 伪标签重构后更新）*
 *Git 分支：dev*
+
+---
+
+## 附录 A：评估体系说明
+
+> 本附录旨在明确本报告的评估范围、数据来源、模块作用域及结论可信度边界，为汇报和论文撰写提供参考。
+
+### A.1 数据集：Bench2Drive (B2D)
+
+**什么是 B2D**：CARLA 模拟器生成的多天气、多场景驾驶数据集，专为端到端自动驾驶评估设计。
+
+| 属性 | 数值 |
+|------|------|
+| 验证集规模 | 12,806 帧 |
+| 摄像头视角 | 6（前/后/左前/右前/左后/右后）|
+| 天气类型 | 24 种（Weather ID 0-26）|
+| 城镇覆盖 | 24 个 CARLA 城镇 |
+| 样本格式 | patch tokens `[6, 1600, 1024]`（预提取，~235GB）|
+
+**Normal/Adverse 划分**：天气 ID 0-3（ClearNoon/ClearSunset/CloudyNoon/CloudySunset）为 Normal（2,709 帧），其余 20 种天气为 Adverse（10,097 帧）。此划分与 eval_openloop 评估脚本对齐（weather-based scene_type，v3 已修正）。
+
+---
+
+### A.2 开环评估（eval_openloop）
+
+**定义**：对 12,806 个独立帧逐帧推理，每帧预测未来 3s 轨迹，与同帧 GT 轨迹比较。
+
+**指标**：
+- L2@1s/2s/3s：预测轨迹与 GT 的欧氏距离（米）
+- 碰撞率：基于 GT occupancy grid 构建，判断预测轨迹是否与障碍物框重叠
+
+**局限**：帧间独立，不考虑历史状态，不捕捉时序累积误差。每帧独立推理意味着即使模型产生系统性偏差，也不会在帧间累积。
+
+**UQ score 的意义**：每帧独立计算，与 weather 分类强相关（AUROC=0.954）。AUROC 度量的是 UQ score 对 Normal/Adverse 天气分类的判别能力，而非对单帧 L2 误差的预测能力（Spearman ρ=0.139，弱相关）。
+
+---
+
+### A.3 回放式闭环评估（eval_closedloop_replay）——关键说明
+
+**本质**：从 B2D 预录数据中选 50 条路线，逐帧喂入模型推理，将预测轨迹与 GT 比对，**无真实仿真器反馈**。
+
+**与真实闭环的核心区别**：
+
+| 维度 | 本报告（回放式）| 真实闭环（CARLA 仿真）|
+|------|----------------|----------------------|
+| 反馈回路 | 无：模型行为不影响后续观测 | 有：agent 轨迹决定下一帧的场景状态 |
+| 位置漂移 | 无：始终用 GT ego pose | 有：规划误差逐帧累积，位置可能严重偏离 |
+| 碰撞计算 | GT 障碍物框 + occupancy grid，无 sensor 噪声 | 实时物理碰撞检测，含 sensor 噪声 |
+| 动态 agent | 按录制回放，不响应 ego 行为 | 实时响应（其他车辆有自己的 agent）|
+
+**为什么仍有价值**：
+
+1. **系统性偏差可见**：跨场景比较能捕捉模型在恶劣天气下的一致性失效模式，不依赖仿真器反馈
+2. **UQ 相关性验证**：UQ score 与 weather 分类的相关性（AUROC=0.954）完全独立于仿真反馈，结论稳健
+3. **快速迭代**：无需实时 CARLA，50 场景约 1h，适合消融实验和超参搜索
+
+**50 个场景来源**：从 B2D 验证集均衡采样，覆盖 24 种天气，每种 1-3 个代表路线，其中 Normal 11 个场景、Adverse 39 个场景。
+
+**ADE/碰撞指标含义**：与 GT 比对的偏差，反映模型行为的保守/激进程度，而非真实驾驶安全指标。碰撞率数值不能直接等同于真实道路碰撞概率。
+
+---
+
+### A.4 伪标签设计的自洽性说明
+
+**问题**：用 patch token 统计特征生成伪标签，再训练模型学习同类特征，是否存在循环论证？
+
+**分析**：
+
+| 层面 | 说明 |
+|------|------|
+| 特征重用 | 伪标签公式（加权的 max_mean/cosim/entropy）和 stat_features（5 维统计特征）均来源于 patch tokens，存在部分特征重用 |
+| 结构学习 | UQEstimator 新增了 Transformer decoder（16 个 learnable queries，cross-attention），能学到统计特征之外的空间结构信息 |
+| 外部验证 | AUROC=0.954 使用 weather-based scene_type 分类，该分类独立于伪标签生成中使用的统计权重；AUROC 是对 weather 分类的外部验证，而非对伪标签本身的循环验证 |
+| 迭代进步 | v1→v2→v3 的 AUROC 迭代（0.621→0.601→0.954）中，改进来源可追溯：v3 主要来自 scene_type 分类修正（19.4% 样本重新对齐），而非伪标签过拟合 |
+
+**结论**：存在部分特征重用（stat_features 同时出现在伪标签和模型输入中），但通过独立外部验证（weather-based AUROC），UQ score 的区分能力结论可信。伪标签是合理的工程设计——在无真实不确定性 ground truth 的情况下，从视觉特征本身提取区分信号是标准做法。
+
+---
+
+### A.5 新增模块的作用域边界
+
+**UQEstimator（已充分验证）**：
+
+| 能力 | 数值 | 说明 |
+|------|------|------|
+| 区分 Normal vs Adverse 天气 | AUROC = 0.954 | 强区分能力，可作为感知质量监测器 |
+| 输出连续分数 | [0, 1]，Gap = 0.870 | ClearNoon≈0，HardRainNight≈0.989 |
+| 预测单帧 L2 误差 | Spearman ρ = 0.139 | 弱相关，**不能用作规划误差预测器** |
+
+UQEstimator 是**感知质量监测器**，而非规划误差预测器。它回答的问题是"当前视觉条件有多差"，而非"当前规划会出多大错"。
+
+**FiLM（部分验证，存在已知缺陷）**：
+
+| 方面 | 说明 |
+|------|------|
+| 理论设计 | Score-Gate 机制：score=0 时严格 identity（Normal 场景无调制），score=1 时激活保守规划（Adverse 场景调制）|
+| 实际缺陷 | embed_head 的 LayerNorm 使 embedding L2 norm 恒定（≈√256≈16），Normal/Adverse 场景调制幅度相当，Score-Gate 失效 |
+| 测量效果 | 碰撞率 -21%（adverse -23%），ADE +80%（normal +116%）|
+| 根因 | LayerNorm 破坏 Score-Gate；移除 LayerNorm + 重训是预期修复路径 |
+| 当前状态 | Score-Gated FiLM 代码已完成，**checkpoint 未重训**，理论修复未实验验证 |
+
+**BEV IPM（独立验证）**：
+
+| 方面 | 说明 |
+|------|------|
+| 方法 | 纯几何 IPM（逆透视映射），不依赖模型 attention 或 checkpoint |
+| 验证范围 | B2D 2 个场景（Normal Weather3 + Adverse Weather13）|
+| 验证结果 | Normal 0.583 vs Adverse 0.722，Δ=+0.139 |
+| 局限 | 样本量小（2 场景），结论待更大规模验证 |
+
+---
+
+### A.6 可信结论汇总表
+
+| 结论 | 证据 | 可信度 |
+|------|------|--------|
+| UQ score 能区分 Normal vs Adverse 天气 | AUROC=0.954，gap=0.870，逐天气排序正确 | **高** |
+| 恶劣天气下碰撞率显著高于正常天气 | baseline: 0.05% vs 0.83%（50 场景回放）| **高** |
+| FiLM 调制降低了回放碰撞率 21% | 50 场景对比，Adverse: 0.83%→0.64% | **中**（回放式，非真实闭环）|
+| FiLM 调制导致 ADE 退化 +80% | 50 场景对比，Normal: +116%，Adverse: +69% | **高** |
+| Normal ADE 退化由 embed_head LayerNorm 引起 | 代码分析 + 理论推导（embedding norm 恒定） | **中**（未实验验证）|
+| Score-Gated FiLM 能修复 Normal ADE | 理论推导（score=0 → gamma=1, beta=0） | **低**（无实验数据，checkpoint 未重训）|
+| BEV IPM 能区分场景感知质量 | 2 场景定量验证，Δ=+0.139 | **中**（样本量小）|

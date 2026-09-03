@@ -1,0 +1,143 @@
+{
+  "schema": "orion.glare_visual_bakeoff.v1",
+  "created_at": "2026-08-31T17:05:00+08:00",
+  "status": "bounded_visual_preexperiment_prepared",
+  "purpose": "Replace white rectangular glare as the formal glare mechanism by comparing controlled analytic baselines with temporally coherent CARLA-native low-sun rendering before any closed-loop claim.",
+  "route": {
+    "route_id": "Town02/Route151",
+    "route_xml": "/public/home/lidachuan/project/Orion/configs/closedloop_scenario_bank/routes/route_151_hazard.xml",
+    "scenario_family": "ParkingCrossingPedestrian",
+    "development_only": true,
+    "independent_confirmation_route_required": true
+  },
+  "existing_clean_source": {
+    "run_id": "route151_clean_1082398",
+    "event_frame_ids": [
+      18,
+      20,
+      22,
+      24,
+      26
+    ],
+    "native_capture_target_route_progress": [
+      0.375,
+      0.4,
+      0.425,
+      0.45,
+      0.475
+    ],
+    "native_capture_sampling_reason": "Five fixed pre-contact poses span the previously frozen Route151 event window without centering visual tuning on a collision/contact frame.",
+    "hazard_roi_normalized": [
+      0.35,
+      0.5,
+      0.9,
+      0.85
+    ]
+  },
+  "comparison_image_stage": {
+    "stage": "raw CARLA RGB sensor frame saved losslessly as PNG before ORION JPEG/preprocessing",
+    "required_for_all_methods": true,
+    "legacy_model_input_preview_is_not_eligible": true,
+    "reason": "Avoid comparing native raw rendering against the separately reconstructed 1600x900 legacy preview or ORION's Q20-JPEG 640x640 tensor path."
+  },
+  "methods": {
+    "legacy_local_glare": {
+      "role": "regression_and_pipeline_smoke_only",
+      "implementation": "rectangular alpha blend toward white",
+      "alpha_by_severity": {
+        "light": 0.35,
+        "medium": 0.6,
+        "heavy": 0.85
+      },
+      "eligible_for_formal_glare_claim": false
+    },
+    "cvpr2023_sun_sim": {
+      "role": "published_analytic_baseline",
+      "upstream": "https://github.com/thu-ml/3D_Corruptions_AD",
+      "upstream_commit": "48c23f77fe82beab599f8248b7794928334a3fb5",
+      "automold_sha256": "4f75a9ef25dcd539833f2d276c6bc40553e17456f7ffba8f2094ad6065863eca",
+      "license": "MIT",
+      "severity_indices": {
+        "light": 1,
+        "medium": 3,
+        "heavy": 5
+      },
+      "event_level_random_parameters_replayed_across_frames": true,
+      "eligible_as_unique_formal_glare_mechanism": false
+    },
+    "albumentationsx_lens_flare": {
+      "role": "optional_visual_development_comparator",
+      "method": "RandomSunFlare physics_based or LensFlare",
+      "license": "AGPL-3.0-only or separate commercial terms",
+      "source_may_not_be_vendored_into_this_repository": true,
+      "event_level_optics_fixed_and_sun_center_temporally_updated": true,
+      "required_for_native_glare_gate": false
+    },
+    "carla_native_low_sun": {
+      "role": "preferred_formal_heldout_glare_family",
+      "renderer": "CARLA-0.9.15-Epic-native-postprocess",
+      "adapter_training_allowed": false,
+      "weather_shared_by_all_profiles": {
+        "cloudiness": 5.0,
+        "precipitation": 0.0,
+        "precipitation_deposits": 50.0,
+        "wind_intensity": 10.0,
+        "sun_altitude_angle": 8.0,
+        "sun_azimuth_angle": 180.0,
+        "wetness": 0.0,
+        "fog_density": 10.0,
+        "fog_distance": 0.0,
+        "fog_falloff": 0.2,
+        "scattering_intensity": 1.0,
+        "mie_scattering_scale": 0.03,
+        "rayleigh_scattering_scale": 0.0331
+      },
+      "camera_profiles": {
+        "clean": {
+          "lens_flare_intensity": 0.0,
+          "bloom_intensity": 0.0
+        },
+        "light": {
+          "lens_flare_intensity": 0.25,
+          "bloom_intensity": 0.675
+        },
+        "medium": {
+          "lens_flare_intensity": 0.75,
+          "bloom_intensity": 1.5
+        },
+        "heavy": {
+          "lens_flare_intensity": 1.5,
+          "bloom_intensity": 3.0
+        }
+      },
+      "profiles_are_visual_candidates_not_frozen_severities": true,
+      "controller_for_capture": "CARLA BasicAgent at 18 km/h; no ORION/VLM loaded",
+      "pairing": "match reruns by ego pose and yaw; exclude unmatched frames rather than treating step index as exact-pose pairing"
+    }
+  },
+  "visual_metrics": {
+    "selection_independent_of_collision_outcome": true,
+    "metrics": [
+      "saturated_pixel_fraction_delta",
+      "hazard_roi_local_contrast_ratio",
+      "hazard_roi_edge_visibility_ratio",
+      "rectangular_boundary_artifact_score",
+      "pose_matched_residual_temporal_jerk",
+      "pose_match_distance_and_yaw_error"
+    ],
+    "required_visual_outputs": [
+      "front_contact_sheet",
+      "front_gif",
+      "bev_context_gif",
+      "machine_readable_metrics"
+    ]
+  },
+  "decision_rules": {
+    "legacy_local_glare": "Retain only as a regression/smoke corruption regardless of visual score.",
+    "native_profile_selection": "Select severity using only visibility and temporal metrics plus artifact review; collision/TTC results remain unread until profile parameters are frozen.",
+    "route151_role": "Parameter and mechanism development only.",
+    "formal_test": "After freezing the native profile, run one route not used for glare tuning before expanding closed-loop tests.",
+    "adapter_isolation": "CARLA-native glare frames and metrics are never used for Stage1 adapter optimization or checkpoint selection."
+  },
+  "claim_boundary": "Visual mechanism bake-off only; no adapter, VLM, trajectory, collision, TTC, closed-loop improvement, or safety claim."
+}

@@ -1,0 +1,64 @@
+{
+  "artifact_hashes": {
+    "factorized_r_step020.pt": "fec58ff1fbd3c1f6e747e75baa326cd6b174646b526c1da0619e2fea9e8a3125",
+    "factorized_r_step040.pt": "f62cbb234671fc81f1c320f42015ca99ebaf27f2c2c0ede1f616c7eaa846f23c",
+    "report.json": "890cb682f6cd20bc5d9c14b3db04ea2454806632dda654c19afd3574239a7cc0",
+    "spatial_maps_step020.pt": "2c7ef495d723d86e230474cde8e4b9f8fc70c700d6c49806d5fe3d0bd450b705",
+    "spatial_maps_step040.pt": "96f9d38af2bfaf8bf91defcd7e976f9fed3497a97859d44704560bd91a384e8a"
+  },
+  "checks": {
+    "dev_actor_front": true,
+    "dev_actor_nonfront_absolute_improvement": false,
+    "dev_actor_nonfront_each_positive": false,
+    "dev_actor_nonfront_macro": false,
+    "dev_background_fpr": true,
+    "dev_route_front_retained": true,
+    "train_supported_macro_recall": true
+  },
+  "claim_boundary": "Independent integrity and frozen engineering-gate validation for one 17-event factorized-R-only smoke. Passing does not validate semantic R, learned U, language, planning, closed loop or safety.",
+  "decision": "held_out_factorized_r_transfer_failed",
+  "evaluation_steps": [
+    20,
+    40
+  ],
+  "failed_checks": [
+    "dev_actor_nonfront_absolute_improvement",
+    "dev_actor_nonfront_each_positive",
+    "dev_actor_nonfront_macro"
+  ],
+  "integrity_valid": true,
+  "locks": {
+    "formal_stage2l_ready": false,
+    "language_training_used": false,
+    "locked_test_read": false,
+    "stage1_uq_loaded": false,
+    "stage2p_ready": false,
+    "trajectory_or_control_loss_used": false,
+    "u_tokenizer_loaded": false
+  },
+  "next_action": "stop this interface path and inspect actor supervision or contextual representation; do not add epochs automatically",
+  "optimizer_steps": 40,
+  "report": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/training/report.json",
+    "sha256": "890cb682f6cd20bc5d9c14b3db04ea2454806632dda654c19afd3574239a7cc0"
+  },
+  "schema": "orion.stage2l_v12_1_factorized_r_validation.v1",
+  "smoke_passed": false,
+  "spatial_map_checks": {
+    "spatial_maps_step020.pt": {
+      "group_count": 80,
+      "maximum_component_target_error": 0.0,
+      "maximum_derived_union_error": 0.0
+    },
+    "spatial_maps_step040.pt": {
+      "group_count": 80,
+      "maximum_component_target_error": 0.0,
+      "maximum_derived_union_error": 0.0
+    }
+  },
+  "status": "validated_failed_gate",
+  "submission_attestation": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/submission_attestation.json",
+    "sha256": "3d8a2ce86d687b7958a7ef640f5e0feee77d29e5ae2a34ac225e1ab4d4bab250"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "schema": "orion.lens_waterdrop_v2_visual_bakeoff_protocol.v1",
+  "created_at": "2026-08-31T21:16:00+08:00",
+  "status": "executed_failed_visual_review_no_orion",
+  "route": {
+    "route_id": 151,
+    "town": "Town02",
+    "role": "renderer-development-only; not a safety result or held-out confirmation"
+  },
+  "clean_source": {
+    "profile": "none",
+    "camera_policy": "unmodified CARLA/Leaderboard RGB blueprint",
+    "capture_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_clean_render_diagnostic_v1/captures/none",
+    "diagnostic_result": "configs/scenario_factory/amendments/20260831_corruption_hardcase_clean_render_diagnostic_result_v1.json",
+    "diagnostic_result_sha256": "b24a01c62ac6259a3fb822e2bb158289a02727a8d003df054531e2ef98f798c2",
+    "required_artifact_gate": "configs/scenario_factory/corruption_hardcase_clean_render_artifact_gate_v1.json",
+    "required_artifact_gate_sha256": "eb1054f6d1d577e7593d750a53ed19db9a1f7ed89437e9eb22ffdc0ea608994b",
+    "required_gate_outcome": "all source frames pass before rendering"
+  },
+  "renderer": {
+    "implementation": "uq_estimator/lens_waterdrop_v2.py",
+    "implementation_sha256_at_preregistration": "d89bd0bb47ea33ecf6152ac9754bdbe9d9e917d65d541785d48f143b31265fe0",
+    "input_resolution": [1600, 900],
+    "apply_before_any_review_downsample": true,
+    "source_protocol": "configs/scenario_factory/lens_waterdrop_v2_source_protocol_v1.json",
+    "mask_bank_metadata": "assets/waterdrop_patterns/evocargo_ccby4_v1/metadata.json",
+    "mask_bank_metadata_sha256": "496af8e5e4127b3aa4d80455aef4eed007cc26820f54e05c06940be7940ae815",
+    "primary_visual_mask": "D4__D4_0__D4_0950.png",
+    "primary_mask_selection_reason": "two intact annotated components at distinct lens locations; selected without ORION, TTC, collision, or task outcomes",
+    "profiles": ["light", "medium", "heavy"],
+    "temporal_policy": "same fixed lens-space silhouette and analytic field for every frame",
+    "placement_policy": "actor-independent; no bbox, semantics, route progress, or target-aware placement"
+  },
+  "review": {
+    "maximum_frames": 34,
+    "output_fps": 10,
+    "contact_frame_index": 17,
+    "review_size": [800, 450],
+    "crop_padding_px": 80,
+    "required_outputs": [
+      "artifact-gate audit of unmodified clean sequence",
+      "full-resolution clean reference",
+      "source silhouette mask",
+      "derived alpha map",
+      "derived two-channel displacement visualization",
+      "refracted RGB",
+      "edge/crescent and highlight visualizations",
+      "high-resolution clean/final crop for every profile",
+      "front clean/light/medium/heavy comparison GIF",
+      "full-resolution final front GIF for every profile",
+      "clean BEV context GIF",
+      "hashed result manifest"
+    ],
+    "human_checks": [
+      "clean is free of black-block artifacts",
+      "no pasted polygon or rectangular boundary",
+      "interior visibly refracts rather than only blurs",
+      "local magnification or inversion is visible",
+      "crescent edge and highlight are nonuniform and bounded",
+      "same lens-space structure is temporally continuous"
+    ]
+  },
+  "locks": {
+    "orion_loading": false,
+    "orion_hardcase_screen": false,
+    "closed_loop": false,
+    "safety_claim": false,
+    "severity_freeze_before_human_review": false,
+    "v1_reinstatement": false
+  },
+  "claim_boundary": "Visual mechanism development only. The source silhouettes are real annotations; all optical fields are renderer-derived. No model or safety conclusion is permitted."
+}

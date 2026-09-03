@@ -1,0 +1,109 @@
+{
+  "schema": "orion.corruption_hardcase_wave2_clean_q1_submission_amendment.v1",
+  "created_at": "2026-09-01T08:34:04+08:00",
+  "status": "submitted_pending_or_running",
+  "authorization": {
+    "user_resume_verbatim": "恢复 Q1",
+    "activation": {
+      "path": "configs/scenario_factory/corruption_hardcase_wave2_clean_q1_activation_20260901_v1.json",
+      "sha256": "d1b928efb5b543e0705f95bdcf2c52b9ede0b142cdc8cf364436adb57ff74d98"
+    },
+    "base_prereg": {
+      "path": "configs/scenario_factory/corruption_hardcase_wave2_clean_qualification_prereg_v1.json",
+      "sha256": "024e3cc6d4db4d77e7f8f88565163bb1283eda90fc3771e3c4eb0f34d1820f2c"
+    }
+  },
+  "validated_scope": {
+    "routes": [
+      160,
+      165,
+      161
+    ],
+    "condition": "clean_off",
+    "runs_per_route": 1,
+    "run_id": "corruption_hardcase_wave2_clean_q1_v1",
+    "dry_validation": {
+      "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave2_clean_q1_v1/submission_validation_20260901T083236.json",
+      "sha256": "78b049bbe1bdaab40ed33d78226541974b83239e3d156ef320b1e2cd4838f6e3",
+      "status": "validated_authorized_plan_no_jobs_submitted"
+    }
+  },
+  "submission": {
+    "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave2_clean_q1_v1/submission_20260901T083236.json",
+    "sha256": "b94f0e06d85cfbc902a32ac20a5e29d2ba7102f68457047541c28db0bd450a27",
+    "status": "submitted",
+    "jobs": [
+      {
+        "job_key": "route160_clean_q1",
+        "route_index": 160,
+        "job_id": 1119096,
+        "initial_state": "PENDING",
+        "initial_reason": "Priority"
+      },
+      {
+        "job_key": "route165_clean_q1",
+        "route_index": 165,
+        "job_id": 1119098,
+        "initial_state": "PENDING",
+        "initial_reason": "Priority"
+      },
+      {
+        "job_key": "route161_clean_q1",
+        "route_index": 161,
+        "job_id": 1119100,
+        "initial_state": "PENDING",
+        "initial_reason": "Priority"
+      }
+    ]
+  },
+  "initial_monitoring_snapshot": {
+    "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave2_clean_q1_v1/job_snapshot_20260901T0833_initial.json",
+    "sha256": "8fa5d42a9c0495c22aef1c508b9f320f9cfdfda50389758b632fbd301f35727e",
+    "job_count": 3,
+    "terminal_count": 0,
+    "unknown_job_ids": []
+  },
+  "runtime_contract": {
+    "partition": "Nvidia_A800",
+    "gpus_per_job": 1,
+    "cpus_per_job": 2,
+    "memory_per_job": "192G",
+    "time_limit": "02:00:00",
+    "excluded_nodes": [
+      "gpu2",
+      "gpu5"
+    ],
+    "legacy_density_uq": false,
+    "closedloop_uq_mode": "none",
+    "risk_mode": "off",
+    "planning_response_mode": "off",
+    "exact_frame_speedometer": true,
+    "sensor_queue_diagnostics": true
+  },
+  "implementation_hashes": {
+    "submitter": "7e268e82c1cdaa99edc69ee89380c7d0d930d9ac9c93ea0e62603561fa7cc158",
+    "job_snapshot": "23e0220c0982fa2c0e98b474d8f71f7257e519e1a323fae18cfa3cf4ea34a4d3",
+    "sensor_diagnostics": "a2d0a67cf4e68f64d8d9ba2d4364d349af301a7b1aa09759ebaa7973f2832ed1",
+    "external_server_runner": "8b0f6b8d3e0daeaa612f0dca161cb5f8642c4040d47c21711239984ce27c423b",
+    "closedloop_runner": "0a9b67d0c4bcc5225371836689b248f63a93d3ad194d647cc5633e8fcc3c356b"
+  },
+  "monitoring_policy": {
+    "long_bounded_wait": true,
+    "same_job_ids_only": true,
+    "automatic_resubmission": false,
+    "observation_timeout_is_not_job_failure": true
+  },
+  "execution_locks": {
+    "q1_clean_submission": true,
+    "additional_q1_submission": false,
+    "q2_clean_submission": false,
+    "corruption_submission": false,
+    "heldout_confirmation": false,
+    "severity_change": false,
+    "learned_uq_or_governor": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "next_required_record": "After all three JobIDs are terminal, write immutable terminal snapshots and evaluate each route. Any Q2 or corruption work requires a separate result-bound amendment.",
+  "claim_boundary": "Authorized Q1 clean submission and monitoring evidence only. No route result or exact-frame speedometer live-validation claim is made before terminal artifact inspection."
+}

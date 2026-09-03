@@ -1,0 +1,55 @@
+{
+  "schema_version": "orion.counterfactual-evidence-loss-repair-smoke/v1",
+  "frozen_at": "2026-08-27T07:36:00+08:00",
+  "purpose": "Route-only anti-collapse diagnostic after the v1 loss selected an all-zero adapter at epoch 1.",
+  "inputs": {
+    "feature_shard_sha256": "6381c09ae3818e35f93e5c44c29c2230a7e299f7c621316bfc21e04342bc07e5",
+    "target_audit_sha256": "14d72e4dbbbe12aedbb7e1d63a5924f590b0c511289e07c264a0c111a53d0076",
+    "spatial_audit_sha256": "d6907ca9c78e802b6638adf7c4de1c10d713ece61ece51243fcb4579caeec5c9",
+    "record_counts": {"train": 2240, "route_validation": 320}
+  },
+  "target_scaling": {
+    "quantile": 0.95,
+    "response_floor": 1e-6,
+    "component_scales": {
+      "persistent_direction": 0.4691108465194702,
+      "persistent_magnitude": 0.2978138327598572,
+      "transient_inconsistency": 0.48655763268470764
+    }
+  },
+  "optimization": {
+    "seed": 20260827,
+    "feature_dim": 1024,
+    "hidden_dim": 128,
+    "max_views": 6,
+    "output_bias": -3.0,
+    "epochs": 4,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "pair_batch_size": 2,
+    "scale_batch_size": 2,
+    "evaluation_batch_size": 2,
+    "responsive_weight": 0.75,
+    "ranking_weight": 0.25,
+    "reference_weight": 0.1
+  },
+  "smoke_gate": {
+    "combined_patch_spearman": 0.1,
+    "combined_target_top20_auroc": 0.6,
+    "median_record_within_intervened_view_target_top20_auroc": 0.55,
+    "minimum_component_spearman_pass_count": 2,
+    "component_patch_spearman": 0.1,
+    "minimum_each_train_family_uplift_over_reference": 0.005,
+    "route_validation_ranking_loss_max": 0.095,
+    "reference_prediction_p95_max": 0.2
+  },
+  "scope_guards": {
+    "heldout_glare_read": false,
+    "native_fog_read": false,
+    "corruption_mask_optimizer_weight": 0.0,
+    "actual_target_optimizer_weight": 0.0,
+    "automatic_full_training": false,
+    "orion_finetuning": false,
+    "stage_b": false
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_route158_transient_runtime_retries_preregistration.v1",
+  "created_at": "2026-09-01T07:10:59+08:00",
+  "status": "two_single_exact_runtime_replacements_authorized_before_submission",
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_route158_corruption_activation_v1.json",
+    "sha256": "2fbcfda30ffc22f2d3c5337368f7b012e0ffd77d663c337a7773b2dedbdb4dde"
+  },
+  "invalid_attempts": [
+    {
+      "job_id": 1118150,
+      "condition": "front_stale_transient_off",
+      "node": "gpu4",
+      "slurm_state": "FAILED",
+      "slurm_exit_code": "124:0",
+      "classification": "runtime_environment_invalid",
+      "last_sim_time_seconds": 8.05,
+      "last_route_progress": 0.181177,
+      "active_corruption_frames_observed": 68,
+      "evidence_sha256": {
+        "manifest": "e4004076b6fb4999ed5a7cc2c159053eeab5acbf7f4cd8aabd682973047ceead",
+        "evaluator": "62339586af997351e8a6051667ee679e9d4dc76dee0af04a301f2425ab97555e",
+        "runtime_progress_watchdog": "c925f97d5295e4c92ad927c55dffe4e532c292d791898342cd858878eba343b3",
+        "control_trace": "4dfd7baf16ce7a4a87771157bff674795c68c63803349c8e925871b650ac3ce4",
+        "job_log": "b0ddac52e001c01d81256c6ac0ba57dcf802522ac6ae45bfdf6b1d6b023c7a63"
+      }
+    },
+    {
+      "job_id": 1118151,
+      "condition": "lens_waterdrop_paired_template_transient_off",
+      "node": "gpu1",
+      "slurm_state": "FAILED",
+      "slurm_exit_code": "124:0",
+      "classification": "runtime_environment_invalid",
+      "last_sim_time_seconds": 3.9,
+      "last_route_progress": 0.103319,
+      "active_corruption_frames_observed": 0,
+      "evidence_sha256": {
+        "manifest": "7a7cde9b4b25b230af5824932e77d52040bcdf8d65d547fe8abe09203a25e03f",
+        "evaluator": "62339586af997351e8a6051667ee679e9d4dc76dee0af04a301f2425ab97555e",
+        "runtime_progress_watchdog": "b4e281ac3be8d9f3dc871ad4e2e8e79c45f3b809d4d15abf2e3265aff6aa548b",
+        "control_trace": "9cab87e938614fade85a02a415b35e3cb25a99ea91fb6a76b26124f42fda79c3",
+        "job_log": "3e008c9acdc2e14d6c1aa455ee3b524ab05ec9ab14c8589edc46033e3013539f"
+      }
+    }
+  ],
+  "replacement_implementation": {
+    "submitter": {
+      "path": "scripts/submit_corruption_hardcase_wave1_route158.py",
+      "sha256": "5e54d9249d89f87d82ac5a1f1a7ef0f1cdbd8d63e769dd2d4c775ee6c47bed44"
+    },
+    "tests": {
+      "path": "tests/test_submit_corruption_hardcase_wave1_route158.py",
+      "sha256": "663bc60a5ce0617d4cd54971661d80b4057efde168b3579782badcf9fbc30257",
+      "combined_local_and_remote_result": "12 passed"
+    }
+  },
+  "replacement_plans": [
+    {
+      "condition": "front_stale_transient_off",
+      "plan": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_wave1_route158_corruption_v1/runtime_retry1_stale_plan.json",
+      "sha256": "462dbc69344452b1a3a16e0e15bacf54c09dc74e5b052a690d898611b77be39b",
+      "only_change": "Extend node exclusions from gpu2,gpu5 to gpu2,gpu4,gpu5."
+    },
+    {
+      "condition": "lens_waterdrop_paired_template_transient_off",
+      "plan": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_wave1_route158_corruption_v1/runtime_retry1_waterdrop_plan.json",
+      "sha256": "85023536d2bd4c534e80c1e8374015eaa644bfff37ae68e98353438ea5db9df7",
+      "only_change": "Extend node exclusions from gpu2,gpu5 to gpu1,gpu2,gpu5."
+    }
+  ],
+  "replacement_contract": {
+    "route_index": 158,
+    "model_route_window_severity_and_resources": "identical to each invalid attempt",
+    "maximum_replacements_per_condition": 1,
+    "additional_replacement_after_retry_failure": false,
+    "runtime_failure_scientific_use": "excluded"
+  },
+  "automatic_scope_locks": {
+    "native_motion_blur_retry": false,
+    "additional_condition_or_severity": false,
+    "learned_uq_or_governor": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Prospective authorization for two exact runtime replacements only. Invalid attempts are excluded and no corruption effect is claimed."
+}

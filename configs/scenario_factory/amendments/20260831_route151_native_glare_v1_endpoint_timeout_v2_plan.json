@@ -1,0 +1,62 @@
+{
+  "schema": "orion.glare_visual_bakeoff_amendment.v1",
+  "created_at": "2026-08-31T03:42:24+08:00",
+  "scope": "Route151 native glare visual preexperiment only",
+  "superseded_run": {
+    "run_id": "route151_native_glare_bakeoff_v1",
+    "slurm_job_id": "1107290",
+    "status": "cancelled_after_deterministic_endpoint_stall",
+    "classification": "capture_controller_completion_threshold_mismatch",
+    "not_a_glare_result": true,
+    "observed": {
+      "completed_profiles": [],
+      "partially_captured_profile": "clean",
+      "clean_frame_count": 295,
+      "clean_walker_frame_count": 44,
+      "clean_minimum_walker_distance_m": 2.340632438659668,
+      "last_route_progress": 0.9831,
+      "last_speed_mps": 0.0,
+      "controller_brake": 1.0,
+      "controller_distance_before_xml_endpoint_m_approx": 2.76,
+      "evaluator_watchdog_seconds": 300
+    },
+    "preservation": "Keep the clean trace and images as diagnostic visual data; do not classify the cancelled job as a native-glare pass or failure."
+  },
+  "prepared_successor": {
+    "run_id": "route151_native_glare_bakeoff_v2",
+    "status": "prepared_not_submitted",
+    "automatic_retry": false,
+    "changes": {
+      "basic_agent_finish_extension_m": 6.0,
+      "evaluator_watchdog_seconds": 90,
+      "fixed_precontact_route_progress": [
+        0.375,
+        0.4,
+        0.425,
+        0.45,
+        0.475
+      ],
+      "comparison_image_stage": "raw CARLA RGB sensor PNG before ORION JPEG/preprocessing",
+      "post_capture_outputs": [
+        "native profile metrics and contact sheet/GIF",
+        "legacy white-patch comparator",
+        "CVPR 2023 strong-sun comparator",
+        "BEV context GIF"
+      ]
+    },
+    "unchanged_contract": {
+      "profiles": [
+        "clean",
+        "light",
+        "medium",
+        "heavy"
+      ],
+      "orion_loaded": false,
+      "adapter_training": false,
+      "collision_or_ttc_used_for_parameter_selection": false,
+      "route151_is_development_only": true,
+      "formal_native_glare_is_excluded_from_adapter_training": true
+    }
+  },
+  "claim_boundary": "Runtime amendment for a visual preexperiment; no UQ, planning, collision, TTC, or safety claim."
+}

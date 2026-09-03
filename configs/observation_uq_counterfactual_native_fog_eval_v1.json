@@ -1,0 +1,51 @@
+{
+  "schema_version": "orion.counterfactual-evidence-native-fog-evaluation/v1",
+  "frozen_at": "2026-08-28T03:58:00+08:00",
+  "purpose": "Evaluate the frozen no-view counterfactual-evidence adapter on existing exact-pose CARLA Epic native-fog features after, and only after, the local_glare transfer gate passes.",
+  "inputs": {
+    "checkpoint_sha256": "6548763f9735c05152c1499501c864775bbcc9fcc1b51112b4beecc33acb7cc3",
+    "native_feature_sha256": "debdeac1cbb1bb72227604a79ef41f38c1be13dde6562256599055d6ea20ddda",
+    "upstream_glare_run_id": "counterfactual_evidence_no_view_glare_heldout_seed20260827_r1"
+  },
+  "conditions": {
+    "clear": {"severity": 0, "fog_density": 0},
+    "fog_light": {"severity": 1, "fog_density": 25},
+    "fog_heavy": {"severity": 3, "fog_density": 75}
+  },
+  "routes": [
+    "Town01/Route146",
+    "Town04/Route203"
+  ],
+  "score": {
+    "component_reduction": "mean of the three predicted evidence-loss components",
+    "paired_clear_feature_used_for_score": false,
+    "paired_clear_feature_used_for_evaluation_only": true,
+    "native_weather_used_during_adapter_training": false
+  },
+  "gate": {
+    "all_checks_must_pass": true,
+    "checks": [
+      "fog_light score uplift over clear > 0",
+      "fog_heavy score mean > fog_light score mean",
+      "sample-level fog severity Spearman >= 0.10",
+      "score versus paired-clear patch delta Spearman >= 0.10 at both fog levels",
+      "score AUROC for top-20-percent paired-delta patches >= 0.60 at both fog levels",
+      "paired-clear delta mean is positive and fog_heavy > fog_light",
+      "fog_heavy > fog_light > clear independently on both routes"
+    ]
+  },
+  "scope": {
+    "existing_feature_reuse": true,
+    "carla_rerender": false,
+    "checkpoint_update": false,
+    "adapter_training": false,
+    "orion_finetuning": false,
+    "closed_loop_stage_b": false,
+    "native_fog_is_untouched_confirmation": false,
+    "reason_not_confirmation": "This Epic fog family was used in earlier architecture-development diagnostics, although not by this adapter optimizer or checkpoint selection."
+  },
+  "decision": {
+    "pass": "Proceed to a minimum closed-loop mechanism experiment with an independently fixed corruption event window and oracle plus learned conditions.",
+    "fail": "Stop before closed-loop adapter integration and revise the Stage-1 supervision diversity."
+  }
+}

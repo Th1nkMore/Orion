@@ -1,0 +1,83 @@
+{
+  "schema": "orion.stage1_u_tokenizer_pretraining_protocol.v1",
+  "created_at": "2026-08-31T12:58:02+08:00",
+  "status": "one_bounded_preexperiment_allowed_stage2l_locked",
+  "research_question": "Can a U-tokenizer preserve the frozen Stage1 observation-uncertainty components and their temporal summaries on held-out events without seeing any driving-task supervision?",
+  "source_audit": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage1_u_tokenizer_preflight_v1/source_audit.json",
+    "sha256": "f3150e424a900ba48a7ef83aea94dfb25ae78b9f90391714e5ee611c247543af",
+    "event_count": 17,
+    "train_observed_map_count": 60,
+    "dev_observed_map_count": 20,
+    "stage1_checkpoint_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8"
+  },
+  "training_inputs": [
+    "normalized_frozen_stage1_uncertainty_components"
+  ],
+  "forbidden_inputs": {
+    "route_context": true,
+    "task_relevance": true,
+    "qa_text_or_fields": true,
+    "ttc_collision_or_control": true,
+    "corruption_metadata": true,
+    "counterfactual_on_path_uq": true,
+    "counterfactual_off_path_uq": true,
+    "counterfactual_view_shuffled_uq": true,
+    "native_glare": true
+  },
+  "architecture": {
+    "tokenizer": "UQComponentTokenizer",
+    "input_shape": [4, 6, 40, 40, 3],
+    "token_grid_shape": [6, 10, 10, 4096],
+    "reconstruction_target": "per-token concatenation of latest, temporal mean and latest-minus-first for the three Stage1 U components",
+    "disposable_decoder": "LayerNorm-MLP 4096-256-9; discarded after pretraining",
+    "zero_anchor": "An all-zero Stage1-U tensor must decode as absence; it is a definition-level anchor and not a corruption label.",
+    "task_relevance_owner": "ORION/VLM, not this tokenizer"
+  },
+  "objective": {
+    "loss": "SmoothL1 reconstructed U summary plus weighted zero-U anchor",
+    "smooth_l1_beta": 0.05,
+    "zero_anchor_weight": 0.1,
+    "trajectory_loss": 0.0,
+    "task_relevance_loss": 0.0,
+    "qa_language_loss": 0.0,
+    "control_loss": 0.0
+  },
+  "bounded_pretraining": {
+    "optimizer_steps": 200,
+    "batch_size": 4,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "seed": 20260831,
+    "maximum_submissions": 1,
+    "automatic_retry_or_extension": false,
+    "orion_weights_loaded": false,
+    "adapter_weights_updated": false
+  },
+  "release_gates": {
+    "all_losses_finite": true,
+    "every_train_event_presented": true,
+    "train_and_dev_reconstruction_improve_from_initialization": true,
+    "maximum_dev_summary_mae": 0.05,
+    "maximum_dev_latest_component_mae": 0.05,
+    "maximum_zero_anchor_mae": 0.03,
+    "interpretation": "Passing only qualifies the tokenizer representation for a later Stage2-L v10 smoke. It does not qualify R, QA understanding or formal training."
+  },
+  "implementation_sources": {
+    "scripts/audit_stage1_u_tokenizer_pretraining_sources.py": "874fe266f41aaf1dca0b9b8d0c2478705b695ff2104960c89a5d621be10578fb",
+    "tests/test_audit_stage1_u_tokenizer_pretraining_sources.py": "23f69314b6881937a5da90b370991d39b09282ff1f5ccbdeb15a303442b1d4de",
+    "uq_estimator/stage1_u_tokenizer_pretraining.py": "be8a3733e6500d06e248920a3bcbe04520e33b34c778c21a796ed337caa657e6",
+    "tests/test_stage1_u_tokenizer_pretraining.py": "4aaf43ec33b6e95cf564607adb2bc26c77086014a89a44ab7c0526a590fc519e",
+    "scripts/train_stage1_u_tokenizer_pretraining.py": "4d77b7f8291afd755ef337853dd7cb4d9abcfd2e02948357f30b1b34788ed2d2",
+    "tests/test_train_stage1_u_tokenizer_pretraining.py": "91957667706335662b0f27b2cb9eab92914ae2cc324eb327f3bd0fd15560d217"
+  },
+  "launch_locks": {
+    "stage1_u_tokenizer_pretraining_allowed": true,
+    "stage2l_v10_training_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_matrix_allowed": false,
+    "route203_native_glare_submission_allowed": false
+  },
+  "claim_boundary": "One representation-only tokenizer preexperiment. No claim about uncertainty correctness, task relevance, VLM understanding, planning, closed-loop behavior or safety."
+}

@@ -1,0 +1,111 @@
+{
+  "schema": "orion.route147_bounded_crossing_pair_preregistration.v1",
+  "created_at": "2026-08-29T05:43:55+08:00",
+  "research_question": "Can a task-level privileged planning response reduce the natural pedestrian near-miss severity on finite Route147 while preserving full route completion and bounded delay?",
+  "scientific_role": {
+    "clean": "Current-code matched baseline with Density hard-disabled and no learned adapter.",
+    "oracle": "Planning-mechanism upper bound using privileged walker occupancy; no uncertainty model is evaluated.",
+    "claim_boundary": "A pass unlocks Stage2 training but does not demonstrate learned-adapter efficacy, uncertainty semantics, or a collision reduction."
+  },
+  "route": {
+    "index": 147,
+    "route_id": 24224,
+    "town": "Town02",
+    "scenario": "DynamicObjectCrossing",
+    "variant": "hazard",
+    "route_file": "configs/closedloop_scenario_bank/routes/route_147_hazard.xml"
+  },
+  "conditions": {
+    "clean": "clean_off",
+    "oracle": "native_bounded_crossing_oracle"
+  },
+  "frozen_planning_response": {
+    "mode": "privileged_bounded_crossing",
+    "actor_categories": [
+      "walker"
+    ],
+    "interpolation_step_seconds": 0.1,
+    "safety_margin_m": 0.75,
+    "imminent_horizon_seconds": 1.5,
+    "clearance_seconds": 1.0,
+    "release_seconds": 0.5,
+    "stop_buffer_m": 2.0,
+    "release_creep_distance_m": 1.0,
+    "trajectory_contract": "Clamp progress along ORION's unmodified path in prepare/hold, creep during release, and exactly preserve the unmodified ORION plan in go."
+  },
+  "validity_thresholds": {
+    "maximum_clean_walker_ttc_seconds": 1.0,
+    "minimum_clean_walker_ttc_lte_1_exposure_seconds": 0.5,
+    "require_both_completed": true,
+    "require_both_full_route_completion": true,
+    "require_both_zero_collisions": true,
+    "require_both_zero_serious_infractions": true
+  },
+  "success_thresholds": {
+    "minimum_walker_ttc_gain_seconds": 0.25,
+    "minimum_walker_ttc_lte_1_exposure_reduction_seconds": 0.25,
+    "maximum_vehicle_ttc_lte_1_exposure_increase_seconds": 0.25,
+    "maximum_duration_increase_seconds": 5.0,
+    "maximum_continuous_stop_seconds": 8.0,
+    "logic": "all_required; walker minimum TTC may be right-censored as safe if no finite collision TTC occurs"
+  },
+  "pipeline_contract": {
+    "legacy_density_uq": "hard_disabled; every new trace frame must have density_uq_score=null",
+    "new_spatial_adapter": "absent from both mechanism conditions; every frame must have observation_uq=null",
+    "scalar_risk_governor": "off and exact control passthrough in both conditions",
+    "corruption": "none in both conditions",
+    "oracle_actor_filter": "walker only",
+    "stage2_target_source": "privileged actor occupancy crossed with the unmodified ORION candidate trajectory; never Density, corruption identity, or adapter output"
+  },
+  "offline_evidence": {
+    "gate_path": "results/closedloop_scenario_bank/route147_clean_v2_1082515/route147_bounded_crossing_offline_gate.json",
+    "gate_decision": "eligible_for_one_preregistered_route147_clean_oracle_pair",
+    "historical_density_note": "The 1082515 clean source predates Density retirement and passively logged scores under risk_mode=off. It is used only for offline mechanism feasibility. Both newly authorized runs must log zero non-null Density frames.",
+    "frozen_artifacts": [
+      {
+        "path": "results/closedloop_scenario_bank/route147_clean_v2_1082515/route147_bounded_crossing_offline_gate.json",
+        "sha256": "f76abd446a2373394f520b938fc293e88dd04542007ae0beea7d350eedad399c"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_clean_v2_1082515/privileged_yield_v1/privileged_yield_labels.jsonl",
+        "sha256": "464468483d69a5651f4d549b00741f3bac3fb94c6cd13d6ba8d8198b97e6022c"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_clean_v2_1082515/clean_safety_gate.json",
+        "sha256": "c607b5b5ecc48162f4dbe218bcc525fa7d8bed06361b9e23201e1e34c95ef603"
+      },
+      {
+        "path": "results/closedloop_scenario_bank/route147_clean_v2_1082515/control_trace.jsonl",
+        "sha256": "3416fb011f682ee092c69c20f9cd2e04697af2a5fd467b7ceeacf0f8d8504e78"
+      }
+    ]
+  },
+  "frozen_hashes": {
+    "route_147_hazard.xml": "eb59a25dd8d72327e1c4029609e34adaab3abc4e7b0f9e00c975d2c8251e9ce1",
+    "adzoo/orion/configs/orion_stage3_agent_uq.py": "e6fc0e941f574d3190ff52f5ae78ca0428a2c40c616cf472899b845b6264807b",
+    "team_code/orion_b2d_agent.py": "32f700d56e1949d8011c5cc8b4bc1cfd3c56dfe00edd92a9d8aae38cf5921182",
+    "uq_estimator/privileged_yield_labels.py": "ce7a982f0726fd2c820090cb0a243fc0d42b8feb6f3cb93a8fd835f1d7677876",
+    "scripts/run_closedloop_uq_pilot.sh": "caa54390d07f5b93d87a8bc5392f6319355bed7df0add7f49c3ba1180c6dd3e6",
+    "scripts/submit_closedloop_uq_pilot.sh": "c49cf022bd4469eed09d1023826bde506e4d912331e54967512a421d7d6a098e",
+    "scripts/audit_route147_bounded_crossing.py": "17a30e43d928b218cf3507874c45e05911d094a4a0e9c8475b8eda2fd6f9601e",
+    "scripts/evaluate_route147_bounded_crossing_pair.py": "ee00f7bea69df6025a76836d9411555b437bc450cd9e2caeb431a08fee96fec3",
+    "scripts/submit_route147_bounded_crossing_pair_v1.sh": "e555439f0b6cb4fdb05235e3cece67b519d2249111941d6f26c209fe54e9c144"
+  },
+  "single_pair_rule": {
+    "maximum_clean_submissions": 1,
+    "maximum_oracle_submissions": 1,
+    "resubmission": "forbidden without a timestamped amendment explaining a runtime-environment failure",
+    "run_ids": {
+      "clean": "closedloop_route147_bounded_crossing_clean_v1",
+      "oracle": "closedloop_route147_bounded_crossing_oracle_v1"
+    }
+  },
+  "stage2_unlock_rule": {
+    "report_schema": "orion.route147_bounded_crossing_pair_result.v1",
+    "required": {
+      "primary_success": true,
+      "stage2_eligible": true
+    },
+    "failure_action": "Keep Stage2 locked, diagnose the pair, and do not substitute Density UQ or a scalar governor."
+  }
+}

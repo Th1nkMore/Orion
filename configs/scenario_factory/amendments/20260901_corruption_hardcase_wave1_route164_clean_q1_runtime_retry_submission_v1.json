@@ -1,0 +1,32 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_q1_runtime_retry_submission.v1",
+  "created_at": "2026-09-01T04:04:53+08:00",
+  "status": "single_exact_replacement_submitted_pending_priority",
+  "preregistration": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_route164_clean_q1_runtime_retry_prereg_v1.json",
+    "sha256": "18f1ae085ea8b149b994bb2413cfc043bad95c5698255e335ac704ffe3d7a81c"
+  },
+  "replacement": {
+    "failed_job_id": 1117510,
+    "replacement_job_id": 1117562,
+    "route_index": 164,
+    "condition": "clean_off",
+    "phase": "q1",
+    "run_id": "corruption_hardcase_wave1_clean_q1_v1",
+    "state_at_record": "PENDING_PRIORITY",
+    "excluded_nodes": ["gpu1", "gpu2", "gpu5"]
+  },
+  "exactness": {
+    "same_route_xml_sha256": "1515c984f9489d138593748a793180354f4e7eb0807e374f1c19225a15bc1f28",
+    "same_code_and_checkpoint": true,
+    "same_clean_architecture_locks": true,
+    "same_resources_except_additional_failed_node_exclusion": true,
+    "corruption_variables_unset": true
+  },
+  "matrix_accounting": {
+    "effective_route164_q1_job": 1117562,
+    "invalid_environment_attempt_excluded": 1117510,
+    "duplicate_scientific_jobs": 0
+  },
+  "claim_boundary": "Runtime replacement record only. Job 1117562 requires terminal Q1 qualification evidence before scientific use."
+}

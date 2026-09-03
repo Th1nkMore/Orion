@@ -1,0 +1,30 @@
+{
+  "schema": "orion.corruption_hardcase_event_windows_freeze_verification.v1",
+  "timestamp": "2026-08-31T19:49:00+08:00",
+  "status": "verified_frozen",
+  "windows": {
+    "path": "configs/scenario_factory/corruption_hardcase_event_windows_dev8_v1.json",
+    "sha256": "f91039c4e695990231c4a495b09a29fb1292664c20bc6995f23441270f9509dd"
+  },
+  "verification": {
+    "platform_pytest": "5 passed in 0.06s",
+    "independent_verifier_passed": true,
+    "event_packages_sha256_verified": 8,
+    "control_traces_sha256_verified": 8,
+    "progress_windows_recomputed": 8,
+    "positive_case_eligible": 7,
+    "negative_controls": 1,
+    "heldout_events_read": 0
+  },
+  "source_sha256": {
+    "scripts/verify_corruption_hardcase_event_windows.py": "46c94f516e7c0cf11834fb77a84afb0014ef11b40cc841406dbf7ac2e57984ff",
+    "tests/test_corruption_hardcase_event_windows.py": "b07563642576f2d8dd387929add1e5b9bec221e1e0a0034434e435486aec8f0c"
+  },
+  "execution_locks": {
+    "windows_change_after_corrupt_orion_output": false,
+    "visual_severity_freeze_complete": false,
+    "route_jobs_unlocked": false,
+    "heldout_confirmation_unlocked": false
+  },
+  "claim_boundary": "The event windows are reproducible and prospectively frozen. This verification provides no evidence yet that any corruption induces ORION degradation."
+}

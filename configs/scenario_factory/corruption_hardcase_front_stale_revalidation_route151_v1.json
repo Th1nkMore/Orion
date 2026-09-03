@@ -1,0 +1,58 @@
+{
+  "schema": "orion.front_stale_visual_revalidation_protocol.v1",
+  "created_at": "2026-08-31T22:02:00+08:00",
+  "status": "rendered_timestamp_verified_pending_human_visual_review_no_orion",
+  "route": {
+    "route_id": 151,
+    "town": "Town02",
+    "event": "ParkingCrossingPedestrian",
+    "event_progress_reference": 0.39881549704622504,
+    "role": "corruption mechanism development only"
+  },
+  "source": {
+    "capture_profile": "none",
+    "camera_policy": "unmodified CARLA/Leaderboard camera blueprint",
+    "capture_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_clean_render_diagnostic_v1/captures/none",
+    "frame_count": 34,
+    "resolution": [1600, 900],
+    "simulation_hz": 20.0,
+    "capture_stride_steps": 1,
+    "required_clean_gate": "configs/scenario_factory/corruption_hardcase_clean_render_artifact_gate_v1.json",
+    "required_clean_gate_outcome": "0 suspicious frames"
+  },
+  "intervention": {
+    "camera": "CAM_FRONT only",
+    "delays_ms": [100, 200, 400],
+    "selection_rule": "newest captured source frame with simulation timestamp <= target timestamp - delay",
+    "warmup_rule": "exclude target frames without a full 400 ms captured history from every displayed condition",
+    "temporal_policy": "deterministic; no interpolation and no per-frame randomness",
+    "interpretation": "controlled temporal observation delay, not uncertainty ground truth"
+  },
+  "review": {
+    "output_fps": 10,
+    "review_size": [800, 450],
+    "contact_progress": 0.39881549704622504,
+    "required_outputs": [
+      "clean artifact audit",
+      "clean and per-delay full-resolution front GIFs",
+      "clean/100/200/400 ms comparison GIF",
+      "event contact frame",
+      "timestamp/source-index audit",
+      "clean BEV context GIF",
+      "hashed result manifest"
+    ]
+  },
+  "acceptance": {
+    "exact_realized_delays_ms": [100, 200, 400],
+    "clean_source_has_no_black_block_artifacts": true,
+    "all_displayed_targets_have_full_delay_history": true,
+    "orion_loaded": false
+  },
+  "locks": {
+    "orion_screen": false,
+    "closed_loop": false,
+    "profile_freeze": false,
+    "safety_claim": false
+  },
+  "claim_boundary": "Visual and timestamp validation of a temporal sensor intervention only; no model response or safety outcome."
+}

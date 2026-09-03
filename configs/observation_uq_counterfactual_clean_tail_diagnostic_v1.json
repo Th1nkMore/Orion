@@ -1,0 +1,38 @@
+{
+  "schema_version": "orion.counterfactual-evidence-clean-tail-diagnostic/v1",
+  "frozen_at": "2026-08-27T19:42:00+08:00",
+  "purpose": "Checkpoint-only decomposition of the failed clean-reference p95 guard into temporal-boundary and ordinary-frame contributions.",
+  "inputs": {
+    "dataset_manifest_sha256": "9c6166a44219a186f3bc52e4e40c8065ecf5a7b47d38e29c3c16a45e973148d6",
+    "checkpoint_sha256": "2d2afd451f99c415ae8b492280c6875fb1747c1d5e9116705ae15f4eb1d78d8f",
+    "training_report_sha256": "539250ed337986219aaf08a48d8dbc7c2106a2695f40e5a80815cb4e30885421",
+    "checkpoint_schema": "orion.counterfactual-evidence-expanded-hurdle-checkpoint/v1",
+    "training_report_schema": "orion.counterfactual-evidence-expanded-hurdle-report/v1"
+  },
+  "population": {
+    "split": "validation",
+    "route_count": 10,
+    "frames_per_route": 16,
+    "clean_frame_count": 160,
+    "previous_invalid_frame_count": 10
+  },
+  "frozen_reference_gate_threshold": 0.2,
+  "reproduction_absolute_tolerance": 0.00001,
+  "top_frame_count": 20,
+  "decision_rule": {
+    "boundary_sufficient": "The exact original metric is reproduced, previous-valid p95 is <= 0.2, and previous-invalid p95 is > 0.2.",
+    "general_false_positive": "The exact original metric is reproduced but the boundary-sufficient condition is false.",
+    "invalid": "The original clean mean or p95 cannot be reproduced within tolerance."
+  },
+  "scope_guards": {
+    "training": false,
+    "checkpoint_change": false,
+    "heldout_glare_tensor_values_read": false,
+    "heldout_split_tensor_values_read": false,
+    "native_weather_read": false,
+    "orion_finetuning": false,
+    "stage_b": false,
+    "gate_threshold_change": false,
+    "automatic_followup": false
+  }
+}

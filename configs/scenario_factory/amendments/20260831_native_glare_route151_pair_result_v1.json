@@ -1,0 +1,141 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T17:24:00+08:00",
+  "status": "valid_native_glare_pair_failure_induction_not_demonstrated",
+  "title": "Route151 original-ORION clean versus CARLA-native medium-glare terminal result",
+  "amends_without_rewriting": [
+    {
+      "path": "configs/scenario_factory/native_glare_failure_induction_72h_v1.json",
+      "sha256": "e90c5539ab88a68221639f6c66e809d7d043d577e744bbb4815ace9e3ecf25ba",
+      "role": "prospectively frozen native-glare failure-induction protocol"
+    },
+    {
+      "path": "configs/scenario_factory/amendments/20260831_native_glare_bundle_job1113224_runtime_invalid_v1.json",
+      "role": "preserved first-attempt Python-3.6 runtime invalidation; no scientific result"
+    },
+    {
+      "path": "configs/scenario_factory/amendments/20260831_native_glare_bundle_python36_repair_v1.json",
+      "role": "bounded compatibility repair authorizing retry1"
+    }
+  ],
+  "job": {
+    "job_id": "1113225",
+    "slurm_state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed": "00:39:57",
+    "max_rss_kib": 67542500,
+    "node": "gpu4",
+    "runtime_failure": false,
+    "oom": false
+  },
+  "lineage": {
+    "bundle_run_id": "native_glare_route151_pair_v1_retry1",
+    "original_orion_only": true,
+    "stage2l_checkpoint_loaded": false,
+    "density_uq": false,
+    "governor": false,
+    "synthetic_corruption": "none",
+    "submission_attestation_sha256": "a71973539279681f76e4f12cae74789b46718d2d01f46a3587d275d4b2e56f2c",
+    "launch_attestation_sha256": "54e434edb436e9b9f32ca16fd076c5e8f4ecabe67ad22648b4274262b212b552"
+  },
+  "render_validity": {
+    "all_frozen_validity_checks_passed": true,
+    "clean": {
+      "profile": "clean",
+      "front_lens_flare_intensity": 0.0,
+      "front_bloom_intensity": 0.0,
+      "bev_postprocess": false,
+      "readback_sha256": "e26abc347322f94fc2d531b8aaf44b62dd12449a0a2c9c88de74bd73fa4505ae"
+    },
+    "medium": {
+      "profile": "medium",
+      "front_lens_flare_intensity": 0.75,
+      "front_bloom_intensity": 1.5,
+      "bev_postprocess": false,
+      "readback_sha256": "3e5eec4adbdf134c5291f091b252911d35b6ce368c49495282c6caeae3563af3"
+    },
+    "shared_weather": {
+      "sun_altitude_angle": 8.0,
+      "sun_azimuth_angle": 180.0
+    },
+    "exact_model_tensor": {
+      "event_pair_count": 4,
+      "all_pair_hashes_differ": true,
+      "median_mean_absolute_delta_8bit": 19.175404866536457,
+      "minimum_required": 1.0,
+      "passed": true
+    }
+  },
+  "official_endpoints": {
+    "clean": {
+      "eligible": true,
+      "status": "Completed",
+      "route_completion": 100.0,
+      "score_penalty": 1.0,
+      "hard_infraction_count": 0,
+      "eval_sha256": "9d3c9a401c77dd9b89dc48ea49024de46689adcf32951907d806bddf2f1ecaeb"
+    },
+    "medium": {
+      "eligible": true,
+      "status": "Completed",
+      "route_completion": 100.0,
+      "score_penalty": 1.0,
+      "hard_infraction_count": 0,
+      "eval_sha256": "50b9425512fe29672e8b63ae171688598826ced02a84f524acd51c838b52a7aa"
+    },
+    "hard_endpoint_degradation": false
+  },
+  "frozen_event_safety": {
+    "actor_category": "walker",
+    "clean_min_obb_ttc_seconds": 1.1983520564506784,
+    "medium_min_obb_ttc_seconds": 1.1932820277998837,
+    "observed_ttc_drop_seconds": 0.005070028650794756,
+    "required_ttc_drop_seconds": 0.2396704112901357,
+    "clean_ttc_le_2_exposure_seconds": 0.6500000000000004,
+    "medium_ttc_le_2_exposure_seconds": 0.6500000000000004,
+    "observed_exposure_increase_seconds": 0.0,
+    "required_exposure_increase_seconds": 0.5,
+    "surrogate_degradation": false
+  },
+  "decision": {
+    "valid_pair": true,
+    "failure_induction_pass": false,
+    "evidence_tier": "failure_induction_not_demonstrated",
+    "counts_toward_final_hard_case_target": false,
+    "decision_sha256": "628a78690c04292119b965f57c233790ed35465338e020965acb6633c861c423",
+    "result_index_sha256": "30034f55229744a09c132ee10fcca5a4c482478c2c94249c22084d98f4040267"
+  },
+  "local_visualizations": {
+    "root": "results/scenario_factory/native_glare_failure_induction/native_glare_route151_pair_v1_retry1/visualizations",
+    "critical_window_seconds": [8.95, 13.95],
+    "clean": {
+      "raw_front_gif_sha256": "75705d4b2808107dee920f56fe5f14dbc6fe474a435df07f9ccb0b0d0371556d",
+      "exact_model_tensor_front_gif_sha256": "badec913ec8a5c26a9473bfa3550adb0db8a9c73bd8804258f1940d21ae2a4c0",
+      "bev_gif_sha256": "6d8ac23b52c0985a1bdc642775788bd30f9029cf9909b364ca6a42ad705eb204"
+    },
+    "medium": {
+      "raw_front_gif_sha256": "415e29ac1d2cb204de3431ee8b2beb26b4db8f9a784bb19b403f68c5e0cf0525",
+      "exact_model_tensor_front_gif_sha256": "84c47324532752dd4cbaf3dbe376e449a9a075589e776584be370c6e64f3ff84",
+      "bev_gif_sha256": "fd4f8d8e3a6a71e5d0c10db61391b92fd8e945173ccb03aec1d72d17bc6ec50b"
+    }
+  },
+  "interpretation": {
+    "supported": "The CARLA-native camera setting was really applied and materially changed the exact ORION front tensor while preserving route, weather, original checkpoint and control lineage.",
+    "not_supported": "Medium native glare did not worsen completion, infractions, collision, minimum TTC or low-TTC exposure on Route151. This pair is not a hard case and cannot support a rescue experiment.",
+    "route151_role": "Valid negative development pair and renderer/interface validation only."
+  },
+  "next_action": {
+    "automatic_route_submission": false,
+    "reason": "The preregistered protocol forbids outcome-adaptive automatic expansion. The only prospectively frozen independent native-glare route is Route203, whose explicit submission lock remains active.",
+    "route203_native_glare_submission_allowed": false,
+    "stage2l_v10_phase_a_replay_independent_and_running": true
+  },
+  "launch_locks": {
+    "route151_repeat_or_severity_tuning_allowed": false,
+    "route203_native_glare_submission_allowed": false,
+    "stage2l_v10_aware_closed_loop_allowed": false,
+    "formal_200_route_evaluation_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "A valid negative failure-induction screen of original ORION on one development route. No uncertainty detection, VLM understanding, robustness, treatment effect, planning improvement, closed-loop improvement or safety claim."
+}

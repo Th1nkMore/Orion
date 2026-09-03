@@ -1,0 +1,103 @@
+{
+  "schema": "orion.stage2l-v15-u-language-alignment-protocol/v1",
+  "created_at": "2026-09-02T22:30:00+08:00",
+  "status": "bounded_u_language_alignment_pilot",
+  "purpose": "Repair the missing task-free U-to-language alignment stage by jointly training the existing U tokenizer projection and ORION LoRA with balanced all-candidate field supervision.",
+  "alignment_schema": "orion.stage2l-u-language-alignment/v1",
+  "initialization": {
+    "orion_lora": "completed Stage2-L v14.1 checkpoint",
+    "u_tokenizer": "completed frozen task-agnostic Stage-1 U tokenizer checkpoint",
+    "new_language_or_r_bridge": false
+  },
+  "input_sha256": {
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "v11_records_sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101",
+    "dataset_audit_report_sha256": "2d8d2879a5ac9383887a95304bc5c9d3c3740aadaee3d720dac9a272c9c9c2f7",
+    "view_feature_cache_sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61",
+    "u_tokenizer_checkpoint_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "orion_config_sha256": "0920526b2eae94a25110bee882f8df9d51fdff6625d465d6d2d62ee96274f576",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+    "trained_v14_1_checkpoint_sha256": "ebebdb5fb0344de7a589456a8602ef36da4e0fb242e4666d29205966648ad241"
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v15_u_language_alignment_17event_720_v1/training",
+  "architecture": {
+    "direct_u_tokens_enter_orion": true,
+    "stage1_observation_estimator_trainable": false,
+    "u_tokenizer_existing_projection_trainable": true,
+    "new_bridge_or_r_input_present": false,
+    "route_task_risk_action_present": false,
+    "trajectory_or_control_loss": false,
+    "density_uq_or_governor_used": false,
+    "orion_trainable_scope": "lora_only"
+  },
+  "data": {
+    "events": 17,
+    "train_events": 13,
+    "dev_events": 4,
+    "train_groups": 60,
+    "dev_groups": 20,
+    "u_variants_per_group": 6,
+    "available_train_u_states": 360,
+    "available_field_qa_records": 2160,
+    "available_full_qa_records": 360,
+    "counterfactual_contract": "Except for zero U, counterfactuals preserve the exact observed Stage-1 U value multiset. No arbitrary random U is introduced."
+  },
+  "training": {
+    "optimizer_steps": 720,
+    "field_objective": "all_candidate_cross_entropy",
+    "field_and_target_value_sampling": "Deterministic balanced field rotation and within-field canonical-value rotation over real or distribution-preserving Stage-1 U states.",
+    "full_answer_interval": 6,
+    "full_answer_weight": 0.25,
+    "task_agnostic_reconstruction_retention": true,
+    "reconstruction_weight": 0.1,
+    "zero_anchor_weight": 0.1,
+    "smooth_l1_beta": 0.05,
+    "lora_learning_rate": 0.00002,
+    "u_tokenizer_learning_rate": 0.000005,
+    "reconstruction_head_learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1.0,
+    "first_nonfinite_value_fail_fast": true,
+    "automatic_retry": false,
+    "automatic_extension": false
+  },
+  "evaluation": {
+    "split": "dev",
+    "dev_groups": 20,
+    "u_states": 120,
+    "all_six_fields": true,
+    "candidate_values_per_field": "all canonical values",
+    "free_generation": "secondary diagnostic on one representative group per dev event",
+    "primary_metrics": [
+      "balanced_accuracy_by_tag",
+      "target_margin_by_tag",
+      "nonzero_accuracy_excluding_presence",
+      "changed-field counterfactual response",
+      "unchanged-field invariance"
+    ]
+  },
+  "soft_diagnostics": {
+    "minimum_nonzero_accuracy_excluding_presence": 0.5,
+    "minimum_view_balanced_accuracy": 0.45,
+    "minimum_changed_field_exact_response": 0.4,
+    "quality_diagnostics_block_completion": false,
+    "failure_does_not_trigger_extra_epochs_or_capacity": true
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "20:00:00",
+    "maximum_submissions": 1
+  },
+  "locks": {
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "locked_test_allowed": false,
+    "extra_epochs_allowed": false,
+    "automatic_downstream_unlock": false
+  },
+  "claim_boundary": "Task-free U-to-language alignment pilot only; no task relevance, planning, closed-loop, safety, or external-generalization claim."
+}

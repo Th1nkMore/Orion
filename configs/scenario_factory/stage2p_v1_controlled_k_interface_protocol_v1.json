@@ -1,0 +1,109 @@
+{
+  "schema": "orion.stage2p_v1_controlled_k_interface_protocol.v1",
+  "created_at": "2026-09-01T20:20:00+08:00",
+  "status": "frozen_bounded_controlled_k_interface",
+  "purpose": "Exercise the first Stage2-P trajectory-response interface after the integrity-valid but semantically insensitive Stage2-L slice, without repairing upstream quality first.",
+  "input_sha256": {
+    "source_manifest_sha256": "52285724a9306ce5561425bc3c441447ac82cda6f54bcfc0c133c1d915307043",
+    "source_build_report_sha256": "7a590c07063aea5d4b97776b05de0b0cfd29b4265abca50fceef3342ce46ab39",
+    "semantic_terminal_sha256": "f16a36dbfa9050526625114778c4880b3e8c1f34ea6e87688e048d225311d58e",
+    "semantic_report_sha256": "ae4c9ad19ffa83dddd1433a32e4575bc840d616b2124e8c9debf10c30248081f",
+    "semantic_bridge_sha256": "3cd46c20a209b5c07522ea29dbe05cdda3fbfd3b51b306c39c7b5b52a6b1c7dd",
+    "spatial_u_r_k_maps_sha256": "8731b252df471e71776635743008e6e0a5faaa7366f9d0ea9e136a3b80dfaae7"
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2p_smokes/v1_controlled_k_route147_80step_v1/training",
+  "architecture": {
+    "forward_inputs": [
+      "frozen_orion_planning_context",
+      "task_risk_k"
+    ],
+    "raw_observation_u_forward": false,
+    "privileged_task_context_forward": false,
+    "route_actor_ttc_outcome_forward": false,
+    "privileged_labels_supervision_only": true,
+    "stage1_trainable": false,
+    "stage2l_trainable": false,
+    "orion_trainable": false,
+    "native_planning_context_modified": false,
+    "trajectory_response": "bounded residual applied after the native ORION trajectory",
+    "lateral_bound_m": 2.0,
+    "longitudinal_bound_m": 24.0
+  },
+  "controlled_k_derivation": {
+    "source": "The existing Route147 mechanism-upper-bound cache supplies identical frozen ORION contexts and controlled spatial interventions.",
+    "relevant_k": "on-path controlled map multiplied by oracle relevance 1.0",
+    "irrelevant_k": "equal-area off-path controlled map multiplied by oracle relevance 0.05",
+    "view_shuffled_k": "front controlled map moved to central rear and multiplied by oracle relevance 0.05",
+    "zero_k": "exact zeros",
+    "task_risk_truth_claimed": false,
+    "source_glare_failure_induction_passed": false,
+    "planning_mechanism_upper_bound_passed": true
+  },
+  "data_scope": {
+    "route": "Town02/Route147/hazard/seed20260829",
+    "source_records": 189,
+    "derived_records": 252,
+    "records_per_variant": 63,
+    "positive_relevant_targets": 4,
+    "variants": [
+      "zero_k",
+      "relevant_k",
+      "irrelevant_k",
+      "view_shuffled_k"
+    ],
+    "route_heldout": false,
+    "locked_test_read": false
+  },
+  "training": {
+    "optimizer_steps": 80,
+    "batch_size": 8,
+    "positive_anchors_per_step": 4,
+    "hard_identity_anchors_per_step": 4,
+    "learning_rate": 0.0005,
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1.0,
+    "automatic_extension": false
+  },
+  "hard_stop_conditions": [
+    "Any frozen input, protocol, preflight or launch hash differs.",
+    "A privileged task context, route, actor, TTC, collision or outcome value enters the forward path.",
+    "Zero K changes the native planning context or produces a nonzero trajectory residual.",
+    "A tensor, loss or gradient is non-finite.",
+    "A residual exceeds the fixed lateral or longitudinal bound.",
+    "An output artifact or tensor interface is missing or malformed."
+  ],
+  "soft_diagnostics": {
+    "positive_target_mae_m": 0.5,
+    "positive_nonzero_response_fraction": 1.0,
+    "hard_identity_mean_response_m": 0.05,
+    "irrelevant_or_shuffled_max_response_m": 0.2,
+    "quality_blocks_first_vertical_slice": false
+  },
+  "resource_ceiling": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "32G",
+    "time_limit": "01:00:00",
+    "exclude_nodes": [
+      "gpu5"
+    ],
+    "maximum_submissions": 1,
+    "automatic_retry": false
+  },
+  "upstream_quality_label": "semantic_insensitive_bridge",
+  "downstream_policy": {
+    "integrity_valid": "Preserve the quality result and prepare one separately preregistered tiny CARLA engineering smoke.",
+    "quality_failure": "Carry the labeled result through the tiny runtime smoke; do not add epochs before completing the first slice.",
+    "hard_failure": "Stop and repair the incompatible interface before CARLA."
+  },
+  "locks": {
+    "formal_stage2p_allowed": false,
+    "learned_u_substitution_allowed": false,
+    "formal_closed_loop_allowed": false,
+    "locked_test_allowed": false,
+    "benchmark_matrix_allowed": false,
+    "automatic_extension": false
+  },
+  "claim_boundary": "A one-route controlled-K trajectory-interface smoke only. It cannot establish learned uncertainty, Stage2-L semantics, generalization, closed-loop benefit or safety."
+}

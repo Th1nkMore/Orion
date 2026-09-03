@@ -6,8 +6,6 @@ data/stat_cache.pt
 *.pt
 !tests/**/*.pt
 !checkpoints/film/*.pt
-# Keep versioned, curated UQ checkpoints as backup
-!artifacts/uq_checkpoints/**/*.pt
 .env
 wandb/
 __pycache__/
@@ -19,6 +17,24 @@ ckpts/Orion.pth
 ckpts/pretrain_qformer/
 data/bench2drive/
 data/infos/
+data/b2d_sample/
+
+# OS / editor noise
+.DS_Store
+
+# LaTeX auxiliary outputs (under docs/)
+docs/*.aux
+docs/*.fdb_latexmk
+docs/*.fls
+docs/*.log
+docs/*.nav
+docs/*.out
+docs/*.snm
+docs/*.toc
+docs/*.xdv
+
+# Local tooling outputs (PDF review screenshots, etc.)
+outputs/
 
 # Compiled extensions and build artifacts
 build/
@@ -36,6 +52,26 @@ test/
 # Local assistant artifacts
 .claude/
 
+# Generated experiment evidence and sharing bundles
+# Keep compact JSON/CSV/HTML summaries under results/, but regenerate or fetch
+# frame dumps, videos, traces, tensors, and scheduler logs from their manifests.
+0830-sharing/
+artifacts/
+assets/waterdrop_patterns/
+docs/*.pages
+results/**/*.png
+results/**/*.gif
+results/**/*.mp4
+results/**/*.jsonl
+results/**/*.ndjson
+results/**/*.npz
+results/**/*.npy
+results/**/*.out
+results/**/*.log
+
+# Learning documentation (local only, not uploaded)
+docs_learning/
+
 # Reports: keep small, useful outputs; ignore notebooks/temp
 reports/.ipynb_checkpoints/
 # Keep text + figures for reproducibility
@@ -46,3 +82,7 @@ reports/.ipynb_checkpoints/
 
 # Results: keep small summaries & evaluation JSON; large tensors (.pt) remain ignored by '*.pt'
 !results/**/*.json
+# Local regeneration outputs (figures, GIFs, markdown reports)
+results/bev_noattn/
+results/feasibility/
+results/gifs/bev_only/

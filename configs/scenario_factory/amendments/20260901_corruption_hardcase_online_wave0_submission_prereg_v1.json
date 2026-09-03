@@ -1,0 +1,63 @@
+{
+  "schema": "orion.corruption_hardcase_online_wave0_submission_prereg.v1",
+  "created_at": "2026-09-01T00:11:16+08:00",
+  "status": "strict_preflight_passed_ready_to_submit_exact_12_job_wave",
+  "authorization": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_visual_approval_authorization_v1.json",
+    "sha256": "6e2e34a73cf96a9e96fc5fe8d598834b8b6b711285572a07ebad3b5757a5f6db"
+  },
+  "visual_gate": {
+    "path": "configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json",
+    "sha256": "aac9996062720f95498a85247611e0f63adf3d1cc6caea2dcb6bd55846c2e98d"
+  },
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_online_screen_wave0_activation_v1.json",
+    "sha256": "8d6a370b99bcaab8f9d678b1545470cd9fdb1957d6cef15b36ef172fe6daca41"
+  },
+  "submission_plan": {
+    "local_path": "results/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/plan_v2.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_online_wave0_v1/plan_v2.json",
+    "sha256": "af798ce0e259abfe14db612d8fb09332de3edff33497716c472e5c34943f229d",
+    "routes": [151, 180, 194],
+    "conditions": [
+      "clean_off",
+      "front_stale_transient_off@delay_ms:200",
+      "lens_waterdrop_paired_template_transient_off@profile:medium",
+      "native_motion_blur_off@profile:medium"
+    ],
+    "jobs": 12,
+    "same_code_clean_jobs": 3,
+    "corrupt_jobs": 9
+  },
+  "source_sha256": {
+    "scripts/submit_corruption_hardcase_online_wave.py": "c114dc04c42e72bcff064d2cedfc18bea64695501867027379767a96aa8edb35",
+    "scripts/verify_corruption_hardcase_online_screen_wave.py": "1117b39f571797da3c8866d5c73a989aa2615f7f7c6c20e8a8b7992b58fd80a7",
+    "tests/test_submit_corruption_hardcase_online_wave.py": "f8c0fd09f036715abb03878e65f0b51205a7ea5d6fc78a5f4c3d0dcf9bfd9c5c",
+    "tests/test_corruption_hardcase_visual_approval.py": "2ebda5e1421ebf0251ca10ba4fdc4bab1ab1dfe9ed20a88e9acb19adb5dfca3f"
+  },
+  "verification": {
+    "remote_related_tests": "18 passed in 0.26s; post-sanitization targeted suite 7 passed in 0.21s",
+    "strict_activation_preflight": "passed",
+    "unapproved_stale_400ms": "rejected fail-closed",
+    "route_xml_hashes": "all three matched",
+    "environment_isolation": "clean/stale/waterdrop/native-motion-blur variable sets are pairwise isolated",
+    "squeue_before_submission": "empty"
+  },
+  "resources": {
+    "per_job": "1x A800, 2 CPU, 192G RAM, 02:00:00",
+    "run_id": "corruption_hardcase_online_wave0_v1",
+    "artifact_root": "/public/share/lidachuan/orion_assets",
+    "personal_home_artifacts": false
+  },
+  "scientific_locks": {
+    "risk_mode": "off",
+    "planning_response": "off",
+    "density_uq": false,
+    "learned_uq_control": false,
+    "heldout": false,
+    "route203": false,
+    "stage2p": false,
+    "formal_200_route": false
+  },
+  "claim_boundary": "Prospective submission preregistration only. No corruption-conditioned ORION outcome or safety result has yet been observed."
+}

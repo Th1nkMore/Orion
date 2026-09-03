@@ -1,0 +1,51 @@
+{
+  "schema": "orion.corruption_hardcase_visual_bakeoff_preregistration.v1",
+  "timestamp": "2026-08-31T19:09:00+08:00",
+  "status": "verified_ready_for_single_visual_job",
+  "scope": "Route151 visual bake-off for front stale frame, actor-independent lens waterdrop, and CARLA-native motion blur",
+  "research_reason": "Native glare is retained as a negative failure-induction result; it is not sufficient as the sole hard-case source.",
+  "resource_contract": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus": 2,
+    "memory": "16G",
+    "time": "00:45:00",
+    "exclude": ["gpu5"]
+  },
+  "execution_locks": {
+    "orion_loaded": false,
+    "adapter_training": false,
+    "stage2l_training": false,
+    "stage2p_training": false,
+    "collision_outcome_used_for_severity_selection": false,
+    "formal_result": false,
+    "automatic_retry": false,
+    "route203_submission": false
+  },
+  "capture_contract": {
+    "route": 151,
+    "capture_progress": [0.34, 0.5],
+    "simulation_hz": 20,
+    "motion_blur_profiles": ["clean", "light", "medium", "heavy"],
+    "stale_delays_ms": [100, 200, 400],
+    "waterdrop_severities": [1, 2, 3],
+    "waterdrop_seed": 20260831,
+    "bev": "clean context only; corruption is front-camera-only"
+  },
+  "verification": {
+    "platform_pytest": "25 passed in 13.91s",
+    "bash_syntax_exit_code": 0,
+    "submit_dry_run_exit_code": 0
+  },
+  "source_sha256": {
+    "team_code/glare_capture_agent.py": "532e669c027007cc4e3c7547c667147b98c2848668feec312f1b5904b0cbb356",
+    "team_code/orion_native_motion_blur.py": "eb9dd182151c4168b845875f334adc6445c00b395508d462f6a10195ab5597fc",
+    "uq_estimator/temporal_corruptions.py": "5d2f7b2b2579e4bd0e4af68d7316b04bf0c56ae9dcc487e41e860feacf0109bb",
+    "uq_estimator/lens_waterdrop.py": "0f95dd50c662c3dd1e27b432f4be729dde893798356d59959349a94d0e927035",
+    "scripts/render_corruption_hardcase_bakeoff.py": "54e49ad2b81493a035d4176fcffdba485e9c1844566bbc348996d07dff0c2398",
+    "scripts/run_corruption_hardcase_visual_bakeoff_route151.sh": "a8c7b274909d3aad4ef82ec53d89b79a98eef31ccd2f5fd2bca1109e4d0375e6",
+    "scripts/submit_corruption_hardcase_visual_bakeoff_route151.sh": "cfe82f8c2e9e4d7cee2c50311c6037663c39b36c2f65e2041a7e156dc24315c3",
+    "configs/scenario_factory/corruption_hardcase_visual_bakeoff_route151_v1.json": "1a2c240bf144a9c2eecd4f3a4518ab61cbb837da44b1aec052d1909acee6dda1"
+  },
+  "claim_boundary": "Visual engineering bake-off only; it neither demonstrates corruption-induced ORION failure nor safety improvement."
+}

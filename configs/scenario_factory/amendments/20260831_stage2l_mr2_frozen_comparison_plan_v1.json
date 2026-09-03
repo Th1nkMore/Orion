@@ -1,0 +1,81 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T09:20:06+08:00",
+  "status": "comparison_inputs_and_decision_rules_frozen_before_mr2_result",
+  "title": "Stage2-L MR2 17-event coverage diagnostic controlled comparison plan",
+  "purpose": "Bind the MR1 baseline, both protocols, comparator implementation and decision rules before the MR2 report exists.",
+  "reference": {
+    "report": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr1_8event_v1_40/training/report.json",
+      "sha256": "b4399676e4f5853c98fb0419a4185e211ebdbdb89aa39c9c440a9afac33887ca"
+    },
+    "protocol": {
+      "path": "configs/scenario_factory/stage2l_mr1_training_v1.json",
+      "sha256": "25482ea60a23edc6dcf5a6ff7f4f1130821ba7a135bf0620df9fa34626618260"
+    },
+    "identity": "fresh 8-event, 6-train/2-dev, 40-step MR1 run"
+  },
+  "expanded": {
+    "slurm_job_id": "1109479",
+    "report_target": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/mr2_17event_v1_40/training/report.json",
+    "protocol": {
+      "path": "configs/scenario_factory/stage2l_mr2_17event_coverage_v1.json",
+      "sha256": "42a4dd1296098e4cf7d4e9818c8717026bee7d82325ea4e6426824eb14856f67"
+    },
+    "identity": "fresh 17-event, 13-train/4-dev, 40-step MR2 coverage run",
+    "result_present_when_frozen": false
+  },
+  "comparator": {
+    "path": "scripts/compare_stage2l_mr2_coverage.py",
+    "sha256": "fd3522bbecfcd5cc6bfe2f3d7945702c0ee700b1d05bf4b1af63f8f44dc53be4",
+    "test_path": "tests/test_compare_stage2l_mr2_coverage.py",
+    "test_sha256": "eacb6c7c48646ee4fb73865154efdc5528be735ea9ce9cc7667669632ead887f",
+    "test_result": "3 passed",
+    "required_integrity": [
+      "both runs have exactly 40 finite optimizer steps",
+      "losses and release thresholds are unchanged",
+      "both runs use fresh initialization from the same ORION checkpoint and config",
+      "MR2 uses the same frozen MR1 base trainer implementation",
+      "MR1 train/dev events are strict split-preserving subsets of MR2 train/dev",
+      "train and dev gate keys are identical in MR1 and MR2 reports",
+      "every optimizer step covers the entire corresponding train split",
+      "every train event receives exactly 40 primary presentations",
+      "trajectory, control, Density UQ and governor remain disabled"
+    ]
+  },
+  "decision_rules": {
+    "all_train_and_dev_gates_pass": {
+      "decision": "expanded_coverage_engineering_paradigm_passes",
+      "next_action": "Use only to design formal training after exact24 and human-review gates; do not launch automatically."
+    },
+    "train_gate_count_improves_and_dev_gate_count_decreases": {
+      "decision": "expanded_coverage_overfit_or_objective_mismatch_stop",
+      "next_action": "Stop repeated MR scaling and revise objective, capacity or label support."
+    },
+    "dev_gate_count_improves_and_train_does_not_regress": {
+      "decision": "expanded_coverage_improves_but_remaining_gates_fail",
+      "next_action": "Inspect only remaining preregistered gates and absent class cells; formal training stays locked."
+    },
+    "otherwise": {
+      "decision": "expanded_coverage_not_sufficient_revise_objective",
+      "next_action": "Stop route or step scaling and revise the relevance or structured-field objective."
+    },
+    "integrity_failure": {
+      "decision": "invalid_coverage_comparison",
+      "next_action": "Do not interpret MR2; repair lineage or protocol drift without rerunning automatically."
+    }
+  },
+  "launch_source": {
+    "path": "configs/scenario_factory/amendments/20260831_stage2l_mr2_17event_coverage_launch_v1.json",
+    "sha256": "2d03d010a67f6b775cd0907177b957c54d9e24d2f200be35140574ba9dfc0fa8"
+  },
+  "locks": {
+    "automatic_retry_or_extension": false,
+    "additional_mr_training_before_comparison": false,
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false,
+    "locked_test_evaluation_allowed": false,
+    "closed_loop_matrix_allowed": false
+  },
+  "claim_boundary": "The eventual MR2 comparison is an engineering train/dev diagnostic. It is not a formal generalization, VLM understanding, planning, closed-loop or safety result."
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "orion.lens_waterdrop_v2_direct_silhouette_visual_failure_amendment.v1",
+  "timestamp": "2026-08-31T21:34:00+08:00",
+  "status": "failed_visual_review_orion_remains_locked",
+  "protocol": "configs/scenario_factory/corruption_hardcase_lens_waterdrop_v2_visual_bakeoff_route151_v1.json",
+  "execution": {
+    "source_frame_count": 34,
+    "source_resolution": [1600, 900],
+    "clean_artifact_gate": "passed; 0/34 suspicious frames",
+    "orion_loaded": false,
+    "renderer": "uq_estimator/lens_waterdrop_v2.py",
+    "renderer_sha256": "d89bd0bb47ea33ecf6152ac9754bdbe9d9e917d65d541785d48f143b31265fe0",
+    "result": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_lens_waterdrop_v2_visual_bakeoff_v1/result.json",
+    "result_sha256_before_review_annotation": "c4fe8f0ca737c658d5eed09c4876bc23406e406cb014b9a7894ff202cf61d7ef",
+    "contact_sha256": "2a3602cbd5ee4462d0905b0ec8f4b4700c922e1ad41c7925e621fe29e39b3da6",
+    "high_resolution_crops_sha256": "fd84bcb4c30c995126fe65610900a6dbc496a8e0bc0b1e3b7cf1cf88d367f2bf",
+    "clean_gif_sha256": "00c592faead1adb5f273943e22c77f3710aa87b3810a43d5b5dbb78636da351b"
+  },
+  "review": {
+    "clean_baseline": "passed; no black-block renderer contamination",
+    "full_resolution_application": "passed; corruption was applied at 1600x900 before review downsample",
+    "refraction_present": true,
+    "visual_realism": "failed",
+    "failure_modes": [
+      "coarse polygon annotation boundary remains visible",
+      "large components read as transparent pasted patches",
+      "binary silhouette provides no photographed alpha, internal caustic, or optical appearance",
+      "increasing analytic severity cannot repair the missing source appearance"
+    ]
+  },
+  "decision": {
+    "lens_waterdrop_v1": "failed prototype remains retired",
+    "direct_silhouette_lens_waterdrop_v2": "failed prototype; do not tune severity",
+    "orion_screen": "forbidden",
+    "replacement_requirement": "Acquire a small, licensed public paired clean/rainy bank and derive scene-content-safe alpha/displacement/luminance templates; validate against separate real driving waterdrop frames."
+  },
+  "claim_boundary": "Engineering visual failure only. It does not invalidate waterdrop corruption as a family; it invalidates this binary-silhouette-only renderer."
+}

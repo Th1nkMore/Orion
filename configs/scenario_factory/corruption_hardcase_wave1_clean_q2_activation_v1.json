@@ -1,0 +1,50 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_q2_activation.v1",
+  "created_at": "2026-09-01T05:01:00+08:00",
+  "status": "q2_exact_two_route_repeat_authorized_before_submission",
+  "base_protocol": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_clean_qualification_v1.json",
+    "sha256": "428549620d1393c2b9200263e038e5bbbbcca6c8ef0042fd00ad980156e72aa1"
+  },
+  "q1_result": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_clean_q1_result_v1.json",
+    "sha256": "95f12f2888e2d60d99ce943edeee4f9e03692480e17f3106da42025b0ade56c6"
+  },
+  "q1_collection": {
+    "path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_clean_q1_v1/analysis_v1/q1_collection.json",
+    "sha256": "cef253bd19b299461a73a1583853198873b8876733fa7ac123cdd3e20ebfd357"
+  },
+  "scope": {
+    "routes": [158, 185],
+    "condition": "clean_off",
+    "runs_per_route": 1,
+    "run_id": "corruption_hardcase_wave1_clean_q2_v1",
+    "purpose": "Independent current-code clean repeat. Both Q1 and Q2 must pass before a route can receive corruption-conditioned jobs."
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpu_per_job": 1,
+    "cpus_per_job": 2,
+    "memory_per_job": "192G",
+    "time_limit": "02:00:00",
+    "asset_root": "/public/share/lidachuan/orion_assets",
+    "excluded_nodes": ["gpu2", "gpu5"]
+  },
+  "architecture_locks": {
+    "ORION_CLOSEDLOOP_UQ_MODE": "none",
+    "ORION_CLOSEDLOOP_CONDITIONING": "none",
+    "ORION_CLOSEDLOOP_RISK_MODE": "off",
+    "ORION_PLANNING_RESPONSE_MODE": "off",
+    "ORION_STAGE2_SPATIAL_UQ_SOURCE": "disabled",
+    "legacy_density_uq": false,
+    "corruption": "none"
+  },
+  "execution_authority": {
+    "q2_clean_submission": true,
+    "corruption_submission": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Q2 clean-repeat activation only. No route is stable-clean qualified until its terminal Q2 report passes all frozen gates."
+}

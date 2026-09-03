@@ -1,0 +1,44 @@
+{
+  "schema": "orion.stage2p_v1_controlled_k_interface_launch.v1",
+  "created_at": "2026-09-01T20:19:00+08:00",
+  "status": "single_controlled_k_interface_smoke_authorized",
+  "reason": "One replacement for Job 1123186, which failed before optimization because the trainer read two valid nested launch fields from the wrong level.",
+  "retry_of_invalid_job": "1123186",
+  "validated_inputs": {
+    "source_manifest_sha256": "52285724a9306ce5561425bc3c441447ac82cda6f54bcfc0c133c1d915307043",
+    "source_build_report_sha256": "7a590c07063aea5d4b97776b05de0b0cfd29b4265abca50fceef3342ce46ab39",
+    "semantic_terminal_sha256": "f16a36dbfa9050526625114778c4880b3e8c1f34ea6e87688e048d225311d58e",
+    "semantic_report_sha256": "ae4c9ad19ffa83dddd1433a32e4575bc840d616b2124e8c9debf10c30248081f",
+    "semantic_bridge_sha256": "3cd46c20a209b5c07522ea29dbe05cdda3fbfd3b51b306c39c7b5b52a6b1c7dd",
+    "spatial_u_r_k_maps_sha256": "8731b252df471e71776635743008e6e0a5faaa7366f9d0ea9e136a3b80dfaae7"
+  },
+  "implementation": {
+    "trainer_sha256": "a598135a84754624095b7562335983b31e70b8cf5d4f1bd4d43a12855c0c9677",
+    "task_risk_trajectory_module_sha256": "73446082d7d6ab4acfc76c6cd5c3d7a8761e3d55f21ab25fb2692c62898a7051",
+    "protocol_sha256": "43e3264ba3abbedb9d2dbc037d371d766856b1439098cf19b0dd78f772aeae6f",
+    "preflight_sha256": "2a1e90265da938b0e2984599455fdbf610e643110216e873ba8c5af145a30f5e",
+    "retry_authorization_sha256": "daeeaa2d514ca7c7fd2e454b27d8c7ff3b82e91e5b30e4675f66095c74407249"
+  },
+  "authorized_run": {
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2p_smokes/v1_controlled_k_route147_80step_v1/training",
+    "optimizer_steps": 80,
+    "maximum_submissions": 1,
+    "automatic_retry": false,
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "32G",
+    "time_limit": "01:00:00",
+    "exclude_nodes": [
+      "gpu5"
+    ]
+  },
+  "unchanged_contracts": {
+    "controlled_k_dataset": true,
+    "responsibility_boundary": true,
+    "soft_quality_thresholds": true,
+    "upstream_semantic_insensitive_label": true,
+    "formal_and_locked_test_locks": true
+  },
+  "claim_boundary": "Replacement launch after a zero-step field-location failure; still one controlled-K engineering smoke only."
+}

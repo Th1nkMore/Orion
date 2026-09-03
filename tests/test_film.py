@@ -279,3 +279,119 @@ def test_film_l2_nontrivial_after_training():
 
     assert not torch.allclose(out_before, out_after), \
         "FiLM output should change after training step"
+
+
+# ── Score-Gated FiLM Tests ──────────────────────────────────────────
+
+class MockScoreGatedFiLML1(nn.Module):
+    """Score-Gated FiLM L1: gamma/beta gated by uncertainty score."""
+
+    def __init__(self):
+        super().__init__()
+        self.film_gamma = nn.Linear(UNCERTAINTY_DIM, EMBED_DIMS)
+        self.film_beta = nn.Linear(UNCERTAINTY_DIM, EMBED_DIMS)
+        # Identity init
+        nn.init.zeros_(self.film_gamma.weight)
+        nn.init.ones_(self.film_gamma.bias)
+        nn.init.zeros_(self.film_beta.weight)
+        nn.init.zeros_(self.film_beta.bias)
+
+    def forward(self, query, uncertainty_emb, uncertainty_score=None):
+        # query: [num_query, B, D], emb: [B, D], score: [B, 1]
+        gamma_raw = self.film_gamma(uncertainty_emb).unsqueeze(0)  # [1, B, D]
+        beta_raw = self.film_beta(uncertainty_emb).unsqueeze(0)    # [1, B, D]
+        if uncertainty_score is not None:
+            s = uncertainty_score.unsqueeze(0)  # [1, B, 1] — broadcasts to [1, B, D]
+            gamma = 1.0 + s * (gamma_raw - 1.0)
+            beta = s * beta_raw
+        else:
+            gamma, beta = gamma_raw, beta_raw
+        return gamma * query + beta
+
+
+class MockScoreGatedFiLML2(nn.Module):
+    """Score-Gated FiLM L2: gamma/beta gated by uncertainty score."""
+
+    def __init__(self):
+        super().__init__()
+        self.film_gamma_l2 = nn.Linear(UNCERTAINTY_DIM, EGO_DIM)
+        self.film_beta_l2 = nn.Linear(UNCERTAINTY_DIM, EGO_DIM)
+        # Identity init
+        nn.init.zeros_(self.film_gamma_l2.weight)
+        nn.init.ones_(self.film_gamma_l2.bias)
+        nn.init.zeros_(self.film_beta_l2.weight)
+        nn.init.zeros_(self.film_beta_l2.bias)
+
+    def forward(self, current_states, uncertainty_emb, uncertainty_score=None):
+        # current_states: [B, 1, 4096]
+        gamma_raw = self.film_gamma_l2(uncertainty_emb).unsqueeze(1)  # [B, 1, 4096]
+        beta_raw = self.film_beta_l2(uncertainty_emb).unsqueeze(1)    # [B, 1, 4096]
+        if uncertainty_score is not None:
+            s = uncertainty_score.unsqueeze(-1)  # [B, 1, 1]
+            gamma = 1.0 + s * (gamma_raw - 1.0)
+            beta = s * beta_raw
+        else:
+            gamma, beta = gamma_raw, beta_raw
+        return gamma * current_states + beta
+
+
+def test_score_gated_l1_identity_at_zero_score():
+    """Score=0 → Score-Gated FiLM L1 is identity regardless of embedding."""
+    model = MockScoreGatedFiLML1()
+    # Modify weights away from identity to make test meaningful
+    with torch.no_grad():
+        model.film_gamma.weight.fill_(0.5)
+        model.film_beta.weight.fill_(0.3)
+    query = torch.randn(NUM_QUERY, B, EMBED_DIMS)
+    emb = torch.randn(B, UNCERTAINTY_DIM)
+    score = torch.zeros(B, 1)
+    with torch.no_grad():
+        output = model(query, emb, uncertainty_score=score)
+    torch.testing.assert_close(output, query, atol=1e-5, rtol=1e-5)
+
+
+def test_score_gated_l1_full_modulation_at_one():
+    """Score=1 → equivalent to original (un-gated) FiLM."""
+    sg = MockScoreGatedFiLML1()
+    orig = MockFiLML1()
+    # Copy weights
+    with torch.no_grad():
+        sg.film_gamma.weight.copy_(orig.film_gamma.weight)
+        sg.film_gamma.bias.copy_(orig.film_gamma.bias)
+        sg.film_beta.weight.copy_(orig.film_beta.weight)
+        sg.film_beta.bias.copy_(orig.film_beta.bias)
+    query = torch.randn(NUM_QUERY, B, EMBED_DIMS)
+    emb = torch.randn(B, UNCERTAINTY_DIM)
+    score = torch.ones(B, 1)
+    with torch.no_grad():
+        out_sg = sg(query, emb, uncertainty_score=score)
+        out_orig = orig(query, emb)
+    torch.testing.assert_close(out_sg, out_orig, atol=1e-5, rtol=1e-5)
+
+
+def test_score_gated_l2_identity_at_zero_score():
+    """Score=0 → Score-Gated FiLM L2 is identity."""
+    model = MockScoreGatedFiLML2()
+    with torch.no_grad():
+        model.film_gamma_l2.weight.fill_(0.5)
+        model.film_beta_l2.weight.fill_(0.3)
+    states = torch.randn(B, 1, EGO_DIM)
+    emb = torch.randn(B, UNCERTAINTY_DIM)
+    score = torch.zeros(B, 1)
+    with torch.no_grad():
+        output = model(states, emb, uncertainty_score=score)
+    torch.testing.assert_close(output, states, atol=1e-5, rtol=1e-5)
+
+
+def test_score_gated_gradient_flow():
+    """Gradients flow through both score and embedding in Score-Gated FiLM."""
+    model = MockScoreGatedFiLML1()
+    query = torch.randn(NUM_QUERY, B, EMBED_DIMS, requires_grad=True)
+    emb = torch.randn(B, UNCERTAINTY_DIM, requires_grad=True)
+    score = torch.randn(B, 1, requires_grad=True)
+    output = model(query, emb, uncertainty_score=score)
+    loss = output.sum()
+    loss.backward()
+    assert emb.grad is not None, "emb should have gradient"
+    assert score.grad is not None, "score should have gradient"
+    assert model.film_gamma.weight.grad is not None

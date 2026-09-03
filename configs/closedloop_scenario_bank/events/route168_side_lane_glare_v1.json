@@ -1,0 +1,68 @@
+{
+  "clean_reference": {
+    "collision_count": 0,
+    "eligible": true,
+    "job_id": "1082518",
+    "longest_below_0_25_mps_seconds": 0.0,
+    "low_speed_screen_scope": "trace prefix before event start_progress",
+    "route_completion": 100.0,
+    "route_index": "168",
+    "run_dir": "/public/share/lidachuan/orion_assets/results/closedloop_hard_case_bank_clean_v2/route168_hazard_clean_off-1082518",
+    "status": "Completed",
+    "variant": "hazard"
+  },
+  "event": {
+    "camera": "CAM_FRONT",
+    "duration_seconds": 4.0,
+    "evidence_frames": [
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38
+    ],
+    "family": "local_glare",
+    "matched_area": 0.2646,
+    "off_path_region": [
+      0.0,
+      0.0,
+      0.63,
+      0.42
+    ],
+    "on_path_region": [
+      0.32,
+      0.58,
+      0.95,
+      1.0
+    ],
+    "rationale": "The lower-right region covers the clean-visible bh.crossbike in the ego corridor from the first safety-relevant frame through the clean braking response; the matched upper-left region is disjoint from the cyclist and ego corridor.",
+    "seed": 20260828,
+    "severity": 3,
+    "start_progress": 0.4
+  },
+  "execution_gate": {
+    "controls_authorized_only_after_failure_induction": true,
+    "first_degraded_condition": "hazard_on_path_response_off",
+    "no_learned_or_oracle_control_yet": true
+  },
+  "files": {
+    "clean_eval": "/public/share/lidachuan/orion_assets/results/closedloop_hard_case_bank_clean_v2/route168_hazard_clean_off-1082518/eval_orion_traj_0.json",
+    "clean_manifest": "/public/share/lidachuan/orion_assets/results/closedloop_hard_case_bank_clean_v2/route168_hazard_clean_off-1082518/manifest.json",
+    "clean_trace": "/public/share/lidachuan/orion_assets/results/closedloop_hard_case_bank_clean_v2/route168_hazard_clean_off-1082518/records_orion_traj_0/RouteScenario_25381_rep0_Town05_HazardAtSideLane_1_12_08_28_17_26_38/control_trace.jsonl",
+    "review_manifest": "/public/share/lidachuan/orion_assets/results/closedloop_hard_case_bank_clean_v2/route168_hazard_clean_off-1082518/review_proposed_glare_v1/clean_event_review_manifest.json",
+    "route_xml": "/public/home/lidachuan/project/Orion/configs/closedloop_hard_case_bank/routes/route_168_hazard.xml"
+  },
+  "hashes": {
+    "clean_eval_sha256": "8373f84f00e38e23e6283ba98082ed01cf5ef2e08a4d5b705361551ee0e80832",
+    "clean_manifest_sha256": "0e60f4409b4595ff179040a714b0bc3dac0c87579d5f25be4a01d9b650d07a0c",
+    "clean_trace_sha256": "2c506d8d0e75b5cea98ac4e06ec24b656b55fbf2807ed6a1b48ba780e599b677",
+    "review_manifest_sha256": "07af0988230db579ad066cfdf4a670b8badab638a87517877beccf0104115c2f",
+    "route_xml_sha256": "9c008640d9d8943b8b18619e0a0ddd96e4c44242b4f6155d1c559b343ccd9678"
+  },
+  "schema": "orion.closedloop_spatial_event_preregistration.v1",
+  "status": "frozen_before_degraded_execution"
+}

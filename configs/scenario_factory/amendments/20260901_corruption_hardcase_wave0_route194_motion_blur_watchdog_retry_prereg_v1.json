@@ -1,0 +1,77 @@
+{
+  "schema": "orion.corruption_hardcase_wave0_runtime_retry_prereg.v1",
+  "created_at": "2026-09-01T02:08:20+08:00",
+  "status": "preregistered_before_exact_retry_submission",
+  "parent_submission": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_online_wave0_submission_v1.json",
+    "sha256": "36039728c0050ee59b3c2653566cc38746a6f376886e3462ef8594b58880e7ba"
+  },
+  "route194_gpu4_runtime_history": {
+    "invalid_jobs": [1116352, 1116354, 1116355],
+    "classifications": [
+      "SPEED pseudo-sensor frame timeout",
+      "waterdrop control-trace watchdog stall",
+      "native-motion-blur control-trace watchdog stall"
+    ],
+    "node_policy": "All exact Route194 retries exclude gpu4 and gpu5; other routes may still use gpu4."
+  },
+  "invalid_attempt": {
+    "job_id": 1116355,
+    "job_key": "route194_native_motion_blur_off",
+    "node": "gpu4",
+    "slurm_state": "FAILED",
+    "exit_code": "124:0",
+    "evaluator_entry_status": "Started",
+    "evaluator_terminal_records": 0,
+    "trace_frames_before_stall": 336,
+    "last_sim_time_seconds": 16.75,
+    "last_route_progress": 0.4572170170980371,
+    "render_readback_before_stall": {
+      "status": "verified",
+      "profile": "medium",
+      "front_motion_blur_intensity": 0.7,
+      "front_motion_blur_max_distortion": 0.45,
+      "front_motion_blur_min_object_screen_size": 0.05,
+      "bev_motion_blur_disabled": true
+    },
+    "error": "Closed-loop progress watchdog: control_trace_stalled after 301 seconds",
+    "evidence": {
+      "log_sha256": "b236fef5ab5aefaeef53705109dfef4615344d4ed8a766e12e08613934eb11df",
+      "manifest_sha256": "a66488c054064c2b54039b36250fa8636ee7c422c99dd11df7142e5faf63f6ec",
+      "evaluation_sha256": "62339586af997351e8a6051667ee679e9d4dc76dee0af04a301f2425ab97555e",
+      "render_readback_sha256": "604788a97f21ae86fb32c477977e648fc1fe8132b88d80a2cb4091cdc3012811",
+      "partial_trace_sha256": "4785c420b59c12628b92d4c174d2ce5a29887d2f2cf70f468c5d80d355e44244"
+    },
+    "classification": "platform_runtime_control_trace_stall_after_verified_render_readback_before_terminal_result",
+    "permanently_excluded_from_scientific_counts": true
+  },
+  "retry_contract": {
+    "jobs": 1,
+    "job_key": "route194_native_motion_blur_off",
+    "route_index": 194,
+    "condition": "native_motion_blur_medium",
+    "variant": "hazard",
+    "route_xml_unchanged": true,
+    "whole_route_render_condition_unchanged": true,
+    "profile": "medium",
+    "agent_config_checkpoint_code_and_visual_gate_unchanged": true,
+    "architecture_locks_unchanged": true,
+    "resources_unchanged": {
+      "partition": "Nvidia_A800",
+      "gpu": 1,
+      "cpus": 2,
+      "memory": "192G",
+      "time_limit": "02:00:00"
+    },
+    "excluded_nodes": ["gpu4", "gpu5"],
+    "maximum_exact_retries_authorized_by_this_record": 1,
+    "failed_attempt_does_not_increase_scientific_matrix_size": true
+  },
+  "frozen_inputs": {
+    "wave_sha256": "59429ae9fa3cb01b0639c8694399d6ea12f12cf49cf77c14c23b317da3af5186",
+    "activation_sha256": "8d6a370b99bcaab8f9d678b1545470cd9fdb1957d6cef15b36ef172fe6daca41",
+    "visual_gate_sha256": "aac9996062720f95498a85247611e0f63adf3d1cc6caea2dcb6bd55846c2e98d",
+    "submitter_sha256": "a46d32bd94549df90a78e5358e0282cdadb030c62fd13c0a07b6d8e14fd3357f"
+  },
+  "claim_boundary": "Runtime recovery only. The partial trajectory and verified blur readback from job 1116355 do not constitute a motion-blur outcome; only the exact terminal retry can enter the pair analysis."
+}

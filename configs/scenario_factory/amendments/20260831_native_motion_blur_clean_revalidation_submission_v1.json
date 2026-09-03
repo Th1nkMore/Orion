@@ -1,0 +1,48 @@
+{
+  "schema": "orion.native_motion_blur_clean_revalidation_submission_amendment.v1",
+  "timestamp": "2026-08-31T22:15:39+08:00",
+  "status": "submitted_pending",
+  "protocol": "configs/scenario_factory/corruption_hardcase_native_motion_blur_revalidation_route151_v1.json",
+  "job": {
+    "job_id": 1115765,
+    "job_name": "hc151_blur_reval",
+    "partition": "Nvidia_A800",
+    "initial_state": "PENDING",
+    "initial_reason": "Priority",
+    "submit_time": "2026-08-31T22:15:39+08:00",
+    "start_time_at_submission_check": "Unknown",
+    "resources": {
+      "gpu": 1,
+      "cpu": 2,
+      "memory": "16G",
+      "time_limit": "00:25:00",
+      "excluded_nodes": ["gpu5"]
+    },
+    "output_log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/corruption_hardcase_diagnostics/route151_native_motion_blur_clean_revalidation_v1-1115765.out",
+    "artifact_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_diagnostics/route151_native_motion_blur_clean_revalidation_v1"
+  },
+  "scope": {
+    "profiles": ["none", "medium"],
+    "fresh_carla_server_per_profile": true,
+    "orion_loaded": false,
+    "orion_screen": false,
+    "formal_safety_result": false
+  },
+  "frozen_code_hashes": {
+    "run_script": "21abd8cf98810a2ad607fb7e59156e93e9dda5086eb491119e16fc0c5dcad918",
+    "submit_script": "d940b9b1baad11563c5f3a55900b1c355b48f7f24ccddd31d9b35b9b4bbcda67",
+    "renderer": "bc5a54102bf5698ae37a5f0b1ce658f83514db3aae42b9675b8b8bff91b971b3",
+    "protocol": "4bfa26e73a95cd18ff0366a4ab1829a59a47e8ce0105196408476057f214e091",
+    "capture_agent": "dc4e545345516828ee36ed871f8b1ca93ab47059b1ea65bb4372f7bc8eaaf737",
+    "motion_blur_patch": "8e97591833b44efc4aaccdc6e78ebfda8853390f3fd388c511bdc58a82c414b9",
+    "artifact_evaluator": "b38bd0ce5d6e6836500e4f0bb94002be0dc97f1d0ce226be5ba8c1496638c08f",
+    "artifact_gate": "eb1054f6d1d577e7593d750a53ed19db9a1f7ed89437e9eb22ffdc0ea608994b"
+  },
+  "pre_submission_verification": {
+    "remote_tests": "17 passed in 0.18s",
+    "dry_run": "passed",
+    "duplicate_job_check": "passed",
+    "output_root_absent": true
+  },
+  "claim_boundary": "Submission receipt for a renderer-only visual diagnostic; not an ORION or safety experiment."
+}

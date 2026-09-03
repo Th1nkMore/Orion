@@ -1,0 +1,101 @@
+{
+  "schema": "orion.corruption_hardcase_wave2_clean_candidate_plan_amendment.v1",
+  "created_at": "2026-09-01T08:10:29+08:00",
+  "status": "candidate_plan_frozen_not_activated_no_jobs_submitted",
+  "lineage": {
+    "wave1_result": {
+      "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_route158_result_v1.json",
+      "sha256": "d920a2897b8e8c33b208ba3b10d3853299e47c674cacbf0531e0eb60999d60e5"
+    },
+    "reviewed_event_bank": {
+      "path": "results/scenario_factory/event_banks/stage2l_formal24_partial18_reviewed_v1.json",
+      "sha256": "9b1c5b6ca9f2c544110bc096e731bcd7b7f9be2cabe94c16b5573aecb9d30d89"
+    },
+    "generated_plan": {
+      "local_path": "results/scenario_factory/corruption_hardcase_wave2_clean_candidate_plan_v1.json",
+      "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave2_clean_candidate_plan_v1.json",
+      "sha256": "ce7b85b19067e5792341f44ef7086415ce4cecdc503502dc0ad1cdb58c4a0fb6"
+    }
+  },
+  "planner_implementation": {
+    "script": {
+      "path": "scripts/plan_corruption_hardcase_clean_candidates.py",
+      "sha256": "6dd136621e3eeb07d511603ae16503f00e6d54ed53f3bde76ea0248d9056cba0"
+    },
+    "test": {
+      "path": "tests/test_plan_corruption_hardcase_clean_candidates.py",
+      "sha256": "106a5708e767327b64f45e55ae35df83f9678c897e0f165a1fb7f69e3203164c"
+    },
+    "local_tests": {
+      "passed": 2,
+      "failed": 0
+    },
+    "remote_tests": {
+      "passed": 2,
+      "failed": 0
+    },
+    "independent_remote_regeneration_sha256": "ce7b85b19067e5792341f44ef7086415ce4cecdc503502dc0ad1cdb58c4a0fb6"
+  },
+  "selection_correction": {
+    "old_published_endpoint_only_ranking_rejected": true,
+    "route157": "Excluded because the current reviewed clean runtime contains a vehicle collision and 10.75 s total stopped exposure.",
+    "route202": "Not in the reviewed formal bank used by this planner; separately known clean runtime has 63.4 s total stopped exposure and is not suitable for the current liveness contract.",
+    "current_policy": "Use only human-accepted current-runtime event packages from the train split with 100% clean completion, zero collision/serious infraction, total stopped exposure at most 8 s, and a closing vehicle or walker with positive finite OBB TTC.",
+    "corruption_conditioned_outputs_used": false,
+    "learned_uq_or_stage2_outputs_used": false
+  },
+  "selected_clean_qualification_candidates": [
+    {
+      "rank": 1,
+      "route_index": 160,
+      "town": "Town04",
+      "scenario_family": "ConstructionObstacle",
+      "clean_job_id": 1090753,
+      "clean_critical_obb_ttc_seconds": 0.31469298263689527,
+      "clean_critical_closing_speed_mps": 7.694838373040385,
+      "clean_total_stopped_seconds": 2.0500000000000003
+    },
+    {
+      "rank": 2,
+      "route_index": 165,
+      "town": "Town05",
+      "scenario_family": "ParkedObstacle",
+      "clean_job_id": 1091123,
+      "clean_critical_obb_ttc_seconds": 0.46781664607273854,
+      "clean_critical_closing_speed_mps": 2.8409119588651115,
+      "clean_total_stopped_seconds": 6.450000000000001
+    },
+    {
+      "rank": 3,
+      "route_index": 161,
+      "town": "Town04",
+      "scenario_family": "ConstructionObstacle",
+      "clean_job_id": 1091122,
+      "clean_critical_obb_ttc_seconds": 1.0736622494968981,
+      "clean_critical_closing_speed_mps": 5.405451911308392,
+      "clean_total_stopped_seconds": 1.500000000000003
+    }
+  ],
+  "scientific_role": {
+    "next_step": "Current-code Q1 clean qualification only, followed by Q2 replication only for Q1 passes.",
+    "historical_clean_is_not_current_code_qualification": true,
+    "corruption_after_clean_q1_q2_only": true,
+    "approved_corruptions_if_later_activated": [
+      "front_stale_200ms",
+      "waterdrop_medium",
+      "native_motion_blur_medium"
+    ],
+    "severity_escalation": false
+  },
+  "execution_locks": {
+    "candidate_plan_is_submission_authority": false,
+    "clean_submission": false,
+    "corruption_submission": false,
+    "heldout_confirmation": false,
+    "learned_uq_or_governor": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "next_required_record": "A separate prospective clean Q1/Q2 activation after the paused experiment program is resumed.",
+  "claim_boundary": "Automated clean-candidate planning and engineering preparation only; no new route runtime or corruption result."
+}

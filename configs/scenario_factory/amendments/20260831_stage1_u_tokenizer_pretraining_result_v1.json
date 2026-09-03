@@ -1,0 +1,88 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T13:58:36+08:00",
+  "status": "bounded_task_agnostic_tokenizer_pretraining_pass_stage2l_still_locked",
+  "title": "Stage1 U-tokenizer task-agnostic representation pretraining result",
+  "protocol": {
+    "path": "configs/scenario_factory/stage1_u_tokenizer_pretraining_v1.json",
+    "sha256": "f9c1c13db81280deeb68088542b737767840aea0ea9dd7c62223bacf38859d4d"
+  },
+  "retry_amendment": {
+    "path": "configs/scenario_factory/amendments/20260831_stage1_u_tokenizer_launch_import_retry1_v1.json",
+    "sha256": "aa6ec82943c5f8351525a11d16253a678ef8f389729dd6c01d8450eb0d40cdbc"
+  },
+  "source_audit": {
+    "path": "results/scenario_factory/stage1_u_tokenizer_preflight_v1/source_audit.json",
+    "sha256": "f3150e424a900ba48a7ef83aea94dfb25ae78b9f90391714e5ee611c247543af",
+    "event_count": 17,
+    "train_observed_map_count": 60,
+    "dev_observed_map_count": 20,
+    "forbidden_task_inputs_consumed": false
+  },
+  "job": {
+    "job_id": "1112274",
+    "state": "COMPLETED",
+    "elapsed": "00:01:13",
+    "exit_code": "0:0",
+    "optimizer_steps": 200,
+    "orion_weights_loaded": false,
+    "log": {
+      "path": "results/scenario_factory/stage1_u_tokenizer_pretraining/stage1_u_tokenizer_task_agnostic_v1_200_retry1/job-1112274.out",
+      "sha256": "d4935822af77eeccaff01ba7e3a52cb458073b1067623ad066baf9a8e3786caa"
+    },
+    "submission": {
+      "path": "results/scenario_factory/stage1_u_tokenizer_pretraining/stage1_u_tokenizer_task_agnostic_v1_200_retry1/submission.json",
+      "sha256": "be0c36aaef3b3a5d1bfcd5aeea10638d849a3968b18e8375453acd440713e597"
+    }
+  },
+  "result": {
+    "report": {
+      "path": "results/scenario_factory/stage1_u_tokenizer_pretraining/stage1_u_tokenizer_task_agnostic_v1_200_retry1/report.json",
+      "sha256": "93cb584c02600a88366150427327aa941303d702b92f74662ba9c9a681cb300e"
+    },
+    "status": "bounded_task_agnostic_tokenizer_pretraining_pass",
+    "before": {
+      "train_summary_mae": 0.16435216934276067,
+      "dev_summary_mae": 0.16940872167812066,
+      "zero_anchor_mae": 0.14765815436840057
+    },
+    "after": {
+      "train_summary_mae": 0.023659603626488418,
+      "dev_summary_mae": 0.03197230706026622,
+      "dev_latest_component_mae": 0.034411350321238085,
+      "dev_temporal_mean_component_mae": 0.03193252231593296,
+      "dev_temporal_delta_component_mae": 0.029573048543627616,
+      "zero_anchor_mae": 0.010474990122020245
+    },
+    "all_frozen_gates_passed": true,
+    "negative_attestation_note": "The report field checks.task_or_route_labels_consumed=false is the desired negative attestation and is explicitly excluded from the positive gate conjunction; all actual release gates passed."
+  },
+  "checkpoint": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage1_u_tokenizer_pretraining/stage1_u_tokenizer_task_agnostic_v1_200_retry1/stage1_u_tokenizer_task_agnostic_v1.pt",
+    "sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "contains": [
+      "task-agnostic UQComponentTokenizer weights",
+      "frozen Stage1 checkpoint and source-audit provenance"
+    ],
+    "does_not_contain": [
+      "reconstruction decoder",
+      "task relevance head",
+      "risk bridge",
+      "ORION LoRA",
+      "trajectory or control module"
+    ],
+    "eligible_role": "frozen initialization candidate for one separately frozen Stage2-L v10 implementation smoke"
+  },
+  "next_gate": {
+    "allowed_now": "Implement and CPU/test-preflight a Stage2-L v10 trainer that loads this exact tokenizer hash and keeps it frozen.",
+    "not_automatically_allowed": "Submitting the v10 training smoke still requires its own immutable launch amendment after source/test/hash preflight."
+  },
+  "launch_locks": {
+    "stage2l_v10_training_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_matrix_allowed": false,
+    "route203_native_glare_submission_allowed": false
+  },
+  "claim_boundary": "The tokenizer preserves held-out Stage1-U summaries under a task-free reconstruction objective. This does not show that U is correct, that ORION learns R, that QA is grounded, or that driving safety improves."
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": "orion.counterfactual-fp16-route-shard-probe/v1",
+  "frozen_at": "2026-08-27T14:21:12+08:00",
+  "seed": 20260827,
+  "source": {
+    "feature_shard": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/counterfactual_evidence_features_windowcycle_seed20260827_r1/counterfactual_evidence_features.pt",
+    "feature_shard_sha256": "d53ab9b7acc91b89cb061ce1ec880d05b390675f29c515337bcffceda3143499"
+  },
+  "output": {
+    "run_root": "/public/home/lidachuan/orion_work/observation_uq_v3/runs/counterfactual_fp16_route_shard_probe_seed20260827_r1",
+    "route_shards": "/public/home/lidachuan/orion_work/observation_uq_v3/runs/counterfactual_fp16_route_shard_probe_seed20260827_r1/route_shards"
+  },
+  "conversion": {
+    "max_routes": 1,
+    "target_batch_size": 1,
+    "feature_dtype": "float16",
+    "target_dtype": "float32",
+    "whole_routes_per_shard": true,
+    "lossless_feature_copy_required": true,
+    "partial_probe_is_training_authorized": false
+  },
+  "scheduler": {
+    "partition": "Nvidia_A800",
+    "cpus_per_task": 4,
+    "memory": "120G",
+    "time_limit": "01:00:00",
+    "gpu_count": 1
+  },
+  "scheduler_selection_audit": {
+    "preferred_cpu_partition": "comput",
+    "preferred_cpu_partition_result": "rejected: lidachuan account is not allowed",
+    "cigit_cpu_70_result": "rejected for both null and cigit accounts because no association exists",
+    "selected_partition": "Nvidia_A800",
+    "selected_partition_test_only_result": "valid; gpu6 offered immediately",
+    "initial_cpu_ram_only_job_id": "1073092",
+    "initial_cpu_ram_only_result": "pending QOSMinGRES; cancelled before execution",
+    "first_gpu_reserved_job_id": "1073093",
+    "first_gpu_reserved_result": "failed before input read because Slurm spool changed script-relative repository root",
+    "first_gpu_reserved_data_written": false,
+    "gpu_gres_requested": true,
+    "gpu_used_by_program": false,
+    "reason": "partition QOS enforces at least one GPU GRES although conversion is CPU-only"
+  },
+  "claim_boundary": {
+    "adapter_training_performed": false,
+    "heldout_corruption_read": false,
+    "orion_finetuning_performed": false,
+    "stage_b_performed": false,
+    "int8_is_formal_training_input": false
+  }
+}

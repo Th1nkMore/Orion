@@ -1,0 +1,41 @@
+{
+  "schema": "orion.lens_waterdrop_v2_real_mask_source_freeze.v1",
+  "timestamp": "2026-08-31T21:02:00+08:00",
+  "status": "source_bank_frozen_renderer_pending",
+  "protocol": "configs/scenario_factory/lens_waterdrop_v2_source_protocol_v1.json",
+  "source": {
+    "dataset": "Raindrops on Windshield Dataset",
+    "record": "https://doi.org/10.5281/zenodo.4680442",
+    "license": "CC-BY-4.0",
+    "archive_size_bytes": 7403293582,
+    "archive_md5": "0ea1b373c981f8ed3ecd311d6596ec0f",
+    "upstream_commit": "01ba7ff8a7c7d7e7865059de69d80447e3c9fb1c"
+  },
+  "acquisition": {
+    "method": "HTTP ZIP range extraction of four mask members; no full dataset or scene RGB copied",
+    "fetch_script": "scripts/fetch_evocar_waterdrop_mask_bank.py",
+    "fetch_script_sha256": "a3ec11b34b1ce05eb6087cb639e68b95f5c0c5aeba250368a741c9b8cf17673a",
+    "metadata_sha256": "496af8e5e4127b3aa4d80455aef4eed007cc26820f54e05c06940be7940ae815",
+    "failed_acquisition_attempts": [
+      "empty upstream mid-sequence masks were rejected",
+      "one interrupted TLS retry left no released asset and was moved to /tmp"
+    ]
+  },
+  "asset_sha256": {
+    "D1__D1_0095.png": "d6189b5f5a1949830d87bc68bb0bb03764ee0a319557fb08a18b4f38ba6c5006",
+    "D2__D2_0050.png": "91a723c11439264cd1ece7f13bf400c689382a34bfa5c28ee1c392bdbe1de5c3",
+    "D3__D3_0__D3_0950.png": "865b9ccda0d6e813f0eee53df080b88174ea86d209ac5925b3d3681f7f6b4cef",
+    "D4__D4_0__D4_0950.png": "0ab346202571f1d042bfaa64f26a273b4bcddd5564b91dfd0b3f1f966549c853"
+  },
+  "scientific_boundary": {
+    "real": "drop silhouette annotations from vehicle-mounted camera data",
+    "derived": "alpha, displacement, refraction, edge and highlight fields",
+    "not_claimed": "real optical displacement ground truth"
+  },
+  "decision": {
+    "lens_waterdrop_v1_reinstated": false,
+    "v2_renderer_released": false,
+    "orion_screen_unlocked": false,
+    "next_action": "Implement full-resolution v2 renderer and produce mask/alpha/displacement/crop/GIF review bundle."
+  }
+}

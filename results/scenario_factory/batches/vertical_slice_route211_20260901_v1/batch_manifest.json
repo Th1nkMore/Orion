@@ -1,0 +1,92 @@
+{
+  "audit": {
+    "development_failure_candidates_allowed": true,
+    "eligible_for_locked_test_claim": false,
+    "held_out_evidence_eligible": false,
+    "jobs_submitted": false,
+    "selection_uses_learned_uq_outcomes": false,
+    "selection_uses_published_orion_outcomes": true,
+    "selection_uses_stage2_outcomes": false,
+    "train_coverage_repair_only": false,
+    "writes_performed": true
+  },
+  "claim_boundary": "Development screening batch may use published ORION priors; not an untouched test set and not learned-UQ evidence.",
+  "lineage": {
+    "candidate_manifest": {
+      "path": "/public/home/lidachuan/project/Orion/results/scenario_factory/route_candidates/vertical_slice_route211_20260901_v1/candidate_manifest.json",
+      "sha256": "5ef49e87d32b4dc9d3e0989f4cca0a51c91d89754d22708e0b071fe7a439acc7"
+    },
+    "published_orion_baseline": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/sources/ORION.json",
+      "sha256": "af050e20ba4aa4a86bb865d394546041feb46d7f18beb5590f7b219982d4d503",
+      "used_for_selection": true
+    },
+    "scenario_factory_protocol": {
+      "path": "/public/home/lidachuan/project/Orion/configs/scenario_factory/protocol_v1.json",
+      "sha256": "0df6da6276ae3002207b20c014a8de10873ebf9acf3fe81f5c68311401e997c0"
+    }
+  },
+  "postprocessing": {
+    "event_package_schema": "orion.scenario_event_package.v1",
+    "initial_review_status": "pending_human_review",
+    "stage1_uq": "offline precomputation only; never affects clean replay control"
+  },
+  "route_count": 1,
+  "routes": [
+    {
+      "development_selection_role": "published_failure_hard_case",
+      "formal_split": null,
+      "hazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/vertical_slice_route211_20260901_v1/route_211_hazard.xml",
+        "sha256": "8ed9e5c16e89a5d3002364f1fdf12426f909457e1f41e3fc84aad98b9104a7ea"
+      },
+      "initial_condition": "clean_off",
+      "nohazard_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/vertical_slice_route211_20260901_v1/route_211_nohazard.xml",
+        "sha256": "b5a03754a075c71a27162b952a830a224acf823c7f2954812bf52a46c39613b2"
+      },
+      "priority": 70,
+      "published_clean_prior": {
+        "available": true,
+        "collisions": 0,
+        "completion_failures": 0,
+        "score_composed": 97.792665,
+        "score_penalty": 0.977927,
+        "score_route": 100,
+        "status": "Completed",
+        "valid": false
+      },
+      "review_status": "awaiting_current_environment_replay",
+      "route_index": 211,
+      "route_length_m": 86.55,
+      "scenario_name": "T_Junction_1",
+      "scenario_type": "T_Junction",
+      "screen_role": "route_geometry_hard_negative",
+      "source_xml": {
+        "path": "/public/share/lidachuan/orion_assets/Bench2Drive/leaderboard/data/bench2drive220_211_orion_traj.xml",
+        "sha256": "8ed9e5c16e89a5d3002364f1fdf12426f909457e1f41e3fc84aad98b9104a7ea"
+      },
+      "town": "Town04",
+      "trigger_progress": 0.35824,
+      "xml_route_id": "28111"
+    }
+  ],
+  "run_id": "vertical_slice_route211_expansion_v1",
+  "runtime_contract": {
+    "agent_config": "adzoo/orion/configs/orion_stage3_agent_spatial_stage2.py",
+    "carla_quality": "Epic",
+    "condition": "clean_off",
+    "cpus_per_route": 2,
+    "gpus_per_route": 1,
+    "legacy_density_uq": false,
+    "memory_per_route": "192G",
+    "planning_response": "off",
+    "risk_mode": "off",
+    "stage1_adapter_control_influence": false,
+    "stage2_spatial_uq_source": "disabled",
+    "variant": "hazard"
+  },
+  "schema": "orion.scenario_factory.batch.v1",
+  "split": "development_screen",
+  "status": "prepared_no_jobs_submitted"
+}

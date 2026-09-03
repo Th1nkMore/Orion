@@ -1,0 +1,62 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_q1_preregistration.v1",
+  "created_at": "2026-09-01T03:40:28+08:00",
+  "status": "remote_preflight_passed_authorized_pending_submission",
+  "trigger": "Wave0 yielded no valid positive pair; qualify the four remaining positive-eligible development routes before any new corruption jobs.",
+  "protocol": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_clean_qualification_v1.json",
+    "sha256": "428549620d1393c2b9200263e038e5bbbbcca6c8ef0042fd00ad980156e72aa1"
+  },
+  "submitter": {
+    "path": "scripts/submit_corruption_hardcase_wave1_clean_q1.py",
+    "sha256": "4e501dc767b6f8445c39e78d204c015979ac2a50ebba3df4b6221bc135694399"
+  },
+  "tests": {
+    "path": "tests/test_submit_corruption_hardcase_wave1_clean_q1.py",
+    "sha256": "db93518e7663acdfa88f61a1c003f35baca0e5530a2fa053b2730489b871da73",
+    "local_and_remote_result": "9 passed"
+  },
+  "validated_remote_plan": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/submissions/corruption_hardcase_wave1_clean_q1_v1/plan.json",
+    "sha256": "ecd002305f898e23f58105b6467b94e71699ce4f21707e0eb252078ed5024eaf",
+    "jobs_planned": 4,
+    "jobs_submitted": 0,
+    "routes": [158, 164, 185, 207]
+  },
+  "runtime_contract": {
+    "condition": "clean_off",
+    "run_id": "corruption_hardcase_wave1_clean_q1_v1",
+    "partition": "Nvidia_A800",
+    "gpus_per_job": 1,
+    "cpus_per_job": 2,
+    "memory_per_job": "192G",
+    "time_limit": "02:00:00",
+    "excluded_nodes": ["gpu2", "gpu5"],
+    "personal_home_artifacts": false
+  },
+  "architecture_locks": {
+    "ORION_CLOSEDLOOP_UQ_MODE": "none",
+    "ORION_CLOSEDLOOP_CONDITIONING": "none",
+    "ORION_CLOSEDLOOP_RISK_MODE": "off",
+    "ORION_PLANNING_RESPONSE_MODE": "off",
+    "ORION_STAGE2_SPATIAL_UQ_SOURCE": "disabled",
+    "legacy_density_uq": false,
+    "corruption": "none"
+  },
+  "qualification_gate": {
+    "endpoint": "Finished/Completed with 100 percent route completion",
+    "hard_infractions": "zero",
+    "safety_telemetry": "complete",
+    "liveness": "longest post-2s speed below 0.25 m/s interval at most 8.0 seconds",
+    "q2_rule": "Only Q1 passers may receive one independent current-code clean repeat."
+  },
+  "execution_locks": {
+    "q1_submission": true,
+    "q2_submission": false,
+    "corruption_submission": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Prospective Q1 clean qualification only. It cannot support a corruption, uncertainty, task-relevance, control-benefit, held-out, or benchmark claim."
+}

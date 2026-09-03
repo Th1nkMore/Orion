@@ -1,0 +1,92 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T14:18:38+08:00",
+  "status": "route167_retry1_runtime_invalid_and_back_right_candidate_retired",
+  "title": "Record Route167 retry1 CARLA stall and retire it as the back-right coverage fallback",
+  "scope": "terminal runtime classification plus CPU geometry diagnosis of complete aligned frames salvaged from the partial train-only collection",
+  "submission": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v12_route167_retry1_submission_v1.json",
+    "sha256": "7654dbde6f62af4ba330ff5b5e794bf1e7334d2ecd84b3297e3827c34cb74712"
+  },
+  "terminal_job": {
+    "job_id": 1121244,
+    "state": "FAILED",
+    "exit_code": "124:0",
+    "elapsed": "00:15:41",
+    "start_time": "2026-09-01T13:58:09+08:00",
+    "end_time": "2026-09-01T14:13:50+08:00",
+    "node": "gpu4",
+    "batch_max_rss_kib": 70469056,
+    "log": {
+      "path": "/public/share/lidachuan/orion_assets/logs/stage2l_v12_coverage_repair_route167_retry1/uqcl_167_hazard_clean_off-1121244.out",
+      "sha256": "236b84968add1dbe7e634d2282eaf5fa44e9c5c7a95aee994d6908a4ccc005cb"
+    },
+    "failure_stage": "CARLA synchronous world tick after 144 real control records",
+    "diagnostic_stack": "ScenarioManager._tick_scenario -> CarlaDataProvider.get_world().tick(self._timeout)",
+    "watchdog": "control_trace_stalled for 301.0 seconds",
+    "runtime_valid": false,
+    "complete_route_result": false,
+    "event_package_built": false,
+    "classification": "CARLA runtime failure; not a model, U, R, language, planning, safety, or complete-route result"
+  },
+  "partial_artifacts": {
+    "run_manifest_sha256": "2c87e1a5fdb1f041d9709437c3f49fe1d82cf2a6fc13918e3ea6d2259812ea13",
+    "incomplete_evaluator_checkpoint_sha256": "62339586af997351e8a6051667ee679e9d4dc76dee0af04a301f2425ab97555e",
+    "control_trace_sha256": "bd65778916d38198db28232088ef0667f5a908b901d3fcd8f1df6ffa92079f80",
+    "control_trace_rows": 144,
+    "last_step": 143,
+    "last_sim_time_seconds": 7.15,
+    "last_route_progress": 0.24662508802012478,
+    "aligned_six_view_meta_frame_count": 15,
+    "retention_role": "partial train-only geometry diagnostic; never a complete event package or held-out result"
+  },
+  "partial_geometry_diagnostic": {
+    "local_path": "results/scenario_factory/coverage_repair/stage2l_v12_route167_retry1_partial_v1/partial_coverage_diagnostic.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/coverage_repair/stage2l_v12_route167_retry1_partial_v1/partial_coverage_diagnostic.json",
+    "sha256": "368318b46d2649a1672f351aef1c5fbb075f88486708216763140e3360ec3fff",
+    "status": "partial_collection_back_right_geometry_absent",
+    "geometry_valid_frames": 15,
+    "per_view_positive_frame_count": {
+      "CAM_FRONT": 15,
+      "CAM_FRONT_LEFT": 0,
+      "CAM_FRONT_RIGHT": 0,
+      "CAM_BACK": 2,
+      "CAM_BACK_LEFT": 0,
+      "CAM_BACK_RIGHT": 0
+    },
+    "support_mode_counts": {
+      "visible_route_only": 13,
+      "visible_route_and_conflict_actor": 2
+    },
+    "minimum_required_cam_back_right_frames": 3,
+    "coverage_gate_passed": false,
+    "candidate_accepted": false
+  },
+  "implementation": {
+    "script": {
+      "path": "scripts/diagnose_stage2l_v12_partial_coverage_collection.py",
+      "sha256": "8a1d3931cf7fb836b0d791571056e09194f8307caa60963e213f87ab23a2a9f3"
+    },
+    "test": {
+      "path": "tests/test_diagnose_stage2l_v12_partial_coverage_collection.py",
+      "sha256": "4d4fdf0646291b073fea62dc790e6aa64ea445ccedf1ae72672a54ae4ba22f8b"
+    },
+    "remote_tests": "2 passed in 21.94s",
+    "gpu_used_by_diagnostic": false,
+    "orion_forward_run_by_diagnostic": false
+  },
+  "disposition": {
+    "route167_back_right_coverage_candidate": "retired",
+    "reason": "the aligned frames already span the trigger and show conflict-actor support only in CAM_BACK, with zero CAM_BACK_RIGHT support",
+    "additional_route167_retry_authorized": false,
+    "partial_frames_added_to_formal_or_training_bank": false,
+    "next_action": "freeze a second outcome-blind static candidate pool with explicit off-axis rear-right geometry before any further CARLA collection"
+  },
+  "release_locks": {
+    "gpu_r_only_smoke": false,
+    "language_bridge": false,
+    "stage2p": false,
+    "learned_u_closed_loop": false
+  },
+  "claim_boundary": "Route167 retry1 establishes only that its salvaged aligned frames do not repair CAM_BACK_RIGHT coverage and that the run is runtime-invalid. It does not establish complete-route behavior, model performance, uncertainty semantics, language understanding, planning, closed-loop safety, or held-out generalization."
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "orion.corruption_hardcase_visual_bakeoff_recovery_amendment.v1",
+  "timestamp": "2026-08-31T19:40:00+08:00",
+  "status": "verified_fix_pending_final_submission",
+  "failed_recovery_job_id": 1114491,
+  "failed_recovery_state": "FAILED",
+  "failed_recovery_elapsed": "00:00:01",
+  "failed_recovery_exit_code": "1:0",
+  "failure": "The original root-reuse guard rejected the explicitly preregistered partial-output recovery before CARLA startup.",
+  "scientific_effect": "none; no simulator, camera capture, renderer, ORION, or corruption-conditioned inference ran",
+  "implementation_fix": {
+    "explicit_environment_gate": "HARDCAPTURE_RECOVERY=1",
+    "only_permitted_profile": "heavy",
+    "required_completed_png_count_each": {
+      "clean": 156,
+      "light": 156,
+      "medium": 156
+    },
+    "existing_heavy_png_overwrite_permitted": false,
+    "failed_heavy_metadata_archived": true,
+    "recovery_logs_are_new_files": true,
+    "source": "scripts/run_corruption_hardcase_visual_bakeoff_route151.sh",
+    "source_sha256": "2ceca5495a7d451f42415e2e4371526f3de4ade5d43bdaa519be754e9d668ed0"
+  },
+  "final_recovery_contract": {
+    "maximum_additional_jobs": 1,
+    "fresh_carla_server": true,
+    "profiles": ["heavy"],
+    "corruption_parameters_changed": false,
+    "orion_loaded": false,
+    "time": "00:20:00",
+    "automatic_retry_after_final_job": false
+  },
+  "claim_boundary": "Narrow implementation amendment after a preflight-only failure; it does not change visual severities, route, event, or scientific gates."
+}

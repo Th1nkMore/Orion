@@ -1,0 +1,82 @@
+{
+  "schema": "orion.corruption_hardcase_wave0_runtime_retry_prereg.v1",
+  "created_at": "2026-09-01T01:46:36+08:00",
+  "status": "preregistered_before_exact_retry_submission",
+  "parent_submission": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_online_wave0_submission_v1.json",
+    "sha256": "36039728c0050ee59b3c2653566cc38746a6f376886e3462ef8594b58880e7ba"
+  },
+  "related_route194_runtime_recovery": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave0_route194_clean_sensor_timeout_retry_submission_v1.json",
+    "sha256": "c836af6bccd48face492d6c72a545165d489ce494c299535ad9af7a8f03ab6d1"
+  },
+  "invalid_attempt": {
+    "job_id": 1116354,
+    "job_key": "route194_lens_waterdrop_paired_template_transient_off",
+    "node": "gpu4",
+    "slurm_state": "FAILED",
+    "exit_code": "124:0",
+    "evaluator_entry_status": "Started",
+    "evaluator_terminal_records": 0,
+    "trace_frames_before_stall": 89,
+    "last_sim_time_seconds": 4.4,
+    "last_route_progress": 0.16278863577502917,
+    "error": "Closed-loop progress watchdog: control_trace_stalled after 301 seconds",
+    "evidence": {
+      "log": {
+        "remote_path": "/public/share/lidachuan/orion_assets/logs/corruption_hardcase_online_wave0_v1/uqcl_194_hazard_lens_waterdrop_paired_template_transient_off-1116354.out",
+        "sha256": "3a0ae93e1e710de0f5aea9c737b119e702c0020581f895fd9084d1987a8b4017"
+      },
+      "manifest": {
+        "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route194_hazard_lens_waterdrop_paired_template_transient_off-1116354/manifest.json",
+        "sha256": "f718629bc246c3dd9b2d3c3595333fb938d97daa061c7ecfeecca2b7aa2eaaa4"
+      },
+      "evaluation": {
+        "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route194_hazard_lens_waterdrop_paired_template_transient_off-1116354/eval_orion_traj_0.json",
+        "sha256": "62339586af997351e8a6051667ee679e9d4dc76dee0af04a301f2425ab97555e"
+      },
+      "partial_trace": {
+        "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1/route194_hazard_lens_waterdrop_paired_template_transient_off-1116354/records_orion_traj_0/RouteScenario_26944_rep0_Town04_OppositeVehicleRunningRedLight_1_11_09_01_01_33_38/control_trace.jsonl",
+        "sha256": "f28a91fbc4f26ca133755a8d97a2728ea3c23d2a518d77ebf7665e8f8192e718"
+      }
+    },
+    "classification": "platform_runtime_control_trace_stall_before_corruption_window_and_terminal_result",
+    "permanently_excluded_from_scientific_counts": true
+  },
+  "node_policy_amendment": {
+    "observation": "gpu4 produced two consecutive independent invalid Route194 attempts: clean SPEED pseudo-sensor timeout and waterdrop control-trace stall, while Route194 stale on gpu1 continued normally.",
+    "route194_exact_retries_excluded_nodes": ["gpu4", "gpu5"],
+    "other_route_indices_may_still_use_gpu4": true,
+    "running_job_1116355_action": "allow already-running Route194 motion-blur job to finish; classify from its own terminal evidence and do not cancel it speculatively",
+    "pending_clean_retry_1116855_updated_excluded_nodes": ["gpu4", "gpu5"]
+  },
+  "retry_contract": {
+    "jobs": 1,
+    "job_key": "route194_lens_waterdrop_paired_template_transient_off",
+    "route_index": 194,
+    "condition": "waterdrop_medium",
+    "variant": "hazard",
+    "route_xml_unchanged": true,
+    "corruption_window_unchanged": true,
+    "profile": "medium",
+    "agent_config_checkpoint_code_and_visual_gate_unchanged": true,
+    "architecture_locks_unchanged": true,
+    "resources_unchanged": {
+      "partition": "Nvidia_A800",
+      "gpu": 1,
+      "cpus": 2,
+      "memory": "192G",
+      "time_limit": "02:00:00"
+    },
+    "excluded_nodes": ["gpu4", "gpu5"],
+    "maximum_exact_retries_authorized_by_this_record": 1,
+    "failed_attempt_does_not_increase_scientific_matrix_size": true
+  },
+  "frozen_inputs": {
+    "wave_sha256": "59429ae9fa3cb01b0639c8694399d6ea12f12cf49cf77c14c23b317da3af5186",
+    "activation_sha256": "8d6a370b99bcaab8f9d678b1545470cd9fdb1957d6cef15b36ef172fe6daca41",
+    "visual_gate_sha256": "aac9996062720f95498a85247611e0f63adf3d1cc6caea2dcb6bd55846c2e98d",
+    "submitter_sha256": "a46d32bd94549df90a78e5358e0282cdadb030c62fd13c0a07b6d8e14fd3357f"
+  },
+  "claim_boundary": "Runtime recovery only. Partial frames from job 1116354 are never used as corruption-effect evidence, and the exact retry cannot alter the scientific matrix or frozen condition."
+}

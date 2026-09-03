@@ -1,0 +1,66 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-30T18:50:18+08:00",
+  "status": "active_single_submission_engineering_smoke_amendment",
+  "title": "Authorize one bounded Route151 Stage2-L v8 gradient-routed smoke",
+  "reason": "The v7 smoke completed without a runtime or memory failure but failed 10 of 16 semantic gates. V8 isolates relevance and stance supervision from language gradients, uses structured common-vocabulary QA targets, and balances stance supervision by dataset frequency. Objective/data and trainer preflights pass while preserving all launch locks.",
+  "explicit_user_authorization": {
+    "received_at": "2026-08-30T18:50:18+08:00",
+    "confirmation": "授权单次 v8 smoke"
+  },
+  "supersedes_for_this_future_run_only": "configs/scenario_factory/amendments/20260830_stage2l_v7_route151_calibrated_smoke_v1.json",
+  "prerequisites": {
+    "v7_result": "engineering_v7_calibrated_smoke_failed_gate",
+    "v8_objective_data_preflight": "v8_objective_data_preflight_pass_training_locked",
+    "v8_trainer_preflight": "v8_route151_trainer_preflight_pass_training_locked",
+    "selected_platform_tests": "20 passed",
+    "formal_pilot_remains_locked": true
+  },
+  "authorized_run": {
+    "event_id": "route151_step218",
+    "purpose": "bounded v8 gradient-routed learnability smoke only",
+    "maximum_submissions": 1,
+    "maximum_optimizer_steps": 60,
+    "optimizer_step_unit": "one complete 20-record matched counterfactual group",
+    "answer_micro_batch_size": 2,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "automatic_retry_or_extension": false,
+    "formal_training": false,
+    "stage2p_training": false,
+    "trajectory_or_control_loss": false,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route151_v8_gradient_routed_v1_60/training"
+  },
+  "validated_inputs": {
+    "trainer_sha256": "0d7e512567e6651a006c700b19af1a199f7a78751d8dc1e910bc3556b1916ee9",
+    "training_protocol_sha256": "30434f6ac7c7ab8a42eab6e147af0c7d55f2145e9374764072b858865089a41e",
+    "qa_factory_config_sha256": "d4d4aec8d3d8694b0fa98a2b73e4448a2eb99df0913deba92a89fc5769dd4abe",
+    "semantic_bottleneck_v3_sha256": "76f6d0752f74dbffd9cf3f3c856af8a2fefbe6a0dec8d9a15204eb65b4596bf3",
+    "semantic_runtime_v3_sha256": "54d837823b0f20450d48f535e07871df7a8f242f8bcefc0c68d7452316c94ab2",
+    "gradient_routed_objective_sha256": "4352f62a334adfb401654603a4720f77ad04b217f611ece7a741100ca7b40062",
+    "qa_contract_v4_sha256": "53029722a4a98bc7a3e8ca8bb6307eb7ee1147957428d8fa74463778ddc7c3e3",
+    "v8_preflight_sha256": "4bb3857055b6fbb545043bdee40aa9c4e99f0e4e208d27dc2f31cdb8c1a9d014",
+    "dataset_audit_sha256": "a772d27ea462cfcf1469e4f921449a2eb7c7b1c4690ed18a3726f5e5a78ae320",
+    "reference_audit_sha256": "b85c79c06878a2c7644f1206a328d793248ce1cf65ec3310666a931f8bfbf7dc",
+    "records_sha256": "686f639bb58804f0ebec444a801923f4013950bebed8dabf735a2f83a4a16d38",
+    "visual_cache_sha256": "2058b2fa86ffc900aefc38df496ac7fa7117a96641ad58cdebe019b060f16623",
+    "orion_config_sha256": "45edcf10066f4bfb634a1e5dd5a42c46271dba13d20ee57b58932227a652a4ed",
+    "base_orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "execution_sources": {
+    "submitter_sha256": "04a2fde06420f73aafb041c66ac8dc6c3094ae99eaec26be081897bad131d88a",
+    "attester_sha256": "f3afad192fcddf10977bac1cafeb2c659b4d69a5fb4329b8a8ea45a12d7f8906",
+    "validator_sha256": "c06f11cfdaa22af6c2150d13fef1c7c6a3c73bea8da87b832e9222feeaa0b526",
+    "trainer_preflight_sha256": "fac3a069fd89bd667ec5ad9c8dfc13badd5c117520a4c178b6ef55df5d816c82"
+  },
+  "launch_locks": {
+    "stage2l_v8_route151_smoke_allowed": true,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "stop_policy": {
+    "smoke_failure_does_not_unlock_more_steps": true,
+    "smoke_failure_does_not_unlock_stage2l_pilot": true,
+    "no_automatic_retry_or_epoch_extension": true
+  },
+  "claim_boundary": "This amendment authorizes one Route151 engineering learnability smoke only. It cannot establish held-out generalization, trajectory benefit, closed-loop benefit, or safety."
+}

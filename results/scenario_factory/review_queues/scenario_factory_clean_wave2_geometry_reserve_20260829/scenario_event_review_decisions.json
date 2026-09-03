@@ -1,0 +1,38 @@
+{
+  "schema": "orion.scenario_event_review_decisions.v1",
+  "status": "review_complete",
+  "reviewer": "Codex-assisted visual review",
+  "reviewed_at": "2026-08-29T18:15:01+08:00",
+  "review_queue": {
+    "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/scenario_factory_clean_wave2_geometry_reserve_20260829/scenario_event_review_queue.json",
+    "sha256": "4bd25af006249a39522a337547149f7c4eaea01b527ff5e2fdb94ca97d5e3420"
+  },
+  "decisions": [
+    {
+      "event_id": "route152_step125",
+      "event_package_sha256": "eaf100efa846a919e53520a1f52494328b81a64c7e9d09de29bfc88f4cfdb25e",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "rejection_basis": null,
+      "notes": "The lead vehicle brakes in-lane while ego decelerates from about 5 m/s to a stop. The automatically selected minimum-TTC actor is a different Lincoln approaching continuously from the rear after ego stops; its motion was verified in rgb_back and agrees with BEV. Accepted as a multi-view longitudinal-response event, not as a collision or closed-loop improvement result."
+    },
+    {
+      "event_id": "route207_step924",
+      "event_package_sha256": "5278dd0d1161464567296d6f4da6dbb9d821745657bbfdcac7a3d9be1cc2f5fc",
+      "decision": "accept",
+      "checks": {
+        "visual_stream_integrity": "pass",
+        "actor_event_semantics": "pass",
+        "front_bev_temporal_alignment": "pass",
+        "no_actor_disappearance_or_spawn_artifact": "pass"
+      },
+      "rejection_basis": null,
+      "notes": "After the preregistered terminal-tail and complete-window guards, the selected actor is a stationary same-lane Dodge about 18.9 m ahead, continuously visible in front/BEV; a separate vehicle merges from the left T-junction and exits view normally. The majority-stopped warning is retained. Accepted only as a route-geometry/task-relevance hard negative pending keyframe geometry preflight, not as a severe safety event."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "orion.corruption_hardcase_funnel_amendment.v1",
+  "timestamp": "2026-08-31T20:05:00+08:00",
+  "status": "applied_before_orion_screening",
+  "parent": "configs/scenario_factory/corruption_hardcase_funnel12_v1.json",
+  "reason": "A clean-validity audit found that two originally listed development events already collided under clean ORION. They cannot support the intended clean-valid-to-corrupt-degraded case-study claim.",
+  "changes": [
+    {
+      "event_id": "route157_step193",
+      "action": "remove_from_development_screen",
+      "evidence": {
+        "outcome_class": "VALID_COLLISION",
+        "official_status": "Completed",
+        "collision_count": 1,
+        "serious_infraction_count": 0,
+        "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave1_20260829/route157/event_package.json",
+        "sha256": "e4bb65cd867d9d9aa79255a5e225f32e207adf3d101428366a593ac57840ed4a"
+      }
+    },
+    {
+      "event_id": "route185_step304",
+      "action": "add_to_development_screen_as_route157_replacement",
+      "evidence": {
+        "scenario_family": "StaticCutIn",
+        "town": "Town05",
+        "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+        "official_status": "Completed",
+        "collision_count": 0,
+        "serious_infraction_count": 0,
+        "minimum_obb_ttc_seconds": 1.311140492879237,
+        "minimum_obb_separating_axis_gap_m": 0.8445393803253043,
+        "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave0_20260829/route185/event_package.json",
+        "sha256": "0bd0b2aeac3b5de75b60962061eeafc7dc3ec8818817679fbde9cae9ce95f4fa"
+      }
+    },
+    {
+      "event_id": "route168_step482",
+      "action": "retain_only_as_negative_front_corruption_specificity_control",
+      "positive_case_eligible": false,
+      "evidence": {
+        "outcome_class": "VALID_COLLISION",
+        "official_status": "Completed",
+        "collision_count": 1,
+        "serious_infraction_count": 0,
+        "event_package": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/stage2l_formal24_dev_wave2_20260829/route168/event_package.json",
+        "sha256": "1ad0af5252160d8751944aa8e31a04b13aeb6bb1d0c8b9d1a631e8f8aa76f4bd"
+      }
+    }
+  ],
+  "unchanged_locks": {
+    "corruption_families": [
+      "front_stale",
+      "lens_waterdrop",
+      "native_motion_blur"
+    ],
+    "native_glare_primary_hardcase": false,
+    "heldout_confirmation_read": false,
+    "route_jobs_before_visual_freeze": false,
+    "full_closed_loop_matrix": false
+  },
+  "claim_boundary": "This amendment fixes candidate eligibility before any corruption-conditioned ORION output is read. Route168 remains a negative control and cannot be reported as a corruption-induced failure."
+}

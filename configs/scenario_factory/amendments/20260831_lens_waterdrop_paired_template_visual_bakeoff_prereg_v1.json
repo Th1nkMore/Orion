@@ -1,0 +1,27 @@
+{
+  "schema": "orion.lens_waterdrop_paired_template_visual_bakeoff_prereg_amendment.v1",
+  "timestamp": "2026-08-31T21:43:00+08:00",
+  "status": "preregistered_not_yet_rendered",
+  "protocol": "configs/scenario_factory/corruption_hardcase_lens_waterdrop_paired_template_visual_bakeoff_route151_v1.json",
+  "motivation": "The direct real-silhouette-derived renderer failed because polygon masks lack photographed optical appearance. Replace it with an independently published paired appearance source while forbidding source RGB transfer.",
+  "prospective_decisions": {
+    "source_pair": "ICRA2023 synthetic sequence 0003 frame 000075",
+    "real_reference_sequence": "ICRA2023 real sequence 6 frames 40, 120, and 200",
+    "target_clean": "Route151 artifact-gated unmodified camera sequence",
+    "target_resolution": [1600, 900],
+    "profiles": ["light", "medium", "heavy"],
+    "orion_loaded": false,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/corruption_hardcase_bakeoffs/route151_lens_waterdrop_paired_template_visual_bakeoff_v1"
+  },
+  "abort_rules": {
+    "clean_gate_failure": "abort before corruption rendering",
+    "source_hash_mismatch": "abort",
+    "source_rgb_or_chroma_retention": "abort",
+    "visual_failure": "retain as failed candidate and do not submit ORION"
+  },
+  "locks": {
+    "orion_screen": false,
+    "closed_loop": false,
+    "training": false
+  }
+}

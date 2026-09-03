@@ -1,0 +1,47 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T09:18:00+08:00",
+  "status": "runtime_diagnostic_auditability_change_training_and_experiments_locked",
+  "title": "Save the exact normalized-and-corrupted ORION front tensor as a diagnostic image",
+  "reason": "The legacy rgb_front_model_input image is reconstructed from the Q20 sensor frame and does not exactly represent global blur/dark or tensor-space local corruptions. Future visual audits need an image derived directly from the tensor passed to ORION.",
+  "behavior": {
+    "new_directory": "rgb_front_model_tensor",
+    "source": "input_data_batch['img'][0] after any synthetic corruption and immediately before ORION model execution",
+    "view": "CAM_FRONT tensor view index 0",
+    "conversion": "reverse frozen RGB normalization, convert RGB to BGR, round and clamp to uint8",
+    "cadence": "existing diagnostic save cadence only, every 10 agent steps",
+    "gpu_to_cpu_transfer_outside_save_cadence": false,
+    "legacy_rgb_front_model_input_retained": true,
+    "model_control_or_training_effect": false
+  },
+  "validation": {
+    "remote_environment": "/public/share/lidachuan/orion_assets/envs/orion-cl-centos7/bin/python",
+    "tests": [
+      "tests/test_corruptions.py",
+      "tests/test_scenario_factory.py"
+    ],
+    "result": "37 passed",
+    "python_compile_passed": [
+      "team_code/orion_b2d_agent.py",
+      "uq_estimator/corruptions.py",
+      "scripts/scenario_factory_lib.py"
+    ]
+  },
+  "validated_sources": {
+    "team_code/orion_b2d_agent.py": "3fc3182c161450e32a02f8c72380399a33ceebf6e67e33c782499ff3e8ccf38c",
+    "uq_estimator/corruptions.py": "9756e6924947b0ed732cbe6e7b1dc5c7fdab746dbef767c14f3ce38a26d22003",
+    "scripts/scenario_factory_lib.py": "c2c66485c2f2243673088a0053ce5daa78ae19fc504f8e13b43dc56aeb659bee",
+    "scripts/run_closedloop_uq_pilot.sh": "5174dda91ff2bd0ad2500c8b3ac3811d78bd10247817b4f1d67ee46e3560e251",
+    "tests/test_corruptions.py": "5ac6bd2b1f0a7b06b3d5a4072615aa9e1e6ef160aa44c7dc74bbf78a2dc4b670"
+  },
+  "launch_impact": {
+    "existing_completed_runs_unchanged": true,
+    "future_run_manifests_must_record_the_new_agent_hash": true,
+    "route203_glare_v3_existing_source_attestation_remains_historical": true,
+    "route203_requires_new_source_reattestation_after_explicit_authorization": true,
+    "formal_stage2_l_allowed": false,
+    "stage2_p_allowed": false,
+    "closed_loop_matrix_allowed": false
+  },
+  "claim_boundary": "This change improves visual provenance only. It does not alter ORION inputs, outputs, control, uncertainty, training targets or any safety result."
+}

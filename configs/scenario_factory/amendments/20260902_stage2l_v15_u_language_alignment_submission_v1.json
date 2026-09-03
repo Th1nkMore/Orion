@@ -1,0 +1,64 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-02T19:57:00+08:00",
+  "status": "submitted_pending_priority",
+  "scope": "Stage2-L v15 task-free U-to-language alignment pilot",
+  "research_question": "Can ORION learn the view, region, level, trend and component semantics of direct Stage-1 U tokens when the existing U tokenizer projection and ORION LoRA are jointly aligned with balanced all-candidate field supervision?",
+  "job": {
+    "job_id": "1131873",
+    "job_name": "s2l_v15_u",
+    "partition": "Nvidia_A800",
+    "state_at_record": "PENDING",
+    "reason_at_record": "Priority",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "20:00:00",
+    "maximum_submissions": 1
+  },
+  "preflight": {
+    "passed": true,
+    "groups": 80,
+    "train_groups": 60,
+    "dev_groups": 20,
+    "optimizer_steps": 720,
+    "all_thirteen_train_events_presented": true,
+    "all_six_fields_balanced": true,
+    "all_canonical_values_presented": true,
+    "dev_u_states": 120,
+    "maximum_expanded_tokens": 1487,
+    "model_max_length": 2048,
+    "sha256": "61be8b1fa16ba735718c20650a4c9d1245abf3413b5d5014b14ad266dd8ceca8",
+    "local_copy": "artifacts/stage2l_v15_u_language_alignment_submission/trainer_preflight.json"
+  },
+  "architecture": {
+    "direct_u_tokens_enter_orion": true,
+    "stage1_observation_estimator_frozen": true,
+    "existing_u_tokenizer_projection_trainable": true,
+    "orion_lora_trainable": true,
+    "task_agnostic_reconstruction_retention": true,
+    "all_candidate_field_supervision": true,
+    "new_bridge_or_r_input_present": false,
+    "route_task_risk_action_present": false,
+    "trajectory_or_control_loss": false
+  },
+  "validated_source_sha256": {
+    "protocol": "bbd406f4aa7406af8844acb3ebe25beb35af6911c58211eeea7eba033aa873a4",
+    "trainer": "30fa3e9dcf6dbcee8575a430e7b8cc2578827abe318b76b003dec41ad0e3cecb",
+    "alignment_module": "6afdd88535a7c199736b539c5b654df982fd7f034ec1fb03b5d8fa5f3afd21e6",
+    "submitter": "6f09d04fd7f2ef0582bf9bbb3b3ee78eee79414826e335cd9c7db2782c69d050",
+    "v14_initialization_checkpoint": "ebebdb5fb0344de7a589456a8602ef36da4e0fb242e4666d29205966648ad241"
+  },
+  "metadata_amendment": {
+    "protocol_created_at_value": "2026-09-02T22:30:00+08:00",
+    "authoritative_launch_time_is_this_amendment": true,
+    "note": "The protocol created_at field was written with a later same-day placeholder. The content and hash were already bound by the passing preflight and submitted job, so it is not silently rewritten. This timestamp correction changes no objective, data, model, threshold, resource, or result."
+  },
+  "soft_diagnostic_policy": {
+    "quality_misses_block_job_completion": false,
+    "quality_misses_trigger_retry_or_extra_epochs": false,
+    "formal_stage2l_unlocked_automatically": false,
+    "stage2p_or_closed_loop_unlocked_automatically": false
+  },
+  "claim_boundary": "Submission and preflight evidence only. No training result, U understanding, task relevance, planning, closed-loop, safety, or generalization claim."
+}

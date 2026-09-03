@@ -1,0 +1,48 @@
+{
+  "schema": "orion.stage2l_v101_phase_a_milestone.v1",
+  "timestamp": "2026-08-31T19:55:00+08:00",
+  "status": "step080_improved_but_gate_failed_continue_to_preregistered_step120",
+  "job_id": 1113867,
+  "optimizer_step": 80,
+  "metrics": {
+    "train_average_precision": 0.8702364907056434,
+    "dev_average_precision": 0.3879645286975977,
+    "train_foreground_recall": 0.8341296315193176,
+    "dev_foreground_recall": 0.3948133885860443,
+    "train_background_false_positive_rate": 0.0017247722717002034,
+    "dev_background_false_positive_rate": 0.004658253397792578,
+    "train_probability_gap": 0.7011328935623169,
+    "dev_probability_gap": 0.2776436507701874,
+    "delta_from_step040": {
+      "train_average_precision": 0.0849391828001935,
+      "dev_average_precision": 0.04764656924108487
+    }
+  },
+  "frozen_gate_checks": {
+    "train_foreground_recall": false,
+    "train_background_fpr": true,
+    "dev_foreground_recall": false,
+    "dev_background_fpr": true,
+    "dev_probability_gap_positive": true,
+    "all_passed": false
+  },
+  "decision": {
+    "continue_to_step120": true,
+    "reason": "Held-out dev AP continued to improve without reversing the low-FPR or positive-gap checks, so the already preregistered terminal milestone remained justified.",
+    "phase_b_unlocked": false,
+    "formal_stage2l_unlocked": false,
+    "stage2p_unlocked": false,
+    "closed_loop_unlocked": false
+  },
+  "artifacts": {
+    "phase_a_step080.pt": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/phase_a_step080.pt",
+      "sha256": "a9ef78f2ff8b7d6b051562de277b1cd991b55b4156c1119d79b9c7ca3dba9c00"
+    },
+    "spatial_maps_step080.pt": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/spatial_maps_step080.pt",
+      "sha256": "d8ace6701f113b0ba0758a80ef66e507d06a91a070c75872beb92221245aac6f"
+    }
+  },
+  "claim_boundary": "Engineering milestone only; the frozen Phase-A gate remains failed."
+}

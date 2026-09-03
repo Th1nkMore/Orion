@@ -1,0 +1,65 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T18:21:00+08:00",
+  "status": "active_before_stage2l_pilot_training",
+  "supersedes_pilot_view": "stage2l_pilot8_frozen_6_2_20260829_v1.json",
+  "reason": {
+    "route192_step729": "Only two of five fixed keyframes retained visible ORION route support; below the preregistered minimum of three.",
+    "route202_step105": "Only two of five fixed keyframes retained visible ORION route support; below the preregistered minimum of three."
+  },
+  "replacements": {
+    "route152_step125": {
+      "town": "Town10HD",
+      "scenario_family": "HardBreakRoute",
+      "geometry_retained_keyframes": 5,
+      "geometry_requested_keyframes": 5
+    },
+    "route207_step924": {
+      "town": "Town02",
+      "scenario_family": "T_Junction",
+      "geometry_retained_keyframes": 4,
+      "geometry_requested_keyframes": 5
+    }
+  },
+  "frozen_selection": {
+    "event_ids": [
+      "route160_step518",
+      "route161_step308",
+      "route162_step277",
+      "route165_step421",
+      "route185_step304",
+      "route188_step139",
+      "route152_step125",
+      "route207_step924"
+    ],
+    "events": 8,
+    "towns": 5,
+    "scenario_families": 6,
+    "retained_keyframes": 36,
+    "expected_qa_records": 720
+  },
+  "split": {
+    "algorithm": "unchanged orion-stage2l-pilot-split-v1 deterministic diversity/hash rule",
+    "train_event_ids": [
+      "route160_step518",
+      "route161_step308",
+      "route165_step421",
+      "route185_step304",
+      "route188_step139",
+      "route207_step924"
+    ],
+    "dev_event_ids": ["route152_step125", "route162_step277"],
+    "train_towns": ["Town02", "Town04", "Town05"],
+    "dev_towns": ["Town03", "Town10HD"],
+    "selection_uses_learned_uq": false,
+    "selection_uses_stage2_outputs": false,
+    "selection_uses_qa_answers": false,
+    "selection_uses_model_outcome": false
+  },
+  "launch_locks": {
+    "stage1_asset_extraction_for_replacements_allowed": true,
+    "stage2l_pilot_training_allowed": false,
+    "route196_balanced_language_smoke_allowed": false
+  },
+  "claim_boundary": "Geometry-qualified engineering pilot replacement and deterministic split only; no uncertainty, language, planning, closed-loop, or safety result."
+}

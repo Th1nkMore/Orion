@@ -1,0 +1,148 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_clean_qualification.v1",
+  "created_at": "2026-09-01T03:45:00+08:00",
+  "status": "q1_preregistered_authorized_before_new_runtime_outputs",
+  "purpose": "Qualify the four remaining positive-eligible development routes under the current frozen native ORION code before spending corruption jobs.",
+  "lineage": {
+    "parent_funnel": {
+      "path": "configs/scenario_factory/corruption_hardcase_funnel12_v1.json",
+      "sha256": "ca02d56b905cbc9e7901d244238b659ba3169467f7db9b238f74a7a1ff99f7cb"
+    },
+    "event_windows": {
+      "path": "configs/scenario_factory/corruption_hardcase_event_windows_dev8_v1.json",
+      "sha256": "f91039c4e695990231c4a495b09a29fb1292664c20bc6995f23441270f9509dd"
+    },
+    "wave0_result": {
+      "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_online_wave0_result_v1.json",
+      "sha256": "74d4d5cff44b61258c020a941b894dbc5e704c09c2965641525c16dc1f41e4dd"
+    },
+    "offline_replay_readiness": {
+      "path": "configs/scenario_factory/amendments/20260831_corruption_hardcase_o1_replay_readiness_and_screen_revision_v1.json",
+      "sha256": "37d62db428f85cf23c3123ea7d5199e78d1d498fe8292fd71f2407130e5fae2c"
+    }
+  },
+  "selection": {
+    "basis": "All remaining positive-case-eligible development routes from the frozen dev8 bank after removing Wave0 routes and the route168 negative control.",
+    "corruption_conditioned_outputs_used": false,
+    "heldout_routes_used": false,
+    "routes": [158, 164, 185, 207]
+  },
+  "routes": [
+    {
+      "route_index": 158,
+      "town": "Town01",
+      "scenario_family": "HardBreakRoute",
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave1/route_158_hazard.xml",
+        "sha256": "cf9c723a5b3c23666aae3c8bd626723a8d0720add3e731b24c321db7311e3c6e"
+      },
+      "historical_clean": {
+        "job_id": 1094690,
+        "outcome": "VALID_NEAR_MISS_OR_CONFLICT",
+        "use": "selection provenance and resource estimate only; not a current-code qualification replicate"
+      }
+    },
+    {
+      "route_index": 164,
+      "town": "Town04",
+      "scenario_family": "HazardAtSideLane",
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/stage2l_formal24_16_4_4_20260829_v1/dev_wave1/route_164_hazard.xml",
+        "sha256": "1515c984f9489d138593748a793180354f4e7eb0807e374f1c19225a15bc1f28"
+      },
+      "historical_clean": {
+        "job_id": 1094691,
+        "outcome": "VALID_SEVERE_TTC",
+        "use": "selection provenance and resource estimate only; not a current-code qualification replicate"
+      }
+    },
+    {
+      "route_index": 185,
+      "town": "Town05",
+      "scenario_family": "StaticCutIn",
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave0_20260829/route_185_hazard.xml",
+        "sha256": "3012f8016e396a0b2ec7f0fe5b4c7d4352421ed3280b0e227ab752f5c4a25a48"
+      },
+      "historical_clean": {
+        "job_id": 1090224,
+        "outcome": "VALID_NEAR_MISS_OR_CONFLICT",
+        "use": "selection provenance and resource estimate only; not a current-code qualification replicate"
+      }
+    },
+    {
+      "route_index": 207,
+      "town": "Town02",
+      "scenario_family": "T_Junction",
+      "route_xml": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/batches/scenario_factory_clean_wave2_geometry_reserve_20260829/route_207_hazard.xml",
+        "sha256": "76110b90635e87ce72ab431aa9ee35d7e2901926470d8b6f92b81ce91e996654"
+      },
+      "historical_clean": {
+        "job_id": 1092551,
+        "outcome": "VALID_NEAR_MISS_OR_CONFLICT",
+        "use": "selection provenance and resource estimate only; not a current-code qualification replicate"
+      }
+    }
+  ],
+  "qualification_protocol": {
+    "q1": {
+      "run_id": "corruption_hardcase_wave1_clean_q1_v1",
+      "runs_per_route": 1,
+      "authorized": true,
+      "pass_all": [
+        "evaluator entry_status Finished and terminal status Completed",
+        "route completion 100 percent",
+        "zero hard infractions",
+        "complete dynamic-actor safety telemetry",
+        "longest speed below 0.25 m/s after t=2 s is at most 8.0 s"
+      ]
+    },
+    "q2": {
+      "run_id": "corruption_hardcase_wave1_clean_q2_v1",
+      "runs_per_route": 1,
+      "authorized": false,
+      "start_condition": "Only routes passing every Q1 gate; freeze a Q1 result amendment first.",
+      "stable_clean_rule": "Both current-code Q1 and Q2 must independently pass every clean gate before any corruption-conditioned job is submitted."
+    }
+  },
+  "offline_prescreen_boundary": {
+    "current_event_packages_ready": false,
+    "reason": "Saved cameras are 2 Hz and omit sequential ORION state and exact model tensors; native motion blur also cannot be reconstructed from clean images.",
+    "allowed_future_path": {
+      "front_stale_and_waterdrop": "Add a bounded 20 Hz event-window capture with exact model tensors and sequential state during Q2, then implement single-load inference-only replay.",
+      "native_motion_blur": "Use native CARLA online rendering after stable-clean qualification; do not replace it with an image filter."
+    },
+    "offline_metric_is_only_ranking": true,
+    "offline_metric_is_not_safety_evidence": true
+  },
+  "architecture_locks": {
+    "ORION_CLOSEDLOOP_UQ_MODE": "none",
+    "ORION_CLOSEDLOOP_CONDITIONING": "none",
+    "ORION_CLOSEDLOOP_RISK_MODE": "off",
+    "ORION_PLANNING_RESPONSE_MODE": "off",
+    "ORION_STAGE2_SPATIAL_UQ_SOURCE": "disabled",
+    "legacy_density_uq": false,
+    "corruption": "none"
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpu_per_job": 1,
+    "cpus_per_job": 2,
+    "memory_per_job": "192G",
+    "time_limit": "02:00:00",
+    "asset_root": "/public/share/lidachuan/orion_assets",
+    "excluded_nodes": ["gpu2", "gpu5"],
+    "excluded_node_reason": "Wave0 produced pre-CARLA Vulkan failures on these nodes; their attempts are environment failures, not scientific outcomes."
+  },
+  "execution_locks": {
+    "q1_clean_submission": true,
+    "q2_clean_submission_before_q1_result": false,
+    "corruption_submission": false,
+    "heldout_confirmation": false,
+    "route203": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Q1 is a current-code clean reproducibility and liveness screen only. It contains no corruption, learned-UQ, task-relevance, control-benefit, held-out, or benchmark evidence."
+}

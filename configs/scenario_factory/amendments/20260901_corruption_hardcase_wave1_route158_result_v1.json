@@ -1,0 +1,99 @@
+{
+  "schema": "orion.corruption_hardcase_wave1_route158_result_amendment.v1",
+  "created_at": "2026-09-01T07:55:18+08:00",
+  "status": "complete_zero_positive_two_valid_negatives_one_runtime_inconclusive",
+  "activation": {
+    "path": "configs/scenario_factory/corruption_hardcase_wave1_route158_corruption_activation_v1.json",
+    "sha256": "2fbcfda30ffc22f2d3c5337368f7b012e0ffd77d663c337a7773b2dedbdb4dde"
+  },
+  "clean_qualification": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_clean_q2_result_v1.json",
+    "sha256": "94b799648266b2b388a877c447e8f2e06e4f93980c6ad13e6ec7d2dcc7952053",
+    "route_index": 158,
+    "job_id": 1117849,
+    "status": "stable_clean_qualified"
+  },
+  "initial_submission": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_route158_corruption_submission_v1.json",
+    "sha256": "c9cb6ce2d57c2d739fa1dfdd255722dfe213cfc8690146b426032c755feada37"
+  },
+  "runtime_replacements": {
+    "preregistration": {
+      "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_route158_transient_runtime_retries_prereg_v1.json",
+      "sha256": "127901ce37e77c396523c45ee152d8cf771c3b16e06e2e11c161b42cfd07303b"
+    },
+    "submission": {
+      "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_route158_transient_runtime_retries_submission_v1.json",
+      "sha256": "95b9a4f5285fc392dc0edc1d7ece84c612e5fd5db315e88af37edf289519fdfc"
+    }
+  },
+  "pair_evaluator_implementation": {
+    "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave1_route158_pair_evaluator_implementation_v1.json",
+    "sha256": "fe23905eaf03de30f363667e0ca0feae97114197232377769ed50f4f84599f4e"
+  },
+  "collection": {
+    "local_path": "results/scenario_factory/corruption_hardcase_wave1_route158_corruption_v1/analysis_v1/wave1_route158_collection.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_wave1_route158_corruption_v1/analysis_v1/wave1_route158_collection.json",
+    "sha256": "d132199f0b3ff8a3b6fa962e89921c05de4cae6d1ef717ad37b8f59aa075f27b"
+  },
+  "condition_results": {
+    "front_stale_200ms": {
+      "invalid_initial_job_id": 1118150,
+      "valid_job_id": 1118496,
+      "valid_job_state": "COMPLETED",
+      "report_path": "results/scenario_factory/corruption_hardcase_wave1_route158_corruption_v1/analysis_v1/route158_front_stale_200ms_decision.json",
+      "report_sha256": "d571f972cb922f525290a5e26a36179de3de79f758221a6cc491777bc02d8105",
+      "evidence_tier": "valid_negative",
+      "route_completion_percent": 100.0,
+      "new_hard_infractions": 0,
+      "ttc_drop_seconds": 0.2624896042013274,
+      "required_ttc_drop_seconds": 0.3055651157678953,
+      "gap_drop_m": -0.16364563696612366
+    },
+    "native_motion_blur_medium": {
+      "valid_job_id": 1118152,
+      "valid_job_state": "COMPLETED",
+      "report_path": "results/scenario_factory/corruption_hardcase_wave1_route158_corruption_v1/analysis_v1/route158_native_motion_blur_medium_decision.json",
+      "report_sha256": "0827afd06e56004b073d14c74710ba1748fdb992a3006bd4974a212f2405cbdb",
+      "evidence_tier": "valid_negative",
+      "route_completion_percent": 100.0,
+      "new_hard_infractions": 0,
+      "ttc_drop_seconds": 0.12521841295551295,
+      "required_ttc_drop_seconds": 0.30024023933060784,
+      "gap_drop_m": -0.11097151679086847
+    },
+    "waterdrop_medium": {
+      "attempt_job_ids": [1118151, 1118497],
+      "report_path": "results/scenario_factory/corruption_hardcase_wave1_route158_corruption_v1/analysis_v1/route158_waterdrop_medium_runtime_inconclusive.json",
+      "report_sha256": "862505993f0d5ce7951bf496c6b46d83b4cab678a9ca4f9be4da2f255b87e431",
+      "evidence_tier": "runtime_inconclusive",
+      "scientific_result": null
+    }
+  },
+  "counts": {
+    "approved_conditions": 3,
+    "valid_pairs": 2,
+    "valid_negative_pairs": 2,
+    "positive_pairs": 0,
+    "runtime_inconclusive_conditions": 1
+  },
+  "decision": {
+    "retain_route158_for_case_study": false,
+    "eligible_for_heldout_confirmation": false,
+    "severity_escalation": false,
+    "additional_runtime_retry": false,
+    "learned_uq_or_governor": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false,
+    "automatic_next_submission": false,
+    "pause_after_result_closure": true
+  },
+  "scientific_interpretation": [
+    "Route158 remains a reproducible stable-clean route, but neither approved valid corruption induced a prospectively defined hard case.",
+    "Front stale 200 ms directionally reduced TTC, but the reduction did not meet the frozen threshold and the minimum OBB gap improved; it is therefore a valid negative.",
+    "Native motion blur medium completed without new hard infractions and did not meet either continuous-margin degradation threshold; it is therefore a valid negative.",
+    "Waterdrop medium has no valid closed-loop pair because its initial run and single preregistered exact replacement both ended in runtime failures; partial traces are diagnostic only.",
+    "This wave yields no positive failure-induction case and does not authorize held-out, learned-UQ, control, Stage2-P, or benchmark claims."
+  ],
+  "claim_boundary": "Development failure-induction screen only. Zero positive cases, two valid negatives, and one runtime-inconclusive condition."
+}

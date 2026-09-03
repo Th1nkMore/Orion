@@ -1,0 +1,78 @@
+{
+  "schema": "orion.corruption_hardcase_wave2_q1_job_snapshot_amendment.v1",
+  "created_at": "2026-09-01T08:26:47+08:00",
+  "status": "read_only_recoverable_job_snapshot_prepared_no_live_job_ids",
+  "lineage": {
+    "submission_journal_amendment": {
+      "path": "configs/scenario_factory/amendments/20260901_corruption_hardcase_wave2_q1_submission_journal_v1.json",
+      "sha256": "9ac0ec8e78b9c5ba9002d3b17150d4f73d29290ea9ebef0307a4ec04c9b235be"
+    },
+    "durable_submitter": {
+      "path": "scripts/submit_corruption_hardcase_wave2_clean_q1.py",
+      "sha256": "7e268e82c1cdaa99edc69ee89380c7d0d930d9ac9c93ea0e62603561fa7cc158"
+    }
+  },
+  "implementation": {
+    "path": "scripts/snapshot_corruption_hardcase_wave2_q1_jobs.py",
+    "sha256": "23e0220c0982fa2c0e98b474d8f71f7257e519e1a323fae18cfa3cf4ea34a4d3",
+    "input_contract": "One immutable Wave2 Q1 submission journal containing at least one returned, unique Slurm JobID and a matching jobs_submitted count.",
+    "properties": [
+      "Reads active state from squeue and terminal allocation state from sacct.",
+      "Ignores sacct step rows such as .batch and .extern.",
+      "Prefers the active squeue row while a job is pending or running.",
+      "Treats an unobserved JobID as UNKNOWN and non-terminal.",
+      "Refuses to overwrite an existing snapshot.",
+      "Submits, cancels, requeues, and modifies no Slurm job."
+    ],
+    "terminal_states": [
+      "BOOT_FAIL",
+      "CANCELLED",
+      "COMPLETED",
+      "DEADLINE",
+      "FAILED",
+      "NODE_FAIL",
+      "OUT_OF_MEMORY",
+      "PREEMPTED",
+      "REVOKED",
+      "TIMEOUT"
+    ]
+  },
+  "verification": {
+    "test_file": {
+      "path": "tests/test_snapshot_corruption_hardcase_wave2_q1_jobs.py",
+      "sha256": "0bd94dbd6c36aaf610799d1e468845b886093e05be4176231d9605f41086ccf5"
+    },
+    "remote_relevant_suite": {
+      "passed": 24,
+      "failed": 0,
+      "elapsed_seconds": 4.61
+    },
+    "remote_slurm_capability": {
+      "sacct_allocations_supported": true
+    },
+    "remote_source_hash_match": true,
+    "queue_empty_after_verification": true,
+    "real_snapshot_created": false,
+    "real_snapshot_reason": "No authorized Wave2 Q1 submission journal and no live Wave2 JobID exist yet. A synthetic status record was deliberately not presented as runtime evidence."
+  },
+  "future_wait_protocol": {
+    "after_authorized_submission": [
+      "Persist every JobID through the durable submission journal.",
+      "Use a long bounded wait against those exact JobIDs.",
+      "After a timeout, interruption, or state change, write a new immutable squeue+sacct snapshot.",
+      "Continue observing the same JobIDs; never restart solely because the observation wait expired.",
+      "Only collect Q1 results after every expected JobID has a terminal allocation state and its run artifacts are present."
+    ]
+  },
+  "execution_locks": {
+    "explicit_user_resume_received": false,
+    "q1_clean_submission": false,
+    "q2_clean_submission": false,
+    "corruption_submission": false,
+    "heldout_confirmation": false,
+    "learned_uq_or_governor": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false
+  },
+  "claim_boundary": "Read-only monitoring preparation only. No job was submitted or monitored and no scientific result is claimed."
+}

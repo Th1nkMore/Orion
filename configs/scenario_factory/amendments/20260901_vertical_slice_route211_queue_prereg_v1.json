@@ -1,0 +1,68 @@
+{
+  "schema": "orion.scenario_factory.execution_amendment.v1",
+  "created_at": "2026-09-01T16:22:25+08:00",
+  "status": "preregistered_before_submission",
+  "purpose": "Queue one bounded development-only route expansion while Stage2-L v12.1 factorized-R training is running.",
+  "active_training_job": {
+    "job_id": "1121553",
+    "name": "s2l_v121_factr",
+    "state_at_preregistration": "RUNNING",
+    "node": "gpu1",
+    "resource_isolation": "The route job is independent and must not cancel, requeue, or mutate Job 1121553."
+  },
+  "scheduler_snapshot": {
+    "partition": "Nvidia_A800",
+    "usable_free_gpus": 0,
+    "gpu5_unallocated_gpus": 1,
+    "gpu5_eligibility": "excluded because prior CARLA Vulkan initialization failures make it runtime-invalid for route work",
+    "valid_node_policy": "exclude gpu2,gpu5",
+    "submission_policy": "One queued job is allowed; no retry and no second route are authorized by this amendment."
+  },
+  "candidate": {
+    "route_index": 211,
+    "town": "Town04",
+    "scenario_type": "T_Junction",
+    "screen_role": "route_geometry_hard_negative",
+    "development_selection_role": "published_failure_hard_case",
+    "candidate_manifest": "results/scenario_factory/route_candidates/vertical_slice_route211_20260901_v1/candidate_manifest.json",
+    "candidate_manifest_selection_is_outcome_blind": false,
+    "formal_split": null,
+    "held_out_evidence_eligible": false
+  },
+  "frozen_runtime_contract": {
+    "condition": "clean_off",
+    "variant": "hazard",
+    "stage2_spatial_uq_source": "disabled",
+    "stage1_adapter_control_influence": false,
+    "legacy_density_uq": false,
+    "risk_mode": "off",
+    "planning_response": "off",
+    "carla_quality": "Epic",
+    "gpus_per_route": 1,
+    "cpus_per_route": 2,
+    "memory_per_route": "192G",
+    "time_limit": "02:00:00",
+    "slurm_exclude": "gpu2,gpu5"
+  },
+  "frozen_lineage": {
+    "source_xml": {
+      "path": "/public/share/lidachuan/orion_assets/Bench2Drive/leaderboard/data/bench2drive220_211_orion_traj.xml",
+      "sha256": "8ed9e5c16e89a5d3002364f1fdf12426f909457e1f41e3fc84aad98b9104a7ea"
+    },
+    "published_orion_baseline": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/sources/ORION.json",
+      "sha256": "af050e20ba4aa4a86bb865d394546041feb46d7f18beb5590f7b219982d4d503",
+      "used_for_selection": true
+    },
+    "scenario_factory_protocol": {
+      "path": "configs/scenario_factory/protocol_v1.json",
+      "sha256": "0df6da6276ae3002207b20c014a8de10873ebf9acf3fe81f5c68311401e997c0"
+    }
+  },
+  "post_run_decision": {
+    "runtime_or_interface_invalid": "Retain failure artifacts, do not retry automatically, and do not count the route as expanded.",
+    "runtime_valid_but_event_weak": "Retain as a soft diagnostic/route-geometry negative; do not block the vertical slice.",
+    "runtime_valid_and_reviewable": "Build an event package and add it only to the engineering QA/training pool after human review."
+  },
+  "claim_boundary": "This run expands only the development engineering pool. It cannot establish UQ quality, Stage2 understanding, intervention benefit, or aggregate closed-loop safety."
+}

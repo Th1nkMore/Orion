@@ -1,0 +1,122 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T13:54:05+08:00",
+  "status": "one_route167_technical_retry_authorized_not_submitted",
+  "title": "Classify Job 1121242 as a relative-path launch failure and authorize one exact Route167 retry",
+  "scope": "one technical replacement of the same train-only clean-off Route167 data collection; no new route selection, corruption, optimization, held-out evaluation, or control intervention",
+  "superseded_running_attestation": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v12_route167_coverage_collection_submission_v1.json",
+    "sha256": "d343b0ea397fca615c2fa7a6ae6b4c7d73066e2059074d0a86cd9c1574adf1d4",
+    "reason": "Job 1121242 is terminal FAILED and never parsed the route XML"
+  },
+  "original_authorization": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v12_route167_coverage_collection_launch_v1.json",
+    "sha256": "adde30588bbb84b0022c99a01875fe818441a72578a919dcb4157f66c86ec874",
+    "automatic_retry_was_authorized": false
+  },
+  "terminal_job": {
+    "job_id": 1121242,
+    "state": "FAILED",
+    "exit_code": "1:0",
+    "elapsed": "00:03:45",
+    "node": "gpu4",
+    "batch_max_rss": "1.50M",
+    "log": {
+      "path": "/public/share/lidachuan/orion_assets/logs/stage2l_v12_coverage_repair_route167_v1/uqcl_167_hazard_clean_off-1121242.out",
+      "sha256": "538c4e89cc429a719c31095f4cca94ddf65eede9f708d2d0f9e08589623784b3"
+    },
+    "failure_stage": "RouteIndexer XML parse before any route was loaded",
+    "exception": "FileNotFoundError: results/scenario_factory/batches/stage2l_v12_coverage_repair_route167_v1/route_167_hazard.xml",
+    "requested_route_path_was_relative": true,
+    "route_loaded": false,
+    "control_trace_present": false,
+    "event_package_present": false,
+    "classification": "invalid technical launch; not a model, route-safety, U, R, language, planning, or coverage result"
+  },
+  "root_cause_and_fix": {
+    "root_cause": "submit_scenario_factory_batch.sh exported dirname(batch_manifest) without canonicalizing it; the evaluator changed its working directory before RouteIndexer opened the XML",
+    "fix": "canonicalize the batch directory with cd plus pwd -P before exporting PILOT_ROUTE_DIR",
+    "submitter": {
+      "path": "scripts/submit_scenario_factory_batch.sh",
+      "sha256": "bc1548ecfb6b75b014d83595bb7052323a6e344cbe0d659f122d5192e87659dd"
+    },
+    "regression_test": {
+      "path": "tests/test_submit_scenario_factory_batch.py",
+      "sha256": "f4a762dc48c6a6dc0bf5fbe699039536fadc96d277047aa69b88ca690c323995",
+      "assertion": "a relative manifest invocation from another working directory exports an absolute PILOT_ROUTE_DIR"
+    },
+    "remote_verification": {
+      "pytest": "12 passed in 0.88s",
+      "bash_syntax": "passed",
+      "replacement_dry_run": "passed with absolute PILOT_ROUTE_DIR"
+    }
+  },
+  "replacement_batch": {
+    "run_id": "stage2l_v12_coverage_repair_route167_retry1",
+    "split": "train_coverage_repair",
+    "manifest": {
+      "path": "results/scenario_factory/batches/stage2l_v12_coverage_repair_route167_retry1/batch_manifest.json",
+      "sha256": "04a9443471ef81be8b132d81212f3fbe0297fe5a337c0150165cc6d452529d04"
+    },
+    "hazard_xml_sha256": "07747ded9ae0110b42f26d1c23a440a79fad4b3414e07199e978cc56396bd581",
+    "nohazard_xml_sha256": "7824fd7e0410b094b904abd9b422c4e64e879de59174b3f50608785f817f1894",
+    "xml_bytes_identical_to_job_1121242_batch": true,
+    "runtime_contract_identical_to_job_1121242": true,
+    "metadata_changes": [
+      "new run-id and output paths preserve the failed artifacts instead of overwriting them",
+      "source XML now points to the hash-identical frozen local copy",
+      "protocol lineage now points to the dedicated Stage2L v12 train-coverage-repair protocol rather than the general scenario-factory protocol"
+    ],
+    "protocol": {
+      "path": "configs/scenario_factory/stage2l_v12_train_coverage_repair_protocol_v1.json",
+      "sha256": "46e3b0637daa6feb7141b492207decdce7e5eed0f1419e7d081481ee3613e2c7"
+    },
+    "candidate_manifest": {
+      "path": "results/scenario_factory/coverage_repair/stage2l_v12_route167_static_v1/candidate_manifest.json",
+      "sha256": "85486622a37e604d802fd346873a9139c82479b1b6512bc632d6c415c3e13e6a"
+    }
+  },
+  "runtime_contract": {
+    "route_index": 167,
+    "condition": "clean_off",
+    "variant": "hazard",
+    "gpu_count": 1,
+    "gpu_partition": "Nvidia_A800",
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "02:00:00",
+    "carla_quality": "Epic",
+    "legacy_density_uq": false,
+    "observation_uq_checkpoint": null,
+    "stage1_control_influence": false,
+    "stage2_spatial_uq_source": "disabled",
+    "stage2_task_checkpoint": null,
+    "risk_mode": "off",
+    "planning_response": "off",
+    "corruption": null
+  },
+  "authorization": {
+    "maximum_additional_jobs": 1,
+    "exact_batch": "stage2l_v12_coverage_repair_route167_retry1",
+    "exact_route": 167,
+    "exact_condition": "clean_off",
+    "exact_variant": "hazard",
+    "automatic_additional_retry": false,
+    "additional_routes": false,
+    "corruption_conditions": false,
+    "r_training": false,
+    "u_training": false,
+    "language_training": false,
+    "stage2p_training": false
+  },
+  "post_run_gates": [
+    "terminal Slurm state and exit code",
+    "runtime and six-camera/meta integrity",
+    "actor-grounded event package",
+    "at least three CAM_BACK_RIGHT-positive geometry frames",
+    "human visual/geometry review",
+    "separate Stage1 extraction and QA construction",
+    "aggregate CPU coverage gate before any R-only GPU smoke"
+  ],
+  "claim_boundary": "This amendment authorizes one technical replacement only. A successful replay remains non-held-out train-only data acquisition and cannot establish R, U, language, planning, closed-loop, or safety performance."
+}

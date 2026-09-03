@@ -188,6 +188,13 @@ class OrionHead(AnchorFreeHead):
                  state_velo_threshold=0.5,
                  use_uncertainty=False,
                  uq_checkpoint='',
+                 use_stage2_spatial_uq=False,
+                 stage2_spatial_uq_checkpoint='',
+                 stage2_spatial_uq_checkpoint_sha256='',
+                 stage2_spatial_uq_tokens_per_view=8,
+                 stage2_spatial_uq_hidden_dim=256,
+                 stage2_spatial_uq_num_heads=8,
+                 stage2p_engineering_smoke=False,
                  **kwargs):
         # NOTE here use `AnchorFreeHead` instead of `TransformerHead`,
         # since it brings inconvenience when the initialization of
@@ -298,18 +305,135 @@ class OrionHead(AnchorFreeHead):
         # [UQ] Initialize UQ Estimator if enabled
         self.use_uncertainty = use_uncertainty
         if self.use_uncertainty:
-            from uq_estimator.model import UQEstimator
-            import yaml
-            with open('configs/uq_train.yaml') as f:
-                uq_cfg = yaml.safe_load(f)
-            self.uq_estimator = UQEstimator(uq_cfg['model'])
             if uq_checkpoint:
                 ckpt = torch.load(uq_checkpoint, map_location='cpu', weights_only=False)
-                self.uq_estimator.load_state_dict(ckpt['model_state_dict'])
-                print(f'[UQ] Loaded UQEstimator from {uq_checkpoint}')
+            else:
+                ckpt = None
+            from uq_estimator.density import is_density_checkpoint
+            if ckpt is not None and is_density_checkpoint(ckpt):
+                from uq_estimator.density import DensityUQEstimator
+                self.uq_estimator = DensityUQEstimator.from_checkpoint(ckpt)
+                self.uq_uses_stat_features = False
+                print(f'[UQ] Loaded DensityUQEstimator from {uq_checkpoint}')
+            else:
+                from uq_estimator.model import UQEstimator
+                import yaml
+                with open('configs/uq_train.yaml') as f:
+                    uq_cfg = yaml.safe_load(f)
+                self.uq_estimator = UQEstimator(uq_cfg['model'])
+                self.uq_uses_stat_features = True
+                if ckpt is not None:
+                    self.uq_estimator.load_state_dict(ckpt['model_state_dict'])
+                    print(f'[UQ] Loaded UQEstimator from {uq_checkpoint}')
             self.uq_estimator.eval()
-            # [UQ] Import compute_stat_features for on-the-fly statistics
-            from uq_estimator.dataset import compute_stat_features
+
+        # New mainline: task-aware fusion of the frozen Stage-1 *spatial*
+        # observation-evidence map.  This path is intentionally independent of
+        # ``use_uncertainty`` above, which is the retired global Density path.
+        self.use_stage2_spatial_uq = bool(use_stage2_spatial_uq)
+        self.stage2_spatial_uq_metadata = None
+        self.stage2_spatial_uq_checkpoint = str(stage2_spatial_uq_checkpoint or '')
+        self.stage2p_engineering_smoke = bool(stage2p_engineering_smoke)
+        self.stage2_input_semantics = 'observation_u'
+        if self.use_stage2_spatial_uq:
+            if self.use_uncertainty:
+                raise ValueError(
+                    'Stage-2 spatial UQ cannot be combined with legacy Density UQ'
+                )
+            projector_config = dict(
+                component_dim=3,
+                model_dim=self.embed_dims,
+                hidden_dim=int(stage2_spatial_uq_hidden_dim),
+                max_views=8,
+                tokens_per_view=int(stage2_spatial_uq_tokens_per_view),
+            )
+            adapter_config = dict(
+                model_dim=self.embed_dims,
+                num_heads=int(stage2_spatial_uq_num_heads),
+                trajectory_steps=6,
+                task_context_dim=89,
+            )
+            if self.stage2_spatial_uq_checkpoint:
+                checkpoint_header = torch.load(
+                    self.stage2_spatial_uq_checkpoint,
+                    map_location='cpu',
+                    weights_only=False,
+                )
+                if (
+                    isinstance(checkpoint_header, dict)
+                    and checkpoint_header.get('schema')
+                    == 'orion.stage2p_task_risk_trajectory.v1'
+                ):
+                    if not self.stage2p_engineering_smoke:
+                        raise RuntimeError(
+                            'Controlled-K Stage2-P checkpoint requires the '
+                            'explicit engineering-smoke config flag'
+                        )
+                    from uq_estimator.stage2p_task_risk_trajectory import (
+                        load_checkpoint as load_stage2p_checkpoint,
+                    )
+                    (
+                        self.stage2_spatial_uq_projector,
+                        self.stage2_task_adapter,
+                        self.stage2_spatial_uq_metadata,
+                    ) = load_stage2p_checkpoint(
+                        self.stage2_spatial_uq_checkpoint,
+                        expected_sha256=(
+                            stage2_spatial_uq_checkpoint_sha256 or None
+                        ),
+                        device='cpu',
+                    )
+                    if self.stage2_spatial_uq_metadata.get(
+                        'engineering_smoke_only'
+                    ) is not True:
+                        raise RuntimeError(
+                            'Stage2-P checkpoint lacks engineering-smoke lock'
+                        )
+                    self.stage2_input_semantics = 'task_risk_k'
+                else:
+                    if self.stage2p_engineering_smoke:
+                        raise RuntimeError(
+                            'Engineering Stage2-P smoke refuses a legacy '
+                            'observation-U checkpoint'
+                        )
+                    from uq_estimator.spatial_task_fusion import (
+                        load_stage2_task_fusion_checkpoint,
+                    )
+                    (
+                        self.stage2_spatial_uq_projector,
+                        self.stage2_task_adapter,
+                        self.stage2_spatial_uq_metadata,
+                    ) = load_stage2_task_fusion_checkpoint(
+                        self.stage2_spatial_uq_checkpoint,
+                        expected_sha256=(
+                            stage2_spatial_uq_checkpoint_sha256 or None
+                        ),
+                        device='cpu',
+                    )
+                    if self.stage2_spatial_uq_metadata.get(
+                        'closed_loop_eligible'
+                    ) is not True:
+                        raise RuntimeError(
+                            'Stage-2 checkpoint is auxiliary/offline only; '
+                            'closed-loop ORION requires a jointly trained eligible checkpoint'
+                        )
+                if (
+                    self.stage2_spatial_uq_projector.model_dim != self.embed_dims
+                    or self.stage2_task_adapter.model_dim != self.embed_dims
+                ):
+                    raise ValueError(
+                        'Stage-2 checkpoint dimension differs from ORION head'
+                    )
+            else:
+                from uq_estimator.spatial_task_fusion import (
+                    build_stage2_task_fusion_modules,
+                )
+                (
+                    self.stage2_spatial_uq_projector,
+                    self.stage2_task_adapter,
+                ) = build_stage2_task_fusion_modules(
+                    projector_config, adapter_config
+                )
 
         self.code_weights = nn.Parameter(torch.tensor(
             self.code_weights), requires_grad=False)
@@ -473,6 +597,45 @@ class OrionHead(AnchorFreeHead):
         self.memory_canbus = None
         self.memory_scene_tokens = None
         self.his_memory_canbus_len = None
+        # These two buffers participate whenever ``use_memory`` is enabled.
+        # They must be reset together with the ordinary temporal memory so
+        # independent replay branches cannot inherit scene-query history.
+        self.memory_scene_query = None
+        self.scene_memory_timestamp = None
+        self.stage2_planning_context = None
+        self.stage2_observation_uq = None
+        self.stage2_task_context = None
+        self.stage2_selected_uq_tokens = None
+        self.stage2_task_output = None
+
+    def _fuse_stage2_spatial_uq(self, planning_context, data, task_context):
+        """Condition 256-D VLM memory on a frozen spatial UQ map.
+
+        The map is detached again at this boundary.  Stage-2 collision,
+        conflict, and trajectory objectives may update the projector/task
+        adapter but can never redefine the Stage-1 observation signal.
+        """
+        if not self.use_stage2_spatial_uq:
+            return planning_context
+        observation_uq = data.get('stage2_spatial_uq')
+        if observation_uq is None:
+            raise RuntimeError(
+                'Stage-2 spatial UQ is enabled but no [B,V,H,W,3] map was supplied'
+            )
+        observation_uq = observation_uq.detach()
+        selected = self.stage2_spatial_uq_projector(observation_uq)
+        if self.stage2_input_semantics == 'task_risk_k':
+            output = self.stage2_task_adapter(planning_context, selected)
+        else:
+            output = self.stage2_task_adapter(
+                planning_context, selected, task_context
+            )
+        self.stage2_planning_context = planning_context.detach()
+        self.stage2_observation_uq = observation_uq
+        self.stage2_task_context = task_context.detach()
+        self.stage2_selected_uq_tokens = selected
+        self.stage2_task_output = output
+        return output.conditioned_context
 
     def pre_update_memory(self, img_metas, data):
         B = data['img_feats'].size(0)
@@ -756,18 +919,22 @@ class OrionHead(AnchorFreeHead):
         # prepare for the tgt and query_pos using mln.
         tgt, query_pos, reference_points, temp_memory, temp_pos, rec_ego_pose = self.temporal_alignment(query_pos, tgt, reference_points)
 
-        # [UQ] Compute uncertainty embedding from image features
+        # [UQ] Compute uncertainty embedding and score from image features
         uncertainty_emb = None
+        uncertainty_score = None  # [UQ] for Score-Gated FiLM
         if self.use_uncertainty and hasattr(self, 'uq_estimator'):
             # x is img_feats: [B, N_views, C, H, W]
             # Reshape to [B, N_views, H*W, C] for patch token format
             B_v, N_v, C_v, H_v, W_v = x.shape
             patch_tokens = x.permute(0, 1, 3, 4, 2).reshape(B_v, N_v, H_v * W_v, C_v)  # [B, N_views, N_patches, C]
-            # Compute 5-dim stat features from image tokens (no pre-computed cache in inference)
-            from uq_estimator.dataset import compute_stat_features
-            stat_feat = compute_stat_features(patch_tokens)  # [B, 5]
+            stat_feat = None
+            if self.uq_uses_stat_features:
+                # Legacy learned estimator requires its five hand-crafted inputs.
+                from uq_estimator.dataset import compute_stat_features
+                stat_feat = compute_stat_features(patch_tokens)  # [B, 5]
             uq_out = self.uq_estimator(patch_tokens, stat_feat)
             uncertainty_emb = uq_out.embedding  # [B, 256]
+            uncertainty_score = uq_out.score  # [UQ] [B, 1] for Score-Gated FiLM
             self.uq_output = uq_out  # [UQ] expose for collision-aware FiLM training
 
         if self.use_memory :    
@@ -796,7 +963,7 @@ class OrionHead(AnchorFreeHead):
                   
 
         # transformer here is a little different from PETR
-        outs_dec = self.transformer(tgt, memory, query_pos, pos_embed, attn_mask, temp_memory, temp_pos, uncertainty_emb=uncertainty_emb)
+        outs_dec = self.transformer(tgt, memory, query_pos, pos_embed, attn_mask, temp_memory, temp_pos, uncertainty_emb=uncertainty_emb, uncertainty_score=uncertainty_score)
         if mask_dict and mask_dict['pad_size'] > 0:
             reference_points = torch.cat([reference_points[:, :mask_dict['pad_size'], :], reference_points[:, mask_dict['pad_size']+self.num_extra:, :]], dim=-2)
         else:
@@ -852,12 +1019,15 @@ class OrionHead(AnchorFreeHead):
         rec_can_bus[:, -1] = 0
         rec_can_bus = torch.cat([data['command'].unsqueeze(-1), rec_can_bus], dim=-1) # (1, 1+18)
         memory_ego_pose = self.memory_egopose.reshape(B, -1, self.topk_proposals, 4, 4).flatten(-2)
+        can_bus_input = torch.cat([rec_can_bus, self.memory_canbus.flatten(-2), memory_ego_pose.mean(-2).flatten(-2)], dim=-1) # (1, 19+19*2+16*2)
+        can_bus_input = can_bus_input.to(torch.float32)
+        vlm_memory = self._fuse_stage2_spatial_uq(
+            vlm_memory, data, can_bus_input
+        )
         if self.output_dims is not None:
             if self.use_memory:
                 vlm_memory = torch.cat((vlm_memory, history_query), dim=1)
             vlm_memory = self.output_projection(vlm_memory) # (B, 256, 256) -> (B, 256, 4096)
-            can_bus_input = torch.cat([rec_can_bus, self.memory_canbus.flatten(-2), memory_ego_pose.mean(-2).flatten(-2)], dim=-1) # (1, 19+19*2+16*2)
-            can_bus_input = can_bus_input.to(torch.float32)
             can_bus_embed = self.can_bus_embed(can_bus_input) # (1, 89) -> (1, 4096)
             if self.with_ego_pose: 
                 vlm_memory = torch.cat([vlm_memory, can_bus_embed.unsqueeze(-2)], dim=-2) # (1, 257, 4096)
@@ -975,8 +1145,8 @@ class OrionHead(AnchorFreeHead):
             if self.pred_traffic_light_state:
                 outs.update(dict(all_traffic_states = all_traffic_states))
 
-        # [UQ] Return uncertainty_emb for FiLM L2 (VAE-level modulation)
-        return outs, vlm_memory, uncertainty_emb
+        # [UQ] Return uncertainty_emb and score for FiLM L2 (Score-Gated modulation)
+        return outs, vlm_memory, uncertainty_emb, uncertainty_score
     
     def prepare_for_loss(self, mask_dict):
         """

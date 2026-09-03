@@ -1,0 +1,64 @@
+{
+  "schema": "orion.lens_waterdrop_v2_source_protocol.v1",
+  "created_at": "2026-08-31T21:02:00+08:00",
+  "status": "real_mask_source_frozen_direct_silhouette_renderer_failed_visual_review",
+  "failed_predecessor": {
+    "implementation": "uq_estimator/lens_waterdrop.py",
+    "name": "lens_waterdrop_v1",
+    "status": "failed_visual_prototype_do_not_tune",
+    "amendment": "configs/scenario_factory/amendments/20260831_corruption_hardcase_visual_rejection_v1.json"
+  },
+  "real_mask_bank": {
+    "root": "assets/waterdrop_patterns/evocargo_ccby4_v1",
+    "metadata": "assets/waterdrop_patterns/evocargo_ccby4_v1/metadata.json",
+    "metadata_sha256": "496af8e5e4127b3aa4d80455aef4eed007cc26820f54e05c06940be7940ae815",
+    "source": "Raindrops on Windshield Dataset",
+    "record": "https://doi.org/10.5281/zenodo.4680442",
+    "license": "CC-BY-4.0",
+    "source_kind": "real vehicle-captured windshield-drop silhouette annotations",
+    "asset_count": 4,
+    "scene_rgb_redistributed": false
+  },
+  "renderer_contract": {
+    "input_resolution": [1600, 900],
+    "apply_before_any_review_downsample": true,
+    "fixed_actor_independent_lens_coordinates": true,
+    "required_derived_fields": [
+      "soft alpha",
+      "two-channel optical displacement",
+      "refracted RGB",
+      "edge/crescent contribution",
+      "highlight contribution"
+    ],
+    "required_visual_effects": [
+      "refractive magnification",
+      "local inversion in at least the optically strong core",
+      "nonuniform crescent boundary",
+      "bounded highlight structure",
+      "temporal continuity"
+    ],
+    "forbidden": [
+      "actor bbox or semantic-label placement",
+      "circle-only generated silhouettes",
+      "average blur as the sole interior effect",
+      "application after 480x270 review resize",
+      "calling derived displacement a real ground-truth field"
+    ]
+  },
+  "mandatory_review_outputs": [
+    "artifact-gated unmodified clean frame and GIF",
+    "source silhouette mask",
+    "derived alpha map",
+    "derived displacement visualization",
+    "high-resolution clean/waterdrop crop",
+    "full-resolution final front GIF",
+    "clean BEV context GIF"
+  ],
+  "execution_locks": {
+    "orion_screen": false,
+    "severity_selection": false,
+    "closed_loop": false,
+    "heldout_confirmation": false
+  },
+  "claim_boundary": "The silhouettes are real annotations; all optical fields are auditable derived simulation fields. The direct silhouette-derived v2 candidate failed visual review, proving that this source freeze alone is not a valid visual prototype."
+}

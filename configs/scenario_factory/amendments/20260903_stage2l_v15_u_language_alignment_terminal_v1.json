@@ -1,0 +1,157 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-03T10:25:00+08:00",
+  "status": "bounded_u_language_alignment_completed_with_soft_failures",
+  "scope": "Stage2-L v15 task-free U-to-language alignment pilot",
+  "research_question": "Can ORION learn the view, region, level, trend and component semantics of direct Stage-1 U tokens when the existing U tokenizer projection and ORION LoRA are jointly aligned with balanced all-candidate field supervision?",
+  "job": {
+    "job_id": "1131873",
+    "job_name": "s2l_v15_u",
+    "partition": "Nvidia_A800",
+    "node": "gpu1",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "20:00:00",
+    "start": "2026-09-02T19:55:35+08:00",
+    "end": "2026-09-03T04:50:09+08:00",
+    "elapsed": "08:54:34",
+    "maximum_rss": "56623108K",
+    "alloc_tres": "billing=2,cpu=2,gres/gpu=1,mem=192G,node=1",
+    "complete_log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/stage2l_smokes/v15_u_language_alignment_17event_720_v1-1131873.out",
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v15_u_language_alignment_17event_720_v1/training",
+    "report": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v15_u_language_alignment_17event_720_v1/training/report.json"
+  },
+  "hard_runtime": {
+    "passed": true,
+    "optimizer_steps": 720,
+    "history_steps": 720,
+    "all_history_steps_finite": true,
+    "dataset_audit_passed": true,
+    "schedule_audit_passed": true,
+    "slurm_completed_zero_exit": true,
+    "source": "report.json plus sacct Job 1131873; no independent checkpoint-tensor validator was run"
+  },
+  "reconstruction": {
+    "mean_reconstruction_loss_before": 0.17804522439837456,
+    "mean_reconstruction_loss_after": 0.019559213309548795,
+    "mean_zero_anchor_loss_before": 0.1779225915670395,
+    "mean_zero_anchor_loss_after": 5.288729880703613e-05,
+    "reconstruction_improved": true
+  },
+  "constrained_decode_dev": {
+    "field_decision_count": 720,
+    "dev_group_count": 20,
+    "u_state_count": 120,
+    "accuracy_by_tag_before": {
+      "U_COMPONENT": 0.5833333333333334,
+      "U_LEVEL": 0.5833333333333334,
+      "U_PRESENT": 1.0,
+      "U_REGION": 0.25833333333333336,
+      "U_TREND": 0.39166666666666666,
+      "U_VIEW": 0.18333333333333332
+    },
+    "accuracy_by_tag_after": {
+      "U_COMPONENT": 0.35833333333333334,
+      "U_LEVEL": 0.4083333333333333,
+      "U_PRESENT": 1.0,
+      "U_REGION": 0.44166666666666665,
+      "U_TREND": 0.49166666666666664,
+      "U_VIEW": 0.2916666666666667
+    },
+    "balanced_accuracy_by_tag_after": {
+      "U_COMPONENT": 0.3916666666666667,
+      "U_LEVEL": 0.43,
+      "U_PRESENT": 1.0,
+      "U_REGION": 0.2,
+      "U_TREND": 0.5102082602082603,
+      "U_VIEW": 0.2850649350649351
+    },
+    "nonzero_accuracy_excluding_presence_before": 0.296,
+    "nonzero_accuracy_excluding_presence_after": 0.278,
+    "fields_worse_than_before": [
+      "U_COMPONENT",
+      "U_LEVEL"
+    ]
+  },
+  "counterfactual_dev": {
+    "changed_field_exact_response_fraction_before": 0.21844660194174756,
+    "changed_field_exact_response_fraction_after": 0.25728155339805825,
+    "changed_field_pair_count": 206,
+    "unchanged_field_invariance_fraction_after": 0.9263959390862944,
+    "unchanged_field_correct_invariance_fraction_after": 0.41116751269035534,
+    "unchanged_field_pair_count": 394
+  },
+  "free_generation_dev": {
+    "performed_after": true,
+    "sample_count": 24,
+    "strict_parseable_fraction": 0.0,
+    "mean_field_accuracy": 0.0,
+    "parseable": "0/24"
+  },
+  "soft_diagnostics": {
+    "passed": false,
+    "reconstruction_improved": true,
+    "nonzero_semantics_above_v14_majority_baseline": false,
+    "nonzero_semantics_improved": false,
+    "mean_changed_field_response": false,
+    "view_balanced_accuracy": false,
+    "protocol_thresholds": {
+      "minimum_nonzero_accuracy_excluding_presence": 0.5,
+      "minimum_view_balanced_accuracy": 0.45,
+      "minimum_changed_field_exact_response": 0.4
+    }
+  },
+  "architecture": {
+    "direct_u_tokens_enter_orion": true,
+    "stage1_observation_estimator_trainable": false,
+    "existing_u_tokenizer_projection_trainable": true,
+    "orion_lora_trainable": true,
+    "task_agnostic_reconstruction_retention": true,
+    "all_candidate_field_supervision": true,
+    "new_bridge_or_r_input_present": false,
+    "route_task_risk_action_present": false,
+    "trajectory_or_control_loss": false,
+    "density_uq_or_governor_used": false,
+    "orion": "lora_only",
+    "lora_parameter_count": 16777216,
+    "u_tokenizer_parameter_count": 2141458,
+    "disposable_reconstruction_head_parameter_count": 1059337
+  },
+  "locks": {
+    "automatic_extension": false,
+    "closed_loop_eligible": false,
+    "formal_stage2l_ready": false,
+    "locked_test_read": false,
+    "stage2p_ready": false
+  },
+  "artifact_sha256": {
+    "report": "8ab202ae4c5b29a9739bbceba281944c3abd35181ce557a1365c900f6a92477b",
+    "checkpoint": "fc8f3c841fae46303552fed358eb969411c4dab9662a953f702aa5bd5c4e1139",
+    "trainer_preflight": "61be8b1fa16ba735718c20650a4c9d1245abf3413b5d5014b14ad266dd8ceca8",
+    "complete_log": "148e0fa5c0db483a441958e59fd61149704fdca6a5a7c97a1b3c0600c0051e07",
+    "protocol": "bbd406f4aa7406af8844acb3ebe25beb35af6911c58211eeea7eba033aa873a4",
+    "trainer": "30fa3e9dcf6dbcee8575a430e7b8cc2578827abe318b76b003dec41ad0e3cecb"
+  },
+  "interpretation": [
+    "Job 1131873 completed 720/720 finite optimizer steps with Slurm state COMPLETED and exit 0:0.",
+    "Task-agnostic reconstruction and the zero-U presence anchor are solved: mean reconstruction loss fell from 0.178045 to 0.019559 and mean zero-anchor loss from 0.177923 to 5.2887e-5; constrained U_PRESENT accuracy stayed at 1.00.",
+    "Nonzero spatial U is not identifiable. Official soft diagnostics failed for nonzero U semantics versus the v14 majority baseline, nonzero improvement, changed-field response, and view-balanced accuracy.",
+    "Constrained-decode after accuracies on 720 field decisions / 20 groups: U_PRESENT 1.00, U_TREND 0.49, U_REGION 0.44, U_LEVEL 0.41, U_COMPONENT 0.36, U_VIEW 0.29. U_COMPONENT fell 0.58 to 0.36 and U_LEVEL fell 0.58 to 0.41 versus the before snapshot.",
+    "Changed-field exact response rose only to 0.257 from 0.218 (gate 0.40). Free generation remained 0/24 strict-parseable.",
+    "This does not unlock extra epochs, formal Stage2-L, Stage2-P, closed loop, or locked-test access. It is not a safety result."
+  ],
+  "disposition": {
+    "extra_epochs_authorized": false,
+    "automatic_retry_authorized": false,
+    "formal_stage2l_unlocked": false,
+    "stage2p_unlocked": false,
+    "closed_loop_unlocked": false,
+    "locked_test_unlocked": false,
+    "next_allowed_action": "Do not submit another training job. Reconstruction and zero-U presence are solved; nonzero spatial U, especially U_VIEW, is not identifiable. Extra epochs, formal Stage2-L, Stage2-P, closed loop and locked-test remain unauthorized."
+  },
+  "claim_boundary": "Task-free U-to-language alignment pilot only; no task relevance, planning, closed-loop, safety, or external-generalization claim.",
+  "prior_launch_record": "configs/scenario_factory/amendments/20260902_stage2l_v15_u_language_alignment_submission_v1.json"
+}

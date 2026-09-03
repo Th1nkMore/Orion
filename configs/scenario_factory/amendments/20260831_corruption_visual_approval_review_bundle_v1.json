@@ -1,0 +1,41 @@
+{
+  "schema": "orion.corruption_visual_approval_review_bundle_amendment.v1",
+  "created_at": "2026-08-31T23:56:51+08:00",
+  "status": "compact_review_bundle_rendered_and_shared_pending_explicit_human_decision",
+  "source_gate": {
+    "path": "configs/scenario_factory/corruption_hardcase_visual_approval_gate_v2.json",
+    "sha256": "ddc2056dc0b0bf53c34b4758aebb7f2b783cdf940d5c81632e9f74283277b87e"
+  },
+  "builder": {
+    "path": "scripts/build_corruption_visual_approval_review_bundle.py",
+    "sha256": "206cb751720a28f0b9bc4fdd614fabcc1fa5c611e3d27a150ef4f1b789b7bd0e"
+  },
+  "local_root": "results/scenario_factory/corruption_hardcase_visual_approval_review_bundle_v1",
+  "remote_root": "/public/share/lidachuan/orion_assets/scenario_factory/visual_approval_review_bundle_v1",
+  "artifacts_sha256": {
+    "front_stale_review.gif": "c196ae9f288221b40b2b817a2727de6d8478a1343ebac4dcd67ee868085c3f59",
+    "lens_waterdrop_paired_template_review.gif": "def61a5c78f6b938dd6735f5a06c99e1761b0fcda920f614266d3323036f7d31",
+    "native_motion_blur_review.gif": "f175e11622205d0d8bfaa3de8474e35590a1496a3df68a87e46c92c246242619",
+    "visual_approval_decision_sheet.png": "f9fbecc6b243f02bbe25f16d02a99bdd5176dd9641d57abda8abce8fde93dbbb",
+    "index.html": "6367c7d9b54e1ca4af4447247e4a77c438f036fce989f88dd46e04fd11ca42d8",
+    "result.json": "b07108fcd082517f8813a11442e2f01a1d7840f78ec99548644741058febb2a9"
+  },
+  "review_contract": {
+    "front_stale": "Inspect temporal lag in the reduced GIF; do not infer stale behavior from the static sheet.",
+    "lens_waterdrop_paired_template": "Inspect physical plausibility, fixed lens-space placement and temporal stability; approval is not implied by use of a public paired source.",
+    "native_motion_blur": "Inspect moving-object and edge degradation; the medium renderer profile is intentionally subtle and whole-route.",
+    "exact_candidates": {
+      "front_stale": ["delay_ms:200", "delay_ms:400"],
+      "lens_waterdrop_paired_template": ["profile:light", "profile:medium", "profile:heavy"],
+      "native_motion_blur": ["profile:medium"]
+    }
+  },
+  "execution_locks": {
+    "human_decision_recorded": false,
+    "visual_gate_changed": false,
+    "orion_loaded": false,
+    "gpu_jobs_submitted": 0,
+    "wave0_submission": false
+  },
+  "claim_boundary": "The bundle only reduces review friction while preserving source hashes. It is not an approval, model result, failure-induction result, uncertainty result, or safety claim."
+}

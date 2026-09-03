@@ -1,0 +1,75 @@
+{
+  "schema": "orion.closedloop_heldout_route_screen.v1",
+  "status": "train_coverage_repair_candidate_frozen_no_jobs_submitted",
+  "created_at": "2026-09-01T13:49:00+08:00",
+  "clean_baseline_required": false,
+  "development_failure_candidates_allowed": false,
+  "selection_inputs": {
+    "static_route_geometry_used": true,
+    "scenario_family_used": true,
+    "published_orion_outcomes_used": false,
+    "learned_uq_outcomes_used": false,
+    "stage2_outcomes_used": false
+  },
+  "coverage_target": {
+    "primary_missing_view": "CAM_BACK_RIGHT",
+    "minimum_positive_saved_frames_in_one_event": 3,
+    "selection_reason": "YieldToEmergencyVehicle supplies a rear-approaching dynamic actor prior and was preregistered as the first fallback before CARLA collection."
+  },
+  "candidate_count": 1,
+  "candidates": [
+    {
+      "route_index": 167,
+      "xml_route_id": "25378",
+      "source_xml": "bench2drive220_167_orion_traj.xml",
+      "source_xml_sha256": "07747ded9ae0110b42f26d1c23a440a79fad4b3414e07199e978cc56396bd581",
+      "town": "Town03",
+      "scenario_name": "YieldToEmergencyVehicle_1",
+      "scenario_type": "YieldToEmergencyVehicle",
+      "screen_role": "rear_approaching_dynamic_actor_coverage",
+      "priority": 100,
+      "trigger_point": {
+        "x": 103.9,
+        "y": 193.3,
+        "z": 1.4,
+        "yaw": 179.9
+      },
+      "route_length_m": 96.207,
+      "trigger_along_route_m": 10.002,
+      "trigger_progress": 0.103968,
+      "trigger_lateral_error_m": 0.0,
+      "scenario_parameters": {
+        "distance": {
+          "value": "30"
+        }
+      },
+      "clean_baseline": {
+        "available": false,
+        "valid": false
+      },
+      "coverage_repair_candidate": true,
+      "formal_plan_member": false,
+      "training_role": "train_only_coverage_repair_candidate",
+      "held_out_evidence_eligible": false
+    }
+  ],
+  "protocol": {
+    "path": "configs/scenario_factory/stage2l_v12_train_coverage_repair_protocol_v1.json",
+    "sha256": "46e3b0637daa6feb7141b492207decdce7e5eed0f1419e7d081481ee3613e2c7"
+  },
+  "launch_locks": {
+    "carla_collection_submitted": false,
+    "formal_training_allowed": false,
+    "gpu_r_only_smoke": false,
+    "language_bridge": false,
+    "stage2p": false
+  },
+  "post_collection_gates": [
+    "runtime and six-camera/meta integrity",
+    "actor-grounded event package",
+    "at least three CAM_BACK_RIGHT-positive geometry frames",
+    "human visual/geometry acceptance",
+    "separate Stage1 extraction and QA construction"
+  ],
+  "claim_boundary": "Outcome-blind static selection for one train-only coverage collection. Route167 is not a formal-plan member or held-out evidence and is not accepted training data until every post-collection gate passes."
+}

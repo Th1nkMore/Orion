@@ -1,0 +1,61 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-31T13:25:11+08:00",
+  "status": "zero_step_implementation_failure_one_retry_prepared",
+  "title": "Stage1 U-tokenizer bounded pretraining launch import-path retry",
+  "amends_without_rewriting": {
+    "path": "configs/scenario_factory/stage1_u_tokenizer_pretraining_v1.json",
+    "sha256": "f9c1c13db81280deeb68088542b737767840aea0ea9dd7c62223bacf38859d4d"
+  },
+  "failed_submission": {
+    "job_id": "1112262",
+    "state": "FAILED",
+    "elapsed": "00:00:43",
+    "exit_code": "1:0",
+    "node": "gpu1",
+    "optimizer_steps": 0,
+    "training_data_loaded": false,
+    "checkpoint_created": false,
+    "output_directory_created": false,
+    "failure": "ModuleNotFoundError: No module named 'uq_estimator' before the trainer entered main",
+    "classification": "invalid_implementation_launch_not_a_training_result",
+    "log": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage1_u_tokenizer_pretraining/logs/stage1_u_tok_v1-1112262.out",
+      "sha256": "f008ff73a03657e1ccc869d8084b29ae5e7db5ff23a956e36abd455c6327f262"
+    },
+    "submission_attestation": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage1_u_tokenizer_pretraining/logs/stage1_u_tok_v1-1112262.submission.json",
+      "sha256": "7fea6335515db08b200c5711915d5c9747a6ae646e799f985fcc3c9f7e274310"
+    }
+  },
+  "repair": {
+    "scope": "submission wrapper only",
+    "change": "Set PYTHONPATH to the frozen project root inside the Slurm wrap command.",
+    "training_script_changed": false,
+    "protocol_changed": false,
+    "source_audit_changed": false,
+    "objective_or_threshold_changed": false,
+    "repaired_wrapper": {
+      "path": "scripts/submit_stage1_u_tokenizer_pretraining.sh",
+      "sha256": "16cbf80810a451162faf12d9cf9e8479aa1555d4d9a7879b6a6d4b7449931da0"
+    }
+  },
+  "retry": {
+    "allowed": true,
+    "maximum_additional_submissions": 1,
+    "run_id": "stage1_u_tokenizer_task_agnostic_v1_200_retry1",
+    "automatic_retry_or_extension_after_retry": false,
+    "same_training_source_hashes_required": true,
+    "same_optimizer_steps": 200,
+    "same_batch_size": 4,
+    "same_seed": 20260831
+  },
+  "launch_locks": {
+    "stage2l_v10_training_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_matrix_allowed": false,
+    "route203_native_glare_submission_allowed": false
+  },
+  "claim_boundary": "The failed job is an import-path implementation error with zero optimizer steps and is not scientific evidence. The amendment permits only one identical bounded retry."
+}

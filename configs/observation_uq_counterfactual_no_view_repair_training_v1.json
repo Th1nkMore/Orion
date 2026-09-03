@@ -1,0 +1,137 @@
+{
+  "schema_version": "orion.counterfactual-evidence-no-view-repair-training/v1",
+  "frozen_at": "2026-08-28T00:14:00+08:00",
+  "purpose": "One bounded architecture repair selected by the frozen input-confound diagnostic: train the identical hidden-128 hurdle adapter without a fixed camera-identity embedding.",
+  "primary_question": "Does retraining a view-equivariant adapter remove route-disjoint clean false-positive tails while retaining spatial evidence-loss ranking and family response?",
+  "inputs": {
+    "dataset_manifest_sha256": "9c6166a44219a186f3bc52e4e40c8065ecf5a7b47d38e29c3c16a45e973148d6",
+    "target_audit_sha256": "43be3c7288ee1a4cf06df94f931f1869b4719b5ebcff285d5b0721019261d373",
+    "spatial_audit_sha256": "9c2bbbeafaa740254a40314e4e2160bcad265f0347bdb17a1f0caa3645325d12",
+    "input_confound_report_sha256": "7c5190b1e245ed0c554bec9cb3920e03ff7aab2498efeb6280fd1b6abde9aede",
+    "record_counts": {
+      "train": 4480,
+      "route_validation": 640,
+      "train_routes": 70,
+      "route_validation_routes": 10
+    }
+  },
+  "architecture_repair": {
+    "selected_by_checkpoint_only_ablation": "no_view_embedding",
+    "fixed_camera_identity_embedding_removed": true,
+    "shared_mapping_across_camera_views": true,
+    "per_view_spatial_grid_preserved": true,
+    "local_grid_coordinates_preserved": true,
+    "temporal_inputs_preserved": true,
+    "explicit_temporal_change_scalar_preserved": true,
+    "loss_changed": false,
+    "optimizer_changed": false,
+    "data_changed": false,
+    "target_changed": false
+  },
+  "target_scaling": {
+    "quantile": 0.95,
+    "response_floor": 1e-6,
+    "component_scales": {
+      "persistent_direction": 0.4857582449913025,
+      "persistent_magnitude": 0.3020833134651184,
+      "transient_inconsistency": 0.43770867586135864
+    },
+    "scaled_responsive_q80": {
+      "persistent_direction": 0.08357331234598304,
+      "persistent_magnitude": 0.17040567039000876,
+      "transient_inconsistency": 0.18424701026059256
+    },
+    "support_semantics": "per-component scaled paired target above frozen train-responsive q80; corruption mask is not read by optimizer or evaluation"
+  },
+  "optimization": {
+    "seed": 20260827,
+    "feature_dim": 1024,
+    "hidden_dim": 128,
+    "max_views": 6,
+    "use_view_embedding": false,
+    "presence_bias": -3.4,
+    "magnitude_bias": 0.0,
+    "epochs": 4,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "pair_batch_size": 2,
+    "evaluation_batch_size": 2,
+    "presence_responsive_weight": 0.5,
+    "magnitude_weight": 1.0,
+    "ranking_weight": 0.25,
+    "reference_weight": 0.5,
+    "checkpoint_selection": "minimum combined 10-route route-disjoint validation total loss"
+  },
+  "streaming": {
+    "whole_route_mmap": true,
+    "one_train_route_resident_at_a_time": true,
+    "selected_families": [
+      "local_blur",
+      "local_dark"
+    ],
+    "selected_shard_sha256_preflight": true,
+    "duplicate_dataset_written": false
+  },
+  "validation_strata": {
+    "legacy_validation_5": [
+      "v1/CrossingBicycleFlow_Town12_Route977_Weather15",
+      "v1/HighwayExit_Town06_Route312_Weather0",
+      "v1/ParkedObstacle_Town10HD_Route372_Weather8",
+      "v1/PedestrianCrossing_Town13_Route747_Weather19",
+      "v1/VanillaSignalizedTurnEncounterRedLight_Town07_Route359_Weather21"
+    ],
+    "added_validation_5": [
+      "v1/HardBreakRoute_Town01_Route30_Weather3",
+      "v1/InterurbanAdvancedActorFlow_Town06_Route330_Weather18",
+      "v1/NonSignalizedJunctionLeftTurn_Town03_Route123_Weather26",
+      "v1/SignalizedJunctionRightTurn_Town04_Route176_Weather20",
+      "v1/VehicleTurningRoute_Town15_Route1376_Weather15"
+    ]
+  },
+  "early_stop": {
+    "enabled": true,
+    "minimum_epochs": 3,
+    "rule": "stop at epoch 3 or later after two consecutive transitions where train total decreases and route-validation total increases"
+  },
+  "smoke_gate": {
+    "combined_patch_spearman": 0.1,
+    "combined_target_top20_auroc": 0.6,
+    "median_record_within_intervened_view_target_top20_auroc": 0.55,
+    "minimum_component_spearman_pass_count": 2,
+    "component_patch_spearman": 0.1,
+    "component_high_support_presence_auroc": 0.6,
+    "minimum_high_support_presence_auroc_pass_count": 2,
+    "minimum_each_train_family_uplift_over_reference": 0.005,
+    "route_validation_ranking_loss_max": 0.095,
+    "reference_prediction_p95_max": 0.2
+  },
+  "comparison_baseline_35_route": {
+    "report_sha256": "020aa4545bbc3f359173ca1475025228eae101758697ac7f159276d2f7511566",
+    "combined_patch_spearman": 0.098661,
+    "combined_target_top20_auroc": 0.753188,
+    "median_record_within_intervened_view_target_top20_auroc": 0.701826,
+    "reference_prediction_p95": 0.403447
+  },
+  "comparison_baseline_expanded_70_route": {
+    "report_sha256": "539250ed337986219aaf08a48d8dbc7c2106a2695f40e5a80815cb4e30885421",
+    "combined_patch_spearman": 0.1202063262462616,
+    "combined_target_top20_auroc": 0.7731468919417159,
+    "median_record_within_intervened_view_target_top20_auroc": 0.733569324016571,
+    "reference_prediction_p95": 0.3439568281173706
+  },
+  "scope_guards": {
+    "heldout_glare_tensor_values_read": false,
+    "heldout_split_tensor_values_read": false,
+    "native_weather_read": false,
+    "corruption_mask_optimizer_weight": 0.0,
+    "actual_target_optimizer_weight": 0.0,
+    "automatic_epoch_extension": false,
+    "automatic_heldout_evaluation": false,
+    "orion_finetuning": false,
+    "stage_b": false
+  },
+  "decision": {
+    "pass": "Stop and review the retrained checkpoint before separately unlocking held-out glare or native-weather evaluation.",
+    "fail": "Stop before held-out evaluation; do not add routes, capacity, or another simultaneous repair without a new diagnosis."
+  }
+}

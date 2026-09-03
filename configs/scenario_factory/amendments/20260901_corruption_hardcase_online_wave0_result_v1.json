@@ -1,0 +1,177 @@
+{
+  "schema": "orion.corruption_hardcase_online_wave0_result.v1",
+  "created_at": "2026-09-01T03:26:59+08:00",
+  "status": "completed_without_positive_failure_induction_candidate",
+  "frozen_scope": {
+    "routes": [151, 180, 194],
+    "conditions": [
+      "clean_off",
+      "front_stale_200ms",
+      "waterdrop_medium",
+      "native_motion_blur_medium"
+    ],
+    "architecture": "frozen_native_orion",
+    "uq_mode": "none",
+    "risk_governor": "off",
+    "planning_response": "off",
+    "legacy_density_uq": false
+  },
+  "result_root": "/public/share/lidachuan/orion_assets/results/corruption_hardcase_online_wave0_v1",
+  "effective_jobs": {
+    "route151": {
+      "clean_off": {
+        "job_id": 1116344,
+        "slurm_state": "COMPLETED",
+        "runtime_valid": true,
+        "clean_liveness_qualified": true
+      },
+      "front_stale_200ms": {
+        "job_id": 1116345,
+        "slurm_state": "COMPLETED",
+        "pair_valid": true,
+        "decision": "valid_negative"
+      },
+      "waterdrop_medium": {
+        "job_id": 1116356,
+        "slurm_state": "COMPLETED",
+        "pair_valid": true,
+        "decision": "valid_negative"
+      },
+      "native_motion_blur_medium": {
+        "job_id": 1116357,
+        "slurm_state": "COMPLETED",
+        "pair_valid": true,
+        "decision": "valid_negative"
+      }
+    },
+    "route180": {
+      "clean_off": {
+        "job_id": 1116939,
+        "slurm_state": "COMPLETED",
+        "runtime_valid": true,
+        "clean_liveness_qualified": true,
+        "clean_hard_infraction": "collisions_vehicle"
+      },
+      "front_stale_200ms": {
+        "job_id": 1116940,
+        "slurm_state": "COMPLETED",
+        "pair_valid": false,
+        "decision": "invalid_clean_hard_infraction"
+      },
+      "waterdrop_medium": {
+        "job_id": 1116350,
+        "slurm_state": "COMPLETED",
+        "pair_valid": false,
+        "decision": "invalid_clean_hard_infraction"
+      },
+      "native_motion_blur_medium": {
+        "job_id": 1116351,
+        "slurm_state": "COMPLETED",
+        "pair_valid": false,
+        "decision": "invalid_clean_hard_infraction"
+      }
+    },
+    "route194": {
+      "clean_off": {
+        "job_id": 1116941,
+        "slurm_state": "CANCELLED_BY_PREREGISTERED_FAST_SCREEN",
+        "runtime_valid": false,
+        "clean_liveness_qualified": false,
+        "longest_low_speed_interval_seconds": 28.45,
+        "maximum_allowed_seconds": 8.0
+      },
+      "front_stale_200ms": {
+        "job_id": 1116353,
+        "slurm_state": "COMPLETED",
+        "pair_valid": false,
+        "decision": "not_evaluable_without_qualified_clean"
+      },
+      "waterdrop_medium": {
+        "job_id": 1116942,
+        "slurm_state": "CANCELLED_BEFORE_START_AFTER_CLEAN_FAST_SCREEN",
+        "pair_valid": false,
+        "decision": "not_run"
+      },
+      "native_motion_blur_medium": {
+        "job_id": 1116943,
+        "slurm_state": "CANCELLED_BEFORE_START_AFTER_CLEAN_FAST_SCREEN",
+        "pair_valid": false,
+        "decision": "not_run"
+      }
+    }
+  },
+  "pair_summary": {
+    "planned_pairs": 9,
+    "evaluated_pairs": 6,
+    "valid_pairs": 3,
+    "valid_negative_pairs": 3,
+    "invalid_pairs": 3,
+    "not_evaluable_pairs": 3,
+    "positive_pairs": 0,
+    "case_study_candidates": []
+  },
+  "decision_artifacts": {
+    "route151_front_stale_200ms": {
+      "path": "analysis_v1/route151_front_stale_200ms_decision.json",
+      "sha256": "349ddb4c92344a3e6d6747dcd6e523edc49aca42aefd246cf67ee3fcaa21715e"
+    },
+    "route151_waterdrop_medium": {
+      "path": "analysis_v1/route151_waterdrop_medium_decision.json",
+      "sha256": "06a09086d74033a9971ade3796700d72f3dd5e8fa4525b69f518c66fba84c6cf"
+    },
+    "route151_native_motion_blur_medium": {
+      "path": "analysis_v1/route151_native_motion_blur_medium_decision.json",
+      "sha256": "fb701aca79f43476f181e9e365954486e30094b9033b1d2870f23ee7d6dd2d65"
+    },
+    "route180_front_stale_200ms": {
+      "path": "analysis_v1/route180_front_stale_200ms_decision.json",
+      "sha256": "bba5532af490945816d8909682ba13d1ca4cb55cd3d60804668c6c6565031ba0"
+    },
+    "route180_waterdrop_medium": {
+      "path": "analysis_v1/route180_waterdrop_medium_decision.json",
+      "sha256": "50988eeda1caa7685f50645cc324c7407ee0b3afd06a0d893de37ba570a50a19"
+    },
+    "route180_native_motion_blur_medium": {
+      "path": "analysis_v1/route180_native_motion_blur_medium_decision.json",
+      "sha256": "ed19554f0d623456c31cca7e7ec838cd605bd20134ac14c0b9e73a4262f0a242"
+    }
+  },
+  "clean_liveness_artifacts": {
+    "route151": {
+      "job_id": 1116344,
+      "longest_low_speed_interval_seconds": 0.8,
+      "stage_b_qualified": true,
+      "sha256": "af57affcc7f37853e30058f38e7e805c82b45af94f6d9c4ddda2fe7a603626c5"
+    },
+    "route180": {
+      "job_id": 1116939,
+      "longest_low_speed_interval_seconds": 0.2,
+      "stage_b_qualified": true,
+      "sha256": "e0289a5bd5e8c8f7187c8b72e3981d5901859993043061deaf5e32a083c458c9"
+    },
+    "route194": {
+      "job_id": 1116941,
+      "longest_low_speed_interval_seconds": 28.45,
+      "stage_b_qualified": false,
+      "sha256": "32708ffac13a7f5ceae21fdb3049a529e73ef633dd7f3febba5671b69698f555"
+    }
+  },
+  "scientific_interpretation": [
+    "At the approved severities, Route151 did not exhibit preregistered hard-endpoint, TTC, or gap degradation under any of the three corruptions.",
+    "Route180 cannot establish corruption-induced degradation because the clean run itself had a vehicle collision; corrupt runs completing without that collision also expose single-run stochasticity.",
+    "Route194 cannot establish a pair because the replacement clean baseline violated the preregistered liveness screen and was cancelled before terminal evaluation.",
+    "Wave0 therefore produced no defensible corruption-induced failure candidate and supplies no evidence about learned uncertainty, task relevance, or uncertainty-aware control benefit."
+  ],
+  "automatic_scope_locks": {
+    "generate_positive_candidate_visualizations": false,
+    "heldout_confirmation": false,
+    "stage2p": false,
+    "formal_200_route_evaluation": false,
+    "reason": "No valid positive failure-induction pair was found."
+  },
+  "next_decision": {
+    "status": "requires_new_development_wave_design",
+    "recommendation": "Use additional clean-qualified routes and independently frozen stronger-but-plausible corruption settings; require repeated clean qualification for stochastic routes before spending corrupt-condition jobs."
+  },
+  "claim_boundary": "Development failure-induction screen only. No learned-UQ, task-relevance, control-benefit, held-out, or formal benchmark claim is authorized."
+}

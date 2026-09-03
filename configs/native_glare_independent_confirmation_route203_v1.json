@@ -1,0 +1,98 @@
+{
+  "schema": "orion.native_glare_independent_confirmation.v1",
+  "created_at": "2026-08-31T05:40:00+08:00",
+  "status": "outcome_blind_visual_confirmation_frozen",
+  "purpose": "Confirm the frozen CARLA-native glare severity on a second route with exact same-tick clean/medium/heavy RGB captures before loading ORION or expanding closed-loop experiments.",
+  "route": {
+    "route_index": 203,
+    "town": "Town04",
+    "scenario_type": "PedestrianCrossing",
+    "source": "configs/closedloop_uq_pilot/routes/route_203_hazard.xml",
+    "source_sha256": "ebdea74c74f8c1dbcfef902346cc77086827a2ccc38596e1a1d6b108f8b4b872",
+    "selection_basis": "Static route geometry: the scenario trigger segment has yaw 180 degrees, matching the Route151 event heading and the previously frozen sun azimuth. No native-glare, ORION, UQ, TTC or collision outcome from Route203 was consulted.",
+    "not_a_formal_stage2l_route": true,
+    "not_used_for_native_glare_parameter_tuning": true
+  },
+  "source_freeze": {
+    "path": "configs/scenario_factory/amendments/20260831_native_glare_severity_freeze_v1.json",
+    "sha256": "a3d767621580830a62dac7f35c2a25f32049faa503aa6dbc60977386e63375fd"
+  },
+  "weather": {
+    "cloudiness": 5.0,
+    "precipitation": 0.0,
+    "precipitation_deposits": 50.0,
+    "wind_intensity": 10.0,
+    "sun_altitude_angle": 8.0,
+    "sun_azimuth_angle": 180.0,
+    "wetness": 0.0,
+    "fog_density": 10.0,
+    "fog_distance": 0.0,
+    "fog_falloff": 0.2,
+    "scattering_intensity": 1.0,
+    "mie_scattering_scale": 0.03,
+    "rayleigh_scattering_scale": 0.0331
+  },
+  "camera_profiles": {
+    "clean": {
+      "sensor_id": "CAM_FRONT_CLEAN",
+      "lens_flare_intensity": 0.0,
+      "bloom_intensity": 0.0
+    },
+    "medium": {
+      "sensor_id": "CAM_FRONT_MEDIUM",
+      "lens_flare_intensity": 0.75,
+      "bloom_intensity": 1.5
+    },
+    "heavy": {
+      "sensor_id": "CAM_FRONT_HEAVY",
+      "lens_flare_intensity": 1.5,
+      "bloom_intensity": 3.0
+    }
+  },
+  "capture": {
+    "route_progress_window": [
+      0.0,
+      0.35
+    ],
+    "stride_simulator_ticks": 2,
+    "minimum_saved_frames": 40,
+    "maximum_saved_frames": 80,
+    "minimum_visible_pedestrian_frames": 8,
+    "same_tick_required": true,
+    "continuous_frames_required": true,
+    "orion_loaded": false,
+    "adapter_loaded": false,
+    "bev_postprocess": false
+  },
+  "visual_metrics": {
+    "hazard_roi": "Per-frame projection of the nearest visible pedestrian 3D bounding box; vehicles are only a diagnostic fallback and cannot satisfy the pedestrian-frame gate.",
+    "control_roi": "Equal-size image-corner region chosen farthest from the projected actor box; descriptive only and not asserted to be a task-relevance label.",
+    "metrics": [
+      "same_tick_sensor_frame_equality",
+      "global_mean_absolute_pixel_delta",
+      "projected_actor_bbox_edge_visibility_ratio",
+      "projected_actor_bbox_contrast_ratio",
+      "equal_area_control_roi_edge_visibility_ratio",
+      "saturated_pixel_fraction",
+      "residual_temporal_jerk_normalized_by_mean_effect"
+    ]
+  },
+  "frozen_visual_gates": {
+    "all_saved_triplets_same_tick": true,
+    "minimum_saved_frames": 40,
+    "minimum_visible_pedestrian_frames": 8,
+    "medium_global_mad_minimum": 5.0,
+    "heavy_global_mad_strictly_above_medium": true,
+    "medium_actor_edge_visibility_ratio_maximum": 0.98,
+    "medium_normalized_residual_temporal_jerk_maximum": 0.5
+  },
+  "post_visual_decision": {
+    "if_pass": "Permit one separately preregistered Route203 ORION task/safety-proxy read using frozen medium; heavy remains stress-only.",
+    "if_fail": "Do not tune on Route203 outcomes. Return to renderer/camera attribution diagnostics or abandon this glare mechanism.",
+    "closed_loop_matrix_allowed": false,
+    "adapter_training_or_checkpoint_selection_allowed": false,
+    "formal_stage2l_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "claim_boundary": "Second-route renderer confirmation only; no uncertainty, VLM understanding, task degradation, trajectory, collision, TTC, closed-loop or safety claim."
+}

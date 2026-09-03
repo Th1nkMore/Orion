@@ -1,0 +1,102 @@
+{
+  "schema": "orion.stage2l-v14-u-concept-lora-protocol/v1",
+  "created_at": "2026-09-02T15:39:45+08:00",
+  "status": "bounded_u_concept_lora_smoke",
+  "purpose": "Runtime-corrected restart of the bounded U-only ORION LoRA smoke after Job 1131435 completed sixteen finite optimizer steps and then rejected a valid single-field example whose six same-group variants all had the same field value.",
+  "supersedes_failed_job": {
+    "job_id": "1131435",
+    "state": "FAILED",
+    "exit_code": "1:0",
+    "elapsed": "00:16:00",
+    "completed_optimizer_steps": 16,
+    "failed_optimizer_step": 17,
+    "failure_group": "route160_step518_saved_0048",
+    "failure_variant": "component_shifted_u",
+    "failure_field": "U_TREND",
+    "failure_value": "stable",
+    "failure_class": "valid_field_without_same_group_contrast_was_treated_as_fatal"
+  },
+  "runtime_fix": {
+    "full_answer_same_group_preference_required": true,
+    "field_preference_applied_only_when_same_group_answer_differs": true,
+    "field_without_contrast_policy": "target_nll_only",
+    "cross_scene_negative_used": false,
+    "synthetic_label_used": false,
+    "curriculum_pairing": "All thirty-six U-variant and U-field combinations are covered once per thirty-six optimizer steps; fields are no longer permanently bound to variants.",
+    "thresholds_changed": false,
+    "model_capacity_changed": false,
+    "frozen_inputs_changed": false
+  },
+  "input_sha256": {
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "v11_records_sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101",
+    "dataset_audit_report_sha256": "2d8d2879a5ac9383887a95304bc5c9d3c3740aadaee3d720dac9a272c9c9c2f7",
+    "view_feature_cache_sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61",
+    "u_tokenizer_checkpoint_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "orion_config_sha256": "0920526b2eae94a25110bee882f8df9d51fdff6625d465d6d2d62ee96274f576",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v14_1_u_concept_lora_17event_200_v1/training",
+  "architecture": {
+    "direct_u_tokens_enter_orion": true,
+    "r_input_present": false,
+    "route_or_task_prompt_present": false,
+    "stage1_trainable": false,
+    "u_tokenizer_trainable": false,
+    "orion_trainable_scope": "lora_only",
+    "trajectory_or_control_loss": false,
+    "density_uq_or_governor_used": false
+  },
+  "data": {
+    "events": 17,
+    "train_events": 13,
+    "dev_events": 4,
+    "matched_groups": 80,
+    "train_groups": 60,
+    "dev_groups": 20,
+    "u_variants_per_group": 6,
+    "qa_fields_per_variant": 6,
+    "observed_u_source": "frozen_stage1_observation_adapter",
+    "counterfactual_contract": "Except for the exact zero definition anchor, every counterfactual preserves the exact observed U value multiset.",
+    "same_visual_context_across_matched_u": true
+  },
+  "training": {
+    "optimizer_steps": 200,
+    "event_sampling": "Round-robin over thirteen train events with deterministic within-event shuffling.",
+    "variant_field_sampling": "Deterministic thirty-six-pair curriculum covering every U variant with every U field.",
+    "supervision_per_step": "One full six-field answer and one single-field answer; the field preference term is omitted only when no answer-changing same-group U variant exists.",
+    "learning_rate": 0.00002,
+    "weight_decay": 0.0001,
+    "preference_margin": 0.5,
+    "preference_weight": 1.0,
+    "field_loss_weight": 0.5,
+    "gradient_clip_norm": 1.0,
+    "first_nonfinite_value_fail_fast": true,
+    "automatic_retry": false,
+    "automatic_extension": false
+  },
+  "soft_diagnostics": {
+    "minimum_dev_target_preference": 0.75,
+    "minimum_dev_zero_preference": 0.75,
+    "minimum_full_minus_removed_u": 0.25,
+    "minimum_generated_field_accuracy": 0.5,
+    "quality_diagnostics_block_completion": false
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "04:00:00",
+    "maximum_submissions": 1
+  },
+  "locks": {
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "locked_test_allowed": false,
+    "extra_epochs_allowed": false,
+    "automatic_downstream_unlock": false
+  },
+  "claim_boundary": "This remains a bounded U-concept acquisition smoke, not task-relevance, trajectory, closed-loop, safety, or external-generalization evidence."
+}

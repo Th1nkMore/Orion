@@ -122,6 +122,20 @@ class Orion(MVXTwoStageDetector):
                  loss_vae_gen=dict(type='ProbabilisticLoss', loss_weight=1.0),
                  plan_cls_loss_smooth = False,
                  use_uncertainty_l2 = False,  # [UQ] FiLM L2 at VAE level
+                 use_uq_token = False,  # [UQ] explicit density token for LLM
+                 uq_token_checkpoint = '',
+                 uq_token_count = 1,
+                 uq_token_hidden_dim = 512,
+                 uq_active_dim = 16,
+                 use_uq_vision_adapter = False,
+                 uq_vision_adapter_dim = 256,
+                 use_bev_uncertainty = False,  # [UQ] spatial uncertainty cost
+                 bev_lambda = 0.5,
+                 use_stage2_spatial_uq = False,
+                 stage2_spatial_uq_source = 'disabled',
+                 stage1_spatial_uq_checkpoint = '',
+                 stage1_spatial_uq_checkpoint_sha256 = '',
+                 stage1_spatial_uq_warmup_frames = 60,
                  ):
         super(Orion, self).__init__(pts_voxel_layer, pts_voxel_encoder,
                              pts_middle_encoder, pts_fusion_layer,
@@ -134,6 +148,8 @@ class Orion(MVXTwoStageDetector):
         self.use_grid_mask = use_grid_mask
         self.stride = stride
         self.use_col_loss = use_col_loss
+        self.use_bev_uncertainty = use_bev_uncertainty
+        self.bev_lambda = bev_lambda
         self.position_level = position_level
         self.aux_2d_only = aux_2d_only
         self.query_pos = nn.Sequential(
@@ -195,6 +211,102 @@ class Orion(MVXTwoStageDetector):
         if lm_head is not None:
             lm_kwargs = dict(use_gen_token=use_gen_token,use_critical_qa=use_critical_qa)
             self.lm_head = load_model(lm_head, use_lora, frozen, lm_kwargs, fp16_infer)
+        self.use_uq_token = use_uq_token
+        self.uq_token_checkpoint = uq_token_checkpoint
+        self.uq_active_dim = uq_active_dim
+        self.use_uq_vision_adapter = use_uq_vision_adapter
+        if self.use_uq_vision_adapter:
+            if lm_head is None:
+                raise ValueError("use_uq_vision_adapter requires lm_head")
+            from uq_estimator.vision_adapter import UQVisionAdapter
+            self.uq_vision_adapter = UQVisionAdapter(
+                llm_dim=self.lm_head.config.hidden_size,
+                bottleneck_dim=uq_vision_adapter_dim,
+            )
+        if self.use_uq_token:
+            if lm_head is None:
+                raise ValueError("use_uq_token requires lm_head")
+            from uq_estimator.token_projector import UQTokenProjector
+            self.uq_token_projector = UQTokenProjector(
+                active_dim=uq_active_dim,
+                hidden_dim=uq_token_hidden_dim,
+                llm_dim=self.lm_head.config.hidden_size,
+                token_count=uq_token_count,
+            )
+            from uq_estimator.grounding import UQGroundingHead
+            self.uq_grounding_head = UQGroundingHead(
+                input_dim=self.lm_head.config.hidden_size
+            )
+
+        # The new spatial Stage-1/Stage-2 path has a separate name and contract
+        # from every legacy scalar Density conditioning mechanism above.
+        self.use_stage2_spatial_uq = bool(use_stage2_spatial_uq)
+        self.stage2_spatial_uq_source = str(stage2_spatial_uq_source)
+        self.stage1_spatial_uq_checkpoint_sha256 = str(
+            stage1_spatial_uq_checkpoint_sha256 or ''
+        )
+        self.stage1_spatial_uq_runtime = None
+        self.stage1_spatial_uq_runtime_output = None
+        if self.use_stage2_spatial_uq:
+            if self.stage2_spatial_uq_source not in {
+                'external_oracle', 'learned_adapter', 'precomputed_adapter'
+            }:
+                raise ValueError(
+                    'Stage-2 spatial UQ source must be external_oracle, '
+                    'learned_adapter, or precomputed_adapter'
+                )
+            density_head_enabled = bool(
+                getattr(self.pts_bbox_head, 'use_uncertainty', False)
+            )
+            if any((
+                density_head_enabled,
+                bool(use_uq_token),
+                bool(use_uq_vision_adapter),
+                bool(use_uncertainty_l2),
+                bool(use_bev_uncertainty),
+            )):
+                raise ValueError(
+                    'Stage-2 spatial UQ requires every legacy Density/scalar UQ path off'
+                )
+            if not bool(getattr(self.pts_bbox_head, 'use_stage2_spatial_uq', False)):
+                raise ValueError('ORION head has not enabled Stage-2 spatial UQ fusion')
+            if lm_head is None:
+                raise ValueError('Stage-2 spatial UQ requires the ORION VLM head')
+            if self.stage2_spatial_uq_source == 'learned_adapter':
+                if not stage1_spatial_uq_checkpoint:
+                    raise ValueError(
+                        'learned_adapter source requires a frozen Stage-1 checkpoint'
+                    )
+                from uq_estimator.spatial_uq_runtime import (
+                    FrozenSpatialObservationUQRuntime,
+                )
+                self.stage1_spatial_uq_runtime = FrozenSpatialObservationUQRuntime(
+                    stage1_spatial_uq_checkpoint,
+                    expected_sha256=(
+                        stage1_spatial_uq_checkpoint_sha256 or None
+                    ),
+                    warmup_frames=int(stage1_spatial_uq_warmup_frames),
+                )
+            elif self.stage2_spatial_uq_source == 'precomputed_adapter':
+                if stage1_spatial_uq_checkpoint:
+                    raise ValueError(
+                        'precomputed_adapter must not load Stage-1 inside ORION'
+                    )
+                if len(self.stage1_spatial_uq_checkpoint_sha256) != 64:
+                    raise ValueError(
+                        'precomputed_adapter requires an attested Stage-1 SHA256'
+                    )
+            elif stage1_spatial_uq_checkpoint or self.stage1_spatial_uq_checkpoint_sha256:
+                raise ValueError(
+                    'external_oracle source must not claim a learned Stage-1 checkpoint'
+                )
+        elif (
+            self.stage2_spatial_uq_source != 'disabled'
+            or stage1_spatial_uq_checkpoint
+            or self.stage1_spatial_uq_checkpoint_sha256
+            or bool(getattr(self.pts_bbox_head, 'use_stage2_spatial_uq', False))
+        ):
+            raise ValueError('disabled Stage-2 spatial UQ has inconsistent configuration')
         if use_gen_token:
             add_special_token([EGO_WAYPOINT_TOKEN], tokenizer = self.tokenizer, model = self.lm_head)
             self.lm_head.config.waypoint_token_idx = self.tokenizer(EGO_WAYPOINT_TOKEN, add_special_tokens=False).input_ids[0]
@@ -369,6 +481,12 @@ class Orion(MVXTwoStageDetector):
 
         img_feats_reshaped = img_feats[self.position_level].view(B, int(BN/B), C, H, W)
 
+        # The standalone Stage-1 adapter is intentionally outside ORION and
+        # reads the same frozen EVAViT grid after the forward pass.  Capture is
+        # opt-in so ordinary training/inference retains no extra tensor.
+        if getattr(self, 'capture_observation_uq_features', False):
+            self.observation_uq_features = img_feats_reshaped.detach()
+
 
         return img_feats_reshaped
 
@@ -377,6 +495,70 @@ class Orion(MVXTwoStageDetector):
         """Extract features from images and points."""
         img_feats = self.extract_img_feat(img)
         return img_feats
+
+    def reset_stage2_spatial_uq_state(self):
+        """Reset causal Stage-1 history at an explicit route boundary."""
+        if self.stage1_spatial_uq_runtime is not None:
+            self.stage1_spatial_uq_runtime.reset()
+        self.stage1_spatial_uq_runtime_output = None
+        if hasattr(self.pts_bbox_head, 'stage2_planning_context'):
+            self.pts_bbox_head.stage2_planning_context = None
+            self.pts_bbox_head.stage2_observation_uq = None
+            self.pts_bbox_head.stage2_task_context = None
+            self.pts_bbox_head.stage2_selected_uq_tokens = None
+            self.pts_bbox_head.stage2_task_output = None
+
+    def _attach_stage2_spatial_uq(self, data):
+        """Attach either an oracle map or the frozen learned Stage-1 map."""
+        if not self.use_stage2_spatial_uq:
+            return
+        if self.stage2_spatial_uq_source == 'learned_adapter':
+            if self.training:
+                raise RuntimeError(
+                    'stateful learned_adapter runtime is forbidden in shuffled '
+                    'training batches; Stage-2B must use attested precomputed_adapter maps'
+                )
+            if 'stage2_spatial_uq' in data:
+                raise RuntimeError(
+                    'learned_adapter mode refuses an externally supplied oracle map'
+                )
+            output = self.stage1_spatial_uq_runtime(data['img_feats'])
+            self.stage1_spatial_uq_runtime_output = output
+            data['stage2_spatial_uq'] = output.calibrated_score
+        else:
+            observation_uq = data.get('stage2_spatial_uq')
+            if observation_uq is None:
+                raise RuntimeError(
+                    '%s mode requires stage2_spatial_uq in the batch'
+                    % self.stage2_spatial_uq_source
+                )
+            if not isinstance(observation_uq, torch.Tensor):
+                observation_uq = torch.as_tensor(
+                    observation_uq,
+                    device=data['img_feats'].device,
+                    dtype=data['img_feats'].dtype,
+                )
+            input_semantics = getattr(
+                self.pts_bbox_head, 'stage2_input_semantics', 'observation_u'
+            )
+            if input_semantics == 'task_risk_k':
+                if observation_uq.ndim == 3:
+                    observation_uq = observation_uq.unsqueeze(0)
+                if observation_uq.ndim != 4:
+                    raise RuntimeError(
+                        'task_risk_k must have [B,V,H,W] shape'
+                    )
+            else:
+                if observation_uq.ndim == 4:
+                    observation_uq = observation_uq.unsqueeze(0)
+                if observation_uq.ndim != 5:
+                    raise RuntimeError(
+                        'observation_u must have [B,V,H,W,C] shape'
+                    )
+            data['stage2_spatial_uq'] = observation_uq.detach().to(
+                device=data['img_feats'].device,
+                dtype=data['img_feats'].dtype,
+            )
 
     def prepare_location(self, img_metas, **data):
         pad_h, pad_w, _ = img_metas[0]['pad_shape'][0]
@@ -510,9 +692,76 @@ class Orion(MVXTwoStageDetector):
         img_metas = [img_meta[0] for img_meta in img_metas]
 
         data['img_feats'] = self.extract_feat(data['img'])
+        self._attach_stage2_spatial_uq(data)
         losses = self.forward_pts_train(gt_bboxes_3d, gt_labels_3d, gt_attr_labels,map_gt_bboxes_3d, map_gt_labels_3d, img_metas,input_ids, vlm_labels, vlm_attn_mask, ego_fut_trajs,**data)
 
         return losses
+
+    def _append_uq_tokens(
+        self,
+        vision_tokens,
+        uncertainty_embedding,
+        uncertainty_score,
+        active_embedding=None,
+    ):
+        """Append explicit density uncertainty tokens to the LLM visual input."""
+        if not self.use_uq_token:
+            return vision_tokens
+        inference_mode = getattr(self, 'uq_inference_mode', 'correct')
+        inference_conditioning = getattr(
+            self, 'uq_inference_conditioning', 'token'
+        )
+        if not self.training and inference_conditioning == 'vision_adapter':
+            return vision_tokens
+        if not self.training and inference_mode == 'none':
+            return vision_tokens
+        if uncertainty_embedding is None or uncertainty_score is None:
+            raise RuntimeError("UQ token conditioning requires density UQ outputs")
+
+        uq_output = getattr(self.pts_bbox_head, 'uq_output', None)
+        if active_embedding is None:
+            active_embedding = (
+                getattr(uq_output, 'active_embedding', None)
+                if uq_output is not None else None
+            )
+        if active_embedding is None:
+            active_embedding = uncertainty_embedding[:, :self.uq_active_dim]
+        if not self.training and inference_mode == 'zero':
+            uncertainty_score = torch.zeros_like(uncertainty_score)
+            active_embedding = torch.zeros_like(active_embedding)
+
+        uq_tokens = self.uq_token_projector(
+            active_embedding,
+            uncertainty_score,
+        ).to(device=vision_tokens.device, dtype=vision_tokens.dtype)
+        self.uq_token_norm = torch.linalg.vector_norm(
+            uq_tokens.detach().float(), dim=-1
+        ).mean()
+        return torch.cat((vision_tokens, uq_tokens), dim=1)
+
+    def _adapt_vision_tokens(self, vision_tokens, uncertainty_score):
+        """Condition pre-LLM visual queries without changing sequence length."""
+        if not self.use_uq_vision_adapter:
+            return vision_tokens
+        inference_mode = getattr(self, 'uq_inference_mode', 'correct')
+        inference_conditioning = getattr(
+            self, 'uq_inference_conditioning', 'vision_adapter'
+        )
+        if not self.training and inference_conditioning == 'token':
+            return vision_tokens
+        if not self.training and inference_mode == 'none':
+            return vision_tokens
+        if uncertainty_score is None:
+            raise RuntimeError("Vision adapter requires density UQ scores")
+        if not self.training and inference_mode == 'zero':
+            uncertainty_score = torch.zeros_like(uncertainty_score)
+        adapted = self.uq_vision_adapter(
+            vision_tokens, uncertainty_score
+        )
+        self.uq_vision_adapter_delta = torch.linalg.vector_norm(
+            (adapted - vision_tokens).detach().float(), dim=-1
+        ).mean()
+        return adapted
 
 
     def forward_pts_train(self,
@@ -546,7 +795,7 @@ class Orion(MVXTwoStageDetector):
         losses = dict()
 
         if self.with_pts_bbox:
-            outs_bbox, det_query, _uncertainty_emb = self.pts_bbox_head(img_metas, pos_embed, **data) # (1, 257, 4096)
+            outs_bbox, det_query, _uncertainty_emb, _uncertainty_score = self.pts_bbox_head(img_metas, pos_embed, **data) # (1, 257, 4096)
             vision_embeded_obj = det_query.clone()
             loss_inputs = [gt_bboxes_3d, gt_labels_3d, outs_bbox, gt_attr_labels]
             if self.pts_bbox_head.pred_traffic_light_state:
@@ -577,6 +826,12 @@ class Orion(MVXTwoStageDetector):
         if self.with_lm_head:
             if self.use_gen_token:
                 vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1) # (1, 513, 4096)
+                vision_embeded = self._adapt_vision_tokens(
+                    vision_embeded, _uncertainty_score
+                )
+                vision_embeded = self._append_uq_tokens(
+                    vision_embeded, _uncertainty_emb, _uncertainty_score
+                )
                 vlm_loss, ego_feature = self.lm_head(input_ids=input_ids, attention_mask=vlm_attn_mask, labels=vlm_labels, images=vision_embeded, use_cache=False, return_ego_feature=True)
                 if self.mix_qa_training:
                     dummy_ego_feature = self.lm_head.get_model().embed_tokens(torch.tensor([[self.lm_head.config.waypoint_token_idx] for _ in range(B)]).cuda())
@@ -588,11 +843,18 @@ class Orion(MVXTwoStageDetector):
                 losses.update(vlm_loss=vlm_loss[0])
                 current_states = ego_feature.unsqueeze(1)
 
-                # [UQ] FiLM L2: modulate current_states before VAE path
+                # [UQ] Score-Gated FiLM L2: modulate current_states before VAE path
                 if self.use_uncertainty_l2 and _uncertainty_emb is not None:
-                    gamma_l2 = self.film_gamma_l2(_uncertainty_emb)  # [B, 4096]
-                    beta_l2 = self.film_beta_l2(_uncertainty_emb)    # [B, 4096]
-                    current_states = gamma_l2.unsqueeze(1) * current_states + beta_l2.unsqueeze(1)  # [B, 1, 4096]
+                    gamma_raw_l2 = self.film_gamma_l2(_uncertainty_emb)  # [B, 4096]
+                    beta_raw_l2 = self.film_beta_l2(_uncertainty_emb)    # [B, 4096]
+                    if _uncertainty_score is not None:
+                        s = _uncertainty_score.unsqueeze(-1)  # [B, 1, 1]
+                        gamma_l2 = 1.0 + s * (gamma_raw_l2.unsqueeze(1) - 1.0)
+                        beta_l2 = s * beta_raw_l2.unsqueeze(1)
+                    else:
+                        gamma_l2 = gamma_raw_l2.unsqueeze(1)
+                        beta_l2 = beta_raw_l2.unsqueeze(1)
+                    current_states = gamma_l2 * current_states + beta_l2  # [B, 1, 4096]
 
                 if not self.use_diff_decoder and not self.use_mlp_decoder:
                     distribution_comp = {}
@@ -702,6 +964,12 @@ class Orion(MVXTwoStageDetector):
             else:
                 waypoint = None
                 vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1) # (1, 513, 4096)
+                vision_embeded = self._adapt_vision_tokens(
+                    vision_embeded, _uncertainty_score
+                )
+                vision_embeded = self._append_uq_tokens(
+                    vision_embeded, _uncertainty_emb, _uncertainty_score
+                )
                 vlm_loss= self.lm_head(input_ids=input_ids, attention_mask=vlm_attn_mask, labels=vlm_labels, images=vision_embeded, use_cache=False)
                 losses.update(vlm_loss=vlm_loss[0])
         return losses
@@ -712,6 +980,7 @@ class Orion(MVXTwoStageDetector):
                 self.pts_bbox_head.reset_memory()
             if self.with_map_head:
                 self.map_head.reset_memory()
+            self.reset_stage2_spatial_uq_state()
             self.test_flag = True
         for var, name in [(img_metas, 'img_metas')]:
             if not isinstance(var, list):
@@ -736,7 +1005,7 @@ class Orion(MVXTwoStageDetector):
         pos_embed = self.position_embeding(data, location, img_metas)
         bbox_results = []
         if self.with_pts_bbox:
-            outs, det_query, uncertainty_emb = self.pts_bbox_head(img_metas, pos_embed, **data)
+            outs, det_query, uncertainty_emb, _uncertainty_score = self.pts_bbox_head(img_metas, pos_embed, **data)
             vision_embeded_obj = det_query.clone()
             if self.use_col_loss:
                 bbox_list = self.pts_bbox_head.get_motion_bboxes(
@@ -785,6 +1054,12 @@ class Orion(MVXTwoStageDetector):
         if self.with_lm_head:
             history_input_output_id = []
             vision_embeded = torch.cat([vision_embeded_obj, vision_embeded_map], dim=1) # (1, 513, 4096)
+            vision_embeded = self._adapt_vision_tokens(
+                vision_embeded, _uncertainty_score
+            )
+            vision_embeded = self._append_uq_tokens(
+                vision_embeded, uncertainty_emb, _uncertainty_score
+            )
             for i, input_ids in enumerate(data['input_ids'][0]):
                 input_ids = input_ids.unsqueeze(0)
                 special_token_inputs = False
@@ -814,11 +1089,18 @@ class Orion(MVXTwoStageDetector):
                     ego_feature = ego_feature.to(torch.float32)
                     current_states = ego_feature.unsqueeze(1)
 
-                    # [UQ] FiLM L2: modulate current_states before VAE path
+                    # [UQ] Score-Gated FiLM L2: modulate current_states before VAE path
                     if hasattr(self, 'use_uncertainty_l2') and self.use_uncertainty_l2 and uncertainty_emb is not None:
-                        gamma_l2 = self.film_gamma_l2(uncertainty_emb)  # [B, 4096]
-                        beta_l2 = self.film_beta_l2(uncertainty_emb)    # [B, 4096]
-                        current_states = gamma_l2.unsqueeze(1) * current_states + beta_l2.unsqueeze(1)  # [B, 1, 4096]
+                        gamma_raw_l2 = self.film_gamma_l2(uncertainty_emb)  # [B, 4096]
+                        beta_raw_l2 = self.film_beta_l2(uncertainty_emb)    # [B, 4096]
+                        if _uncertainty_score is not None:
+                            s = _uncertainty_score.unsqueeze(-1)  # [B, 1, 1]
+                            gamma_l2 = 1.0 + s * (gamma_raw_l2.unsqueeze(1) - 1.0)
+                            beta_l2 = s * beta_raw_l2.unsqueeze(1)
+                        else:
+                            gamma_l2 = gamma_raw_l2.unsqueeze(1)
+                            beta_l2 = beta_raw_l2.unsqueeze(1)
+                        current_states = gamma_l2 * current_states + beta_l2  # [B, 1, 4096]
 
                     if not self.use_diff_decoder and not self.use_mlp_decoder: # VAE-based generate
                         distribution_comp = {}
@@ -894,6 +1176,21 @@ class Orion(MVXTwoStageDetector):
                                 timestep=k,
                                 sample=img
                             ).prev_sample
+                        # [UQ] BEV uncertainty cost for spatial-aware mode selection
+                        if hasattr(self, 'use_bev_uncertainty') and self.use_bev_uncertainty:
+                            from uq_estimator.bev_uncertainty import (
+                                compute_bev_uncertainty, compute_trajectory_cost, adjust_mode_scores
+                            )
+                            bev_unc = compute_bev_uncertainty(
+                                self._attn_hook['attn_weights'], self._patch_quality
+                            )
+                            ref_xy = self.pts_bbox_head.reference_points.weight[:, :2].detach()
+                            ref_xy_m = ref_xy * (self.pc_range[3] - self.pc_range[0]) + self.pc_range[0]
+                            traj_cost = compute_trajectory_cost(bev_unc, ref_xy_m, poses_reg[..., :2], k=5)
+                            poses_cls = adjust_mode_scores(
+                                poses_cls, traj_cost, _uncertainty_score, lambda_val=self.bev_lambda
+                            )
+
                         mode_idx = poses_cls.argmax(dim=-1)
                         mode_masks = torch.zeros(*poses_cls.shape[:2],device=poses_cls.device)
                         for mask, idx in zip(mode_masks, mode_idx):
@@ -998,6 +1295,7 @@ class Orion(MVXTwoStageDetector):
     def simple_test(self, img_metas, **data):
         """Test function without augmentaiton."""
         data['img_feats'] = self.extract_feat(data['img'])
+        self._attach_stage2_spatial_uq(data)
         bbox_list = [dict() for i in range(len(img_metas))]
         if data['img'].dim() == 4: # (6,3,640,640)
             data['img'] = data['img'].unsqueeze(0)

@@ -1,0 +1,246 @@
+{
+  "experiment_id": "uqcl_p0",
+  "amendments": [
+    {
+      "timestamp": "2026-08-25T17:10:00+08:00",
+      "phase": "after first runtime smoke, before screening the remaining routes",
+      "type": "execution-only fast-screen rule",
+      "rule": "Cancel and mark a clean baseline route ineligible for Stage B when absolute ego speed remains below 0.25 m/s for at least 8.0 consecutive simulation seconds before route completion.",
+      "scope": "Apply prospectively and uniformly to every remaining clean baseline. A fast-screen cancellation is not an official collision, infraction, blocked-agent, or timeout outcome.",
+      "rationale": "ORION inference is much slower than simulation time, so waiting for the evaluator's long blocked-agent timeout would consume hours without making an immobile clean baseline suitable for the causal matrix.",
+      "triggering_observation": {
+        "route": 148,
+        "condition": "clean_off",
+        "slurm_job": 1051652,
+        "governor_mode": "off",
+        "low_speed_threshold_mps": 0.25,
+        "interval_sim_seconds": [
+          12.0,
+          20.65
+        ],
+        "duration_sim_seconds": 8.65,
+        "integrated_absolute_speed_upper_bound_m": 0.128,
+        "disposition": "cancelled and excluded from Stage B; no official outcome claimed"
+      }
+    },
+    {
+      "timestamp": "2026-08-25T17:17:00+08:00",
+      "phase": "after discovering the installed CARLA map set, before observing any replacement-route outcome",
+      "type": "environment-constrained route replacement",
+      "observation": "The installed CARLA 0.9.15 package contains Town01--Town05 and Town10HD but not Town12; routes 25 and 113 therefore cannot be loaded.",
+      "rule": "Replace the unavailable and fast-screened routes with three official one-scenario Bench2Drive routes on installed maps, chosen before running them: the shortest compatible pedestrian-crossing route, the shortest compatible opposing-red-light route, and the lowest-index route among the shortest compatible dynamic-object-crossing routes.",
+      "replacement_routes": [
+        {
+          "route": 203,
+          "town": "Town04",
+          "scenario": "PedestrianCrossing",
+          "length_m": 66.5,
+          "selection": "shortest compatible pedestrian-crossing route"
+        },
+        {
+          "route": 195,
+          "town": "Town03",
+          "scenario": "OppositeVehicleRunningRedLight",
+          "length_m": 73.5,
+          "selection": "shortest compatible opposing-red-light route"
+        },
+        {
+          "route": 146,
+          "town": "Town01",
+          "scenario": "DynamicObjectCrossing",
+          "length_m": 134.0,
+          "selection": "lowest index among the shortest compatible dynamic-object-crossing routes"
+        }
+      ],
+      "disposition": "Run clean_off and corrupt_off on all three replacements; retain the original Stage-A and Stage-B gates. The failed Town12 launch is an environment error, not an experimental outcome."
+    },
+    {
+      "timestamp": "2026-08-25T17:29:00+08:00",
+      "phase": "during route 203 clean_off, before any compatible-route corrupted or governor outcome",
+      "type": "scientific scope contraction and terminology correction",
+      "changes": [
+        "Pause the full Stage-B constant, shuffled, learned-governor, and hazard/nohazard matrix.",
+        "Restrict current execution to clean_off and front_corrupt_off.",
+        "Rename corrupt_correct to front_corrupt_aligned_learned because the Density score is only temporally aligned and is not known to be semantically correct.",
+        "After one route has a valid clean baseline and clearly worse corrupted-off behavior, test a known-corruption oracle through the same bounded governor before any learned-governor expansion.",
+        "Require a finite, pre-fixed corruption event window for oracle and later learned causal comparison; retain full-route dropout only as a failure-induction screen."
+      ],
+      "decision_logic": {
+        "oracle_fails": "stop and redesign the governor or scenario",
+        "oracle_succeeds_learned_fails": "treat current UQ as the bottleneck and do not expand the matrix",
+        "learned_matches_constant": "interpret as generic slowing, not temporal or semantic UQ value",
+        "learned_beats_off_constant_shuffled_and_nears_oracle": "eligible for later multi-route, multi-seed, and nohazard expansion",
+        "clean_matches_corrupted": "failure induction failed; route is ineligible"
+      }
+    },
+    {
+      "timestamp": "2026-08-26T00:27:00+08:00",
+      "phase": "after the first route 203 front_corrupt_off attempt, before any retry or governor run",
+      "type": "environment-error retry rule",
+      "observation": "Slurm job 1055876 reached 18.8 simulation seconds and 51.16% route progress, then Bench2Drive raised SensorReceivedNoData after the CARLA sensor queue remained empty for its fixed 300-second timeout. The evaluator marked the run ineligible and recorded no collision before the crash.",
+      "rule": "Exclude job 1055876 from safety comparisons and allow exactly one identical front_corrupt_off retry. Do not change the route, corruption, model, governor, or evaluation thresholds. If the same sensor failure repeats, stop this route instead of retrying again.",
+      "resource_note": "gpu4 is the only currently available node already validated for CARLA Vulkan. Two CPUs are sufficient for the observed evaluator and CARLA CPU load; the failure was a five-minute sensor/render stall, not CPU saturation.",
+      "disposition": "Keep the partial trace and visualizations as diagnostic-only artifacts; no official safety outcome is claimed."
+    },
+    {
+      "timestamp": "2026-08-26T01:22:00+08:00",
+      "phase": "after route 195 clean_off failed during Town03 loading, before starting route 146",
+      "type": "environment-constrained route exclusion",
+      "observation": "Route 195 clean_off job 1057169 never reached agent setup or a control frame because CARLA segfaulted while loading Town03. A model-free CARLA runtime smoke, job 1057187, reproduced the same Signal 11 while calling load_world(\"Town03\") with the same gpu4 Vulkan runtime.",
+      "rule": "Exclude route 195 from Stage A on the current CARLA installation. Do not retry the full ORION run, and do not classify either job as a model, safety, collision, or completion outcome.",
+      "diagnostic_exclusions": "Jobs 1057183 and 1057185 were invalid smoke invocations that failed before map loading because their compatibility-Python or Vulkan-loader environment differed from the official job; they provide no evidence about Town03.",
+      "disposition": "Proceed to the already preselected route 146 on Town01, preserving the clean_off-before-front_corrupt_off gate and all Stage-B restrictions."
+    },
+    {
+      "timestamp": "2026-08-26T01:48:00+08:00",
+      "phase": "after the first route 146 clean_off attempt, before any retry or corrupted run",
+      "type": "environment-error clean retry rule",
+      "observation": "Route 146 clean_off job 1057201 drove normally to 12.35 simulation seconds and 37.91% route progress, then produced no sensor frame for the evaluator's fixed 300-second queue timeout. Bench2Drive raised SensorReceivedNoData, marked entry_status=Crashed and eligible=false, and ended the run as Failed - Simulation crashed.",
+      "rule": "Exclude job 1057201 from every safety and completion comparison and allow exactly one identical route 146 clean_off retry. Do not change the route, model, resources, governor, corruption, or evaluation thresholds. If SensorReceivedNoData repeats, exclude route 146 instead of retrying a third time.",
+      "rationale": "The same transient sensor failure occurred once on route 203 and its single identical retry completed, so one pre-declared retry is informative without opening an unlimited retry path.",
+      "disposition": "Keep the partial trace and visualizations as diagnostic-only artifacts. Do not submit front_corrupt_off unless the identical clean retry produces an eligible baseline."
+    },
+    {
+      "timestamp": "2026-08-26T02:51:00+08:00",
+      "phase": "during the first route 146 front_corrupt_off attempt, after runtime diagnosis and before cancellation or retry",
+      "type": "execution-only no-progress watchdog and single-retry rule",
+      "observation": "Job 1057242 stopped appending control_trace.jsonl after 15.65 simulation seconds. During the stall, the A800 reported 0% GPU utilization while retaining 37.9 GB memory, the evaluator process waited on a futex, and neither the agent log nor trace advanced. This is distinct from ego-vehicle low speed and is not a safety outcome.",
+      "rule": "If both the control trace and agent log remain unchanged for at least 8 consecutive wall-clock minutes while Slurm still reports RUNNING, cancel the job and mark it as an environment/runtime error. Allow exactly one identical route 146 front_corrupt_off retry; do not change the route, corruption, model, resources, governor, or thresholds. If the same no-progress or SensorReceivedNoData failure repeats, exclude the corrupted condition instead of retrying again.",
+      "scope": "The watchdog only prevents indefinite A800 occupation. A watchdog cancellation is ineligible for official collision, completion, infraction, or model-behavior comparisons; its partial trace and images remain diagnostic-only.",
+      "disposition": "Do not run any governor or Stage-B condition unless an eligible front_corrupt_off result is obtained."
+    },
+    {
+      "timestamp": "2026-08-26T03:35:00+08:00",
+      "phase": "after the route 146 full-route failure-induction screen, before any finite-window off or oracle run",
+      "type": "diagnostic-screen termination and route-progress event-window preregistration",
+      "observation": "The single identical retry, job 1057253, remained runtime-healthy beyond 43.75 simulation seconds. Saved front and BEV frames show the corrupted-off ego vehicle overlapping and repeatedly contacting the red vehicle near x=186 m from approximately 15.25 simulation seconds onward, whereas the eligible clean baseline passed that vehicle and completed. Contact-induced velocity oscillations repeatedly exceeded the existing 0.25 m/s fast-screen threshold by small amounts and reset Bench2Drive's 0.1 m/s blocked timer, while route position made no forward progress and instead drifted backward. Waiting for the 300-second minimum route timeout would consume several more A800 hours without producing additional failure-induction evidence.",
+      "rule": "Cancel job 1057253 as a completed full-route diagnostic screen. Preserve its trace and visualizations, but do not report an official collision, blocked, infraction, completion, or benchmark score because the evaluator did not write a terminal record. Do not submit another identical full-route retry.",
+      "formal_event_window": {
+        "coordinate": "projected route arc-length fraction",
+        "start_inclusive": 0.3,
+        "end_exclusive": 0.55,
+        "selection_basis": "Fixed before any finite-window run from the eligible clean trace; it begins before the first clean hazard braking at progress 0.367, includes the corrupted-screen vehicle contact near progress 0.452, and ends after the safety-critical region.",
+        "implementation": "Project ego position onto the downsampled global route polyline and apply the same window to camera corruption and the oracle signal. Record route_progress on every control-trace row.",
+        "order": "Run finite-window front_corrupt_off first. Only if it worsens safety, run finite-window front_corrupt_oracle with the identical window and bounded governor."
+      },
+      "interpretation": "The full-route run is evidence that front-view loss can induce a concrete contact failure, not an official benchmark outcome. The finite-window pair is the causal pre-experiment. No learned, constant, shuffled, or hazard/nohazard expansion is authorized."
+    },
+    {
+      "timestamp": "2026-08-26T03:54:00+08:00",
+      "phase": "during route-progress schedule validation, before reaching the registered 0.30 event-window start",
+      "type": "implementation-validation cancellation",
+      "observation": "Finite-window off job 1057273 recorded route_progress=0.0 through 2.0 simulation seconds despite normal forward motion. The schedule projected a GNSS-derived ego position onto CARLA world-coordinate route points, so the coordinate mismatch prevented progress from advancing and would have kept corruption inactive for the entire run.",
+      "rule": "Cancel and exclude job 1057273 before the event window. Compute route progress against the RoutePlanner's own GNSS-converted route points, validate that progress advances before 0.30 and toggles corruption at the registered boundary, then allow one corrected finite-window off run. Do not change the 0.30--0.55 window, route, model, corruption, governor, or safety criteria.",
+      "disposition": "This job is an implementation error with no corrupted control frame and no experimental outcome."
+    },
+    {
+      "timestamp": "2026-08-26T04:04:00+08:00",
+      "phase": "at the registered 0.30 progress boundary during corrected schedule validation, before the clean trace's first hazard braking point at progress 0.367",
+      "type": "event-window boundary validation cancellation",
+      "observation": "Job 1057274 advanced route progress correctly but the GNSS-derived position fluctuated by roughly 1--2 m near the 0.30 boundary, producing false-to-true at 0.3001, true-to-false at 0.2950, and false-to-true at 0.3025. The resulting 0.10-second corruption gap violates the intended single contiguous spatial event window.",
+      "rule": "Cancel and exclude job 1057274 before the safety-critical region. Use the hero actor's simulator world transform projected onto the CARLA world-coordinate route polyline, which is already available to the evaluator and avoids GNSS measurement jitter. Allow one final boundary-validated finite-window off run; keep the registered 0.30--0.55 window and every experimental/control setting unchanged.",
+      "disposition": "This is a schedule-instrumentation error, not a safety or model outcome. The short corrupted segment before cancellation is excluded."
+    },
+    {
+      "timestamp": "2026-08-26T05:00:00+08:00",
+      "phase": "after the finite-window oracle reached the preregistered fast-screen threshold, before any learned, constant, shuffled, or additional-route governor run",
+      "type": "oracle mechanism-gate failure and execution stop",
+      "observation": "Finite-window oracle job 1057294 used the same route 146 corruption window [0.30, 0.55) as the eligible corrupted-off run. The oracle signal became active once at progress 0.30133 and remained active. The vehicle passed the corrupted-off pedestrian collision location without a recorded collision, but later stopped at progress 0.466800 while closely queued behind visible traffic. Its absolute speed remained below 0.25 m/s for 9.00 consecutive simulation seconds from 31.65 through 40.65 simulation seconds. Because both corruption and oracle deactivation were gated on reaching progress 0.55, the halt created an absorbing state in which the front camera could never recover. The evaluator had no terminal record when the uniform fast-screen rule cancelled the job.",
+      "rule": "Classify job 1057294 as diagnostic-only and ineligible for official safety or completion comparison. Because the oracle condition did not complete and therefore did not demonstrate that the current bounded governor improves closed-loop safety, stop the current governor/scenario experiment as required by the predeclared oracle gate.",
+      "disposition": "Do not submit learned, constant, shuffled, hazard/nohazard, seed-expansion, or additional-route governor jobs. Preserve the trace and front/BEV visualizations for redesign. The next experiment must first change and preregister either the conservative-control mechanism or the scenario/event-window design, then re-establish an oracle completion benefit before testing learned Density UQ. A preferred redesign is route/scenario-triggered onset with a fixed simulation-time duration, so camera recovery does not depend on ego progress; this is a new experiment and must not be presented as part of the completed registered pair."
+    },
+    {
+      "timestamp": "2026-08-26T05:14:00+08:00",
+      "phase": "after stopping the spatial-window branch and before any transient-window execution",
+      "type": "exploratory transient-window preregistration",
+      "observation": "The spatial-window oracle exposed an absorbing design artifact: stopping before progress 0.55 prevented the corruption from ever ending. In the eligible spatial-window corrupted-off run, corruption began at 9.85 simulation seconds and the pedestrian collision location was reached at 14.05 seconds, 4.20 seconds later.",
+      "rule": "Open a separately named exploratory run, uqcl_p1_transient. On route 146, trigger front-camera dropout once at route progress 0.30 and terminate it exactly 5.0 simulation seconds after its first active frame, regardless of subsequent route progress. Five seconds is the next whole-second exposure beyond the observed 4.20-second failure latency. Run transient-off first; run the unchanged bounded oracle governor only if transient-off has an eligible terminal record and is worse than clean job 1057222.",
+      "success_criteria": "Oracle must have an eligible terminal record, 100% completion, zero collisions, no blocked or timeout infraction, and a strictly higher official composed score than transient-off. Partial avoidance followed by deadlock is failure.",
+      "interpretation_limit": "The 5.0-second duration was selected using the prior route-146 failure latency, so this is an explicitly exploratory mechanism proof. Even a positive result must be confirmed later under a frozen duration on held-out scenarios before a confirmatory paper claim.",
+      "disposition": "No learned, constant, shuffled, hazard/nohazard, additional-route, or additional-seed work is authorized by this amendment."
+    },
+    {
+      "timestamp": "2026-08-26T06:06:00+08:00",
+      "phase": "after both transient-window jobs completed officially and before any controlled-stop oracle execution",
+      "type": "transient oracle failure and controlled-stop redesign preregistration",
+      "observation": "Transient-off job 1057306 completed 100% with one pedestrian collision at (180.299, 330.31) and score 50. The matched oracle job 1057314 also completed 100% with one pedestrian collision at (183.572, 329.991) and score 50. Its 1.5 m/s speed floor delayed the collision by about 3.3 m but did not prevent it. The recovered front frames no longer showed the pedestrian centered ahead, while BEV placed the crossing actor near the ego path, so immediate re-acceleration still produced lateral contact.",
+      "rule": "Stop the 1.5 m/s-floor governor. Open the separately named uqcl_p2_safe_stop exploratory controller test, reusing the official clean and transient-off references and changing only the oracle minimum speed cap from 1.5 to 0.0 m/s. Keep onset progress 0.30, duration 5.0 simulation seconds, maximum added brake 0.5, route, model, corruption, resources, and every termination criterion fixed.",
+      "success_criteria": "The controlled-stop oracle must produce an eligible terminal record, 100% completion, zero collisions, no blocked or timeout infraction, and a composed score strictly above 50. Any collision or liveness failure rejects this redesign.",
+      "interpretation_limit": "This is post-failure exploratory controller design, not confirmatory evidence. Even success proves only that an accurate transient-outage signal can drive a suitable conservative response; it does not validate Density UQ or LLM understanding.",
+      "disposition": "Run only the single controlled-stop oracle. Do not submit learned, constant, shuffled, hazard/nohazard, additional-route, or additional-seed jobs before its terminal result."
+    },
+    {
+      "timestamp": "2026-08-26T06:38:00+08:00",
+      "phase": "after the controlled-stop oracle produced an eligible terminal result and before any expansion",
+      "type": "exploratory oracle mechanism success and execution pause",
+      "observation": "Controlled-stop oracle job 1057566 activated once at t=10.65 s/progress=0.30121, stopped near progress 0.317 while the front camera was unavailable, restored the camera exactly 5.00 simulation seconds later, then stopped again under the ungoverned recovered ORION policy before the pedestrian crossing and resumed after the hazard cleared. Bench2Drive recorded eligible=true, 100% route completion, zero collisions, no blocked or timeout infraction, score_penalty=1.0, and score_composed=100.0. The longest sub-0.25 m/s interval was 4.65 seconds, below the fixed 8-second fast-screen threshold.",
+      "comparison": "The matched transient-off reference 1057306 completed with one pedestrian collision and score 50. The failed 1.5 m/s-floor oracle 1057314 also retained one pedestrian collision and score 50. Controlled stop therefore changed collision count 1 to 0 and composed score 50 to 100 while retaining 100% completion, at a duration cost of 38.95 versus 30.10 simulation seconds.",
+      "decision": "The redesigned oracle risk-response mechanism passes its exploratory gate. Freeze execution now and preserve all three outcomes and visualizations. Do not yet infer that learned Density UQ will reproduce the oracle result.",
+      "interpretation_limit": "This is a strong mechanism pre-experiment but not a confirmatory learned-UQ result: it is one route and one benchmark realization, the controlled-stop policy was selected after observing the weaker oracle failure, and the oracle uses known corruption state. A paper-level claim requires a frozen-policy held-out confirmation followed by learned/off/constant/shuffled comparisons.",
+      "disposition": "Pause without submitting learned, constant, shuffled, hazard/nohazard, route, or seed expansion jobs."
+    },
+    {
+      "timestamp": "2026-08-28T04:01:14+08:00",
+      "phase": "after pairwise Stage-1 repair and both external evaluations, before any pairwise learned closed-loop trace",
+      "type": "transparent spatial near-miss amendment and bounded operational-trigger continuation",
+      "observation": "The frozen pairwise checkpoint passed unchanged local-glare validation and held-out gates. On final Town01/Route146 plus Town04/Route203 native fog it passed nine of ten checks, including clear < light < heavy on both routes and sample severity Spearman 0.360324, but missed the heavy-fog patch AUROC threshold: 0.590313 versus 0.600000. Exact-pair clear subtraction did not repair spatial ranking.",
+      "rule": "Keep the native spatial gate officially failed and prohibit any claim that the adapter is a validated semantic spatial-UQ map. Because the intended next event is a complete front-camera outage and the frozen checkpoint passed global severity and unseen-family checks, allow exactly one governor-off online trace using a separately frozen causal baseline calibration. Run one learned controlled-stop condition only if that trace passes every predeclared timing, selectivity, and false-trigger check.",
+      "preregistration": "configs/closedloop_uq_pilot/pairwise_learned_trigger_preregistration.json",
+      "disposition": "No constant, shuffled, hazard/nohazard, route, or seed expansion is authorized. A positive learned stop is exploratory one-route mechanism evidence only; a failed trace or control run stops this branch."
+    },
+    {
+      "timestamp": "2026-08-28T04:38:00+08:00",
+      "phase": "during the first governor-off pairwise online trace, after the fixed runtime no-progress threshold",
+      "type": "environment-error cancellation and single identical retry",
+      "observation": "Job 1077501 loaded ORION and the frozen pairwise adapter, froze a 60-frame baseline at t=4.0 s, recorded no pre-event score above 0.0509, and responded to the unseen front-camera dropout on its first active frame with calibrated score 0.8016 followed by persistent scores near 0.9999. At t=11.75 s the evaluator process entered a futex wait, GPU utilization fell to 0%, and both the last completed trace row (t=11.70 s/progress=0.370763) and agent log stopped advancing for more than 8 wall-clock minutes. The event had not ended, so recovery and terminal behavior were unobserved.",
+      "rule": "Cancel job 1077501 and classify it as an environment/runtime error with no official trace-gate, collision, completion, or safety result. Preserve its partial strong-onset response as diagnostic-only. Allow exactly one identical retry with the same checkpoint, source, route, event, calibration, governor-off setting, resources, and frozen thresholds. If the same runtime failure repeats before a complete recovery trace, stop online execution rather than retry again.",
+      "disposition": "Do not submit learned control unless the one identical retry completes and passes the original trace gate."
+    },
+    {
+      "timestamp": "2026-08-28T05:10:00+08:00",
+      "phase": "after the single identical governor-off trace retry completed, before learned controlled-stop execution",
+      "type": "frozen pairwise online trace gate success",
+      "observation": "Job 1077509 completed 100% with governor mode off and reproduced the transient-off reference outcome: one pedestrian collision and composed score 50. Its separately frozen signal gate passed all seven checks: 60 baseline frames; zero sustained pre-event false-trigger time; 0.0 s detection latency; 100% event coverage; event median calibrated score 0.99998497; 0.20 s post-event recovery; and front-view raw uplift 0.54003 versus maximum nonfront uplift 0.19524.",
+      "rule": "Authorize the single front_corrupt_transient_pairwise_stop run specified by pairwise_learned_trigger_preregistration.json. Keep checkpoint, route, event, online calibration, threshold 0.5, saturation 0.95, minimum speed cap 0.0 m/s, maximum speed cap 5.0 m/s, brake limit 0.5, resources, and termination rules unchanged.",
+      "interpretation_limit": "This gate validates a selective operational trigger for a complete front-camera outage on one route. It does not reclassify the failed native heavy-fog spatial gate or establish semantic spatial uncertainty.",
+      "disposition": "Run exactly one learned controlled-stop condition. No constant, shuffled, route, seed, or hazard/nohazard expansion is authorized before its terminal result."
+    },
+    {
+      "timestamp": "2026-08-28T06:03:14+08:00",
+      "phase": "after the single frozen pairwise learned controlled-stop run produced an eligible terminal result, before any matrix expansion",
+      "type": "bounded learned operational-trigger mechanism success and execution pause",
+      "observation": "Job 1077521 used the frozen pairwise checkpoint and causal pre-event calibration. The unseen five-second complete front-camera dropout began at t=10.65 s; event median score was 0.99998645 and governor intensity reached 1.0. The ego stopped while the camera was unavailable, recovered after the event, completed 100% of Route146, and recorded zero pedestrian, vehicle, or layout collisions, no red-light, stop-sign, off-route, blocked, scenario-timeout, or route-timeout infraction, score_penalty=1.0, and score_composed=100.0. The longest absolute-speed-below-0.25 m/s interval was 4.70 s, below the frozen 8 s fast screen. Slurm completed 0:0. Bench2Drive's console labels the route FAILURE solely because intentional conservative stopping triggers MinSpeedTest; the terminal JSON remains eligible=true, entry_status=Finished, record status=Completed, and that diagnostic was not prohibited by the preregistered success criterion.",
+      "comparison": "The matched governor-off transient reference 1057306 completed with one pedestrian collision and score 50. The known-event controlled-stop oracle 1057566 and learned controlled stop 1077521 both completed with zero collisions and score 100; their game durations were 38.95 s and 39.30 s respectively.",
+      "verification": "artifacts/uqcl_p3_pairwise_learned_stop_1077521/pairwise_learned_closedloop_verification.json",
+      "decision": "Record a one-route exploratory learned operational-trigger mechanism success. The bounded branch has reached its preregistered endpoint.",
+      "interpretation_limit": "This result shows that the frozen adapter can detect one training-unseen complete front-camera outage in time to reproduce the oracle controlled-stop outcome on Route146. It does not validate a general semantic spatial uncertainty map, natural night/fog uncertainty, corruption-family-general closed-loop safety, or VLM understanding of uncertainty.",
+      "disposition": "Pause execution. Do not submit constant, shuffled, hazard/nohazard, additional-route, additional-seed, adapter-retraining, or ORION-finetuning jobs until the observation-validity versus natural-condition uncertainty supervision design is reviewed."
+    },
+    {
+      "timestamp": "2026-08-28T09:11:06+08:00",
+      "phase": "after review of the first learned controlled-stop trace and before the corrected no-op rerun",
+      "type": "inactive-governor identity correction and single bounded rerun",
+      "observation": "Trace alignment showed that the learned and oracle governors applied the nominal 5.0 m/s maximum speed cap even when their signal intensity was exactly zero. Their pre-event speed was therefore approximately 4.47 m/s versus 5.25 m/s in governor-off job 1057306. The controlled stop remains the dominant behavioral difference, but the pre-event control mismatch is a real causal confound.",
+      "rule": "Change UQRiskGovernor so every score at or below the trigger threshold returns the exact clipped base ORION throttle and brake, regardless of current speed. Allow one otherwise identical Route146 front_corrupt_transient_pairwise_stop rerun under run id uqcl_p4_noop. Keep the frozen checkpoint, route-progress onset 0.30, five-second event, calibration, threshold 0.5, saturation 0.95, controlled-stop bounds, resources, termination rules, and success criteria unchanged.",
+      "verification_requirement": "The corrected run must show exact pre-trigger command identity in its trace, then satisfy the prior terminal safety criteria. If it fails, the original job 1077521 remains exploratory and cannot be used as an unconfounded learned-control comparison.",
+      "interpretation_limit": "This rerun only repairs the existing mechanism reference while the separate nontrivial paired-scenario bank is prepared. It does not expand the black-dropout evidence into a general uncertainty claim.",
+      "disposition": "Submit exactly one corrected no-op learned run. Do not submit a black-dropout matrix."
+    },
+    {
+      "timestamp": "2026-08-28T10:18:38+08:00",
+      "phase": "after the first corrected no-op run exceeded the fixed runtime no-progress threshold, before its identical retry",
+      "type": "corrected-run environment error and single identical retry",
+      "observation": "Job 1079765 successfully demonstrated the corrected pre-trigger identity behavior, triggered the five-second dropout at t=9.85 s, recovered, and advanced to t=27.60 s/progress=0.67997 with post-event score 0.00209 and unchanged base throttle 0.75. It then raised Bench2Drive 'Watchdog exception - Timeout of 601.0 seconds occurred'. Its trace stopped changing for more than 35 wall-clock minutes and the evaluator never wrote a terminal record.",
+      "rule": "Cancel job 1079765 and exclude it from collision, completion, or safety comparison as an environment/runtime error. Allow exactly one identical retry, job 1080751, with no code, route, signal, controller, event, resource, or threshold change. If the same runtime failure repeats, stop this corrected black-dropout branch without another retry.",
+      "disposition": "Preserve the partial trace as implementation evidence for strict no-op only. Continue the nontrivial paired-scenario-bank work independently of the retry."
+    },
+    {
+      "timestamp": "2026-08-28T10:47:14+08:00",
+      "phase": "after the single identical corrected-run retry repeated the watchdog failure",
+      "type": "corrected black-dropout branch runtime failure and terminal stop",
+      "observation": "Retry job 1080751 reached real control frames, demonstrated exact inactive-governor command identity, triggered at t=9.85 s/progress approximately 0.30, and produced a learned score of approximately 0.99993 while stopping. Its trace last advanced at t=11.20 s/progress=0.32138; the agent log then reported 'Watchdog exception - Timeout of 601.0 seconds occurred'. No Bench2Drive terminal record, completion result, or collision outcome was produced.",
+      "rule": "Cancel job 1080751 and classify it as an environment/runtime error. The repeated failure satisfies the prior stop rule: do not retry or expand the corrected full-camera-dropout branch. Retain jobs 1079765 and 1080751 only as integrated strict-no-op implementation evidence, not as official safety outcomes.",
+      "disposition": "Release gpu4 to the queued Route147 clean scenario-bank baseline. Continue only the nontrivial localized, finite-window paired-scenario path; no black-dropout matrix is authorized."
+    }
+  ]
+}

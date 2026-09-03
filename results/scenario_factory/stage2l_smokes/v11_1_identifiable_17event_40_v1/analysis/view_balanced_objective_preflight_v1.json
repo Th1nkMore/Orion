@@ -1,0 +1,101 @@
+{
+  "claim_boundary": "CPU objective/weighting preflight only. It does not show that retraining improves held-out R, learned language semantics, planning, or safety.",
+  "coverage_gate": {
+    "descriptive_views_with_fewer_than_three_independent_events": [
+      "CAM_FRONT_RIGHT",
+      "CAM_BACK_RIGHT"
+    ],
+    "formal_coverage_ready": false,
+    "formal_nonzero_all_views_passed": false,
+    "reason": "Objective integrity can pass independently, but current accepted train coverage remains zero for CAM_BACK_RIGHT and below three events for CAM_FRONT_RIGHT.",
+    "views_with_zero_positive_groups": [
+      "CAM_BACK_RIGHT"
+    ]
+  },
+  "forbidden_inputs_used": {
+    "corruption_label": false,
+    "observation_uq": false,
+    "qa_answer": false,
+    "trajectory_or_control": false,
+    "ttc_or_outcome": false
+  },
+  "gpu_used": false,
+  "inputs": {
+    "r_binding_audit": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/r_binding_audit_v1.json",
+      "sha256": "4b90950c5ab39e7e55a232092a11764c8fd3c17a4ca77b65ef207d03df36b765"
+    },
+    "spatial_maps": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v101_view_aligned_phase_a_17event_120_v1/training/spatial_maps_step120.pt",
+      "sha256": "68c33b15c402c932d31b8cb4ee5531d7515ba59f288ae4051931b061d3052031"
+    }
+  },
+  "launch_locks": {
+    "automatic_gpu_submission": false,
+    "formal_stage2l": false,
+    "language_bridge_training": false,
+    "learned_u_closed_loop": false,
+    "stage2p": false
+  },
+  "objective_interface_parameters": [
+    "calibration_bce_weight",
+    "relevance_logits",
+    "relevance_target",
+    "support_fraction_of_peak",
+    "support_hinge_weight"
+  ],
+  "objective_reads_only_contextual_r_logits_and_soft_r_target": true,
+  "objective_schema": "orion.stage2l_view_balanced_objective.v12",
+  "orion_forward_run": false,
+  "passed": true,
+  "schema": "orion.stage2l_v12_view_balanced_objective_preflight.v1",
+  "status": "v12_view_balanced_objective_cpu_preflight_pass_coverage_locked",
+  "support_fraction_of_peak": 0.1,
+  "train_group_count": 60,
+  "training_started": false,
+  "weight_redistribution": {
+    "background_weight_sum_maximum": 1.000000238418579,
+    "background_weight_sum_minimum": 0.9999999403953552,
+    "foreground_weight_sum_maximum": 1.0000001192092896,
+    "foreground_weight_sum_minimum": 0.9999999403953552,
+    "mean_active_foreground_views": 1.5833333333333333,
+    "per_view": {
+      "CAM_BACK": {
+        "current_mean_foreground_weight_share": 0.20184125006198883,
+        "positive_group_count": 23,
+        "proposed_mean_foreground_weight_share": 0.2152777761220932,
+        "proposed_mean_share_when_active": 0.5615941882133484
+      },
+      "CAM_BACK_LEFT": {
+        "current_mean_foreground_weight_share": 0.041271623224020004,
+        "positive_group_count": 10,
+        "proposed_mean_foreground_weight_share": 0.05972222611308098,
+        "proposed_mean_share_when_active": 0.3583333492279053
+      },
+      "CAM_BACK_RIGHT": {
+        "current_mean_foreground_weight_share": 0.0,
+        "positive_group_count": 0,
+        "proposed_mean_foreground_weight_share": 0.0,
+        "proposed_mean_share_when_active": null
+      },
+      "CAM_FRONT": {
+        "current_mean_foreground_weight_share": 0.6575515270233154,
+        "positive_group_count": 52,
+        "proposed_mean_foreground_weight_share": 0.6486110687255859,
+        "proposed_mean_share_when_active": 0.7483974099159241
+      },
+      "CAM_FRONT_LEFT": {
+        "current_mean_foreground_weight_share": 0.05057357996702194,
+        "positive_group_count": 5,
+        "proposed_mean_foreground_weight_share": 0.03750000149011612,
+        "proposed_mean_share_when_active": 0.44999998807907104
+      },
+      "CAM_FRONT_RIGHT": {
+        "current_mean_foreground_weight_share": 0.048762042075395584,
+        "positive_group_count": 5,
+        "proposed_mean_foreground_weight_share": 0.03888888657093048,
+        "proposed_mean_share_when_active": 0.46666663885116577
+      }
+    }
+  }
+}

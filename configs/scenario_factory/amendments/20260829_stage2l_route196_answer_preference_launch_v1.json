@@ -1,0 +1,21 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T19:45:00+08:00",
+  "status": "prepared_not_active_route196_answer_preference_smoke",
+  "reason": "The balanced-language smoke isolated a UQ-to-language discrimination failure; the new run changes only the matched language preference objective and tightens free-generation gates.",
+  "authorized_run": {
+    "event_id": "route196_step313",
+    "maximum_submissions": 1,
+    "maximum_steps": 240,
+    "fresh_initialization_from_original_orion_checkpoint": true,
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/route196_answer_preference_v1_240"
+  },
+  "launch_locks": {
+    "route196_balanced_language_smoke_allowed": false,
+    "route196_answer_preference_smoke_allowed": false,
+    "stage2l_pilot_training_allowed": false,
+    "stage2p_allowed": false
+  },
+  "activation_rule": "Set route196_answer_preference_smoke_allowed=true only in a versioned active amendment after implementation tests and dry-run validation.",
+  "claim_boundary": "Prepared objective amendment only; no job is authorized or submitted by this file."
+}

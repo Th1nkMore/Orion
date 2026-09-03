@@ -1,0 +1,29 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-08-29T19:18:00+08:00",
+  "status": "active_before_wave2_finalization",
+  "trigger": {
+    "route_index": 207,
+    "slurm_job_id": 1092551,
+    "observed_automatic_selection": {
+      "route_progress": 0.9990863596685126,
+      "ego_speed_mps": 0.00803865371409873,
+      "obb_ttc_seconds": 0.8652392637716928
+    },
+    "visual_audit": "The selected minimum TTC occurred while route completion was being registered and the ego was stopped at the endpoint; it is not an independent driving event."
+  },
+  "fixed_rule": {
+    "critical_event_candidate_route_progress": "strictly less than 0.98",
+    "applies_to": "all actor TTC and gap candidates",
+    "outcome_blind": true,
+    "model_score_blind": true,
+    "learned_uq_blind": true
+  },
+  "application": {
+    "wave2_routes": [207, 152],
+    "route207_is_rescanned_under_rule": true,
+    "prior_frozen_event_banks_are_not_silently_rewritten": true,
+    "future_factory_batches_use_rule": true
+  },
+  "claim_boundary": "This is a route-factory event-window integrity fix. It does not accept Route207, alter a model result, or provide Stage2-L evidence."
+}

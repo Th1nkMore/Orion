@@ -1,0 +1,155 @@
+{
+  "schema": "orion.stage2l_v13_process_qa_capacity_protocol.v1",
+  "created_at": "2026-09-02T00:15:36+08:00",
+  "status": "frozen_bounded_capacity_comparison",
+  "purpose": "Test whether the ORION language backbone can learn a U-dependent, auditable observation-to-epistemic-limit-to-task-binding-to-decision process across the existing 17-event bank, and whether four partially unfrozen decoder layers materially improve over LoRA without changing the causal U/R/K architecture.",
+  "input_sha256": {
+    "process_module_sha256": "281c619212123aaa3b79414bfa9c06428a69d6eecf9a0dd454d3ab5324e7546f",
+    "v122_lineage_helper_sha256": "db3c37184b29ac96a7d777df9e59d0503997fa1f77be22c37317372f0646164a",
+    "factorized_relevance_sha256": "616831dac43593551e5263ce7d7f28da4b7d8898e70ec0ec8ef998b181fd4d08",
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "v11_records_sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101",
+    "dataset_audit_report_sha256": "2d8d2879a5ac9383887a95304bc5c9d3c3740aadaee3d720dac9a272c9c9c2f7",
+    "view_feature_cache_sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61",
+    "u_tokenizer_checkpoint_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "v121_checkpoint_sha256": "f62cbb234671fc81f1c320f42015ca99ebaf27f2c2c0ede1f616c7eaa846f23c",
+    "v121_report_sha256": "890cb682f6cd20bc5d9c14b3db04ea2454806632dda654c19afd3574239a7cc0",
+    "v121_terminal_validation_sha256": "17159ee47e008e29e4e500a74713988d96dfdd4ce4a9e24706b4f3b5782aa51d",
+    "orion_config_sha256": "0920526b2eae94a25110bee882f8df9d51fdff6625d465d6d2d62ee96274f576",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06"
+  },
+  "architecture": {
+    "stage1_observation_uncertainty": "Frozen task-agnostic spatial and temporal U tokens.",
+    "task_relevance_owner": "Stage2-L ORION/VLM",
+    "task_relevance_pass": "A U-independent first ORION/VLM pass over clean visual context, view-aligned evidence and route text predicts factorized route and conflict-actor R.",
+    "u_enters_relevance_query": false,
+    "language_pass": "The same ORION language backbone receives 529 native visual tokens, 600 frozen Stage1 U tokens and 150 detached R hidden tokens directly, then predicts four explicitly tagged process steps.",
+    "r_language_pool": "A fixed parameter-free per-view average pool converts the 10x10 R hidden grid to 5x5 for the language pass; the factorized R head and direct map supervision remain at 10x10.",
+    "direct_u_tokens_enter_orion": true,
+    "direct_r_tokens_enter_orion": true,
+    "task_risk_language_bridge_present": false,
+    "k_used_as_model_input": false,
+    "posthoc_task_risk_diagnostic": "K = U * max(sigmoid(route_R), sigmoid(actor_R)) is computed only to audit the controlled counterfactual bank and never conditions the model.",
+    "process_steps": [
+      "observation_semantics",
+      "epistemic_limitation",
+      "task_relevance",
+      "driving_implication"
+    ],
+    "free_form_hidden_cot_required": false,
+    "auditable_structured_process_supervision": true,
+    "stage1_trainable": false,
+    "u_tokenizer_trainable": false,
+    "trajectory_or_control_loss": false,
+    "density_uq_used": false,
+    "hard_governor_used": false,
+    "locked_test_read": false
+  },
+  "data_scope": {
+    "events": 17,
+    "train_events": 13,
+    "dev_events": 4,
+    "matched_groups": 80,
+    "train_groups": 60,
+    "dev_groups": 20,
+    "isolated_qa_records": 1600,
+    "structured_process_chains": 320,
+    "structured_process_step_targets": 1280,
+    "controlled_variants": [
+      "zero_uq",
+      "on_path_uq",
+      "off_path_uq",
+      "view_shuffled_uq"
+    ],
+    "development_evaluation": "One fixed keyframe per event, all four controlled variants, target/counterfactual scored answers and exact no-U ablation.",
+    "formal_generalization_claim": false
+  },
+  "controlled_u_diagnostics": {
+    "minimum_on_over_off_margin": 0.05,
+    "maximum_off_path_risk_peak": 0.25,
+    "minimum_group_fraction": 0.8,
+    "quality_blocks_capacity_smoke": false
+  },
+  "training": {
+    "optimizer_steps": 200,
+    "event_sampling": "Round-robin over thirteen train events with deterministic within-event keyframe shuffling.",
+    "variant_sampling": "Deterministic rotation through all four controlled-U variants.",
+    "process_steps_per_optimizer_step": 1,
+    "partial_unfreeze_layers": 4,
+    "preference_margin": 0.25,
+    "gradient_clip_norm": 1.0,
+    "learning_rates": {
+      "orion_lora": 0.00002,
+      "partial_decoder": 0.000005,
+      "relevance": 0.0003,
+      "weight_decay": 0.0001
+    },
+    "loss_weights": {
+      "factorized_relevance": 2.0,
+      "full_process_nll": 1.0,
+      "step_process_nll": 0.5,
+      "counterfactual_preference": 0.5
+    },
+    "r_objective": {
+      "support_fraction": 0.1,
+      "inactive_view_background_anchor_weight": 0.25,
+      "empty_component_background_anchor_weight": 1.0,
+      "route_component_weight": 0.5,
+      "actor_component_weight": 0.5
+    },
+    "first_nonfinite_value_fail_fast": true,
+    "automatic_extension": false,
+    "automatic_retry": false
+  },
+  "capacity_arms": {
+    "lora": {
+      "train_orion_lora": true,
+      "train_last_decoder_layers": false,
+      "train_relevance_query_and_head": true,
+      "task_risk_language_bridge_present": false,
+      "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v13_process_qa_lora_17event_200_v1/training"
+    },
+    "partial_unfreeze": {
+      "train_orion_lora": true,
+      "train_last_decoder_layers": true,
+      "last_decoder_layer_count": 4,
+      "train_relevance_query_and_head": true,
+      "task_risk_language_bridge_present": false,
+      "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v13_process_qa_partial4_17event_200_v1/training"
+    }
+  },
+  "language_diagnostics": {
+    "minimum_full_minus_no_u_fraction": 0.25,
+    "minimum_on_path_preference_fraction": 0.75,
+    "minimum_zero_u_preference_fraction": 0.75,
+    "train_target_nll_must_improve": true,
+    "dev_target_nll_must_improve": true,
+    "quality_is_a_soft_capacity_diagnostic": true
+  },
+  "hard_stop_conditions": [
+    "Any frozen input, protocol, arm preflight, launch amendment or submission attestation hash differs.",
+    "Any process dataset group violates zero-U, epistemic-limit, on/off-path or view-shuffle semantics.",
+    "Any trainable parameter lies outside the authorized capacity arm.",
+    "Any gradient reaches Stage1 or the U tokenizer.",
+    "Any required loss, gradient or output becomes non-finite.",
+    "Any output directory is non-empty before launch."
+  ],
+  "resource_ceiling_per_arm": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "08:00:00",
+    "maximum_submissions": 1,
+    "automatic_retry": false
+  },
+  "locks": {
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "locked_test_allowed": false,
+    "extra_epochs_allowed": false,
+    "automatic_downstream_unlock": false
+  },
+  "claim_boundary": "A completed arm is a bounded controlled-U language-capacity smoke. It may establish process learnability under this supervised bank, but it is not learned-U generalization, formal Stage2-L, trajectory, closed-loop or safety evidence."
+}

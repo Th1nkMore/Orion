@@ -1,0 +1,112 @@
+{
+  "schema": "orion.stage2l_v11_identifiable_factorized_bridge.v1",
+  "created_at": "2026-09-01T11:03:44+08:00",
+  "status": "preflight_contract_frozen_gpu_training_not_authorized",
+  "purpose": "Identify the marginal contribution of spatial U before treating a combined Stage2-L run as semantic evidence.",
+  "scientific_question": "With visual observation, route, ego state and contextual relevance held fixed, does changing only U produce the correct matched change in K and the language-facing task interpretation?",
+  "factorization": {
+    "contextual_relevance": "R_context = f_ORION(same-view visual evidence, route, ego state)",
+    "observation_uncertainty": "U = frozen Stage1 adapter followed by the frozen task-agnostic U tokenizer",
+    "task_risk": "K = U * sigmoid(R_context)",
+    "language_conditioning": "Second pass receives detached frozen U tokens and trainable K bridge tokens.",
+    "u_enters_relevance_query": false,
+    "planning_gradient_enters_stage1": false,
+    "learned_structured_field_classifier": false,
+    "direct_control_or_trajectory_loss": false
+  },
+  "checkpoint_lineage": {
+    "spatial_adapter_sha256": "0555f0f341c80a88e18c5864573f0be0641fb828931bea7809e2f5544665f2c8",
+    "u_tokenizer_sha256": "c727aa89d21b9a3362b240509e9ea75011bbe3d20d58e996c69816b97afa38a2",
+    "view_aligned_phase_a_checkpoint_sha256": "3a722ffdeedf682dc58753b3997b0e68143b027f4ae757f2d57362fad026bb16",
+    "view_aligned_checkpoint_status": "failed_preregistered_phase_a_gate_engineering_warm_start_only",
+    "stage1_status": "diagnostic_auxiliary_failed_heavy_native_fog_gate"
+  },
+  "engineering_dataset": {
+    "event_count": 17,
+    "train_events": 13,
+    "dev_events": 4,
+    "locked_test_read": false,
+    "formal_training_eligible": false,
+    "matched_variants": [
+      "zero_uq",
+      "on_path_uq",
+      "off_path_uq",
+      "view_shuffled_uq"
+    ],
+    "matched_invariants": [
+      "same event and keyframe",
+      "byte-identical six-camera visual input",
+      "same route command and unmodified ORION plan",
+      "same current ORION speedometer reading",
+      "same independently constructed R target",
+      "on-path and off-path U have equal peak, total mass and positive support count"
+    ]
+  },
+  "forward_input_policy": {
+    "allowed": [
+      "frozen ORION visual tokens",
+      "same-view frozen ORION feature grids",
+      "route command",
+      "unmodified ORION plan",
+      "current ORION speedometer reading",
+      "frozen Stage1 U components"
+    ],
+    "forbidden": [
+      "corruption family or severity",
+      "scenario family name",
+      "privileged TTC or collision outcome",
+      "future actor ground truth",
+      "answer-derived R",
+      "ground-truth stance",
+      "desired speed",
+      "route progress",
+      "legacy Density UQ"
+    ]
+  },
+  "preflight_gates": {
+    "shared_r_across_u_variants": "bitwise exact",
+    "zero_u_exact": true,
+    "zero_task_risk_exact": true,
+    "on_off_u_mass_peak_support_count_matched": true,
+    "on_off_u_support_spatially_distinct": true,
+    "stage1_and_u_tokenizer_frozen": true,
+    "canonical_view_grid_order_shared": true,
+    "locked_test_unread": true
+  },
+  "bounded_diagnostic_metrics": {
+    "required_on_over_off_task_risk_fraction": 0.8,
+    "maximum_off_path_task_risk_peak": 0.25,
+    "minimum_per_variant_target_answer_preference_fraction": 0.8,
+    "view_shuffled_policy": "Report K and answer preference for every group. Do not impose on-over-shuffled magnitude ranking unless the shuffled map is separately frozen as magnitude-matched.",
+    "required_reporting": [
+      "per-event and per-view R average precision",
+      "R invariance across matched U variants",
+      "per-group U mass, U peak and support count",
+      "per-group K peak for every variant",
+      "on-minus-off K margin",
+      "per-variant target and counterfactual answer NLL",
+      "zero/off-path false-conservatism",
+      "no-U ablation"
+    ]
+  },
+  "decision_rules": {
+    "controlled_u_identifiability_fails": "Repair Stage2-L interface or QA supervision; do not add epochs, Stage2-P, or closed-loop jobs.",
+    "controlled_u_passes_but_learned_u_external_gate_fails": "The semantic bridge is viable and Stage1 is the bottleneck; retain oracle/controlled U for Stage2-L development.",
+    "controlled_u_and_learned_u_pass_but_closed_loop_fails": "The remaining bottleneck is Stage2-P response learning or scenario construction.",
+    "all_bounded_gates_pass": "Authorize a new versioned multi-event pilot only; this does not itself authorize formal training or a safety claim."
+  },
+  "launch_locks": {
+    "gpu_training_allowed": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "learned_u_closed_loop_allowed": false,
+    "benchmark_matrix_allowed": false,
+    "unlock_requires": [
+      "implementation and tests for the factorized identifiability audit",
+      "versioned frame bundles containing the exact current ORION speedometer reading",
+      "hash-bound dataset audit proving all matched invariants",
+      "a separate launch amendment for exactly one bounded run"
+    ]
+  },
+  "claim_boundary": "A passing v11 engineering diagnostic would show that the Stage2-L interface uses controlled spatial U counterfactually while preserving a U-independent contextual relevance map. It would not validate the learned Stage1 U, planning, closed-loop safety, or external generalization."
+}

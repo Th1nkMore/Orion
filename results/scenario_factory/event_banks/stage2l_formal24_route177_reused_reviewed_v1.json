@@ -1,0 +1,114 @@
+{
+  "claim_boundary": "Hash-bound reuse of one prereviewed development event under its frozen formal split; event integrity only, with no UQ, model, trajectory, closed-loop, or safety claim.",
+  "counts": {
+    "accepted_events": 1,
+    "formal_splits": {
+      "dev": 0,
+      "test": 0,
+      "train": 1
+    },
+    "rejected_events": 0,
+    "scenario_families": 1,
+    "towns": 1
+  },
+  "events": [
+    {
+      "actor_grounded_event": true,
+      "automatic_exclusion_reasons": [],
+      "automatic_review_warnings": [
+        "majority_of_route_nearly_stopped"
+      ],
+      "automatic_status": "eligible_for_human_event_review",
+      "continuous_safety_summary": {
+        "min_obb_separating_axis_gap_m": 1.0533161212856923,
+        "min_obb_ttc_seconds": 1.3340149421850513,
+        "min_predicted_disc_clearance_m": null
+      },
+      "critical_event": {
+        "actor": {
+          "actor_id": 123,
+          "category": "vehicle",
+          "obb_separating_axis_gap_m": 6.520472513834438,
+          "obb_ttc_seconds": 1.3340149421850513,
+          "type_id": "vehicle.lincoln.mkz_2020"
+        },
+        "preferred_actor_categories": [],
+        "route_progress": 0.3253840603792261,
+        "selection_basis": "minimum_finite_dynamic_actor_obb_ttc",
+        "sim_time_seconds": 13.8,
+        "speed_mps": 0.22450265419407764,
+        "step": 276,
+        "window_seconds": [
+          10.8,
+          15.8
+        ]
+      },
+      "event_id": "route177_step276",
+      "event_package": {
+        "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_reserve2_20260829/route177/event_package.json",
+        "sha256": "26db5e74912de8ce2464d262a47e0c601c59c38b7bbc8859ce81ccfb48b3e08d"
+      },
+      "formal_plan_selection_role": "published_clean_valid",
+      "formal_split": "train",
+      "human_review": {
+        "checks": {
+          "actor_event_semantics": "pass",
+          "front_bev_temporal_alignment": "pass",
+          "no_actor_disappearance_or_spawn_artifact": "pass",
+          "visual_stream_integrity": "pass"
+        },
+        "decision": "accept",
+        "notes": "Native dark/rain sequence is intact. The lead/parked vehicle and opposing vehicle remain temporally continuous, and raw front, model-input front, and BEV agree. The majority-stopped warning is retained; this is a development reserve event only.",
+        "rejection_basis": null
+      },
+      "official_endpoint": {
+        "collision_count": 0,
+        "scores": {
+          "score_composed": 100.0,
+          "score_penalty": 1.0,
+          "score_route": 100
+        },
+        "serious_infraction_count": 0,
+        "status": "Completed"
+      },
+      "outcome_class": "VALID_NEAR_MISS_OR_CONFLICT",
+      "qa_input_ready": true,
+      "review_rank": 1,
+      "route_index": 177,
+      "runtime_valid": true,
+      "scenario_family": "ParkedObstacleTwoWays",
+      "screen_role": "static_visual_hazard_with_opposing_flow",
+      "split_origin": "development_screen",
+      "town": "Town03",
+      "visual_artifacts": [
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_reserve2_20260829/route177/visuals/bev.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_reserve2_20260829/route177/visuals/model_input_front.gif",
+        "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_reserve2_20260829/route177/visuals/raw_front.gif"
+      ]
+    }
+  ],
+  "formal_training_ready": false,
+  "provenance": {
+    "event_package": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/event_packages/scenario_factory_clean_wave1_reserve2_20260829/route177/event_package.json",
+      "sha256": "26db5e74912de8ce2464d262a47e0c601c59c38b7bbc8859ce81ccfb48b3e08d"
+    },
+    "formal_route_plan": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/formal_route_plans/stage2l_formal24_16_4_4_20260829_v1/formal_route_plan.json",
+      "sha256": "ccc4f25b1110856873bfdedc87b2d3232a2418400acd0d2ba093d0201bd2c50c"
+    },
+    "reuse_authorized_by_formal_plan": true,
+    "review_decisions": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/scenario_factory_clean_wave1_reserve2_20260829/scenario_event_review_decisions.json",
+      "sha256": "96399c9f07e46c7a9c37c31151da9c635270e00984c8d8423e7ede8ad98f57d6"
+    },
+    "review_queue": {
+      "path": "/public/share/lidachuan/orion_assets/scenario_factory/review_queues/scenario_factory_clean_wave1_reserve2_20260829/scenario_event_review_queue.json",
+      "sha256": "f3485b5d090037c848861d2228ffe99720545926dc791cc86e2ea78d6869b89d"
+    }
+  },
+  "rejected_events": [],
+  "run_id": "scenario_factory_clean_wave1_reserve2_20260829",
+  "schema": "orion.stage2_l.formal_reviewed_wave.v1",
+  "status": "reviewed_formal_wave_shard"
+}

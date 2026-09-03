@@ -1,0 +1,251 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T13:12:19+08:00",
+  "status": "v11_1_cpu_r_binding_audit_complete_next_repair_frozen",
+  "parent_terminal": {
+    "path": "configs/scenario_factory/amendments/20260901_stage2l_v111_identifiability_smoke_terminal_v1.json",
+    "sha256": "77e2ffd9816e6de39b0059409b92ea823b41856fbde3237818d280f98a2bf006"
+  },
+  "audit_artifact": {
+    "local_path": "results/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/r_binding_audit_v1.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v11_1_identifiable_17event_40_v1/analysis/r_binding_audit_v1.json",
+    "sha256": "4b90950c5ab39e7e55a232092a11764c8fd3c17a4ca77b65ef207d03df36b765",
+    "schema": "orion.stage2l_v11_1_r_binding_audit.v1",
+    "status": "cpu_r_binding_audit_complete_exact_geometry_lineage",
+    "passed": true
+  },
+  "implementation": {
+    "script": {
+      "path": "scripts/audit_stage2l_v111_r_binding.py",
+      "sha256": "5529ae472398522e668a76b6289dbe0e3485d9e6bff50411b22394b43122dd85"
+    },
+    "test": {
+      "path": "tests/test_audit_stage2l_v111_r_binding.py",
+      "sha256": "d3fe630309993d22e933d215f7a9b079d8465da7c986dc1b1b3a19c0cf89f01d"
+    },
+    "remote_python": "3.8.20",
+    "relevant_remote_suite": "8 passed",
+    "gpu_used": false,
+    "orion_forward_run": false,
+    "training_started": false,
+    "entry_repair_trace": {
+      "first_direct_invocation": "Failed before output because the direct scripts/ entry point did not add the repository root to sys.path.",
+      "official_output_created_by_failed_invocation": false,
+      "repair": "Added only the conventional repository-root sys.path insertion before the uq_estimator import.",
+      "direct_help_after_repair_passed": true,
+      "method_threshold_or_input_changed": false
+    }
+  },
+  "frozen_inputs": {
+    "records_sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101",
+    "spatial_maps_step120_sha256": "68c33b15c402c932d31b8cb4ee5531d7515ba59f288ae4051931b061d3052031",
+    "view_feature_cache_sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61",
+    "v11_1_terminal_report_sha256": "2ff31ad80337d7bd6a38fd75d1f2993fb429202153693a6c753bddfe9fe9845e",
+    "support_fraction_of_peak": 0.1,
+    "groups": 80,
+    "train_groups": 60,
+    "dev_groups": 20,
+    "events": 17
+  },
+  "projection_and_lineage_result": {
+    "all_80_geometry_targets_rebuilt_from_original_frame_meta": true,
+    "all_source_references_hash_verified": true,
+    "camera_order_verified": [
+      "CAM_FRONT",
+      "CAM_FRONT_LEFT",
+      "CAM_FRONT_RIGHT",
+      "CAM_BACK",
+      "CAM_BACK_LEFT",
+      "CAM_BACK_RIGHT"
+    ],
+    "maximum_absolute_error": {
+      "rebuilt_relevance": 0.0,
+      "rebuilt_route_corridor": 0.0,
+      "rebuilt_actor_support": 0.0,
+      "qa_sidecar_relevance": 0.0,
+      "pooled_10x10_spatial_target": 0.0
+    },
+    "finding": "The observed v11.1 failure is not explained by stale files, camera-order drift, current projection-code drift, sidecar copying, or 40x40-to-10x10 target pooling. Exact reconstruction establishes implementation consistency only; it does not prove that the weak geometry target is semantically complete."
+  },
+  "train_supervision_distribution": {
+    "CAM_FRONT": {
+      "positive_groups": 52,
+      "positive_events": 12,
+      "mean_foreground_brier_weight_share": 0.657551525809234
+    },
+    "CAM_BACK": {
+      "positive_groups": 23,
+      "positive_events": 11,
+      "mean_foreground_brier_weight_share": 0.20184123560856285
+    },
+    "CAM_FRONT_LEFT": {
+      "positive_groups": 5,
+      "positive_events": 4,
+      "mean_foreground_brier_weight_share": 0.05057357834240775
+    },
+    "CAM_FRONT_RIGHT": {
+      "positive_groups": 5,
+      "positive_events": 2,
+      "mean_foreground_brier_weight_share": 0.0487620408632998
+    },
+    "CAM_BACK_LEFT": {
+      "positive_groups": 10,
+      "positive_events": 5,
+      "mean_foreground_brier_weight_share": 0.041271619376495546
+    },
+    "CAM_BACK_RIGHT": {
+      "positive_groups": 0,
+      "positive_events": 0,
+      "mean_foreground_brier_weight_share": 0.0
+    },
+    "finding": "The exact v10.1 foreground branch is strongly front-dominant. Event-balanced sampling did not make active camera views or route/actor support modes balanced."
+  },
+  "heldout_view_result": {
+    "CAM_FRONT": {
+      "positive_groups": 17,
+      "mean_foreground_recall": 0.5853599687509723,
+      "nearest_train_feature_cosine_median": 0.8619155883789062
+    },
+    "CAM_BACK": {
+      "positive_groups": 4,
+      "mean_foreground_recall": 0.3833333333333333,
+      "nearest_train_feature_cosine_median": 0.8388031721115112
+    },
+    "CAM_FRONT_LEFT": {
+      "positive_groups": 4,
+      "mean_foreground_recall": 0.0,
+      "nearest_train_feature_cosine_median": 0.8299882113933563
+    },
+    "CAM_FRONT_RIGHT": {
+      "positive_groups": 5,
+      "mean_foreground_recall": 0.0,
+      "nearest_train_feature_cosine_median": 0.38405826687812805
+    },
+    "CAM_BACK_LEFT": {
+      "positive_groups": 4,
+      "mean_foreground_recall": 0.008928571428571428,
+      "nearest_train_feature_cosine_median": 0.5390111207962036
+    },
+    "CAM_BACK_RIGHT": {
+      "positive_groups": 0,
+      "mean_foreground_recall": null,
+      "nearest_train_feature_cosine_median": null
+    }
+  },
+  "event_level_diagnosis": {
+    "route147_step223": {
+      "controlled_pass": "4/5",
+      "mean_group_foreground_recall": 0.7521428571428572,
+      "dominant_support": "front route-only",
+      "diagnosis": "Covered front-view pattern; useful passing contrast."
+    },
+    "route152_step125": {
+      "controlled_pass": "1/5",
+      "mean_group_foreground_recall": 0.36144507694471467,
+      "dominant_support": "multi-view route plus conflict actors",
+      "median_actor_support_cells_at_10x10": 45.0,
+      "diagnosis": "Front-left features are not strongly out of distribution, yet the frozen R prediction stays front-dominant. This is evidence of weak view/support-mode learning in addition to limited side-view coverage."
+    },
+    "route162_step277": {
+      "controlled_pass": "4/5",
+      "mean_group_foreground_recall": 0.46783216783216786,
+      "dominant_support": "mixed; includes one actor-only rear case",
+      "diagnosis": "The passing rear actor-only keyframe demonstrates that non-front output is possible when the representation and learned pattern are covered."
+    },
+    "route195_step230": {
+      "controlled_pass": "2/5",
+      "mean_group_foreground_recall": 0.1908496732026144,
+      "dominant_support": "route-only; shifts from front to front-right",
+      "diagnosis": "The two pure front-right failures have nearest-train feature cosine 0.3841 and 0.3952 with only two train events providing any front-right support. Independent-event/view coverage is a primary limitation here."
+    }
+  },
+  "support_mode_result": {
+    "train": {
+      "visible_route_only": {
+        "controlled_pass": "23/23",
+        "mean_group_foreground_recall": 0.9694773825208608
+      },
+      "visible_route_and_conflict_actor": {
+        "controlled_pass": "19/26",
+        "mean_group_foreground_recall": 0.7851545406575545
+      },
+      "visible_conflict_actor_only": {
+        "controlled_pass": "10/11",
+        "mean_group_foreground_recall": 0.8430992825393312
+      }
+    },
+    "dev": {
+      "visible_route_only": {
+        "controlled_pass": "8/11",
+        "mean_group_foreground_recall": 0.5348903473235024
+      },
+      "visible_route_and_conflict_actor": {
+        "controlled_pass": "2/8",
+        "mean_group_foreground_recall": 0.2888610485483221
+      },
+      "visible_conflict_actor_only": {
+        "controlled_pass": "1/1",
+        "mean_group_foreground_recall": 0.6666666666666666
+      }
+    },
+    "finding": "The held-out weakness is not only camera imbalance. Combined route-plus-actor support generalizes substantially worse than route-only support and should be reported separately in the next objective."
+  },
+  "technical_visual_review": {
+    "human_acceptance": false,
+    "reviewed_contact_sheets": [
+      {
+        "event_frame": "route152_step125/frame_0009",
+        "sha256": "673603cd903af30cb73d31a7ad63edf44341e8c647e0bb3bc3073a0835abace1"
+      },
+      {
+        "event_frame": "route152_step125/frame_0011",
+        "sha256": "67c38ea5096433bb783b36884480cd8c72680dc5ccccbd89af946c9483e6154b"
+      },
+      {
+        "event_frame": "route162_step277/frame_0024",
+        "sha256": "6fb63f922557de1c879f8f433d61a362a40485eb0ab868e7774a640837602d2a"
+      },
+      {
+        "event_frame": "route195_step230/frame_0023",
+        "sha256": "43299ef7aff2c9df1f42f4d54f393b15a28d4c127753696d7d8423c121908b1a"
+      },
+      {
+        "event_frame": "route195_step230/frame_0025",
+        "sha256": "4e9b27434a20806815f186b84d1c4bb17b69b633a65722175b949b271c788210"
+      }
+    ],
+    "finding": "No obvious camera-order reversal or overlay displacement was observed at contact-sheet scale. Route152 exposes coarse multi-actor rectangular support across several cameras, while Route195 exposes a route-only right-view transition. These labels remain weak supervision and require a separate semantic policy review before formal training."
+  },
+  "root_cause_partition": {
+    "deterministic_projection_or_lineage_bug": false,
+    "front_dominant_view_loss_distribution": true,
+    "insufficient_independent_right_view_coverage": true,
+    "combined_route_actor_support_generalization_gap": true,
+    "feature_distribution_shift_contributes": true,
+    "feature_distribution_shift_is_sufficient_explanation": false,
+    "u_tokenizer_or_stage1_is_immediate_cause": false,
+    "language_bridge_failure_established": false
+  },
+  "next_repair_rule": {
+    "name": "Stage2-L R-only view-balanced support-mode-aware repair",
+    "cpu_first_requirements": [
+      "Implement and unit-test a view-balanced foreground objective that gives each active camera view equal foreground-region weight within a group while preserving the calibrated soft-target optimum.",
+      "Report route-only, actor-only and combined route-plus-actor residuals separately; keep the final R output task-relevance rather than transferring task responsibility to Stage1.",
+      "Preflight the exact weight redistribution on the current 60 train groups and prove that no U, QA answer, TTC, outcome, corruption label or control field enters R.",
+      "Select additional independent train/development events with right-view support using geometry only; do not move Route152 or Route195 into train and do not read locked test outcomes.",
+      "Require nonzero accepted train coverage for every camera view intended for a formal release, including CAM_BACK_RIGHT."
+    ],
+    "first_gpu_run_after_cpu_preflight": "At most one bounded R-only engineering smoke. No U-token, language, trajectory or control optimization. Preserve the existing held-out event identities and report per-view and support-mode gates.",
+    "automatic_gpu_submission": false
+  },
+  "locks": {
+    "additional_v10_or_v10_1_epochs": false,
+    "larger_r_model_before_cpu_repair": false,
+    "language_bridge_training": false,
+    "formal_stage2l": false,
+    "stage2p": false,
+    "learned_u_closed_loop": false,
+    "benchmark_matrix": false
+  },
+  "claim_boundary": "This audit proves exact reproducibility of the current weak geometry target and localizes descriptive view/support-mode/feature-coverage gaps. It does not prove that the target is semantically correct, that a view-balanced repair will generalize, that the language model uses U, that learned U is valid, or that planning is safer."
+}

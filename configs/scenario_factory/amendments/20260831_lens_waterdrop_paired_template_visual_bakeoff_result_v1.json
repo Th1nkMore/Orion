@@ -1,0 +1,72 @@
+{
+  "schema": "orion.lens_waterdrop_paired_template_visual_bakeoff_result_amendment.v1",
+  "timestamp": "2026-08-31T21:49:00+08:00",
+  "status": "rendered_pending_human_visual_review_orion_locked",
+  "protocol": "configs/scenario_factory/corruption_hardcase_lens_waterdrop_paired_template_visual_bakeoff_route151_v1.json",
+  "execution": {
+    "orion_loaded": false,
+    "slurm_job_submitted": false,
+    "source_clean_frames": 34,
+    "source_resolution": [1600, 900],
+    "clean_artifact_gate": "passed; 0/34 suspicious frames",
+    "local_output": "results/scenario_factory/corruption_hardcase_bakeoffs/route151_lens_waterdrop_paired_template_visual_bakeoff_v1",
+    "result_sha256": "aa1d958592b46318c8cf002eb432b8f5701e487d6a6c4fe6868b7340e6a35b80",
+    "renderer_sha256": "48195389c69dc5b3a047dd7c09d4b27cbaf798f7d43dc6a24b28fb4bdef7375f",
+    "render_script_sha256": "fe55fa2cb1d431f7dd7db66a8dc0a29559c4cbe01ea12aa082642cc8377117b8"
+  },
+  "source_and_leakage_audit": {
+    "paired_source_kind": "published synthetic clean/rainy pair",
+    "separate_real_reference_frames": 3,
+    "source_rgb_retained_in_template": false,
+    "source_chromatic_residual_retained": false,
+    "real_reference_frames_composited": false,
+    "template_fields": [
+      "binary support",
+      "scalar alpha",
+      "two-channel displacement",
+      "per-component balanced scalar luminance residual"
+    ],
+    "support_fraction": 0.09910493827160494,
+    "component_weighted_luminance_bias_after_max_abs": 0.012046373449265957,
+    "source_pair_reconstruction_mae_rgb": 3.076674461364746
+  },
+  "visual_artifacts": {
+    "contact_clean_vs_profiles_sha256": "a9d34a575b53766341407c004902d6a4871cb488dceead9fff0e580ff440dd0a",
+    "high_resolution_crops_sha256": "ec01d26ba32e95460cb97cceb75dade8781510a0ed4e8cfa92016ee90a55c54f",
+    "front_comparison_gif_sha256": "810d5ebeab3c04c409e60c83b1d20b57a70650798158b2c6abb19323e4cd2127",
+    "clean_bev_gif_sha256": "7f7d94f4179fc598f43d72e947fd69397b56c92101367d88eeeeb1443157eee9",
+    "source_pair_reconstruction_sha256": "c911ce2ef223114dcb021240246ada246cc63e8df13c13774a57b0ed8120b2ac",
+    "real_reference_contact_sha256": "d68e0cdb0e8f2539dbbb6165f5bca236f3e850d0a101c827641bfbf7058ab70f"
+  },
+  "preliminary_review": {
+    "direct_silhouette_failure_repaired": true,
+    "observed_improvement": "distributed rounded droplets with bounded edges/highlights; no large polygon patch or black-block contamination",
+    "remaining_limits": [
+      "appearance template source is published synthetic data",
+      "the fixed field models persistent lens contamination rather than sliding drops or wiper dynamics",
+      "profile selection remains unfrozen",
+      "human acceptance remains required before any ORION screen"
+    ],
+    "decision": "candidate retained for user visual review; not yet accepted"
+  },
+  "verification": {
+    "remote_python_tests": "22 passed in 27.94s",
+    "test_files": [
+      "tests/test_lens_waterdrop_paired_template.py",
+      "tests/test_lens_waterdrop_v2.py",
+      "tests/test_real_waterdrop_mask_bank.py",
+      "tests/test_lens_waterdrop.py",
+      "tests/test_evaluate_clean_render_artifacts.py",
+      "tests/test_render_corruption_hardcase_bakeoff.py",
+      "tests/test_corruption_hardcase_funnel.py",
+      "tests/test_corruption_hardcase_severity_freeze.py"
+    ]
+  },
+  "locks": {
+    "orion_screen": false,
+    "closed_loop": false,
+    "severity_freeze": false,
+    "training": false
+  },
+  "claim_boundary": "A visually promising independent paired-template candidate, not a validated physical renderer and not model or safety evidence."
+}

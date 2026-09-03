@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "orion.oracle_adapter.sample.v1",
+  "title": "ORION same-rollout oracle adapter supervision sample",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "sample_id",
+    "source",
+    "condition",
+    "state",
+    "oracle",
+    "controls",
+    "expert",
+    "labels",
+    "terminal_result"
+  ],
+  "properties": {
+    "schema_version": {"const": "orion.oracle_adapter.sample.v1"},
+    "sample_id": {"type": "string", "minLength": 1},
+    "source": {
+      "type": "object",
+      "required": ["rollout_id", "step", "frame_2hz", "sim_time_seconds", "frame_paths"],
+      "properties": {
+        "rollout_id": {"type": "string", "minLength": 1},
+        "step": {"type": "integer", "minimum": 0, "multipleOf": 10},
+        "frame_2hz": {"type": "integer", "minimum": 0},
+        "sim_time_seconds": {"type": "number", "minimum": 0},
+        "frame_paths": {
+          "type": "object",
+          "required": ["CAM_FRONT", "CAM_FRONT_LEFT", "CAM_FRONT_RIGHT", "CAM_BACK", "CAM_BACK_LEFT", "CAM_BACK_RIGHT", "BEV", "META"]
+        }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "required": ["name", "variant", "hazard_present", "relevance", "corruption_active"],
+      "properties": {
+        "variant": {"enum": ["hazard", "nohazard"]},
+        "relevance": {"enum": ["on_path", "off_path"]},
+        "hazard_present": {"type": "boolean"},
+        "corruption_active": {"type": "boolean"}
+      }
+    },
+    "oracle": {
+      "type": "object",
+      "required": ["uq_global", "path_risk", "spatial_mask_spec"],
+      "properties": {
+        "uq_global": {"type": "number", "minimum": 0, "maximum": 1},
+        "path_risk": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "controls": {
+      "type": "object",
+      "required": ["source_rollout_id", "base", "post", "speed_cap_mps"]
+    },
+    "expert": {
+      "type": "object",
+      "required": [
+        "source_rollout_id",
+        "coordinate_convention",
+        "horizon_seconds",
+        "trajectory_displacements_m",
+        "trajectory_cumulative_m",
+        "trajectory_mask",
+        "base_plan_displacements_m",
+        "base_plan_cumulative_m"
+      ],
+      "properties": {
+        "coordinate_convention": {"const": "orion_local_right_forward_increment_m"},
+        "horizon_seconds": {
+          "type": "array",
+          "prefixItems": [
+            {"const": 0.5}, {"const": 1.0}, {"const": 1.5},
+            {"const": 2.0}, {"const": 2.5}, {"const": 3.0}
+          ],
+          "minItems": 6,
+          "maxItems": 6
+        },
+        "trajectory_displacements_m": {"$ref": "#/$defs/trajectory"},
+        "trajectory_cumulative_m": {"$ref": "#/$defs/trajectory"},
+        "base_plan_displacements_m": {"$ref": "#/$defs/trajectory"},
+        "base_plan_cumulative_m": {"$ref": "#/$defs/trajectory"},
+        "trajectory_mask": {
+          "type": "array",
+          "items": {"type": "integer", "enum": [0, 1]},
+          "minItems": 6,
+          "maxItems": 6
+        }
+      }
+    },
+    "labels": {
+      "type": "object",
+      "required": ["stop_required", "recover", "intervention", "intervention_l1"],
+      "properties": {
+        "stop_required": {"type": "boolean"},
+        "recover": {"type": "boolean"},
+        "intervention": {"type": "boolean"},
+        "intervention_l1": {"type": "number", "minimum": 0}
+      }
+    },
+    "terminal_result": {"type": "object"}
+  },
+  "$defs": {
+    "point2": {
+      "type": "array",
+      "items": {"type": "number"},
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "trajectory": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/point2"},
+      "minItems": 6,
+      "maxItems": 6
+    }
+  }
+}

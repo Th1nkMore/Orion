@@ -1,0 +1,65 @@
+{
+  "schema": "orion.stage2p_v1_controlled_k_interface_launch.v1",
+  "created_at": "2026-09-01T20:33:00+08:00",
+  "status": "single_controlled_k_interface_smoke_authorized",
+  "reason": "The soft-gate vertical-slice policy carries the integrity-valid, semantic-insensitive Stage2-L output into one bounded Stage2-P interface smoke. CPU preflight validates all 252 controlled-K records and the responsibility boundary.",
+  "validated_inputs": {
+    "source_manifest_sha256": "52285724a9306ce5561425bc3c441447ac82cda6f54bcfc0c133c1d915307043",
+    "source_build_report_sha256": "7a590c07063aea5d4b97776b05de0b0cfd29b4265abca50fceef3342ce46ab39",
+    "semantic_terminal_sha256": "f16a36dbfa9050526625114778c4880b3e8c1f34ea6e87688e048d225311d58e",
+    "semantic_report_sha256": "ae4c9ad19ffa83dddd1433a32e4575bc840d616b2124e8c9debf10c30248081f",
+    "semantic_bridge_sha256": "3cd46c20a209b5c07522ea29dbe05cdda3fbfd3b51b306c39c7b5b52a6b1c7dd",
+    "spatial_u_r_k_maps_sha256": "8731b252df471e71776635743008e6e0a5faaa7366f9d0ea9e136a3b80dfaae7"
+  },
+  "implementation": {
+    "trainer_sha256": "651fccbb4352f14700771fd44ccdd0bfb306724222fd26953439498645f23ead",
+    "task_risk_trajectory_module_sha256": "73446082d7d6ab4acfc76c6cd5c3d7a8761e3d55f21ab25fb2692c62898a7051",
+    "protocol_sha256": "43e3264ba3abbedb9d2dbc037d371d766856b1439098cf19b0dd78f772aeae6f",
+    "preflight_sha256": "2a1e90265da938b0e2984599455fdbf610e643110216e873ba8c5af145a30f5e",
+    "soft_gate_policy_sha256": "800a55515ceab3f39ebd10659b22f93c66aaccc9ea3748b2974b23aa2d17a771"
+  },
+  "preflight": {
+    "status": "controlled_k_interface_preflight_pass_training_locked",
+    "source_records": 189,
+    "derived_records": 252,
+    "records_per_variant": 63,
+    "relevant_positive_targets": 4,
+    "zero_k_exact": true,
+    "all_inputs_finite": true,
+    "privileged_task_context_forward": false,
+    "upstream_quality_label": "semantic_insensitive_bridge"
+  },
+  "authorized_run": {
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2p_smokes/v1_controlled_k_route147_80step_v1/training",
+    "optimizer_steps": 80,
+    "maximum_submissions": 1,
+    "automatic_retry": false,
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "32G",
+    "time_limit": "01:00:00",
+    "exclude_nodes": [
+      "gpu5"
+    ]
+  },
+  "hard_stop_rules": {
+    "lineage_or_interface_failure": "Fail closed without retry.",
+    "responsibility_violation": "Fail closed before optimization.",
+    "nonfinite_or_bound_violation": "Fail closed immediately.",
+    "zero_k_identity_failure": "Do not proceed to CARLA."
+  },
+  "soft_diagnostic_rules": {
+    "trajectory_fit_or_selectivity_failure": "Save the labeled output and continue only to the preregistered tiny runtime smoke under the soft-gate policy.",
+    "quality_pass": "Still does not establish formal Stage2-P readiness or safety."
+  },
+  "locks": {
+    "formal_stage2p_allowed": false,
+    "formal_closed_loop_allowed": false,
+    "learned_u_substitution_allowed": false,
+    "locked_test_allowed": false,
+    "benchmark_matrix_allowed": false,
+    "automatic_retry": false
+  },
+  "claim_boundary": "Authorization for one one-route, controlled-K, 80-step trajectory-interface engineering smoke only."
+}

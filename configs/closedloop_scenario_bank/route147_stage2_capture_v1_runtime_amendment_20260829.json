@@ -1,0 +1,20 @@
+{
+  "schema_version": "orion.closedloop_runtime_amendment/v1",
+  "timestamp_local": "2026-08-29",
+  "run_id": "route147_stage2_learned_capture_v1",
+  "slurm_job_id": "1089220",
+  "state": "cancelled_invalid_development_capture",
+  "elapsed": "00:02:18",
+  "node": "gpu4",
+  "reason": "The first Stage-2 capture was cancelled during ORION startup after an architectural audit found that the task adapter received 256-D scene-query memory but not ORION's 89-D command, ego-state, and temporal ego-pose context. Continuing would have produced artifacts incapable of learning on-path versus off-path relevance.",
+  "scientific_use": "none",
+  "result_policy": "The partial directory is retained only as an auditable runtime record. It must not be used for training, evaluation, or safety claims.",
+  "partial_result_directory": "/public/share/lidachuan/orion_assets/results/route147_stage2_learned_capture_v1/route147_hazard_native_braking_aware_crossing_oracle-1089220",
+  "observed_files": [
+    "carla-client-1089220.log",
+    "carla-server-1089220.log",
+    "manifest.json"
+  ],
+  "replacement_run_id": "route147_stage2_task_context_capture_v2",
+  "replacement_change": "Capture and fuse the same-frame 89-D ORION task context together with frozen Stage-1 spatial uncertainty and pre-LLM planning memory."
+}

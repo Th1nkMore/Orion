@@ -1,0 +1,47 @@
+{
+  "schema": "orion.scenario_factory.amendment.v1",
+  "created_at": "2026-09-01T20:21:00+08:00",
+  "status": "single_authorized_stage2p_replacement_submitted",
+  "submission": {
+    "job_id": "1123187",
+    "job_name": "s2p_v1_k_iface",
+    "retry_of_invalid_job": "1123186",
+    "partition": "Nvidia_A800",
+    "state_when_recorded": "PENDING",
+    "reason_when_recorded": "Priority",
+    "submitted_at": "2026-09-01T20:20:58+08:00",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "32G",
+    "time_limit": "01:00:00",
+    "excluded_nodes": [
+      "gpu5"
+    ],
+    "requeue": false,
+    "automatic_retry": false
+  },
+  "hash_binding": {
+    "trainer_sha256": "a598135a84754624095b7562335983b31e70b8cf5d4f1bd4d43a12855c0c9677",
+    "task_risk_trajectory_module_sha256": "73446082d7d6ab4acfc76c6cd5c3d7a8761e3d55f21ab25fb2692c62898a7051",
+    "protocol_sha256": "43e3264ba3abbedb9d2dbc037d371d766856b1439098cf19b0dd78f772aeae6f",
+    "preflight_sha256": "2a1e90265da938b0e2984599455fdbf610e643110216e873ba8c5af145a30f5e",
+    "retry_authorization_sha256": "daeeaa2d514ca7c7fd2e454b27d8c7ff3b82e91e5b30e4675f66095c74407249",
+    "retry_launch_sha256": "8056895cd33d08fb3c3c0f4ddc5650d5d59eefc509f62333a66db04ba9463ac1",
+    "submitter_sha256": "d11e0f782c20b8557642512bb4f08822b29689bddc21acc76217a2b994958a4a"
+  },
+  "pre_submission_validation": {
+    "remote_hashes_matched": true,
+    "launch_contract_passed": true,
+    "authorized_optimizer_steps": 80,
+    "prior_job_optimizer_steps": 0,
+    "prior_job_training_output_written": false
+  },
+  "scope": {
+    "controlled_k_only": true,
+    "formal_stage2p": false,
+    "closed_loop": false,
+    "locked_test_read": false,
+    "remaining_replacement_submissions": 0
+  },
+  "claim_boundary": "The sole authorized administrative replacement was submitted after an explicit remote launch-contract pass; no result or model claim is made here."
+}

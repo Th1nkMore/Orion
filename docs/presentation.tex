@@ -1,0 +1,430 @@
+% !TEX program = xelatex
+\documentclass[aspectratio=169, 11pt]{ctexbeamer}
+
+\usetheme{metropolis}
+\metroset{progressbar=frametitle, numbering=fraction, block=fill}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsmath, amssymb}
+\usepackage{tikz}
+\usepackage{appendixnumberbeamer}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
+
+\definecolor{mDarkTeal}{HTML}{23373B}
+\definecolor{mLightBrown}{HTML}{EB811B}
+\definecolor{mLightGreen}{HTML}{14B03D}
+\definecolor{mAlertRed}{HTML}{CC0000}
+\definecolor{mSoftBlue}{HTML}{3366CC}
+\setbeamercolor{alerted text}{fg=mLightBrown}
+
+\graphicspath{{../reports/uq_token/assets/}{../reports/uq_token/assets/route_balanced_eval/}{../results/figures/baseline/}}
+
+\title{视觉骨干不确定性感知规划}
+\subtitle{从密度不确定性估计到大模型前视觉适配器}
+\date{2026 年 6 月}
+\author{}
+\institute{}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{汇报主线}
+\large
+\begin{enumerate}
+    \item 为什么需要视觉骨干不确定性？
+    \item 0521 方案为什么需要调整？
+    \item 新方案如何让 UQ 进入大模型决策链路？
+    \item 目前实验说明了什么，还没有说明什么？
+\end{enumerate}
+\end{frame}
+
+\section{问题与路线调整}
+
+\begin{frame}{问题：L2 看不见安全风险}
+\begin{columns}[T]
+\begin{column}{0.52\textwidth}
+\textbf{ORION 流程}
+\begin{center}
+\begin{tikzpicture}[
+    box/.style={draw, rounded corners, minimum width=3.1cm, minimum height=0.55cm, fill=gray!10, font=\small},
+    arr/.style={-{Stealth[length=5pt]}, thick}
+]
+\node[box] (a) {多视角图像};
+\node[box, below=0.35cm of a] (b) {EVAViT};
+\node[box, below=0.35cm of b] (c) {QT-Former};
+\node[box, below=0.35cm of c] (d) {Qwen 大模型};
+\node[box, below=0.35cm of d] (e) {轨迹解码器};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (d)--(e);
+\end{tikzpicture}
+\end{center}
+\end{column}
+\begin{column}{0.44\textwidth}
+\textbf{0521 观察}
+\begin{itemize}
+    \item 恶劣天气下碰撞风险显著上升
+    \item L2 误差不一定同步变差
+    \item 模型缺少“我看不清”的自我感知
+\end{itemize}
+\vspace{0.5em}
+\begin{alertblock}{核心问题}
+视觉质量下降时，规划器仍可能过度自信。
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{0521 方案的说服力问题}
+\begin{table}
+\centering
+\small
+\begin{tabular}{p{3.0cm}p{4.5cm}p{4.5cm}}
+\toprule
+\textbf{0521 方案} & \textbf{优点} & \textbf{问题} \\
+\midrule
+手工 UQ 估计器 & 可以输出分数与表征向量 & 伪标签人为设定，理论依据弱 \\
+L2/解码器 FiLM & 容易直接改变轨迹 & 像绕过大模型的后端控制器 \\
+碰撞/L2 改善 & 有可观测效果 & 难证明是大模型利用了 UQ \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.5em}
+\begin{block}{本阶段调整}
+把主张从“我用 UQ 改轨迹”改成“我把可靠性条件化后的视觉证据交给大模型，让大模型仍然做规划决策”。
+\end{block}
+\end{frame}
+
+\begin{frame}{方法演进：从后端调制到大模型前视觉适配}
+\centering
+\includegraphics[width=0.88\textwidth]{method_evolution_summary.png}
+\vspace{0.4em}
+
+\small
+当前主线：密度不确定性估计负责\alert{监测视觉骨干不确定性}，大模型前视觉适配器负责\alert{条件化视觉证据}。
+\end{frame}
+
+\section{方法}
+
+\begin{frame}{密度不确定性估计：替代人为 UQ 估计器}
+\begin{columns}[T]
+\begin{column}{0.52\textwidth}
+\textbf{原接口保留}
+\[
+\text{EVAViT 特征} \rightarrow (\text{分数}, \text{表征向量})
+\]
+\vspace{0.3em}
+\textbf{含义改变}
+\begin{itemize}
+    \item 分数：偏离正常视觉特征流形的程度
+    \item 表征向量：有效密度方向，兼容 256 维旧接口
+    \item 理论基础：特征密度/OOD 检测，而不是人为伪标签
+\end{itemize}
+\end{column}
+\begin{column}{0.44\textwidth}
+\begin{table}
+\centering
+\small
+\begin{tabular}{lr}
+\toprule
+\textbf{指标} & \textbf{数值} \\
+\midrule
+AUROC & 0.799 \\
+AUPRC & 0.951 \\
+路线置信区间 & 0.675--0.915 \\
+有效维度 & 16 \\
+兼容维度 & 256 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{密度不确定性估计结果}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\includegraphics[width=\textwidth]{density_score_distribution.png}
+\end{column}
+\begin{column}{0.48\textwidth}
+\includegraphics[width=\textwidth]{density_embedding_projection.png}
+\end{column}
+\end{columns}
+\vspace{0.3em}
+\small
+结论：密度不确定性估计可以作为视觉条件退化的监测信号，但它本身还不是规划策略。
+\end{frame}
+
+\begin{frame}{先试过：显式 UQ 词元}
+\begin{center}
+\begin{tikzpicture}[
+    box/.style={draw, rounded corners, minimum width=2.6cm, minimum height=0.55cm, fill=gray!10, font=\small},
+    uq/.style={draw, rounded corners, minimum width=2.6cm, minimum height=0.55cm, fill=blue!10, draw=mSoftBlue, font=\small},
+    arr/.style={-{Stealth[length=5pt]}, thick}
+]
+\node[box] (v) {视觉特征};
+\node[uq, below=0.7cm of v] (u) {UQ 词元};
+\node[box, right=2.6cm of v] (l) {大模型};
+\node[box, right=2.6cm of l] (p) {规划};
+\draw[arr] (v)--(l);
+\draw[arr] (u)-| (l);
+\draw[arr] (l)--(p);
+\end{tikzpicture}
+\end{center}
+\begin{table}
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{设置} & \textbf{可靠性问答} & \textbf{规划} \\
+\midrule
+正确 UQ & 解析率/准确率 0.97/0.90 & ADE 0.2447 \\
+打乱 UQ & 解析率/准确率 0.99/0.96 & ADE 0.2147 \\
+无注入 & 不可解析 & ADE 0.1910 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{alertblock}{诊断}
+大模型能读懂可靠性语义，但没有规划监督时，这个语义不会自然转化为更好轨迹。
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{当前主线：大模型前视觉适配器}
+\begin{columns}[T]
+\begin{column}{0.52\textwidth}
+\[
+q' = q + s_{\text{UQ}}\cdot
+\mathrm{up}(\mathrm{GELU}(\mathrm{down}(\mathrm{LN}(q))))
+\]
+\vspace{0.2em}
+\begin{itemize}
+    \item 作用在 大模型前视觉查询向量
+    \item 不直接接触 VAE/轨迹解码器
+    \item up 零初始化，初始严格 恒等
+    \item 可做 正确/打乱/无注入 因果对照
+\end{itemize}
+\end{column}
+\begin{column}{0.44\textwidth}
+\begin{tikzpicture}[
+    box/.style={draw, rounded corners, minimum width=3.1cm, minimum height=0.58cm, fill=gray!10, font=\small},
+    uq/.style={draw, rounded corners, minimum width=3.1cm, minimum height=0.58cm, fill=blue!10, draw=mSoftBlue, font=\small},
+    arr/.style={-{Stealth[length=5pt]}, thick}
+]
+\node[box] (a) {EVAViT/QT 视觉查询向量};
+\node[uq, below=0.45cm of a] (b) {UQ 条件化适配器};
+\node[box, below=0.45cm of b] (c) {大模型};
+\node[box, below=0.45cm of c] (d) {规划词元};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d);
+\node[uq, right=0.55cm of b] (s) {密度不确定性估计};
+\draw[arr] (s)--(b);
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{监督：配对扰动}
+\large
+\[
+d(\text{受损+正确 UQ}, \text{正常参考})
+<
+d(\text{受损+打乱 UQ}, \text{正常参考})
+\]
+\vspace{0.8em}
+\normalsize
+\begin{itemize}
+    \item 不手工规定“高 UQ 就刹车”
+    \item 正常/受损 是同一场景，几何和专家轨迹一致
+    \item 当前扰动：单相机丢失强度 1
+    \item 目标：受损视觉下，正确 UQ 帮助恢复接近 正常输入的规划表示
+\end{itemize}
+\end{frame}
+
+\section{实验结果}
+
+\begin{frame}{路线均衡 受损输入评估：平均有效}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{table}
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+\textbf{模式} & \textbf{ADE} & \textbf{FDE} \\
+\midrule
+无注入 & 1.4429 & 2.5210 \\
+零值注入 & 1.4429 & 2.5210 \\
+打乱 UQ & 1.2286 & 2.1969 \\
+正确 UQ & \textbf{1.1641} & \textbf{2.0955} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.4em}
+\small
+10 条路线，每条 35 个有效规划帧，共 350 样本。
+\end{column}
+\begin{column}{0.48\textwidth}
+\includegraphics[width=\textwidth]{route_balanced_ade_by_route.png}
+\end{column}
+\end{columns}
+\vspace{0.3em}
+\begin{block}{关键结论}
+正确 UQ 相比无注入：ADE 改善 19.3\%；正确 UQ 相比打乱 UQ：ADE 改善 5.3\%。正确 UQ 有额外价值。
+\end{block}
+\end{frame}
+
+\begin{frame}{路线级结果：有效但不稳定}
+\includegraphics[width=\textwidth]{route_balanced_correct_improvement.png}
+\vspace{0.2em}
+\small
+正确 UQ 相比无注入在 9/10 条路线改善；相比打乱 UQ 在 8/10 条路线改善。失败边界主要出现在 YieldToEmergencyVehicle 和部分复杂路口。
+\end{frame}
+
+\begin{frame}{高低 UQ 分层：不能过度声称}
+\begin{columns}[T]
+\begin{column}{0.50\textwidth}
+\begin{table}
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+\textbf{分组} & \textbf{无注入} & \textbf{打乱 UQ} & \textbf{正确 UQ} \\
+\midrule
+高 UQ & 1.673 & 1.526 & \textbf{1.502} \\
+低 UQ & 1.262 & 1.089 & \textbf{1.052} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.3em}
+\small
+正确 UQ 在两组都优于打乱 UQ，但收益没有集中在 高 UQ。
+\end{column}
+\begin{column}{0.46\textwidth}
+\includegraphics[width=\textwidth]{uq_stratified_ade.png}
+\end{column}
+\end{columns}
+\vspace{0.4em}
+\begin{alertblock}{谨慎表述}
+当前只能说 UQ 是有效条件信号，不能说分数越高收益越大。
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{正常输入安全性：ADE 安全，FDE 需约束}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{table}
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+\textbf{模式} & \textbf{ADE} & \textbf{FDE} \\
+\midrule
+无注入 & \textbf{0.8884} & \textbf{1.3707} \\
+打乱 UQ & 0.9008 & 1.4265 \\
+正确 UQ & 0.8971 & 1.4248 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.3em}
+\small
+正确 UQ 相比无注入：ADE 退化 1.0\%，FDE 退化 4.0\%。
+\end{column}
+\begin{column}{0.48\textwidth}
+\includegraphics[width=\textwidth]{clean_safety_ade_fde.png}
+\end{column}
+\end{columns}
+\vspace{0.3em}
+\begin{block}{下一步要求}
+加入正常输入保持损失或恒等正则，把正常输入 FDE 退化压回 3\% 以内。
+\end{block}
+\end{frame}
+
+\begin{frame}[t]{可视化：轨迹行为确实会被改变}
+\centering
+\includegraphics[height=0.68\textheight,keepaspectratio]{../reports/uq_token/assets/uq_adapter_gifs/gif_contact_sheet.png}
+\vspace{0.15em}
+
+\small
+GIF 用于展示适配器改变规划行为；定量结论仍以路线均衡表格为准。
+\end{frame}
+
+\section{结论与计划}
+
+\begin{frame}{当前能说什么，不能说什么}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{可以说}
+\begin{itemize}
+    \item 密度不确定性估计比手工 UQ 估计器 更有理论依据
+    \item 大模型能读取 UQ 词元的可靠性语义
+    \item 大模型前视觉适配器在路线均衡受损输入评估上平均有效
+    \item 正确 UQ 优于打乱 UQ
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{暂时不能说}
+\begin{itemize}
+    \item 显式 UQ 词元已经改善规划
+    \item 高 UQ 场景收益一定更大
+    \item 适配器已经稳定泛化
+    \item 正常场景完全无退化
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{下一阶段最短路线}
+\begin{table}
+\centering
+\small
+\begin{tabular}{p{3.2cm}p{5.0cm}p{3.0cm}}
+\toprule
+\textbf{任务} & \textbf{目标} & \textbf{通过标准} \\
+\midrule
+路线均衡训练 & 500--1000 配对样本，仅训练适配器 & 正确 UQ 稳定优于打乱 UQ \\
+正常输入保持 & 加入恒等/保持损失 & 正常输入 ADE/FDE 退化 $<3\%$ \\
+表征向量条件 & 分数和密度表征向量同时注入 & 分层结果更可解释 \\
+路线分层 & 按路线/天气/受损强度拆分 & 明确收益和失败边界 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{总结}
+\large
+\begin{enumerate}
+    \item 0521 证明了“需要 UQ”，但旧方案说服力不足。
+    \item 本阶段用密度不确定性估计替换手工 UQ 估计器，保留分数与表征向量接口。
+    \item 显式 UQ 词元给出重要负结果：读懂语义不等于改善规划。
+    \item 大模型前视觉适配器是当前主线：不直接改轨迹，而是条件化大模型前的视觉证据。
+    \item 路线均衡实验已有平均收益，但下一步要解决稳定性和 正常输入 FDE。
+\end{enumerate}
+\end{frame}
+
+\begin{frame}[standout]
+谢谢
+\end{frame}
+
+\appendix
+
+\begin{frame}{备用：逐路线 ADE}
+\tiny
+\begin{tabular}{p{6.6cm}rrrr}
+\toprule
+\textbf{路线} & \textbf{无注入} & \textbf{打乱 UQ} & \textbf{正确 UQ} & \textbf{正确相对打乱} \\
+\midrule
+VanillaSignalizedTurnEncounterRedLight & 2.174 & 1.049 & 0.754 & +28.1\% \\
+OppositeVehicleRunningRedLight & 0.689 & 0.504 & 0.436 & +13.5\% \\
+HighwayExit & 0.747 & 0.606 & 0.533 & +12.0\% \\
+VehicleTurningRoute & 0.728 & 0.601 & 0.555 & +7.7\% \\
+AccidentTwoWays & 0.199 & 0.158 & 0.152 & +3.8\% \\
+BlockedIntersection & 2.366 & 1.956 & 1.873 & +4.2\% \\
+SignalizedJunctionLeftTurnEnterFlow & 0.886 & 0.814 & 0.829 & -1.9\% \\
+NonSignalizedJunctionLeftTurnEnterFlow & 1.742 & 1.721 & 1.650 & +4.1\% \\
+LaneChange & 1.420 & 1.381 & 1.362 & +1.4\% \\
+YieldToEmergencyVehicle & 3.477 & 3.496 & 3.496 & -0.0\% \\
+\bottomrule
+\end{tabular}
+\end{frame}
+
+\end{document}

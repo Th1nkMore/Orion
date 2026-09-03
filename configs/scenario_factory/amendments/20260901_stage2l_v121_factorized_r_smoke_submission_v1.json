@@ -1,0 +1,64 @@
+{
+  "schema": "orion.stage2l_v12_1_factorized_r_smoke_submission.v1",
+  "created_at": "2026-09-01T15:29:14+08:00",
+  "status": "single_factorized_r_only_job_submitted_attested_pending_priority",
+  "job": {
+    "job_id": "1121553",
+    "job_name": "s2l_v121_factr",
+    "submit_time": "2026-09-01T15:27:29+08:00",
+    "snapshot_state": "PENDING",
+    "snapshot_reason": "Priority",
+    "snapshot_last_scheduler_evaluation": "2026-09-01T15:28:11+08:00",
+    "scheduler_estimated_start_time": "2026-09-04T00:59:10+08:00",
+    "scheduler_estimate_is_nonbinding": true,
+    "remote_log": "/public/share/lidachuan/orion_assets/scenario_factory/logs/stage2l_smokes/v121_factorized_r_17event_40_v1-1121553.out",
+    "output_root": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/training"
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "05:00:00",
+    "exclude_nodes": ["gpu5"]
+  },
+  "attestation": {
+    "path": "results/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/submission_attestation.json",
+    "remote_path": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v121_factorized_r_17event_40_v1/submission_attestation.json",
+    "sha256": "3d8a2ce86d687b7958a7ef640f5e0feee77d29e5ae2a34ac225e1ab4d4bab250",
+    "schema": "orion.stage2l_v12_1_factorized_r_submission_attestation.v1",
+    "status": "single_factorized_r_only_job_submitted_and_attested"
+  },
+  "lineage": {
+    "launch_amendment": {
+      "path": "configs/scenario_factory/amendments/20260901_stage2l_v121_factorized_r_smoke_launch_v1.json",
+      "sha256": "b88758a36c126ba2b47e944b86ffe88c2542927350c49d939988e53e8f74545d"
+    },
+    "protocol_sha256": "2b3afc6cac3bb9e5b583e421acab5bc03d1db6c09cf439a56dac0884dfa303e4",
+    "preflight_sha256": "0171a03ca5f79c09e810cb2ec306f1022bafe746f0901d06c4d5ecb025ccb43d",
+    "trainer_sha256": "05fc37aee17aaccdcfc680669c814dfb199eceb6dbc0cd5759f4409635f2e31a"
+  },
+  "submission_contract": {
+    "maximum_submissions": 1,
+    "automatic_retry": false,
+    "maximum_optimizer_steps": 40,
+    "evaluation_milestones": [20, 40],
+    "duplicate_active_job_check_passed": true,
+    "output_was_fresh_at_submission": true,
+    "attestation_written_before_submitter_returned": true,
+    "stage1_uq_or_tokenizer_loaded": false,
+    "language_training": false,
+    "trajectory_or_control": false,
+    "formal_stage2l": false,
+    "stage2p": false,
+    "closed_loop": false,
+    "locked_test_read": false
+  },
+  "result_state": {
+    "training_started": false,
+    "model_result_available": false,
+    "terminal_report_available": false,
+    "scientific_gate_status": "not_yet_evaluated"
+  },
+  "claim_boundary": "Hash-bound scheduler submission evidence for one bounded factorized-R-only job. Pending status is not training, generalization, semantic-U, language, planning, closed-loop or safety evidence."
+}
