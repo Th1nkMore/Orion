@@ -42,8 +42,8 @@ def render_text_oracle_summary(summary: UConceptSummary) -> str:
     if fields["U_PRESENT"] == "no":
         return (
             "No observation uncertainty is present. Consequently no camera "
-            "view, image region, uncertainty level, or uncertainty component "
-            "applies. The temporal trend is stable."
+            "view, no image region, no uncertainty level, and no uncertainty "
+            "component apply. The temporal trend is stable."
         )
     return (
         "Observation uncertainty is present. Its strongest location is in the "
