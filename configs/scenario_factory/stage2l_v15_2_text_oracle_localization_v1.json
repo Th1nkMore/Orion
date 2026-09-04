@@ -1,0 +1,82 @@
+{
+  "schema": "orion.stage2l-v15-2-text-oracle-protocol/v1",
+  "created_at": "2026-09-04T15:20:00+08:00",
+  "status": "bounded_text_oracle_localization",
+  "purpose": "Determine whether frozen ORION can recover exact task-free U semantics when U is supplied as authoritative natural-language text instead of continuous U tokens.",
+  "prompt_schema": "orion.stage2l-u-text-oracle/v1",
+  "training_performed": false,
+  "optimizer_steps": 0,
+  "input_sha256": {
+    "dataset_manifest_sha256": "c386c1ab6eeb292103d8cf4089836d74b7fc4ffe011b53e4d87deec7cb8eb5f3",
+    "v11_records_sha256": "dac10992772a20f4f0a52233025270288b3d7c6ef3b9df5e37e5824779db8101",
+    "dataset_audit_report_sha256": "2d8d2879a5ac9383887a95304bc5c9d3c3740aadaee3d720dac9a272c9c9c2f7",
+    "view_feature_cache_sha256": "b6378477d6a92590ebd08af416c39208ddb3425c425f69a7554b18c301cfed61",
+    "orion_config_sha256": "0920526b2eae94a25110bee882f8df9d51fdff6625d465d6d2d62ee96274f576",
+    "orion_checkpoint_sha256": "4977a0505f05883c7d08390c925ef6519053381cb579113c318fb6c0c19d2a06",
+    "v15_checkpoint_sha256": "fc8f3c841fae46303552fed358eb969411c4dab9662a953f702aa5bd5c4e1139",
+    "v15_report_sha256": "8ab202ae4c5b29a9739bbceba281944c3abd35181ce557a1365c900f6a92477b"
+  },
+  "implementation_sha256": {
+    "scripts/evaluate_stage2l_v15_2_text_oracle_localization.py": "285a5a1366905e770d5e18c6fd61eed79752aa9e4c6e72d4106e818ce7b7119f",
+    "scripts/train_stage2l_mr1_smoke.py": "dbf03178d1d748c8b2004d82e91cedd4976bd57bd1e0b82822332229e89227d6",
+    "scripts/train_stage2l_route196_bridge_smoke.py": "74f72836d923ced888363a8109b91083a0d892ec7c8999cb153a2e6fd41c489d",
+    "scripts/train_stage2l_v14_u_concept_lora_smoke.py": "10a824af11bdf499176cbc2ce1ee7c14f74475d0b4f8c6c85d1dfba777039ae0",
+    "scripts/train_stage2l_v7_route151_smoke.py": "4f18871e5803cb5197b0b1b05c2198585839038ac5ea45e32346363838b7adca",
+    "uq_estimator/stage2l_u_concept_qa_v14.py": "97ab935ab594c65574f42fd6a2eb73adbbbd6f9ac65749414506bf7e18b5bf52",
+    "uq_estimator/stage2l_u_text_oracle_v15_2.py": "fa79a7ed8d99ed2b14ca3c08ab874517d67af64fb90e382c6ae104a9612b3abf"
+  },
+  "preflight_output": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v15_2_text_oracle_localization_120dev_v1/preflight.json",
+  "output": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v15_2_text_oracle_localization_120dev_v1/report.json",
+  "architecture": {
+    "continuous_u_tokens_present": false,
+    "text_oracle_is_only_u_input": true,
+    "orion_visual_tokens": 529,
+    "r_bridge_task_route_risk_action_present": false,
+    "trajectory_control_closed_loop_present": false
+  },
+  "evaluation": {
+    "split": "dev",
+    "dev_events": 4,
+    "dev_groups": 20,
+    "u_variants_per_group": 6,
+    "u_states": 120,
+    "all_six_fields": true,
+    "field_decisions_per_model": 720,
+    "primary_decode": "all_candidate_nll",
+    "answer_micro_batch_size": 10,
+    "model_controls": [
+      "original_orion",
+      "v15_lora"
+    ],
+    "same_image_counterfactual_contract": "Within each group the 529 ORION visual tokens are identical across all six states; only the authoritative U description changes.",
+    "free_generation": "Secondary diagnostic on one representative group per each of four dev events."
+  },
+  "localization": {
+    "continuous_u_comparator": "Hash-bound completed v15 report after-training dev metrics.",
+    "interface_bottleneck_support_threshold": {
+      "minimum_v15_text_nonzero_accuracy_excluding_presence": 0.8,
+      "minimum_v15_text_changed_field_response": 0.7,
+      "maximum_v15_continuous_u_nonzero_accuracy_excluding_presence": 0.5
+    },
+    "thresholds_are_training_gates": false
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 2,
+    "memory": "192G",
+    "time_limit": "12:00:00",
+    "maximum_submissions": 1
+  },
+  "automatic_retry": false,
+  "locks": {
+    "training_allowed": false,
+    "uqformer_validated": false,
+    "formal_stage2l_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false,
+    "locked_test_allowed": false,
+    "automatic_downstream_unlock": false
+  },
+  "claim_boundary": "Text-oracle interface localization only; no U-QFormer, task relevance, planning, closed-loop safety, or external-generalization claim."
+}
