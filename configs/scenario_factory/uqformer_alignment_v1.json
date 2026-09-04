@@ -1,0 +1,99 @@
+{
+  "schema": "orion.uqformer-alignment-protocol/v1",
+  "created_at": "2026-09-04T10:35:00+08:00",
+  "status": "cpu_only_architecture_preflight_not_training_authority",
+  "purpose": "Define and audit a task-agnostic U-modality aligner before any ORION or GPU training is authorized.",
+  "architecture": {
+    "input_contract": "frozen Stage-1 normalized components [B,T,V,H,W,C]",
+    "source_summary": "per-view/grid [latest,mean,delta] x 3 components = 9 native scalars",
+    "source_summary_width": 9,
+    "source_grid_hw": [10, 10],
+    "latent_width": 256,
+    "language_width": 4096,
+    "language_width_projection_position": "final_orion_boundary_only",
+    "query_layout": {
+      "view_query_hw": [2, 2],
+      "temporal_queries": 3,
+      "component_queries": 3,
+      "global_queries": 4,
+      "tokens_for_six_views": 34
+    },
+    "cross_attention_layers": 2,
+    "cross_attention_heads": 8,
+    "explicit_representations": [
+      "observation_uncertainty_modality",
+      "source_vs_query_type",
+      "view",
+      "xy",
+      "latest_mean_delta_time_structure",
+      "component"
+    ],
+    "zero_input_contract": "continuous 9-d values plus zero-anchor loss; audit mask only; no binary presence embedding",
+    "separate_u_span_required_for_future_orion_integration": true,
+    "stage1_observation_estimator_trainable": false,
+    "task_risk_language_bridge_present": false,
+    "task_relevance_is_a_bridge_output": false
+  },
+  "allowed_alignment_objectives": {
+    "native_9d_reconstruction": true,
+    "zero_u_anchor": true,
+    "view_spatial_component_equivariance": true,
+    "temporal_counterfactual_sensitivity_plus_9d_reconstruction": true,
+    "global_invariance": "opt-in only for nuisance transforms that preserve every 9-d U fact; forbidden for view, xy, trend, or component semantic changes",
+    "u_fact_caption_contrastive_alignment": true,
+    "caption_scope": "U facts only; no driving task or corruption-family identity"
+  },
+  "forbidden_inputs": [
+    "route",
+    "actor",
+    "task_relevance_R",
+    "task_risk_K",
+    "TTC",
+    "action",
+    "collision",
+    "planning",
+    "corruption_family_label"
+  ],
+  "structured_outputs": [
+    "compact_language_tokens",
+    "view_spatial_tokens",
+    "temporal_tokens",
+    "component_tokens",
+    "global_tokens",
+    "query_layout_metadata",
+    "source_9d_summary_grid",
+    "source_latent_grid",
+    "query_to_view_grid_attention",
+    "zero_input_mask"
+  ],
+  "cpu_preflight": {
+    "seed": 20260904,
+    "batch": 2,
+    "time": 3,
+    "views": 6,
+    "input_hw": [8, 12],
+    "grid_hw": [3, 4],
+    "view_query_hw": [2, 2],
+    "latent_width": 24,
+    "language_width": 48,
+    "alternate_language_width": 64,
+    "heads": 4,
+    "layers": 2,
+    "feedforward_width": 48
+  },
+  "resource_authority": {
+    "cpu_preflight_allowed": true,
+    "gpu_job_allowed": false,
+    "slurm_submission_allowed": false,
+    "orion_load_allowed": false,
+    "automatic_retry_allowed": false
+  },
+  "downstream_locks": {
+    "alignment_training_allowed": false,
+    "orion_lora_training_allowed": false,
+    "stage2_task_relevance_allowed": false,
+    "stage2p_allowed": false,
+    "closed_loop_allowed": false
+  },
+  "claim_boundary": "Architecture and CPU gradient preflight only. This protocol does not establish U-language alignment, task relevance, planning benefit, safety, or generalization."
+}
