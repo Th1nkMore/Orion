@@ -19,7 +19,85 @@ revealed.
 
 The accepted architecture and alternatives are recorded in [adr.md](adr.md).
 
-## 2. Why the direction changed
+## 2. Grill design-review trace
+
+This section is the persistent design tree reconstructed from the interactive
+grill review. It records decisions and their dependencies, not a verbatim chat
+transcript. Experimental facts established after the review remain in the
+evidence sections below and must not be presented as user decisions.
+
+```text
+D0  What problem are we solving?
+|
++-- accepted: clean occlusion is itself scene uncertainty
+|   +-- D1  What should the small estimator learn?
+|   |   +-- rejected: hidden-actor probability, task action, or full semantic risk
+|   |   +-- accepted: task-agnostic physical observability
+|   |       +-- D2  How is near-term danger represented?
+|   |           +-- accepted: keep U_vis physical and separately compute U_urgent
+|   |               from route, speed, and stopping margin
+|   |
+|   +-- D3  What representation carries U?
+|       +-- accepted: depth-derived 3D visibility -> inspectable 2.5D BEV
+|           +-- accepted: global tokens + local frontier tokens
+|
++-- D4  Who interprets semantic relevance?
+|   +-- accepted primary: inject U into the Qwen 4B VLM
+|   |   +-- D5  How is consumption trained and demonstrated?
+|   |       +-- accepted: oracle-U consumer proof before predicted-U training
+|   |       +-- accepted: structured grounding, then longitudinal planning LoRA
+|   |       +-- accepted: zero/shuffle causal controls
+|   +-- conditional fallback: direct Planning Expert injection only after a
+|       bounded, valid VLM attempt fails
+|
++-- D6  How is the claim evaluated?
+    +-- accepted primary: Bench2Drive true closed loop
+    +-- accepted secondary: NAVSIM pseudo-closed-loop corroboration
+    +-- accepted: Route 151 is a motivating/plumbing case, not an untouched test
+    +-- accepted: one fixed official-style baseline is sufficient initially
+    +-- accepted: retain released/native image processing; no resolution ablation
+```
+
+The dependency order matters. D2 cannot redefine the estimator before D1 fixes
+its responsibility; D5 cannot train a deployable depth model before D4 shows
+that the intended consumer can use oracle U; and the Planning Expert fallback
+cannot become the main path merely because VLM training is difficult.
+
+### Review rounds and settled frontier
+
+The grill proceeded through these normalized frontiers:
+
+1. **Problem and responsibility:** accept clean visual occlusion as the central
+   uncertainty case; reject asking a small adapter to infer semantic risk or a
+   hidden actor directly.
+2. **Physical representation:** estimate visibility from depth, preserve an
+   inspectable U field, and keep distance/route/stopping urgency separate from
+   observability.
+3. **Consumer:** make Qwen's VLM interpret U first; keep direct Planning Expert
+   conditioning as a conditional fallback because using it first would bypass
+   the intended VLM claim.
+4. **Training and evaluation:** oracle-first staged grounding and planning;
+   Bench2Drive primary, NAVSIM secondary; a single controlled baseline; no
+   artificial image-resolution reduction or resolution ablation.
+
+The design frontier was treated as closed after the user accepted the bounded
+VLM-first path and the one-baseline evaluation scope. The following items were
+explicitly deferred as implementation frontiers rather than silently assumed:
+
+- the independent predicted-depth model and its training data, gated on an
+  interpretable oracle-U consumer result;
+- the acceptable efficiency loss at a given safety improvement;
+- exact LoRA/data-mixture parameters and held-out route/seed manifests;
+- promotion of direct Planning Expert conditioning, gated on the failure rule
+  in the ADR;
+- use of the released RL Planning Expert, gated on provisioning and checksum
+  verification of that checkpoint.
+
+Any change to a settled node must be recorded as a new or superseding ADR. Any
+new decision whose prerequisites are unsettled returns to the design frontier
+instead of being chosen implicitly during implementation.
+
+## 3. Why the direction changed
 
 The historical Orion mainline learned observation degradation from frozen
 EVAViT features and attempted to expose spatial U to Orion's language/planning
@@ -51,7 +129,7 @@ that replacing the backbone alone solves uncertainty-aware planning:
   context-dependent native response to evidence loss, not a calibrated safety
   policy.
 
-## 3. Current Qwen-to-Bench2Drive system
+## 4. Current Qwen-to-Bench2Drive system
 
 The active branch is `codex/qwen-drive-transition`. Milestone commits and live
 run identifiers are tracked in [implementation.md](implementation.md) rather
@@ -87,7 +165,7 @@ one sample, and a fixed seed, after that exact checkpoint is provisioned and
 verified. Until then, SFT reasoning remains an engineering baseline rather
 than a silently substituted final baseline.
 
-## 4. Verified Route 151 evidence
+## 5. Verified Route 151 evidence
 
 Route 151 is the motivating case, not an untouched test case.
 
@@ -110,7 +188,7 @@ path. The final checkpoint must be trained on separate parameterized scenes,
 and claims of generalization must use held-out routes, seeds, scene layouts,
 and occluder/actor combinations.
 
-## 5. Scientific boundary
+## 6. Scientific boundary
 
 The project does not claim any of the following:
 
@@ -134,7 +212,7 @@ occlusion-aware speed control. The defensible gap is the joint combination of:
 4. anticipatory, before-reveal closed-loop evaluation with causal U controls;
 5. explicit reporting of the safety/progress trade-off.
 
-## 6. Fixed responsibility split
+## 7. Fixed responsibility split
 
 ```text
 Independent depth/visibility estimator
@@ -159,7 +237,7 @@ exposure weighting derived from route, ego speed, and stopping margin. The two
 must remain separately inspectable; distance weighting must not turn a far but
 unobserved cell into a falsely "certain" cell.
 
-## 7. Existing assets and constraints
+## 8. Existing assets and constraints
 
 Implemented and verified assets:
 
@@ -183,7 +261,7 @@ Important constraints:
 - The final predicted U requires a new Qwen-independent depth/visibility
   estimator. The historical EVAViT Stage-1 checkpoint cannot be reused.
 
-## 8. Immediate evidence ladder
+## 9. Immediate evidence ladder
 
 The next work is intentionally oracle-first:
 
@@ -202,7 +280,7 @@ The first experiment may be informative without completing the full research
 claim. No document may promote an oracle result, a disposable Route 151 overfit,
 or an isolated collision avoidance to a learned-U generalization result.
 
-## 9. Source documents
+## 10. Source documents
 
 - `docs/qwen_drive_b2d_integration_v1.md`
 - `docs/qwen_drive_u_gap_review_2026-09-05.md`

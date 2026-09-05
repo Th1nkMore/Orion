@@ -6,6 +6,28 @@
 - Supersedes: the EVAViT/Orion corruption-UQ architecture as the active research
   direction; historical evidence and reproducibility assets remain valid
 
+## Decision provenance
+
+This ADR is the durable outcome of the interactive grill review. The table
+maps the settled design-tree nodes in `context.md` to the accepted decision and
+the ADR section that makes it normative. It is a decision record, not a claim
+that later experiments had already succeeded when the decision was made.
+
+| Node | Review concern | Accepted answer | Normative section |
+| --- | --- | --- | --- |
+| D0 | Corruption U alone misses the clean Route 151 failure | Treat occluded but otherwise clean space as scene uncertainty | 1, 13 |
+| D1 | A small model may be asked to learn an overly semantic risk function | Keep the estimator task-agnostic and physical; let the large model decide relevance | 1, 6 |
+| D2 | Near occlusion matters more, but distance decay can erase genuine unknown space | Preserve `U_vis`; compute route/speed/stopping exposure separately as `U_urgent` | 3 |
+| D3 | Raw depth, occupancy, and full 3D voxels have different cost and meaning | Use depth-derived 3D visibility for geometry and consume an inspectable 2.5D BEV | 2, 4 |
+| D4 | Direct planner injection risks bypassing the VLM contribution | Inject into the 4B VLM first; allow Planning Expert injection only as a gated fallback | 5, Fallback |
+| D5 | Qwen's ability to learn multimodal U is unproven | Prove oracle-U grounding first, then staged LoRA and longitudinal planning | 7–10 |
+| D6 | A weak/custom agent or changed input profile could confound the result | Keep official/native processing, one controlled baseline, Bench2Drive primary and NAVSIM secondary | 12, 13 |
+
+User acceptance closed these architectural branches. Numerical implementation
+parameters listed at the end remain open and do not have decision status. A
+failure at one implementation attempt does not authorize silently choosing a
+rejected branch; the explicit fallback gate must be met.
+
 ## Context
 
 The historical Orion work estimates corruption-induced observation
