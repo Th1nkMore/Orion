@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1a/V1b accepted; V1c bounded plumbing overfit implemented locally)
+Status: in progress (V1c valid negative; V1d factorized grounding revision next)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -639,6 +639,39 @@ inspectable U consumption before any closed-loop claim.
   reported separately, so a valid negative result cannot be promoted to a
   pass. Local evaluation-contract regression brings the relevant suite to
   `51 passed, 2 skipped`.
+
+## V1c remote negative result
+
+- Commit under test: `4108b62b`; Slurm job: `1166797`; run id:
+  `qwen_visibility_grounding_v1c_route151_overfit_v1`.
+- Terminal state: `COMPLETED`, exit `0:0`, elapsed `00:08:20`, peak host RSS
+  `456,148 KiB`. Model load took 191.02 s, native-image preparation 10.28 s,
+  five pre-training generations 28.16 s, all 15 optimizer steps 19.33 s, and
+  fifteen post-training control generations 29.16 s. Peak allocated/reserved
+  GPU memory was 12,269/12,912 MB.
+- The predeclared auditor passed every protocol invariant: all five records
+  appear exactly three times in the optimizer, both adaptation families have
+  finite nonzero updates on every step, the base/vision/expert boundary is
+  intact, every evaluation arm is present, and checkpoint integrity passes.
+- Separate clipping fixed the observed optimizer defect. After step 1, all
+  seven projector tensors and all sixteen LoRA tensors receive finite nonzero
+  gradients. Projector update norm declines from 0.115 to 0.026; LoRA update
+  norm declines from 0.090 to 0.065 rather than being globally scaled to zero.
+- Teacher-forced answer loss falls from 1.60228 to 0.30945. Nevertheless,
+  true-U exact accuracy is `0/5`; frontier accuracy is `0/5`, margin `2/5`,
+  action `2/5`, and route `5/5`. Shuffled-U has the same action accuracy and a
+  higher margin accuracy. The true-minus-control exact and action gaps are both
+  zero. Audit status is `valid_run_without_causal_grounding`.
+- Before training the base model emits the same fenced `F00/ON_ROUTE/INSIDE/SLOW`
+  JSON for every frame. After training, true and shuffled U mostly emit the
+  same compact `F10/ON_ROUTE/INSIDE/SLOW` JSON. The model learned the requested
+  serialization and majority fields, not the physical token content.
+- This is an accepted negative experiment, not a failed protocol and not V1
+  acceptance. The 25-token composite answer devotes most CE weight to fixed
+  syntax and common values; only a few tokens encode the varying supervision.
+  ADR-001 and the grounding contract now require a balanced factorized
+  four-field warm-up before returning to composite answers. More composite
+  steps alone are not the next experiment.
 
 ## Integrity constraints
 

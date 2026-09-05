@@ -140,6 +140,15 @@ margin bucket, and `KEEP/SLOW/STOP`. Free-form chain-of-thought is not required.
 Full-parameter VLM fine-tuning is deferred unless oracle-U grounding fails
 after the token and supervision contracts are verified.
 
+V1c evidence amended the curriculum without changing these targets. A single
+four-field JSON loss fell from 1.60 to 0.31 while the model emitted a shared
+majority answer for true and shuffled U; fixed syntax and the constant route
+field dominated token-level cross-entropy. The grounding warm-up therefore
+trains the four categorical fields as separate, balanced short-answer tasks
+before asking for their composite serialization. Causal zero/shuffle
+evaluation remains mandatory, so this factorization cannot be accepted merely
+for learning output format.
+
 ### 9. Train a longitudinal response first
 
 The first safety teacher preserves a valid base trajectory's lateral path and

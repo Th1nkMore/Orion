@@ -12,7 +12,7 @@ yet train the Planning Expert and does not use collision, future outcome, or
 hidden-actor labels. A Route 151 sparse overfit is permitted only as a plumbing
 and capacity check; it is not held-out grounding or safety evidence.
 
-The structured answer contains exactly four fields:
+The composite diagnostic answer contains exactly four fields:
 
 ```json
 {"frontier":"F07","route":"ON_ROUTE","margin":"NEAR","action":"SLOW"}
@@ -30,6 +30,14 @@ The physical U estimator remains task-agnostic. Route and stopping exposure are
 computed separately and already exist as inspectable input features. The VLM
 is trained to interpret these inputs; the labels do not add semantic knowledge
 about an unobservable actor.
+
+The first warm-up now presents `frontier`, `route`, `margin`, and `action` as
+four balanced short-answer tasks (`Fxx`, `ON_ROUTE/OFF_ROUTE`,
+`INSIDE/NEAR/CLEAR`, and `KEEP/SLOW/STOP`). This was added after the valid V1c
+negative result showed that composite JSON cross-entropy learned shared syntax
+and majority fields without a true-versus-shuffle gap. The label semantics and
+thresholds below are unchanged. Composite JSON remains an evaluation and later
+mixed-training target after the four fields are individually grounded.
 
 ## Fixed v1 target thresholds
 
@@ -80,7 +88,8 @@ The first optimization probe must:
    complete Planning Expert;
 2. train the physical-token projector and LoRA adapters in declared upper VLM
    modules only;
-3. compute cross-entropy only on the canonical assistant answer;
+3. compute cross-entropy only on the declared categorical or canonical
+   assistant answer, with equal optimizer coverage for all four fields;
 4. prove nonzero finite gradients reach both the projector output and at least
    one LoRA tensor before the first optimizer step;
 5. save only adaptation weights, optimizer-independent configuration,
@@ -90,4 +99,3 @@ The first optimization probe must:
 7. keep V1 open if only the Route 151 overfit succeeds. Acceptance as a learned
    consumer requires a separately generated, non-evaluation-route grounding
    set with held-out scenes and an above-chance true-versus-control gap.
-
