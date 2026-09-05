@@ -183,14 +183,24 @@ Start with a small deterministic token manifest containing interactions and
 non-interaction controls.  First reproduce a plausible clean score; then run the
 paired corruptions.  Expand only after the converter and clean baseline pass.
 
-## Next acceptance gates
+## Acceptance status and remaining gates
 
-1. Complete Route 151 SFT reasoning-planning clean and compare its text,
-   trajectory, braking, collision, and completion against SFT direct.
-2. Add two or more independent direct-clean Route 151 repetitions before using
-   “always collides” as a conclusion.
-3. Build an isolated NAVSIM v1.1 scoring environment plus maps/metadata without
-   touching the Qwen runtime.
-4. Produce and validate a small Qwen-format scene JSONL and exact frame manifest.
-5. Run deterministic clean/dropout pairs and pass a pair-integrity audit before
+Completed:
+
+- Route 151 SFT reasoning-planning clean was compared with SFT direct at the
+  rationale, trajectory, braking, collision, and completion layers.
+- One additional direct-clean repetition reproduced the pedestrian collision,
+  giving two direct clean collisions in two available direct runs.  A larger
+  sample is still required before estimating a collision probability.
+- The clean/dropout resolver, exact frame-manifest builder, paired runner, and
+  pair-integrity/trajectory audit are implemented and unit-tested.
+
+Remaining:
+
+1. Provision an isolated NAVSIM v1.1 scoring environment plus maps/metadata
+   without touching the Qwen runtime.
+2. Obtain or produce and validate a small Qwen-format scene JSONL and its exact
+   camera-frame set.
+3. Reproduce a plausible clean NAVSIM score on the pilot tokens.
+4. Run deterministic clean/dropout pairs and pass the pair-integrity audit before
    interpreting metric deltas.
