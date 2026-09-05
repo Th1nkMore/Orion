@@ -18,7 +18,8 @@ import torch
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-CONFIG_SCHEMA = "orion.qwen-visibility-grounding-smoke-config/v1"
+SMOKE_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-smoke-config/v1"
+OVERFIT_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-overfit-config/v1"
 REPORT_SCHEMA = "orion.qwen-visibility-grounding-smoke-report/v1"
 
 
@@ -67,13 +68,30 @@ def _sha256(path):
 
 def _load_protocol(path):
     protocol = json.loads(Path(path).read_text(encoding="utf-8"))
-    if protocol.get("schema") != CONFIG_SCHEMA:
-        raise ValueError("unexpected grounding smoke config schema")
-    if protocol.get("stage") != "V1b_gradient_smoke":
-        raise ValueError("this entry point is limited to V1b_gradient_smoke")
+    schema = protocol.get("schema")
+    stage = protocol.get("stage")
+    if (schema, stage) not in {
+        (SMOKE_CONFIG_SCHEMA, "V1b_gradient_smoke"),
+        (OVERFIT_CONFIG_SCHEMA, "V1c_route151_plumbing_overfit"),
+    }:
+        raise ValueError("unexpected grounding training config schema/stage")
     training = protocol["training"]
-    if int(training["optimizer_steps"]) != 1:
+    if stage == "V1b_gradient_smoke" and int(training["optimizer_steps"]) != 1:
         raise ValueError("V1b gradient smoke must take exactly one optimizer step")
+    if stage == "V1c_route151_plumbing_overfit":
+        if int(training["optimizer_steps"]) != 15:
+            raise ValueError("V1c bounded overfit must take exactly 15 optimizer steps")
+        if training.get("separate_gradient_clipping") is not True:
+            raise ValueError("V1c requires separate projector/LoRA gradient clipping")
+        expected_samples = {
+            "route151-step-000000",
+            "route151-step-000200",
+            "route151-step-000260",
+            "route151-step-000280",
+            "route151-step-000300",
+        }
+        if set(protocol.get("sample_ids", ())) != expected_samples:
+            raise ValueError("V1c must use all five immutable plumbing records")
     if protocol["claim_boundary"] != {
         "plumbing_overfit_only": True,
         "reportable_generalization": False,
@@ -181,6 +199,48 @@ def _parse_answer(answer):
     return value
 
 
+def _run_evaluations(model, projector, prepared, controls, max_new_tokens):
+    rows = []
+    model.vlm.model.language_model.eval()
+    projector.eval()
+    for example in prepared:
+        target = example["record"]["target"]
+        for control in controls:
+            tokens, mask = _load_control_tokens(example["record"], control)
+            answer = _training.generate_visibility_grounding_answer(
+                model,
+                example["inputs"],
+                torch.from_numpy(tokens).to(model.device),
+                torch.from_numpy(mask).to(model.device),
+                projector,
+                max_new_tokens=int(max_new_tokens),
+            )
+            parsed = _parse_answer(answer)
+            rows.append(
+                {
+                    "sample_id": example["record"]["sample_id"],
+                    "control": control,
+                    "answer": answer,
+                    "parsed": parsed,
+                    "canonical_exact": answer
+                    == example["record"]["canonical_answer"],
+                    "field_correct": {
+                        field: bool(parsed is not None and parsed.get(field) == value)
+                        for field, value in target.items()
+                    },
+                }
+            )
+    return rows
+
+
+def _parameter_delta_norm(parameters, before):
+    squared = 0.0
+    for parameter, reference in zip(parameters, before):
+        difference = parameter.detach().float() - reference
+        squared += float(torch.sum(difference * difference).item())
+    return float(squared**0.5)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--protocol", type=Path, required=True)
@@ -229,6 +289,7 @@ def main():
     model.vlm.model.language_model.train()
     projector.train()
 
+    prepare_started = time.monotonic()
     prepared = []
     for record in records:
         inputs = model.processor.encode_vqa(
@@ -259,30 +320,52 @@ def main():
                 "answer_ids": answer_ids,
             }
         )
+    prepare_seconds = time.monotonic() - prepare_started
 
+    pre_training_started = time.monotonic()
+    pre_training_evaluations = _run_evaluations(
+        model,
+        projector,
+        prepared,
+        protocol["evaluation"].get("pre_training_controls", []),
+        protocol["evaluation"]["max_new_tokens"],
+    )
+    pre_training_evaluation_seconds = time.monotonic() - pre_training_started
+    model.vlm.model.language_model.train()
+    projector.train()
+
+    projector_parameters = list(projector.parameters())
+    lora_named_parameters = [
+        (name, parameter)
+        for name, parameter in model.named_parameters()
+        if parameter.requires_grad
+    ]
+    lora_parameters = [parameter for _, parameter in lora_named_parameters]
     optimizer = torch.optim.AdamW(
         [
             {
-                "params": list(projector.parameters()),
+                "params": projector_parameters,
                 "lr": float(protocol["training"]["projector_learning_rate"]),
             },
             {
-                "params": [
-                    parameter
-                    for _, parameter in model.named_parameters()
-                    if parameter.requires_grad
-                ],
+                "params": lora_parameters,
                 "lr": float(protocol["training"]["lora_learning_rate"]),
             },
         ],
         weight_decay=float(protocol["training"]["weight_decay"]),
     )
     history = []
+    first_projector_gradients = None
+    first_lora_gradients = None
     optimizer.zero_grad(set_to_none=True)
     if torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
     for optimizer_step in range(1, int(protocol["training"]["optimizer_steps"]) + 1):
+        step_started = time.monotonic()
         example = prepared[(optimizer_step - 1) % len(prepared)]
+        projector_before = [parameter.detach().float().clone() for parameter in projector_parameters]
+        lora_before = [parameter.detach().float().clone() for parameter in lora_parameters]
+        forward_started = time.monotonic()
         result = _training.visibility_grounding_answer_loss(
             model,
             example["inputs"],
@@ -292,15 +375,19 @@ def main():
             example["answer_ids"],
             base_embeddings=example["base_embeddings"],
         )
+        forward_seconds = time.monotonic() - forward_started
         if not torch.isfinite(result.loss):
             raise RuntimeError("V1b grounding loss is non-finite")
+        backward_started = time.monotonic()
         result.loss.backward()
+        backward_seconds = time.monotonic() - backward_started
         projector_gradients = _gradient_report(projector.named_parameters())
         lora_gradients = _gradient_report(
-            (name, parameter)
-            for name, parameter in model.named_parameters()
-            if parameter.requires_grad
+            lora_named_parameters
         )
+        if optimizer_step == 1:
+            first_projector_gradients = projector_gradients
+            first_lora_gradients = lora_gradients
         projector_connected = any(
             row["finite"] and row["norm"] > 0.0
             and ("output_projection" in row["name"] or "boundary_embeddings" in row["name"])
@@ -314,23 +401,52 @@ def main():
                 "V1b gradient path failed: projector=%s lora=%s"
                 % (projector_connected, lora_connected)
             )
-        gradient_norm = torch.nn.utils.clip_grad_norm_(
-            list(projector.parameters())
-            + [
-                parameter
-                for _, parameter in model.named_parameters()
-                if parameter.requires_grad
-            ],
-            float(protocol["training"]["maximum_gradient_norm"]),
+        projector_maximum_gradient_norm = float(
+            protocol["training"].get(
+                "projector_maximum_gradient_norm",
+                protocol["training"]["maximum_gradient_norm"],
+            )
+        )
+        lora_maximum_gradient_norm = float(
+            protocol["training"].get(
+                "lora_maximum_gradient_norm",
+                protocol["training"]["maximum_gradient_norm"],
+            )
+        )
+        projector_gradient_norm = torch.nn.utils.clip_grad_norm_(
+            projector_parameters, projector_maximum_gradient_norm
+        )
+        lora_gradient_norm = torch.nn.utils.clip_grad_norm_(
+            lora_parameters, lora_maximum_gradient_norm
         )
         optimizer.step()
+        projector_update_norm = _parameter_delta_norm(
+            projector_parameters, projector_before
+        )
+        lora_update_norm = _parameter_delta_norm(lora_parameters, lora_before)
         optimizer.zero_grad(set_to_none=True)
         history.append(
             {
                 "optimizer_step": optimizer_step,
                 "sample_id": example["record"]["sample_id"],
                 "loss": float(result.loss.detach().item()),
-                "gradient_norm_before_clip": float(gradient_norm.item()),
+                "projector_gradient_norm_before_clip": float(
+                    projector_gradient_norm.item()
+                ),
+                "lora_gradient_norm_before_clip": float(lora_gradient_norm.item()),
+                "projector_update_norm": projector_update_norm,
+                "lora_update_norm": lora_update_norm,
+                "projector_nonzero_gradient_tensors": sum(
+                    row["finite"] and row["norm"] > 0.0
+                    for row in projector_gradients
+                ),
+                "lora_nonzero_gradient_tensors": sum(
+                    row["finite"] and row["norm"] > 0.0
+                    for row in lora_gradients
+                ),
+                "forward_seconds": float(forward_seconds),
+                "backward_seconds": float(backward_seconds),
+                "optimizer_step_seconds": float(time.monotonic() - step_started),
                 "answer_token_count": result.answer_token_count,
                 "base_prompt_length": result.base_prompt_length,
                 "augmented_prompt_length": result.augmented_prompt_length,
@@ -340,40 +456,20 @@ def main():
             }
         )
 
-    model.vlm.model.language_model.eval()
-    projector.eval()
-    evaluations = []
-    for example in prepared:
-        target = example["record"]["target"]
-        for control in protocol["evaluation"]["controls"]:
-            tokens, mask = _load_control_tokens(example["record"], control)
-            answer = _training.generate_visibility_grounding_answer(
-                model,
-                example["inputs"],
-                torch.from_numpy(tokens).to(model.device),
-                torch.from_numpy(mask).to(model.device),
-                projector,
-                max_new_tokens=int(protocol["evaluation"]["max_new_tokens"]),
-            )
-            parsed = _parse_answer(answer)
-            evaluations.append(
-                {
-                    "sample_id": example["record"]["sample_id"],
-                    "control": control,
-                    "answer": answer,
-                    "parsed": parsed,
-                    "canonical_exact": answer == example["record"]["canonical_answer"],
-                    "field_correct": {
-                        field: bool(parsed is not None and parsed.get(field) == value)
-                        for field, value in target.items()
-                    },
-                }
-            )
+    evaluation_started = time.monotonic()
+    evaluations = _run_evaluations(
+        model,
+        projector,
+        prepared,
+        protocol["evaluation"]["controls"],
+        protocol["evaluation"]["max_new_tokens"],
+    )
+    evaluation_seconds = time.monotonic() - evaluation_started
 
     adaptation = _training.adaptation_state_dict(model, projector)
     checkpoint = {
         "schema": _training.VISIBILITY_GROUNDING_TRAINING_SCHEMA,
-        "status": "v1b_gradient_smoke_complete",
+        "status": protocol["stage"].lower() + "_complete",
         "base_model": runtime["model"],
         "base_planner": runtime["planner"],
         "protocol": protocol,
@@ -402,6 +498,7 @@ def main():
     report = {
         "schema": REPORT_SCHEMA,
         "status": "complete",
+        "stage": protocol["stage"],
         "claim_boundary": protocol["claim_boundary"],
         "protocol_path": str(args.protocol.resolve()),
         "protocol_sha256": _sha256(args.protocol),
@@ -412,12 +509,21 @@ def main():
         "hidden_actor_labels_used": False,
         "planning_expert_in_optimizer": False,
         "load_seconds": float(load_seconds),
+        "prepare_seconds": float(prepare_seconds),
+        "pre_training_evaluation_seconds": float(
+            pre_training_evaluation_seconds
+        ),
+        "training_seconds": float(
+            sum(row["optimizer_step_seconds"] for row in history)
+        ),
+        "evaluation_seconds": float(evaluation_seconds),
         "scope": scope,
         "lora": lora_config.as_dict(),
         "installed_lora_modules": list(installed),
-        "projector_gradients_before_first_optimizer_step": projector_gradients,
-        "lora_gradients_before_first_optimizer_step": lora_gradients,
+        "projector_gradients_before_first_optimizer_step": first_projector_gradients,
+        "lora_gradients_before_first_optimizer_step": first_lora_gradients,
         "history": history,
+        "pre_training_evaluations": pre_training_evaluations,
         "evaluations": evaluations,
         "checkpoint": {
             "path": str(checkpoint_path),
@@ -439,4 +545,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

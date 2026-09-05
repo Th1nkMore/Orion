@@ -14,7 +14,7 @@ python_bin="${asset_root}/envs/qwen-drive-py310/bin/python"
 glibc_sysroot="${asset_root}/envs/glibc-2.28/x86_64-conda-linux-gnu/sysroot"
 glibc_loader="${glibc_sysroot}/lib64/ld-linux-x86-64.so.2"
 runtime_library_path="${glibc_sysroot}/lib64:${glibc_sysroot}/usr/lib64:${asset_root}/envs/qwen-drive-py310/lib"
-protocol="${project_root}/configs/qwen_visibility_grounding_smoke_v1.json"
+protocol="${PROTOCOL:-${project_root}/configs/qwen_visibility_grounding_smoke_v1.json}"
 trainer="${project_root}/scripts/train_qwen_visibility_grounding_smoke.py"
 manifest="${asset_root}/qwen_visibility_grounding_runs/route151_v1a_manifest_v1/manifest.json"
 run_id="${RUN_ID:-qwen_visibility_grounding_v1b_step260_gradient_v1}"
@@ -22,6 +22,7 @@ run_root="${asset_root}/qwen_visibility_grounding_runs/${run_id}"
 log_root="${asset_root}/qwen_visibility_grounding_runs/logs"
 job_name="${JOB_NAME:-qwen_visibility_v1b}"
 node_list="${NODELIST:-gpu4}"
+walltime="${WALLTIME:-01:30:00}"
 
 for prerequisite in \
   "${python_bin}" "${glibc_loader}" "${protocol}" "${trainer}" "${manifest}"; do
@@ -49,7 +50,7 @@ run_parts=(
 printf -v run_command '%q ' "${run_parts[@]}"
 sbatch_args=(
   sbatch --parsable --partition=Nvidia_A800 --gres=gpu:1
-  --cpus-per-task=8 --mem=96G --time=01:30:00
+  --cpus-per-task=8 --mem=96G --time="${walltime}"
   --job-name="${job_name}"
   --output="${log_root}/${run_id}-%j.out"
   --export=ALL --nodelist="${node_list}"
@@ -61,6 +62,7 @@ if [[ "${submit}" != "1" ]]; then
   echo "RUN_ID=${run_id}"
   echo "OUTPUT=${run_root}"
   echo "NODELIST=${node_list}"
+  echo "WALLTIME=${walltime}"
   printf 'SBATCH_COMMAND='
   printf '%q ' "${sbatch_args[@]}"
   printf '\n'
@@ -69,4 +71,3 @@ fi
 
 mkdir -p "${log_root}"
 "${sbatch_args[@]}"
-

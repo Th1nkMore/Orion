@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1a/V1b accepted; V1c bounded plumbing overfit next)
+Status: in progress (V1a/V1b accepted; V1c bounded plumbing overfit implemented locally)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -611,6 +611,25 @@ inspectable U consumption before any closed-loop claim.
   record per-family parameter updates, and attempt a bounded five-frame
   plumbing overfit. Even a successful V1c remains non-reportable because all
   five records are Route 151 and lack `OFF_ROUTE` examples.
+
+## V1c bounded-overfit implementation record
+
+- The trainer now clips projector and LoRA gradients independently and records
+  each family's pre-clip norm, nonzero-gradient tensor count, and actual
+  parameter-update norm per step. This directly fixes the V1b failure mode in
+  which the projector's 6.7e9 norm scaled the already modest LoRA gradients to
+  near zero under one joint clip.
+- The fixed V1c protocol cycles exactly three times over all five immutable
+  Route 151 plumbing records for 15 optimizer steps. It uses a lower `1e-4`
+  projector rate, retains the `2e-4` LoRA rate, records true-U outputs before
+  training, and evaluates true/zero/spatial-shuffle after training.
+- Native three-camera image inputs, the V0 U insertion, answer-only loss,
+  rank/layer scope, frozen base, and non-reportable claim boundary are
+  unchanged. The wrapper permits a separately declared four-hour Slurm window;
+  it does not reduce image resolution or remove camera views.
+- V1c is a capacity/plumbing overfit, not V1 acceptance. A successful run can
+  justify building the held-out parameterized grounding set; it cannot provide
+  semantic generalization or closed-loop safety evidence.
 
 ## Integrity constraints
 
