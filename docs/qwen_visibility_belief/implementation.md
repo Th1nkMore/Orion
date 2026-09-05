@@ -4,15 +4,16 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 ## Current milestone
 
-`O3: global/frontier U tokenizer`
+`V0: insert U tokens into the Qwen 4B VLM`
 
-Status: in progress (local implementation complete; real-artifact validation pending)
+Status: not started (O3 accepted on all 54 Route 151 O2 frames)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
 view on live CARLA data, but it does not establish Qwen consumption or safety.
-O3 must turn the physical fields into deterministic global and frontier tokens,
-with serialization and zero/spatial-shuffle controls, before any VLM injection.
+O3 has produced deterministic, audited physical tokens and causal controls. V0
+must now define and verify the continuous-token, attention-mask, mRoPE, cache,
+and Planning Expert anchor contract before changing the Qwen model path.
 
 ## Ordered implementation ladder
 
@@ -21,7 +22,7 @@ with serialization and zero/spatial-shuffle controls, before any VLM injection.
 | O0 | CARLA depth decoding, camera calibration, 3D visibility fusion, 2.5D BEV, rendering, unit tests | Complete (`6addb2fe`) |
 | O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | Complete (`c8fac0b5`; accepted by run `1165332`) |
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Complete (`c4f62543`; accepted by run `1165345`) |
-| O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | In progress (local implementation and tests complete) |
+| O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Complete (`2d86b809`; accepted on 54-frame derived run) |
 | V0 | Insert U tokens into the 4B VLM with verified positions and zero-U identity | Not started |
 | V1 | Structured U-grounding warm-up with staged LoRA | Not started |
 | P0 | Longitudinal trajectory retiming teacher and flow-matching training path | Not started |
@@ -349,6 +350,38 @@ with serialization and zero/spatial-shuffle controls, before any VLM injection.
   compilation, shell syntax, and `git diff --check` pass. O3 remains open until
   the converter is run over all 54 accepted O2 frames and token invariants,
   spatial selection, serialization, hashes, and runtime are audited remotely.
+
+## O3 remote real-artifact acceptance
+
+- Commit under test: `2d86b809`. The dedicated remote checkout targeted
+  regression passed `50/50` tests and remained clean.
+- Derived all 54 O2 frames into the new directory
+  `/public/share/lidachuan/orion_assets/qwen_visibility_token_runs/qwen_route151_o2_v2_tokens_o3_v1`.
+  The accepted O2 source directory was opened read-only by the converter and
+  was not used as an output location.
+- Output size is 823 KB: 54 token NPZ files plus `manifest.json` and
+  `artifact_sha256.txt`. All 54 SHA-256 checks pass. Mean tokenization time,
+  including construction of true, zero, and shuffled sets, is 0.0582 s; p95 is
+  0.0833 s.
+- Every frame has true global `[16,23]` and frontier `[32,23]` tensors, valid
+  masks, finite values, and pickle-free metadata. All 32 frontier slots are
+  populated on every frame. This means the frontier budget is saturated, not
+  that omitted space disappears: the complete `4x4` global tiling separately
+  preserves the full-field statistics.
+- Across all frames, the sum of global unknown-area features equals the dense
+  source field's unknown-area fraction. Frontier selection scores are sorted;
+  zero-U arrays are exactly zero with unchanged masks; shuffled arrays keep the
+  first six type/metric-slot features fixed and preserve every content-feature
+  marginal. No invariant failure was observed.
+- The strongest frontier remains physically consistent with the O2 audit:
+  `(x=8.25,y=-4.25)` at step 200, `(6.25,-4.75)` at 220,
+  `(5.25,-4.25)` at 240, `(5.75,-2.75)` at 250, and
+  `(5.25,-3.75)` at 260. Its local urgency maximum rises from 0.011 at step
+  200 to 0.650 at step 250.
+- O3 acceptance is limited to deterministic compression, serialization,
+  controls, spatial plausibility, and runtime. The tokens are still marked
+  `used_by_qwen=false`; this run provides no grounding, trajectory, or safety
+  evidence. V0 is the next gate.
 
 ## Integrity constraints
 

@@ -1,6 +1,6 @@
 # Qwen visibility-belief research track
 
-> Status: implementation in progress; O3 U tokenizer implemented, real-artifact validation pending
+> Status: implementation in progress; O3 U tokenizer accepted, VLM insertion contract next
 > Decision date: 2026-09-06 (Asia/Shanghai)
 > Branch: `codex/qwen-drive-transition`
 
