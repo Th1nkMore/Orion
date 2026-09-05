@@ -21,12 +21,13 @@ Bench2Drive is the primary closed-loop test. NAVSIM is a useful secondary
 pseudo-closed-loop corroboration, but it cannot replace an interactive test.
 "Qwen-Drive" is the model/release, not a separate benchmark.
 
-The current integration is close to the released implementation on the model
-side, but it is not yet a clean baseline attribution experiment. The largest
-avoidable fidelity gap is our reduced image resolution. The largest new
-component without an official reference is the CARLA trajectory controller.
-Both must be isolated before describing a low score as Qwen's domain-transfer
-failure.
+The integration is close to the released implementation on the model side.
+This review identified reduced image resolution as an avoidable fidelity gap,
+so the formal profile now transports lossless sensor-resolution images and
+lets the official Qwen processor apply its own budgets. The largest remaining
+new component without an official reference is the CARLA trajectory
+controller, which must be isolated before describing a low score as Qwen's
+domain-transfer failure.
 
 ## 1. What is official and what is ours?
 
@@ -67,22 +68,20 @@ diffusion/flow sampler or planner weights have been introduced.
 
 | Difference | Why it exists | Risk to attribution | Required treatment |
 | --- | --- | --- | --- |
-| Reduced image resolution | Bounded memory and latency during initial integration | **High.** Current/history frames enter Qwen with materially fewer pixels and the official processor will not enlarge them. | Compare current compressed profile with an aspect-preserving official-budget profile on identical recorded frames, then use the best credible profile in all U arms. |
-| JPEG quality 90 | Keeps the cross-environment payload and retained history small | Low to medium; avoidable extra preprocessing | Include lossless/high-quality images in the same fidelity ablation. |
+| Reduced image resolution | It bounded memory and latency during initial integration | Resolved for formal runs. | The profile now sends raw-size images and lets the official processor resize them. The old profile is retired, not an experimental arm. |
+| JPEG quality 90 | It kept the cross-environment payload and retained history small | Resolved for formal runs. | Transport is now lossless PNG. |
 | CARLA camera intrinsics/extrinsics | Qwen has no single published CARLA rig | Medium; genuine unseen-rig/domain shift, not an RPC bug | Report the rig and, if practical, test a source-like rig. Do not claim official-domain parity. |
 | Initial history padding | A route begins without 1.5 s of past frames/state | Localized to route start | Ignore a warm-up prefix in open-loop analysis or prime the history before scoring. |
 | SFT direct mode | Fastest valid online configuration | Medium; official closed-loop SFT reporting uses reasoning | Compare SFT direct and SFT reasoning with all other inputs fixed. Never use ground-truth best-of-N. |
 | CARLA trajectory adapter and PID | The release outputs trajectories but no Bench2Drive controls | **High.** A good plan can be lost in coordinates, temporal resampling or PID tuning. | Pass expert/recorded future trajectories through the exact same adapter/PID as a controller oracle. |
 | 5 m/s cap and 1 s staleness guard | Integration safety controls | Low for the observed run, but they are ours | Keep identical across arms and report intervention frequency. |
 
-The configured CARLA cameras are 1600x900, but the bridge pre-resizes each
-history image to 384x224 (86,016 pixels) and each current image to 768x416
-(319,488 pixels). The released model's fallback budgets are approximately
-174,080 and 921,600 pixels. For a 1600x900 input, the official grid-preserving
-resize is approximately 544x288 for history and 1280x704 for the current frame.
-The current bridge is therefore using roughly 55% of the official history
-pixel area and 35% of the official current-frame area. This is large enough to
-be a real confound, especially for pedestrians, lane edges and distant hazards.
+The retired profile pre-resized history images to 384x224 and current images to
+768x416. The formal profile now sends all frames losslessly at the configured
+CARLA sensor resolution of 1600x900 with `CameraFrame.target_size=None`. The
+official processor consequently applies the checkpoint's distinct history and
+current pixel budgets itself, exactly as it does for an unforced official
+scene.
 
 ## 2. What the current Bench2Drive run does and does not show
 
@@ -136,17 +135,12 @@ the provided data before adding U. Reproducing the published neighborhood
 validates the checkpoint, environment, official scene files and official
 processor independently of CARLA.
 
-### Gate C: Bench2Drive image-fidelity ablation
+### Gate C: official input profile lock
 
-On the same recorded CARLA frames and ego state, compare at least:
-
-- current compressed JPEG profile;
-- aspect-preserving, official-budget profile;
-- optionally lossless/high-quality transport at the chosen resolution.
-
-Measure trajectory change, open-loop displacement/heading error, latency and
-peak GPU memory. If the high-fidelity profile materially improves planning, it
-becomes the fixed baseline for every U arm.
+Use only the lossless 1600x900 transport profile with no bridge-side resize.
+Record the effective Qwen image grids, latency and peak GPU memory in the first
+run, then keep this profile fixed across clean, corruption and future U arms.
+The retired low-resolution profile is not a required ablation.
 
 ### Gate D: controller oracle
 

@@ -38,12 +38,11 @@ closed at process exit, avoiding a multi-minute model reload for every route.
 
 - Cameras, in model order: `CAM_FRONT`, `CAM_FRONT_LEFT`,
   `CAM_FRONT_RIGHT`.
-- Images: four frames per camera at 2 Hz, oldest to current.  Only three
-  JPEG-compressed history frames per camera are retained.
-- Image sizes before Qwen preprocessing: history `384x224`, current
-  `768x416`, both multiples of the model's 32-pixel grid and below the released
-  pixel ceilings.  This is the memory-bounded profile; the first full-budget
-  smoke exceeded its 60-second cold-start inference timeout.
+- Images: four frames per camera at 2 Hz, oldest to current. Only three
+  losslessly PNG-encoded history frames per camera are retained.
+- Images remain at the CARLA sensor resolution (`1600x900`) during transport.
+  The released Qwen processor owns the history/current resize and applies the
+  checkpoint's official pixel budgets.
 - Ego history: 16 poses/velocities/accelerations at 10 Hz.  CARLA's
   left-handed `(forward,right)` convention is converted to Qwen's
   `(forward,left)` convention; current pose is forced to `(0,0,0)`.

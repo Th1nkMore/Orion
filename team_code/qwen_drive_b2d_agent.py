@@ -48,6 +48,18 @@ make_inference_request = _bridge.make_inference_request
 qwen_trajectory_to_world = _bridge.qwen_trajectory_to_world
 world_trajectory_to_pid = _bridge.world_trajectory_to_pid
 
+_SCHEDULE_PATH = (
+    Path(__file__).resolve().parents[1] / "uq_estimator" / "corruption_schedule.py"
+)
+_schedule_spec = importlib.util.spec_from_file_location(
+    "_orion_qwen_corruption_schedule", _SCHEDULE_PATH
+)
+if _schedule_spec is None or _schedule_spec.loader is None:
+    raise ImportError("cannot load corruption schedule from %s" % _SCHEDULE_PATH)
+_schedule = importlib.util.module_from_spec(_schedule_spec)
+_schedule_spec.loader.exec_module(_schedule)
+project_route_progress = _schedule.project_route_progress
+
 
 _SHARED_CLIENT = None
 _SHARED_CONFIG_PATH = None
@@ -94,7 +106,62 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
             images["history_size"],
             images["current_size"],
             int(images["jpeg_quality"]),
+            images["transport_format"],
         )
+        self.closedloop_corruption = os.environ.get(
+            "ORION_CLOSEDLOOP_CORRUPTION", ""
+        ).strip()
+        if self.closedloop_corruption not in {"", "camera_dropout"}:
+            raise ValueError(
+                "Qwen screen supports only empty or camera_dropout corruption"
+            )
+        aliases = {
+            "front": ("CAM_FRONT",),
+            "front_group": tuple(QWEN_VIEW_BY_SENSOR),
+            "all": tuple(QWEN_VIEW_BY_SENSOR),
+        }
+        view_spec = os.environ.get(
+            "ORION_CLOSEDLOOP_CORRUPTION_VIEWS", "front"
+        ).strip()
+        self.corruption_sensors = aliases.get(
+            view_spec,
+            tuple(item.strip() for item in view_spec.split(",") if item.strip()),
+        )
+        unknown = set(self.corruption_sensors) - set(QWEN_VIEW_BY_SENSOR)
+        if unknown or not self.corruption_sensors:
+            raise ValueError("invalid Qwen corruption cameras: %s" % sorted(unknown))
+        start_progress = os.environ.get(
+            "ORION_CLOSEDLOOP_CORRUPTION_START_PROGRESS", ""
+        ).strip()
+        end_progress = os.environ.get(
+            "ORION_CLOSEDLOOP_CORRUPTION_END_PROGRESS", ""
+        ).strip()
+        if bool(start_progress) != bool(end_progress):
+            raise ValueError("route-progress corruption requires start and end")
+        self.corruption_start_progress = (
+            float(start_progress) if start_progress else None
+        )
+        self.corruption_end_progress = float(end_progress) if end_progress else None
+        if self.corruption_start_progress is not None and not (
+            0.0
+            <= self.corruption_start_progress
+            < self.corruption_end_progress
+            <= 1.0
+        ):
+            raise ValueError("corruption progress window must lie inside [0,1]")
+        self.corruption_start_seconds = float(
+            os.environ.get("ORION_CLOSEDLOOP_CORRUPTION_START_SECONDS", "0")
+        )
+        end_seconds = os.environ.get(
+            "ORION_CLOSEDLOOP_CORRUPTION_END_SECONDS", ""
+        ).strip()
+        self.corruption_end_seconds = (
+            float(end_seconds) if end_seconds else float("inf")
+        )
+        if self.corruption_start_seconds < 0.0 or (
+            self.corruption_end_seconds <= self.corruption_start_seconds
+        ):
+            raise ValueError("invalid corruption time window")
         pid_keys = (
             "turn_KP", "turn_KI", "turn_KD", "turn_n",
             "speed_KP", "speed_KI", "speed_KD", "speed_n",
@@ -112,6 +179,7 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         self.step = -1
         self.initialized = False
         self.world_trajectory = None
+        self.corruption_route_points = None
         self.last_plan_step = None
         self.last_inference_seconds = None
         self.trace_stream = None
@@ -180,6 +248,13 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         self.hero_actor = hero
         self.route_planner = RoutePlanner(4.0, 50.0)
         self.route_planner.set_route(self._global_plan_world_coord, gps=False)
+        self.corruption_route_points = np.asarray(
+            [
+                [transform.location.x, transform.location.y]
+                for transform, _ in self._global_plan_world_coord
+            ],
+            dtype=np.float64,
+        )
         self.initialized = True
 
     def _ego_state(self):
@@ -203,11 +278,21 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         driving_command, nav_command = bench2drive_command_to_qwen(int(value))
         return driving_command, nav_command, np.asarray(near_xy, dtype=np.float64)
 
-    def _infer(self, input_data, pose, driving_command, nav_command):
+    def _infer(
+        self,
+        input_data,
+        pose,
+        driving_command,
+        nav_command,
+        corruption_active,
+    ):
         bgr_images = {
             sensor_id: np.asarray(input_data[sensor_id][1])[:, :, :3]
             for sensor_id in QWEN_VIEW_BY_SENSOR
         }
+        if corruption_active:
+            for sensor_id in self.corruption_sensors:
+                bgr_images[sensor_id] = np.zeros_like(bgr_images[sensor_id])
         views = self.image_history.capture(bgr_images)
         request = make_inference_request(
             views,
@@ -243,12 +328,36 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         if self.step % self.ego_stride == 0 or len(self.ego_history) == 0:
             self.ego_history.append(pose, velocity, acceleration)
         driving_command, nav_command, near_xy = self._route_command(pose)
+        route_progress = project_route_progress(
+            pose[:2], self.corruption_route_points
+        )
+        if self.corruption_start_progress is not None:
+            within_corruption_window = bool(
+                self.corruption_start_progress
+                <= route_progress
+                < self.corruption_end_progress
+            )
+            corruption_schedule = "route_progress"
+        else:
+            within_corruption_window = bool(
+                self.corruption_start_seconds
+                <= float(timestamp)
+                < self.corruption_end_seconds
+            )
+            corruption_schedule = "simulation_time"
+        corruption_active = bool(
+            self.closedloop_corruption and within_corruption_window
+        )
         inference_error = None
         raw_trajectory = None
         if self.step % self.inference_stride == 0:
             try:
                 raw_trajectory = self._infer(
-                    input_data, pose, driving_command, nav_command
+                    input_data,
+                    pose,
+                    driving_command,
+                    nav_command,
+                    corruption_active,
                 )
             except Exception as error:
                 inference_error = "%s: %s" % (type(error).__name__, error)
@@ -269,6 +378,13 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                     "speed_mps": float(speed),
                     "plan_age_seconds": plan_age,
                     "inference_error": inference_error,
+                    "route_progress": route_progress,
+                    "corruption": {
+                        "family": self.closedloop_corruption or "none",
+                        "active": corruption_active,
+                        "sensors": list(self.corruption_sensors),
+                        "schedule": corruption_schedule,
+                    },
                 }
             )
             return self._emergency_stop()
@@ -308,6 +424,13 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                 "status": "control",
                 "ego_world_pose": pose.tolist(),
                 "nav_command": int(nav_command),
+                "route_progress": route_progress,
+                "corruption": {
+                    "family": self.closedloop_corruption or "none",
+                    "active": corruption_active,
+                    "sensors": list(self.corruption_sensors),
+                    "schedule": corruption_schedule,
+                },
                 "speed_mps": float(speed),
                 "plan_age_seconds": plan_age,
                 "inference_seconds": self.last_inference_seconds,

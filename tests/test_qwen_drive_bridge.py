@@ -60,6 +60,9 @@ def test_config_locks_direct_single_sample_planning(tmp_path):
     assert config["planning"]["mode"] == "direct_planning"
     assert config["planning"]["num_samples"] == 1
     assert config["runtime"]["attention_implementation"] == "flash_attention_2"
+    assert config["images"]["history_size"] is None
+    assert config["images"]["current_size"] is None
+    assert config["images"]["transport_format"] == "png"
 
     config["planning"]["num_samples"] = 6
     invalid = tmp_path / "invalid.json"
@@ -111,14 +114,15 @@ def test_bench2drive_command_mapping(value, expected_one_hot, expected_nav):
     assert nav == expected_nav
 
 
-def test_image_buffer_retains_only_compressed_history():
+def test_image_buffer_can_transport_lossless_sensor_resolution():
     cv2 = pytest.importorskip("cv2")
     buffer = bridge.ImageHistoryBuffer(
         tuple(bridge.QWEN_VIEW_BY_SENSOR),
         num_frames=4,
-        history_size=(64, 32),
-        current_size=(128, 64),
-        jpeg_quality=90,
+        history_size=None,
+        current_size=None,
+        jpeg_quality=100,
+        transport_format="png",
     )
     images = {
         sensor_id: np.full((90, 160, 3), index * 30, dtype=np.uint8)
@@ -133,8 +137,10 @@ def test_image_buffer_retains_only_compressed_history():
     current_frame = cv2.imdecode(
         np.frombuffer(next(iter(views.values()))[-1], dtype=np.uint8), cv2.IMREAD_COLOR
     )
-    assert history_frame.shape[:2] == (32, 64)
-    assert current_frame.shape[:2] == (64, 128)
+    assert history_frame.shape[:2] == (90, 160)
+    assert current_frame.shape[:2] == (90, 160)
+    np.testing.assert_array_equal(history_frame, images["CAM_FRONT"])
+    np.testing.assert_array_equal(current_frame, images["CAM_FRONT"])
     assert buffer.retained_bytes > 0
     assert buffer.retained_bytes < sum(image.nbytes for image in images.values())
 

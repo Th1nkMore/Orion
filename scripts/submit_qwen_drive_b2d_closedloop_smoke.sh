@@ -14,8 +14,10 @@ task_id="${TASK_ID:-203}"
 run_id="${RUN_ID:-closedloop_route${task_id}_flash_gpu4_v4}"
 output_root="${OUTPUT_ROOT:-${asset_root}/qwen_drive_b2d_smokes/${run_id}}"
 log_root="${asset_root}/qwen_drive_b2d_smokes/logs"
-job_name="qwen_b2d_route${task_id}"
+job_name="${JOB_NAME:-qwen_b2d_route${task_id}}"
 node_list="${NODELIST:-gpu4}"
+carla_port="${PORT:-30000}"
+traffic_manager_port="${TM_PORT:-50000}"
 
 for prerequisite in \
   "${project_root}/team_code/qwen_drive_b2d_agent.py" \
@@ -58,6 +60,8 @@ wrapped=(
   "PLANNER_TYPE=traj"
   "TASK_ID=${task_id}"
   "OUTPUT_ROOT=${output_root}"
+  "PORT=${carla_port}"
+  "TM_PORT=${traffic_manager_port}"
   "ORION_CARLA_RPC_TIMEOUT_SECONDS=1200"
   "RESUME=False"
   bash "${project_root}/scripts/run_official_closedloop_job.sh"
@@ -77,6 +81,8 @@ if [[ "${submit}" != "1" ]]; then
   echo "RUN_ID=${run_id}"
   echo "ROUTE=Bench2Drive220 task ${task_id}"
   echo "NODELIST=${node_list}"
+  echo "PORT=${carla_port}"
+  echo "TM_PORT=${traffic_manager_port}"
   echo "ORION_MODEL_LOAD=0"
   echo "RESOURCE_CONTRACT=partition:Nvidia_A800,gpu:1,cpus:8,mem:96G,time:02:00:00"
   printf 'SBATCH_COMMAND='

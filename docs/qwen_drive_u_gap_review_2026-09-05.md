@@ -193,7 +193,8 @@ evaluator on task 203, but the evaluated agent is our integration:
 
 - released Qwen-Drive-1.0-4B VLM plus released `planner-sft`;
 - direct planning, one deterministic sample;
-- three Bench2Drive/CARLA cameras with our resolution/history compression;
+- three Bench2Drive/CARLA cameras; that completed run used the retired
+  low-resolution JPEG transport profile;
 - our command, coordinate and 50-point-to-six-point adapters;
 - Orion's existing PID controller and our speed/staleness limits.
 

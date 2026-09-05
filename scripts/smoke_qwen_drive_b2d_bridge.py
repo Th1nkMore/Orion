@@ -26,15 +26,24 @@ def _load_bridge():
     return module
 
 
-def _jpeg_versions(path, history_size, current_size, quality):
+def _transport_versions(
+    path, history_size, current_size, transport_format, quality
+):
     from PIL import Image
 
     image = Image.open(path).convert("RGB")
     encoded = []
     for target in (history_size, current_size):
-        resized = image.resize(tuple(target), resample=Image.Resampling.BICUBIC)
+        resized = (
+            image
+            if target is None
+            else image.resize(tuple(target), resample=Image.Resampling.BICUBIC)
+        )
         stream = io.BytesIO()
-        resized.save(stream, format="JPEG", quality=int(quality))
+        if transport_format == "png":
+            resized.save(stream, format="PNG", compress_level=3)
+        else:
+            resized.save(stream, format="JPEG", quality=int(quality))
         encoded.append(stream.getvalue())
     return encoded
 
@@ -70,10 +79,11 @@ def main():
     input_hashes = {}
     for sensor_id, view_name in bridge.QWEN_VIEW_BY_SENSOR.items():
         source = source_by_sensor[sensor_id]
-        low, current = _jpeg_versions(
+        low, current = _transport_versions(
             source,
             image_config["history_size"],
             image_config["current_size"],
+            image_config["transport_format"],
             image_config["jpeg_quality"],
         )
         views[view_name] = [low, low, low, current]

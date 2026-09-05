@@ -14,10 +14,11 @@ capture="${asset_root}/observation_uq_v3/runs/observation_uq_native_weather_seed
 front="${capture}/rgb_front/0015.png"
 front_left="${capture}/rgb_front_left/0015.png"
 front_right="${capture}/rgb_front_right/0015.png"
-run_root="${asset_root}/qwen_drive_b2d_smokes/bridge_flash_source_v1"
+run_id="${RUN_ID:-bridge_official_input_v1}"
+run_root="${asset_root}/qwen_drive_b2d_smokes/${run_id}"
 output="${run_root}/report.json"
 log_root="${asset_root}/qwen_drive_b2d_smokes/logs"
-job_name="qwen_b2d_flash"
+job_name="${JOB_NAME:-qwen_b2d_official_input}"
 
 for prerequisite in \
   "${python_bin}" "${glibc_loader}" "${config}" "${smoke}" "${planner}" \
@@ -54,8 +55,9 @@ job_id="$(sbatch --parsable \
   --cpus-per-task=4 \
   --mem=64G \
   --time=01:00:00 \
+  ${NODELIST:+--nodelist="${NODELIST}"} \
   --job-name="${job_name}" \
-  --output="${log_root}/bridge_flash_source_v1-%j.out" \
+  --output="${log_root}/${run_id}-%j.out" \
   --export=ALL \
   --wrap "${run_command}")"
 printf '%s\n' "${job_id}"

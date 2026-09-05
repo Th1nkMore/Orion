@@ -2,8 +2,10 @@
 
 The CARLA agent imports this module without importing PyTorch, Transformers, or
 Qwen-Drive.  The heavyweight model is loaded only by the ``serve`` subcommand
-in a separate Python environment.  A local Unix socket carries JPEG-compressed
-camera histories and NumPy ego-state arrays between the two processes.
+in a separate Python environment.  A local Unix socket carries encoded camera
+histories and NumPy ego-state arrays between the two processes.  The active
+configuration transports sensor-resolution frames losslessly and leaves the
+history/current pixel-budget resize to the official Qwen processor.
 """
 
 from __future__ import annotations
@@ -60,6 +62,21 @@ def load_bridge_config(path: Union[str, Path]) -> dict:
         raise ValueError("simulator_hz must be divisible by ego_history_hz")
     if int(sampling["inference_stride_steps"]) <= 0:
         raise ValueError("inference_stride_steps must be positive")
+    images = payload["images"]
+    if images.get("transport_format") not in {"jpeg", "png"}:
+        raise ValueError("images.transport_format must be jpeg or png")
+    for key in ("history_size", "current_size"):
+        size = images.get(key)
+        if size is not None and (
+            not isinstance(size, list)
+            or len(size) != 2
+            or any(int(value) <= 0 for value in size)
+        ):
+            raise ValueError("images.%s must be null or [width,height]" % key)
+    if images["transport_format"] == "jpeg":
+        quality = int(images.get("jpeg_quality", 0))
+        if not 1 <= quality <= 100:
+            raise ValueError("images.jpeg_quality must be in [1,100]")
     if payload["planning"].get("mode") != "direct_planning":
         raise ValueError("closed-loop bridge only permits direct_planning")
     if int(payload["planning"].get("num_samples", 0)) != 1:
@@ -178,10 +195,13 @@ def bench2drive_command_to_qwen(command_value: int) -> Tuple[np.ndarray, int]:
     return np.asarray([0.0, 0.0, 0.0, 1.0], dtype=np.float32), 0
 
 
-def _resize_and_encode_bgr(
-    image: np.ndarray, target_size: Sequence[int], jpeg_quality: int
+def _encode_bgr_for_transport(
+    image: np.ndarray,
+    target_size: Optional[Sequence[int]],
+    transport_format: str,
+    jpeg_quality: int,
 ) -> bytes:
-    """Resize one CARLA BGR frame and return compact JPEG bytes."""
+    """Optionally resize a CARLA BGR frame and encode it for local transport."""
 
     import cv2
 
@@ -189,40 +209,59 @@ def _resize_and_encode_bgr(
     array = np.asarray(image)
     if array.ndim != 3 or array.shape[2] < 3:
         raise ValueError("camera image must have shape [H,W,C>=3]")
-    width, height = (int(target_size[0]), int(target_size[1]))
-    if width <= 0 or height <= 0:
-        raise ValueError("target image dimensions must be positive")
-    resized = cv2.resize(array[:, :, :3], (width, height), interpolation=cv2.INTER_AREA)
-    ok, encoded = cv2.imencode(
-        ".jpg", resized, [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)]
-    )
+    encoded_image = array[:, :, :3]
+    if target_size is not None:
+        width, height = (int(target_size[0]), int(target_size[1]))
+        if width <= 0 or height <= 0:
+            raise ValueError("target image dimensions must be positive")
+        encoded_image = cv2.resize(
+            encoded_image, (width, height), interpolation=cv2.INTER_AREA
+        )
+    normalized_format = str(transport_format).lower()
+    if normalized_format == "png":
+        extension = ".png"
+        parameters = [int(cv2.IMWRITE_PNG_COMPRESSION), 3]
+    elif normalized_format == "jpeg":
+        extension = ".jpg"
+        parameters = [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)]
+    else:
+        raise ValueError("transport_format must be jpeg or png")
+    ok, encoded = cv2.imencode(extension, encoded_image, parameters)
     if not ok:
         raise RuntimeError("OpenCV failed to encode a camera frame")
     return encoded.tobytes()
 
 
 class ImageHistoryBuffer:
-    """Keep only three compressed history frames per camera plus the current frame."""
+    """Keep three encoded history frames per camera plus the current frame."""
 
     def __init__(
         self,
         sensor_ids: Sequence[str],
         num_frames: int,
-        history_size: Sequence[int],
-        current_size: Sequence[int],
+        history_size: Optional[Sequence[int]],
+        current_size: Optional[Sequence[int]],
         jpeg_quality: int,
+        transport_format: str = "jpeg",
     ):
         if int(num_frames) != 4:
             raise ValueError("Qwen-Drive image history must contain four frames")
         if not 1 <= int(jpeg_quality) <= 100:
             raise ValueError("jpeg_quality must be in [1,100]")
+        if str(transport_format).lower() not in {"jpeg", "png"}:
+            raise ValueError("transport_format must be jpeg or png")
         self.sensor_ids = tuple(sensor_ids)
         if self.sensor_ids != tuple(QWEN_VIEW_BY_SENSOR):
             raise ValueError("unexpected Qwen camera order")
         self.num_frames = int(num_frames)
-        self.history_size = tuple(int(value) for value in history_size)
-        self.current_size = tuple(int(value) for value in current_size)
+        self.history_size = (
+            None if history_size is None else tuple(int(value) for value in history_size)
+        )
+        self.current_size = (
+            None if current_size is None else tuple(int(value) for value in current_size)
+        )
         self.jpeg_quality = int(jpeg_quality)
+        self.transport_format = str(transport_format).lower()
         self._history = {
             sensor_id: deque(maxlen=self.num_frames - 1)
             for sensor_id in self.sensor_ids
@@ -237,17 +276,27 @@ class ImageHistoryBuffer:
         views: Dict[str, List[bytes]] = {}
         for sensor_id in self.sensor_ids:
             image = bgr_images[sensor_id]
-            low_resolution = _resize_and_encode_bgr(
-                image, self.history_size, self.jpeg_quality
+            history_frame = _encode_bgr_for_transport(
+                image,
+                self.history_size,
+                self.transport_format,
+                self.jpeg_quality,
             )
-            current = _resize_and_encode_bgr(
-                image, self.current_size, self.jpeg_quality
+            current = (
+                history_frame
+                if self.current_size == self.history_size
+                else _encode_bgr_for_transport(
+                    image,
+                    self.current_size,
+                    self.transport_format,
+                    self.jpeg_quality,
+                )
             )
             prior = list(self._history[sensor_id])
             if len(prior) < self.num_frames - 1:
-                prior = [low_resolution] * (self.num_frames - 1 - len(prior)) + prior
+                prior = [history_frame] * (self.num_frames - 1 - len(prior)) + prior
             views[QWEN_VIEW_BY_SENSOR[sensor_id]] = prior + [current]
-            self._history[sensor_id].append(low_resolution)
+            self._history[sensor_id].append(history_frame)
         return views
 
     @property
