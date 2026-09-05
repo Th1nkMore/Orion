@@ -630,6 +630,15 @@ inspectable U consumption before any closed-loop claim.
 - V1c is a capacity/plumbing overfit, not V1 acceptance. A successful run can
   justify building the held-out parameterized grounding set; it cannot provide
   semantic generalization or closed-loop safety evidence.
+- Added a separate fail-closed report auditor before observing V1c results. It
+  first verifies frozen scope, input/control coverage, balanced optimizer use,
+  finite nonzero updates in both adaptation families, and checkpoint integrity.
+  It then requires at least four of five true-U exact answers, at least four of
+  five correct answers for every field, and a two-of-five exact/action gap over
+  the stronger zero/shuffle control. Protocol validity and causal capacity are
+  reported separately, so a valid negative result cannot be promoted to a
+  pass. Local evaluation-contract regression brings the relevant suite to
+  `51 passed, 2 skipped`.
 
 ## Integrity constraints
 
