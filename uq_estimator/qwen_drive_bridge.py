@@ -168,6 +168,70 @@ def load_bridge_config(path: Union[str, Path]) -> dict:
                         raise ValueError(
                             "oracle_visibility.exposure.%s must be positive" % key
                         )
+            tokenizer = oracle.get("tokenizer", {"enabled": False})
+            if not isinstance(tokenizer, dict) or not isinstance(
+                tokenizer.get("enabled"), bool
+            ):
+                raise ValueError("oracle_visibility.tokenizer.enabled must be boolean")
+            if tokenizer["enabled"]:
+                if not temporal["enabled"] or not exposure["enabled"]:
+                    raise ValueError(
+                        "oracle visibility tokenizer requires temporal memory and "
+                        "exposure"
+                    )
+                global_grid_shape = tokenizer.get("global_grid_shape")
+                if (
+                    not isinstance(global_grid_shape, list)
+                    or len(global_grid_shape) != 2
+                    or any(
+                        not isinstance(value, int)
+                        or isinstance(value, bool)
+                        or value <= 0
+                        for value in global_grid_shape
+                    )
+                ):
+                    raise ValueError(
+                        "oracle_visibility.tokenizer.global_grid_shape must contain "
+                        "two positive integers"
+                    )
+                maximum_frontiers = tokenizer.get("max_frontier_tokens")
+                if (
+                    not isinstance(maximum_frontiers, int)
+                    or isinstance(maximum_frontiers, bool)
+                    or maximum_frontiers <= 0
+                ):
+                    raise ValueError(
+                        "oracle_visibility.tokenizer.max_frontier_tokens must be "
+                        "a positive integer"
+                    )
+                for key in (
+                    "frontier_patch_radius_m",
+                    "frontier_nms_radius_m",
+                    "frontier_selection_floor",
+                ):
+                    value = float(tokenizer.get(key, 0.0))
+                    if not math.isfinite(value) or value <= 0.0:
+                        raise ValueError(
+                            "oracle_visibility.tokenizer.%s must be positive" % key
+                        )
+                confidence = float(tokenizer.get("oracle_depth_confidence", -1.0))
+                if not math.isfinite(confidence) or not 0.0 <= confidence <= 1.0:
+                    raise ValueError(
+                        "oracle_visibility.tokenizer.oracle_depth_confidence must "
+                        "lie in [0,1]"
+                    )
+                if not isinstance(tokenizer.get("write_controls"), bool):
+                    raise ValueError(
+                        "oracle_visibility.tokenizer.write_controls must be boolean"
+                    )
+                shuffle_seed = tokenizer.get("spatial_shuffle_seed")
+                if not isinstance(shuffle_seed, int) or isinstance(
+                    shuffle_seed, bool
+                ):
+                    raise ValueError(
+                        "oracle_visibility.tokenizer.spatial_shuffle_seed must be "
+                        "an integer"
+                    )
     return payload
 
 

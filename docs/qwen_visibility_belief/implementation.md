@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `O3: global/frontier U tokenizer`
 
-Status: not started (O2 accepted by live Route 151 run `1165345`)
+Status: in progress (local implementation complete; real-artifact validation pending)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -21,7 +21,7 @@ with serialization and zero/spatial-shuffle controls, before any VLM injection.
 | O0 | CARLA depth decoding, camera calibration, 3D visibility fusion, 2.5D BEV, rendering, unit tests | Complete (`6addb2fe`) |
 | O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | Complete (`c8fac0b5`; accepted by run `1165332`) |
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Complete (`c4f62543`; accepted by run `1165345`) |
-| O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Not started |
+| O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | In progress (local implementation and tests complete) |
 | V0 | Insert U tokens into the 4B VLM with verified positions and zero-U identity | Not started |
 | V1 | Structured U-grounding warm-up with staged LoRA | Not started |
 | P0 | Longitudinal trajectory retiming teacher and flow-matching training path | Not started |
@@ -306,6 +306,49 @@ with serialization and zero/spatial-shuffle controls, before any VLM injection.
 - O2 acceptance: the representation is stable and inspectable enough to feed
   the tokenizer. The next gate is O3 serialization and controls; V0 must still
   prove that U actually enters the VLM prefix before any behavioral claim.
+
+## O3 local implementation record
+
+- The server's dedicated clean checkout was fast-forwarded to `de24aeca`
+  after O2 acceptance. Its Orion-Python targeted regression passed `46/46`
+  tests; the checkout remained clean. The historical dirty Orion checkout was
+  not changed.
+- Added a deterministic NumPy-only physical tokenizer. The pilot shape is 16
+  global tokens from a complete `4x4` BEV tiling plus at most 32 frontier
+  tokens, each with 23 versioned features. No learned projector or Qwen import
+  is part of O3.
+- Global tokens preserve the entire dense field. Frontier candidates use a
+  separately inspectable score combining urgency with a 0.05 physical-frontier
+  floor, followed by 2 m metric non-maximum suppression and 2 m local pooling.
+  This prioritizes exposed frontiers without deleting distant uncertainty from
+  the global representation.
+- Each physical token includes type, normalized metric center and extent,
+  visible-free/occupied/occluded/outside-FOV height ratios, frontier fraction,
+  observation age/state, depth confidence, route and stopping weights,
+  urgency, frontier-weighted stopping margin, and unknown area relative to the
+  full grid. Oracle confidence is explicitly 1.0; it is not silently reused as
+  the future predicted-depth confidence.
+- The zero-U control preserves token counts and masks while zeroing every
+  feature. The spatial-shuffle control preserves token types, metric slots,
+  masks, and per-feature marginals, but cyclically reassigns physical content
+  between slots independently inside the global and frontier families. The
+  shuffle is seeded and deterministic.
+- Serialization uses only numeric/string NumPy arrays and JSON metadata, loads
+  with `allow_pickle=False`, and records its schema, feature order,
+  normalization, control, and selection parameters. The CARLA agent writes
+  true, zero, and shuffled token sets into future oracle NPZ artifacts while
+  retaining `used_by_qwen=false`.
+- Added `scripts/tokenize_qwen_visibility_artifacts.py` to derive token files
+  from an immutable O2 run into a new refuse-to-overwrite directory. It checks
+  the dense channel contracts, validates oracle/non-consumer provenance, emits
+  a manifest and SHA-256 ledger, and never edits the source artifacts.
+- The first local converter test exposed an accidental import of the legacy
+  `uq_estimator` package, which would load Torch. The converter now loads the
+  bridge and visibility files in isolation, matching the CARLA agent boundary.
+- Local relevant regression after that repair: `49 passed, 1 skipped`;
+  compilation, shell syntax, and `git diff --check` pass. O3 remains open until
+  the converter is run over all 54 accepted O2 frames and token invariants,
+  spatial selection, serialization, hashes, and runtime are audited remotely.
 
 ## Integrity constraints
 

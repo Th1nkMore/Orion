@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import math
 from pathlib import Path
 import subprocess
@@ -10,6 +11,14 @@ import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = PROJECT_ROOT / "uq_estimator" / "qwen_visibility_belief.py"
+TOKENIZER_SCRIPT_PATH = (
+    PROJECT_ROOT / "scripts" / "tokenize_qwen_visibility_artifacts.py"
+)
+ORACLE_CONFIG_PATH = (
+    PROJECT_ROOT
+    / "configs"
+    / "qwen_drive_b2d_agent_oracle_visibility_sft_v1.json"
+)
 
 
 def _load_module():
@@ -23,6 +32,16 @@ def _load_module():
 
 
 visibility = _load_module()
+
+
+def _load_tokenizer_script():
+    spec = importlib.util.spec_from_file_location(
+        "_qwen_visibility_tokenizer_script_test", TOKENIZER_SCRIPT_PATH
+    )
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
 
 
 def _encode_carla_depth_bgra(depth_m):
@@ -103,6 +122,51 @@ def _mask_belief(spec, observed_cells=(), unknown_cells=(), frontier_cells=()):
         outside_fov_ratio=outside,
         frontier=frontier,
     )
+
+
+def _token_fixture():
+    spec = visibility.VisibilityGridSpec(
+        x_min_m=0.0,
+        x_max_m=20.0,
+        y_min_m=-4.0,
+        y_max_m=4.0,
+        z_min_m=0.0,
+        z_max_m=1.0,
+        xy_resolution_m=1.0,
+        z_resolution_m=1.0,
+        max_range_m=20.0,
+        surface_tolerance_m=0.5,
+    )
+    cells = [
+        (_row_nearest_x(spec, 5.5), _column_nearest_y(spec, 0.5)),
+        (_row_nearest_x(spec, 11.5), _column_nearest_y(spec, -1.5)),
+        (_row_nearest_x(spec, 17.5), _column_nearest_y(spec, 2.5)),
+    ]
+    belief = _mask_belief(spec, unknown_cells=cells, frontier_cells=cells)
+    memory = visibility.VisibilityObservationMemory(
+        spec, max_age_seconds=5.0
+    ).update(belief, [0.0, 0.0, 0.0], 0.0)
+    exposure = visibility.compute_visibility_exposure(
+        belief,
+        route_ego_xy=np.asarray([[0.0, 0.0], [20.0, 0.0]]),
+        speed_mps=4.0,
+        reaction_time_seconds=1.0,
+        safe_deceleration_mps2=4.0,
+        route_sigma_m=2.0,
+        stopping_transition_m=4.0,
+    )
+    tokens = visibility.tokenize_visibility_belief(
+        belief,
+        memory,
+        exposure,
+        global_grid_shape=(2, 2),
+        max_frontier_tokens=4,
+        frontier_patch_radius_m=1.5,
+        frontier_nms_radius_m=2.0,
+        frontier_selection_floor=0.05,
+        depth_confidence=1.0,
+    )
+    return belief, memory, exposure, tokens
 
 
 def test_standalone_geometry_import_does_not_load_torch_or_carla():
@@ -443,3 +507,129 @@ def test_temporal_and_exposure_renders_are_auditable_uint8():
     assert visibility.observation_memory_metadata(state)["schema"] == (
         visibility.OBSERVATION_MEMORY_SCHEMA
     )
+
+
+def test_visibility_tokenizer_preserves_global_field_and_frontier_geometry():
+    belief, _, _, tokens = _token_fixture()
+    feature = {name: index for index, name in enumerate(tokens.feature_names)}
+    assert tokens.global_tokens.shape == (4, len(tokens.feature_names))
+    assert tokens.frontier_tokens.shape == (4, len(tokens.feature_names))
+    assert tokens.valid_frontier_count == 3
+    assert tokens.global_mask.all()
+    assert not tokens.frontier_mask[-1]
+    assert np.all(tokens.frontier_tokens[~tokens.frontier_mask] == 0.0)
+    assert np.all(tokens.global_tokens[:, feature["token_is_global"]] == 1.0)
+    assert np.all(
+        tokens.frontier_tokens[tokens.frontier_mask, feature["token_is_frontier"]]
+        == 1.0
+    )
+    expected_unknown_area = float(belief.occluded_unknown_ratio.mean())
+    assert tokens.global_tokens[
+        :, feature["unknown_area_grid_fraction"]
+    ].sum() == pytest.approx(expected_unknown_area)
+    assert np.all(
+        tokens.as_tokens()[tokens.as_mask(), feature["depth_confidence"]] == 1.0
+    )
+    scores = tokens.frontier_tokens[
+        tokens.frontier_mask, feature["frontier_selection_score"]
+    ]
+    assert np.all(scores[:-1] >= scores[1:])
+    metadata = visibility.visibility_token_metadata(tokens)
+    assert metadata["schema"] == visibility.VISIBILITY_TOKEN_SCHEMA
+    assert metadata["valid_frontier_tokens"] == 3
+    assert metadata["global_grid_shape"] == [2, 2]
+
+
+def test_visibility_token_controls_preserve_shape_masks_and_marginals():
+    _, _, _, tokens = _token_fixture()
+    zero = visibility.zero_visibility_tokens(tokens)
+    shuffled = visibility.spatially_shuffle_visibility_tokens(tokens, seed=42)
+    assert zero.control == "zero_u"
+    assert not zero.as_tokens().any()
+    np.testing.assert_array_equal(zero.as_mask(), tokens.as_mask())
+    assert shuffled.control == "spatial_shuffle"
+    assert shuffled.control_seed == 42
+    np.testing.assert_array_equal(shuffled.as_mask(), tokens.as_mask())
+    np.testing.assert_array_equal(
+        shuffled.global_tokens[:, :6], tokens.global_tokens[:, :6]
+    )
+    np.testing.assert_array_equal(
+        shuffled.frontier_tokens[tokens.frontier_mask, :6],
+        tokens.frontier_tokens[tokens.frontier_mask, :6],
+    )
+    np.testing.assert_allclose(
+        np.sort(shuffled.global_tokens[:, 6:], axis=0),
+        np.sort(tokens.global_tokens[:, 6:], axis=0),
+    )
+    np.testing.assert_allclose(
+        np.sort(shuffled.frontier_tokens[tokens.frontier_mask, 6:], axis=0),
+        np.sort(tokens.frontier_tokens[tokens.frontier_mask, 6:], axis=0),
+    )
+    assert not np.array_equal(shuffled.global_tokens, tokens.global_tokens)
+
+
+def test_visibility_token_npz_contract_loads_without_pickle(tmp_path):
+    _, _, _, tokens = _token_fixture()
+    payload = visibility.visibility_token_npz_payload(tokens, "visibility_tokens")
+    output = tmp_path / "tokens.npz"
+    np.savez_compressed(output, **payload)
+    with np.load(output, allow_pickle=False) as loaded:
+        assert loaded["visibility_tokens_global"].shape == tokens.global_tokens.shape
+        assert loaded["visibility_tokens_frontier"].shape == (
+            tokens.frontier_tokens.shape
+        )
+        assert loaded["visibility_tokens_feature_names"].tolist() == list(
+            visibility.VISIBILITY_TOKEN_FEATURE_NAMES
+        )
+        assert visibility.VISIBILITY_TOKEN_SCHEMA in str(
+            loaded["visibility_tokens_metadata_json"]
+        )
+
+
+def test_offline_tokenizer_derives_new_artifacts_without_mutating_source(tmp_path):
+    belief, memory, exposure, _ = _token_fixture()
+    metadata = visibility.belief_metadata(belief)
+    metadata.update(
+        {
+            "step": 20,
+            "oracle_depth": True,
+            "used_by_qwen": False,
+            "observation_memory": visibility.observation_memory_metadata(memory),
+            "exposure": visibility.visibility_exposure_metadata(exposure),
+        }
+    )
+    input_root = tmp_path / "dense"
+    input_root.mkdir()
+    source = input_root / "step_000020.npz"
+    np.savez_compressed(
+        source,
+        channels=belief.as_channels(),
+        channel_names=np.asarray(belief.channel_names),
+        observation_memory_channels=memory.as_channels(),
+        observation_memory_channel_names=np.asarray(memory.channel_names),
+        exposure_channels=exposure.as_channels(),
+        exposure_channel_names=np.asarray(exposure.channel_names),
+        metadata_json=np.asarray(json.dumps(metadata, sort_keys=True)),
+    )
+    original_source = source.read_bytes()
+    output_root = tmp_path / "tokens"
+    script = _load_tokenizer_script()
+    manifest = script.tokenize_run(input_root, output_root, ORACLE_CONFIG_PATH)
+    assert manifest["frame_count"] == 1
+    assert manifest["source_artifacts_modified"] is False
+    assert source.read_bytes() == original_source
+    with np.load(output_root / source.name, allow_pickle=False) as artifact:
+        assert artifact["visibility_tokens_global"].shape == (
+            16,
+            len(visibility.VISIBILITY_TOKEN_FEATURE_NAMES),
+        )
+        assert artifact["visibility_tokens_frontier"].shape == (
+            32,
+            len(visibility.VISIBILITY_TOKEN_FEATURE_NAMES),
+        )
+        assert not artifact["visibility_tokens_zero_u_global"].any()
+        assert artifact["visibility_tokens_spatial_shuffle_global"].shape == (
+            artifact["visibility_tokens_global"].shape
+        )
+    with pytest.raises(FileExistsError, match="refusing to reuse"):
+        script.tokenize_run(input_root, output_root, ORACLE_CONFIG_PATH)

@@ -76,9 +76,14 @@ render_observation_memory = _visibility.render_observation_memory
 render_visibility_belief = _visibility.render_visibility_belief
 render_visibility_exposure = _visibility.render_visibility_exposure
 render_visibility_urgency = _visibility.render_visibility_urgency
+spatially_shuffle_visibility_tokens = _visibility.spatially_shuffle_visibility_tokens
+tokenize_visibility_belief = _visibility.tokenize_visibility_belief
 visibility_exposure_metadata = _visibility.visibility_exposure_metadata
 visibility_grid_spec_from_mapping = _visibility.visibility_grid_spec_from_mapping
+visibility_token_metadata = _visibility.visibility_token_metadata
+visibility_token_npz_payload = _visibility.visibility_token_npz_payload
 VisibilityObservationMemory = _visibility.VisibilityObservationMemory
+zero_visibility_tokens = _visibility.zero_visibility_tokens
 
 _SCHEDULE_PATH = (
     Path(__file__).resolve().parents[1] / "uq_estimator" / "corruption_schedule.py"
@@ -241,6 +246,7 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         self.oracle_artifact_root = None
         self.oracle_observation_memory = None
         self.oracle_exposure_config = None
+        self.oracle_tokenizer_config = None
         if self.oracle_visibility_enabled:
             self.oracle_depth_sensor_specs = make_colocated_depth_sensor_specs(
                 self.config["sensors"], oracle["depth_sensor_by_rgb"]
@@ -275,6 +281,9 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
             exposure = oracle.get("exposure", {"enabled": False})
             if bool(exposure["enabled"]):
                 self.oracle_exposure_config = dict(exposure)
+            tokenizer = oracle.get("tokenizer", {"enabled": False})
+            if bool(tokenizer["enabled"]):
+                self.oracle_tokenizer_config = dict(tokenizer)
             if bool(oracle["write_artifacts"]) and output_root is not None:
                 self.oracle_artifact_root = output_root / "oracle_visibility"
                 self.oracle_artifact_root.mkdir(parents=True, exist_ok=True)
@@ -365,6 +374,43 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                     self.oracle_exposure_config["stopping_transition_m"]
                 ),
             )
+        token_set = None
+        token_controls = {}
+        tokenize_seconds = None
+        if self.oracle_tokenizer_config is not None:
+            tokenize_started = time.perf_counter()
+            token_set = tokenize_visibility_belief(
+                belief,
+                observation_memory,
+                exposure,
+                global_grid_shape=self.oracle_tokenizer_config[
+                    "global_grid_shape"
+                ],
+                max_frontier_tokens=int(
+                    self.oracle_tokenizer_config["max_frontier_tokens"]
+                ),
+                frontier_patch_radius_m=float(
+                    self.oracle_tokenizer_config["frontier_patch_radius_m"]
+                ),
+                frontier_nms_radius_m=float(
+                    self.oracle_tokenizer_config["frontier_nms_radius_m"]
+                ),
+                frontier_selection_floor=float(
+                    self.oracle_tokenizer_config["frontier_selection_floor"]
+                ),
+                depth_confidence=float(
+                    self.oracle_tokenizer_config["oracle_depth_confidence"]
+                ),
+            )
+            if bool(self.oracle_tokenizer_config["write_controls"]):
+                token_controls = {
+                    "zero_u": zero_visibility_tokens(token_set),
+                    "spatial_shuffle": spatially_shuffle_visibility_tokens(
+                        token_set,
+                        int(self.oracle_tokenizer_config["spatial_shuffle_seed"]),
+                    ),
+                }
+            tokenize_seconds = time.perf_counter() - tokenize_started
         derived_seconds = time.perf_counter() - derived_started
         audit_snapshot = int(self.step) in self.oracle_audit_steps
         metadata = belief_metadata(belief)
@@ -385,6 +431,10 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         if exposure is not None:
             metadata["exposure"] = visibility_exposure_metadata(exposure)
             metadata["route_ego_points"] = int(len(route_ego))
+        if token_set is not None:
+            metadata["visibility_tokens"] = visibility_token_metadata(token_set)
+            metadata["tokenize_seconds"] = float(tokenize_seconds)
+            metadata["token_controls"] = sorted(token_controls)
         artifact = None
         if self.oracle_artifact_root is not None:
             stem = "step_%06d" % self.step
@@ -412,6 +462,16 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                         "route_ego_xy": route_ego,
                     }
                 )
+            if token_set is not None:
+                arrays.update(
+                    visibility_token_npz_payload(token_set, "visibility_tokens")
+                )
+                for control_name, control_tokens in token_controls.items():
+                    arrays.update(
+                        visibility_token_npz_payload(
+                            control_tokens, "visibility_tokens_" + control_name
+                        )
+                    )
             np.savez_compressed(array_path, **arrays)
             import cv2
 

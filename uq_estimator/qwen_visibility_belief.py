@@ -15,6 +15,7 @@ Those states are collapsed over height into an inspectable 2.5D BEV.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import math
 from typing import Dict, Mapping, Optional, Sequence, Tuple
 
@@ -24,8 +25,36 @@ import numpy as np
 VISIBILITY_SCHEMA = "orion.qwen-visibility-belief/v1"
 OBSERVATION_MEMORY_SCHEMA = "orion.qwen-observation-memory/v1"
 VISIBILITY_EXPOSURE_SCHEMA = "orion.qwen-visibility-exposure/v1"
+VISIBILITY_TOKEN_SCHEMA = "orion.qwen-visibility-tokens/v1"
 CARLA_DEPTH_FAR_PLANE_M = 1000.0
 _UINT24_MAX = float(256**3 - 1)
+
+VISIBILITY_TOKEN_FEATURE_NAMES = (
+    "token_is_global",
+    "token_is_frontier",
+    "center_x_normalized",
+    "center_y_normalized",
+    "extent_x_normalized",
+    "extent_y_normalized",
+    "visible_free_height_ratio",
+    "visible_occupied_height_ratio",
+    "occluded_unknown_height_ratio",
+    "outside_fov_height_ratio",
+    "frontier_fraction",
+    "observation_age_normalized",
+    "currently_observed_fraction",
+    "previously_observed_fraction",
+    "never_observed_fraction",
+    "depth_confidence",
+    "route_weight_mean",
+    "stopping_weight_mean",
+    "urgency_mean",
+    "urgency_max",
+    "frontier_stopping_margin_normalized",
+    "unknown_area_grid_fraction",
+    "frontier_selection_score",
+)
+_TOKEN_SPATIAL_FEATURE_COUNT = 6
 
 
 @dataclass(frozen=True)
@@ -1018,4 +1047,411 @@ def visibility_exposure_metadata(exposure: VisibilityExposure) -> Dict[str, obje
                 else 0.0
             ),
         },
+    }
+
+
+@dataclass(frozen=True)
+class VisibilityTokenSet:
+    """Fixed-shape physical U tokens before the learned Qwen projector."""
+
+    spec: VisibilityGridSpec
+    global_tokens: np.ndarray
+    frontier_tokens: np.ndarray
+    frontier_mask: np.ndarray
+    global_grid_shape: Tuple[int, int]
+    frontier_patch_radius_m: float
+    frontier_nms_radius_m: float
+    frontier_selection_floor: float
+    control: str = "true_u"
+    control_seed: Optional[int] = None
+
+    def __post_init__(self) -> None:
+        global_grid_shape = tuple(int(value) for value in self.global_grid_shape)
+        if len(global_grid_shape) != 2 or min(global_grid_shape) <= 0:
+            raise ValueError("global_grid_shape must contain two positive integers")
+        feature_count = len(VISIBILITY_TOKEN_FEATURE_NAMES)
+        global_tokens = np.asarray(self.global_tokens, dtype=np.float32)
+        frontier_tokens = np.asarray(self.frontier_tokens, dtype=np.float32)
+        frontier_mask = np.asarray(self.frontier_mask, dtype=bool)
+        expected_global = global_grid_shape[0] * global_grid_shape[1]
+        if global_tokens.shape != (expected_global, feature_count):
+            raise ValueError(
+                "global_tokens must have shape (%d,%d)"
+                % (expected_global, feature_count)
+            )
+        if frontier_tokens.ndim != 2 or frontier_tokens.shape[1] != feature_count:
+            raise ValueError("frontier_tokens must have shape [K,%d]" % feature_count)
+        if frontier_mask.shape != (frontier_tokens.shape[0],):
+            raise ValueError("frontier_mask must have shape [K]")
+        if not np.isfinite(global_tokens).all() or not np.isfinite(
+            frontier_tokens
+        ).all():
+            raise ValueError("visibility tokens must be finite")
+        if np.any(frontier_tokens[~frontier_mask] != 0.0):
+            raise ValueError("padded frontier token rows must be zero")
+        for name in (
+            "frontier_patch_radius_m",
+            "frontier_nms_radius_m",
+            "frontier_selection_floor",
+        ):
+            value = float(getattr(self, name))
+            if not math.isfinite(value) or value <= 0.0:
+                raise ValueError("%s must be finite and positive" % name)
+            object.__setattr__(self, name, value)
+        if self.control not in {"true_u", "zero_u", "spatial_shuffle"}:
+            raise ValueError("unsupported visibility-token control")
+        if self.control_seed is not None and (
+            isinstance(self.control_seed, bool)
+            or not isinstance(self.control_seed, (int, np.integer))
+        ):
+            raise ValueError("control_seed must be an integer or None")
+        object.__setattr__(self, "global_tokens", global_tokens.copy())
+        object.__setattr__(self, "frontier_tokens", frontier_tokens.copy())
+        object.__setattr__(self, "frontier_mask", frontier_mask.copy())
+        object.__setattr__(self, "global_grid_shape", global_grid_shape)
+        if self.control_seed is not None:
+            object.__setattr__(self, "control_seed", int(self.control_seed))
+
+    @property
+    def feature_names(self) -> Tuple[str, ...]:
+        return VISIBILITY_TOKEN_FEATURE_NAMES
+
+    @property
+    def global_mask(self) -> np.ndarray:
+        return np.ones(self.global_tokens.shape[0], dtype=bool)
+
+    @property
+    def valid_frontier_count(self) -> int:
+        return int(self.frontier_mask.sum())
+
+    def as_tokens(self) -> np.ndarray:
+        """Return global then frontier rows, including zero padding."""
+
+        return np.concatenate([self.global_tokens, self.frontier_tokens], axis=0)
+
+    def as_mask(self) -> np.ndarray:
+        return np.concatenate([self.global_mask, self.frontier_mask], axis=0)
+
+
+def _normalized_center(value: float, lower: float, upper: float) -> float:
+    return float(np.clip(2.0 * (value - lower) / (upper - lower) - 1.0, -1.0, 1.0))
+
+
+def _pool_visibility_token(
+    belief: VisibilityBelief,
+    memory: ObservationMemoryState,
+    exposure: VisibilityExposure,
+    depth_confidence: np.ndarray,
+    mask: np.ndarray,
+    center_xy: Tuple[float, float],
+    extent_xy: Tuple[float, float],
+    is_global: bool,
+    selection_score: float,
+) -> np.ndarray:
+    if not np.any(mask):
+        raise ValueError("visibility token pooling mask must be non-empty")
+    spec = belief.spec
+    frontier_strength = (
+        belief.frontier.astype(np.float64) * belief.occluded_unknown_ratio
+    )
+    frontier_weights = frontier_strength[mask]
+    if float(frontier_weights.sum()) > 0.0:
+        stopping_margin = float(
+            np.average(exposure.stopping_margin_m[mask], weights=frontier_weights)
+        )
+        stopping_margin_normalized = float(
+            np.clip(stopping_margin / spec.max_range_m, -1.0, 1.0)
+        )
+    else:
+        stopping_margin_normalized = 1.0
+    grid_area_m2 = (
+        (spec.x_max_m - spec.x_min_m) * (spec.y_max_m - spec.y_min_m)
+    )
+    cell_area_m2 = spec.xy_resolution_m**2
+    unknown_area_grid_fraction = float(
+        belief.occluded_unknown_ratio[mask].sum() * cell_area_m2 / grid_area_m2
+    )
+    center_x, center_y = center_xy
+    extent_x, extent_y = extent_xy
+    return np.asarray(
+        [
+            float(is_global),
+            float(not is_global),
+            _normalized_center(center_x, spec.x_min_m, spec.x_max_m),
+            _normalized_center(center_y, spec.y_min_m, spec.y_max_m),
+            float(extent_x / (spec.x_max_m - spec.x_min_m)),
+            float(extent_y / (spec.y_max_m - spec.y_min_m)),
+            float(belief.visible_free_ratio[mask].mean()),
+            float(belief.visible_occupied_ratio[mask].mean()),
+            float(belief.occluded_unknown_ratio[mask].mean()),
+            float(belief.outside_fov_ratio[mask].mean()),
+            float(belief.frontier[mask].mean()),
+            float((memory.age_seconds[mask] / memory.max_age_seconds).mean()),
+            float(memory.currently_observed[mask].mean()),
+            float(memory.previously_observed[mask].mean()),
+            float(memory.never_observed[mask].mean()),
+            float(depth_confidence[mask].mean()),
+            float(exposure.route_weight[mask].mean()),
+            float(exposure.stopping_weight[mask].mean()),
+            float(exposure.urgency[mask].mean()),
+            float(exposure.urgency[mask].max()),
+            stopping_margin_normalized,
+            unknown_area_grid_fraction,
+            float(selection_score),
+        ],
+        dtype=np.float32,
+    )
+
+
+def tokenize_visibility_belief(
+    belief: VisibilityBelief,
+    memory: ObservationMemoryState,
+    exposure: VisibilityExposure,
+    global_grid_shape: Sequence[int],
+    max_frontier_tokens: int,
+    frontier_patch_radius_m: float,
+    frontier_nms_radius_m: float,
+    frontier_selection_floor: float,
+    depth_confidence: object = 1.0,
+) -> VisibilityTokenSet:
+    """Pool dense physical fields into global and selected frontier tokens.
+
+    Global tokens are a complete fixed tiling of the BEV, so distant evidence
+    is retained. Frontier rows are greedily selected by a soft exposure score
+    with metric non-maximum suppression and fixed zero padding.
+    """
+
+    if memory.spec != belief.spec or exposure.spec != belief.spec:
+        raise ValueError("belief, memory, and exposure grids must match")
+    if len(global_grid_shape) != 2:
+        raise ValueError("global_grid_shape must contain two integers")
+    global_rows, global_columns = (int(value) for value in global_grid_shape)
+    height, width = belief.spec.shape_bev
+    if (
+        global_rows <= 0
+        or global_columns <= 0
+        or global_rows > height
+        or global_columns > width
+    ):
+        raise ValueError("global_grid_shape must fit inside the BEV")
+    if (
+        isinstance(max_frontier_tokens, bool)
+        or int(max_frontier_tokens) != max_frontier_tokens
+        or int(max_frontier_tokens) <= 0
+    ):
+        raise ValueError("max_frontier_tokens must be a positive integer")
+    max_frontier_tokens = int(max_frontier_tokens)
+    patch_radius = float(frontier_patch_radius_m)
+    nms_radius = float(frontier_nms_radius_m)
+    selection_floor = float(frontier_selection_floor)
+    for name, value in (
+        ("frontier_patch_radius_m", patch_radius),
+        ("frontier_nms_radius_m", nms_radius),
+        ("frontier_selection_floor", selection_floor),
+    ):
+        if not math.isfinite(value) or value <= 0.0:
+            raise ValueError("%s must be finite and positive" % name)
+
+    confidence = np.asarray(depth_confidence, dtype=np.float32)
+    if confidence.ndim == 0:
+        confidence = np.full(belief.spec.shape_bev, confidence, dtype=np.float32)
+    if confidence.shape != belief.spec.shape_bev or not np.isfinite(confidence).all():
+        raise ValueError("depth_confidence must be finite scalar or BEV array")
+    if np.any(confidence < 0.0) or np.any(confidence > 1.0):
+        raise ValueError("depth_confidence must lie in [0,1]")
+
+    x_centers, y_centers, _ = belief.spec.centers()
+    grid_x, grid_y = np.meshgrid(x_centers, y_centers, indexing="ij")
+    global_tokens = []
+    for row_indices in np.array_split(np.arange(height), global_rows):
+        for column_indices in np.array_split(np.arange(width), global_columns):
+            mask = np.zeros(belief.spec.shape_bev, dtype=bool)
+            mask[np.ix_(row_indices, column_indices)] = True
+            global_tokens.append(
+                _pool_visibility_token(
+                    belief,
+                    memory,
+                    exposure,
+                    confidence,
+                    mask,
+                    center_xy=(
+                        float(x_centers[row_indices].mean()),
+                        float(y_centers[column_indices].mean()),
+                    ),
+                    extent_xy=(
+                        float(len(row_indices) * belief.spec.xy_resolution_m),
+                        float(len(column_indices) * belief.spec.xy_resolution_m),
+                    ),
+                    is_global=True,
+                    selection_score=0.0,
+                )
+            )
+
+    frontier_strength = (
+        belief.frontier.astype(np.float64) * belief.occluded_unknown_ratio
+    )
+    raw_selection_score = exposure.urgency + selection_floor * frontier_strength
+    normalized_score = raw_selection_score / (1.0 + selection_floor)
+    candidate_rows, candidate_columns = np.nonzero(frontier_strength > 0.0)
+    candidate_scores = normalized_score[candidate_rows, candidate_columns]
+    order = np.lexsort((candidate_columns, candidate_rows, -candidate_scores))
+    selected = []
+    nms_squared = nms_radius**2
+    for candidate_index in order:
+        row = int(candidate_rows[candidate_index])
+        column = int(candidate_columns[candidate_index])
+        center = np.asarray([x_centers[row], y_centers[column]], dtype=np.float64)
+        if any(
+            float(np.sum((center - previous_center) ** 2)) < nms_squared
+            for _, _, previous_center in selected
+        ):
+            continue
+        selected.append((row, column, center))
+        if len(selected) == max_frontier_tokens:
+            break
+
+    frontier_tokens = np.zeros(
+        (max_frontier_tokens, len(VISIBILITY_TOKEN_FEATURE_NAMES)), dtype=np.float32
+    )
+    frontier_mask = np.zeros(max_frontier_tokens, dtype=bool)
+    for token_index, (row, column, center) in enumerate(selected):
+        local_mask = (
+            (grid_x - center[0]) ** 2 + (grid_y - center[1]) ** 2
+        ) <= patch_radius**2 + 1e-9
+        local_rows, local_columns = np.nonzero(local_mask)
+        extent_x = float(
+            (local_rows.max() - local_rows.min() + 1)
+            * belief.spec.xy_resolution_m
+        )
+        extent_y = float(
+            (local_columns.max() - local_columns.min() + 1)
+            * belief.spec.xy_resolution_m
+        )
+        frontier_tokens[token_index] = _pool_visibility_token(
+            belief,
+            memory,
+            exposure,
+            confidence,
+            local_mask,
+            center_xy=(float(center[0]), float(center[1])),
+            extent_xy=(extent_x, extent_y),
+            is_global=False,
+            selection_score=float(normalized_score[row, column]),
+        )
+        frontier_mask[token_index] = True
+
+    return VisibilityTokenSet(
+        spec=belief.spec,
+        global_tokens=np.stack(global_tokens, axis=0),
+        frontier_tokens=frontier_tokens,
+        frontier_mask=frontier_mask,
+        global_grid_shape=(global_rows, global_columns),
+        frontier_patch_radius_m=patch_radius,
+        frontier_nms_radius_m=nms_radius,
+        frontier_selection_floor=selection_floor,
+    )
+
+
+def zero_visibility_tokens(tokens: VisibilityTokenSet) -> VisibilityTokenSet:
+    """Remove all U content while preserving token counts and valid masks."""
+
+    return VisibilityTokenSet(
+        spec=tokens.spec,
+        global_tokens=np.zeros_like(tokens.global_tokens),
+        frontier_tokens=np.zeros_like(tokens.frontier_tokens),
+        frontier_mask=tokens.frontier_mask,
+        global_grid_shape=tokens.global_grid_shape,
+        frontier_patch_radius_m=tokens.frontier_patch_radius_m,
+        frontier_nms_radius_m=tokens.frontier_nms_radius_m,
+        frontier_selection_floor=tokens.frontier_selection_floor,
+        control="zero_u",
+    )
+
+
+def _cyclic_content_shuffle(matrix: np.ndarray, count: int, seed: int) -> np.ndarray:
+    result = matrix.copy()
+    if count > 1:
+        shift = abs(int(seed)) % (count - 1) + 1
+        result[:count, _TOKEN_SPATIAL_FEATURE_COUNT:] = np.roll(
+            matrix[:count, _TOKEN_SPATIAL_FEATURE_COUNT:], shift=shift, axis=0
+        )
+    return result
+
+
+def spatially_shuffle_visibility_tokens(
+    tokens: VisibilityTokenSet, seed: int
+) -> VisibilityTokenSet:
+    """Misalign U content from fixed metric token slots without changing marginals."""
+
+    if isinstance(seed, bool) or not isinstance(seed, (int, np.integer)):
+        raise ValueError("spatial shuffle seed must be an integer")
+    seed = int(seed)
+    global_tokens = _cyclic_content_shuffle(
+        tokens.global_tokens, len(tokens.global_tokens), seed
+    )
+    frontier_tokens = _cyclic_content_shuffle(
+        tokens.frontier_tokens, tokens.valid_frontier_count, seed * 2 + 1
+    )
+    return VisibilityTokenSet(
+        spec=tokens.spec,
+        global_tokens=global_tokens,
+        frontier_tokens=frontier_tokens,
+        frontier_mask=tokens.frontier_mask,
+        global_grid_shape=tokens.global_grid_shape,
+        frontier_patch_radius_m=tokens.frontier_patch_radius_m,
+        frontier_nms_radius_m=tokens.frontier_nms_radius_m,
+        frontier_selection_floor=tokens.frontier_selection_floor,
+        control="spatial_shuffle",
+        control_seed=seed,
+    )
+
+
+def visibility_token_metadata(tokens: VisibilityTokenSet) -> Dict[str, object]:
+    """Return a complete JSON-safe contract for one physical token set."""
+
+    return {
+        "schema": VISIBILITY_TOKEN_SCHEMA,
+        "control": tokens.control,
+        "control_seed": tokens.control_seed,
+        "coordinate_frame": "qwen_ego_x_forward_y_left_z_up",
+        "global_raster_order": "far_forward_left_to_near_rear_right",
+        "feature_names": list(tokens.feature_names),
+        "feature_count": len(tokens.feature_names),
+        "global_grid_shape": list(tokens.global_grid_shape),
+        "global_token_count": int(len(tokens.global_tokens)),
+        "maximum_frontier_tokens": int(len(tokens.frontier_tokens)),
+        "valid_frontier_tokens": tokens.valid_frontier_count,
+        "frontier_patch_radius_m": float(tokens.frontier_patch_radius_m),
+        "frontier_nms_radius_m": float(tokens.frontier_nms_radius_m),
+        "frontier_selection_floor": float(tokens.frontier_selection_floor),
+        "normalization": {
+            "center_xy": "affine_to_minus_one_plus_one_over_grid_bounds",
+            "extent_xy": "divide_by_corresponding_grid_span",
+            "stopping_margin": "clip_divide_by_grid_max_range",
+            "unknown_area": "divide_by_full_grid_area",
+        },
+        "spatial_shuffle_contract": (
+            "keep token types, metric slots, masks, and per-feature marginals; "
+            "cyclically reassign physical content within each token family"
+        ),
+    }
+
+
+def visibility_token_npz_payload(
+    tokens: VisibilityTokenSet, prefix: str
+) -> Dict[str, np.ndarray]:
+    """Serialize tokens without Python objects or pickle-dependent arrays."""
+
+    if not prefix or not prefix.replace("_", "").isalnum():
+        raise ValueError("visibility token prefix must be alphanumeric/underscore")
+    metadata_json = json.dumps(
+        visibility_token_metadata(tokens), sort_keys=True, separators=(",", ":")
+    )
+    return {
+        prefix + "_global": tokens.global_tokens,
+        prefix + "_frontier": tokens.frontier_tokens,
+        prefix + "_global_mask": tokens.global_mask,
+        prefix + "_frontier_mask": tokens.frontier_mask,
+        prefix + "_feature_names": np.asarray(tokens.feature_names),
+        prefix + "_metadata_json": np.asarray(metadata_json),
     }

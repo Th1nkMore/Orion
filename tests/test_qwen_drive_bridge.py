@@ -108,6 +108,17 @@ def test_oracle_visibility_config_is_explicit_and_does_not_replace_rgb_views():
     }
     assert oracle["exposure"]["enabled"] is True
     assert oracle["exposure"]["safe_deceleration_mps2"] == 4.0
+    assert oracle["tokenizer"] == {
+        "enabled": True,
+        "global_grid_shape": [4, 4],
+        "max_frontier_tokens": 32,
+        "frontier_patch_radius_m": 2.0,
+        "frontier_nms_radius_m": 2.0,
+        "frontier_selection_floor": 0.05,
+        "oracle_depth_confidence": 1.0,
+        "write_controls": True,
+        "spatial_shuffle_seed": 42,
+    }
     assert config["planning"]["mode"] == "reasoning_planning"
     assert config["runtime"]["planner"].endswith("/planner-sft")
 
@@ -126,6 +137,13 @@ def test_oracle_temporal_and_exposure_config_fail_closed(tmp_path):
     invalid_deceleration.write_text(json.dumps(config), encoding="utf-8")
     with pytest.raises(ValueError, match="safe_deceleration_mps2"):
         bridge.load_bridge_config(invalid_deceleration)
+
+    config = bridge.load_bridge_config(ORACLE_CONFIG_PATH)
+    config["oracle_visibility"]["tokenizer"]["max_frontier_tokens"] = 0
+    invalid_tokens = tmp_path / "invalid_tokens.json"
+    invalid_tokens.write_text(json.dumps(config), encoding="utf-8")
+    with pytest.raises(ValueError, match="max_frontier_tokens"):
+        bridge.load_bridge_config(invalid_tokens)
 
 
 def test_carla_to_qwen_coordinate_convention():
