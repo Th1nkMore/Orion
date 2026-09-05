@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `O1: live oracle visibility capture`
 
-Status: in progress (local implementation complete; remote CARLA smoke pending)
+Status: in progress (live capture complete; RGB/depth alignment audit pending)
 
 The pure geometry has passed its local tests. The current gate is to prove that
 three CARLA depth cameras, explicitly co-located with Qwen's unchanged RGB
@@ -17,7 +17,7 @@ cameras, produce aligned and auditable artifacts in a real Bench2Drive run.
 | ID | Deliverable | Status |
 | --- | --- | --- |
 | O0 | CARLA depth decoding, camera calibration, 3D visibility fusion, 2.5D BEV, rendering, unit tests | Complete (`6addb2fe`) |
-| O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | In progress (local complete; live smoke pending) |
+| O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | In progress (live capture complete; alignment audit pending) |
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Not started |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Not started |
 | V0 | Insert U tokens into the 4B VLM with verified positions and zero-U identity | Not started |
@@ -112,6 +112,31 @@ cameras, produce aligned and auditable artifacts in a real Bench2Drive run.
   produced zero oracle artifacts.
 - Resolution: extend the same default-off oracle harness to map depth to the
   existing camera icon. No ordinary sensor validation or model path changes.
+
+## O1 remote attempt 3
+
+- Commit: `7b5b95de`; Slurm job: `1165331`; run id:
+  `qwen_oracle_visibility_route151_reasoning_sft_seed42_v3`.
+- Terminal state: Slurm `COMPLETED`, exit `0:0`, elapsed `00:14:56`, peak RSS
+  `5,820,032 KiB`. The route completed 100% in 25.1 s simulation time.
+- Produced 51 planning traces, 51 compressed belief tensors, and 51 rendered
+  maps. All tensors are finite float32 `[5,120,100]`; their four mutually
+  exclusive physical channels sum to one in every cell; all metadata flags are
+  `oracle_depth=true` and `used_by_qwen=false`.
+- Qwen sidecar inference time was mean 4.953 s, median 4.624 s, p95 5.216 s;
+  the 25.584 s maximum includes first-inference warm-up. Geometry time is not
+  yet instrumented separately and must not be inferred from these numbers.
+- The unchanged Qwen planner still collided with one pedestrian at
+  `(100.162, 303.092)`: route score 100, penalty 0.5, driving score 50. This is
+  expected because O1 records U but does not consume it. It is useful baseline
+  confirmation, not an oracle-U safety result.
+- Although the patched evaluator JSON writes `eligible=true`, this run used the
+  explicitly logged non-official oracle-depth extension and is scientifically
+  ineligible as an official SENSORS-track score.
+- The live maps show plausible three-camera coverage and changing occlusion
+  frontiers. O1 remains open until sparse lossless RGB/depth audit snapshots
+  verify actual cross-modal alignment; belief artifacts alone are insufficient
+  for that claim.
 
 ## Integrity constraints
 
