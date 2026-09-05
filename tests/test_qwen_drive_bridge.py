@@ -14,6 +14,11 @@ CONFIG_PATH = PROJECT_ROOT / "configs" / "qwen_drive_b2d_agent_v1.json"
 REASONING_CONFIG_PATH = (
     PROJECT_ROOT / "configs" / "qwen_drive_b2d_agent_reasoning_sft_v1.json"
 )
+ORACLE_CONFIG_PATH = (
+    PROJECT_ROOT
+    / "configs"
+    / "qwen_drive_b2d_agent_oracle_visibility_sft_v1.json"
+)
 AGENT_PATH = PROJECT_ROOT / "team_code" / "qwen_drive_b2d_agent.py"
 SMOKE_PATH = PROJECT_ROOT / "scripts" / "smoke_qwen_drive_b2d_bridge.py"
 RUNNER_PATH = PROJECT_ROOT / "scripts" / "run_qwen_drive_b2d_smoke.sh"
@@ -78,6 +83,23 @@ def test_reasoning_config_uses_the_official_sft_reasoning_path():
     config = bridge.load_bridge_config(REASONING_CONFIG_PATH)
     assert config["planning"]["mode"] == "reasoning_planning"
     assert config["planning"]["num_samples"] == 1
+    assert config["runtime"]["planner"].endswith("/planner-sft")
+
+
+def test_oracle_visibility_config_is_explicit_and_does_not_replace_rgb_views():
+    config = bridge.load_bridge_config(ORACLE_CONFIG_PATH)
+    assert list(config["sensors"]) == list(bridge.QWEN_VIEW_BY_SENSOR)
+    assert all(
+        sensor["type"] == "sensor.camera.rgb"
+        for sensor in config["sensors"].values()
+    )
+    oracle = config["oracle_visibility"]
+    assert oracle["enabled"] is True
+    assert list(oracle["depth_sensor_by_rgb"].values()) == list(
+        bridge.QWEN_VIEW_BY_SENSOR
+    )
+    assert set(oracle["depth_sensor_by_rgb"]).isdisjoint(config["sensors"])
+    assert config["planning"]["mode"] == "reasoning_planning"
     assert config["runtime"]["planner"].endswith("/planner-sft")
 
 

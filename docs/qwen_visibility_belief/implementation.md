@@ -4,20 +4,20 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 ## Current milestone
 
-`O0: oracle visibility geometry`
+`O1: live oracle visibility capture`
 
-Status: complete
+Status: in progress (local implementation complete; remote CARLA smoke pending)
 
-The first implementation milestone is intentionally below the VLM boundary. It
-must establish a correct, inspectable, NumPy-only physical visibility map before
-custom Qwen tokens or LoRA training are introduced.
+The pure geometry has passed its local tests. The current gate is to prove that
+three CARLA depth cameras, explicitly co-located with Qwen's unchanged RGB
+cameras, produce aligned and auditable artifacts in a real Bench2Drive run.
 
 ## Ordered implementation ladder
 
 | ID | Deliverable | Status |
 | --- | --- | --- |
 | O0 | CARLA depth decoding, camera calibration, 3D visibility fusion, 2.5D BEV, rendering, unit tests | Complete (`6addb2fe`) |
-| O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | Not started |
+| O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | In progress (local complete; live smoke pending) |
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Not started |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Not started |
 | V0 | Insert U tokens into the 4B VLM with verified positions and zero-U identity | Not started |
@@ -60,6 +60,27 @@ custom Qwen tokens or LoRA training are introduced.
 - O0 establishes deterministic geometry and an inspectable schema. It does not
   establish live CARLA sensor alignment, temporal memory, U-token consumption,
   Qwen grounding, planning change, or safety.
+
+## O1 local record
+
+- Added a separate oracle-only bridge config; the existing RGB and reasoning
+  baseline configs remain unchanged.
+- The oracle profile clones all pose, intrinsics, and resolution fields from
+  the three Qwen RGB sensors into CARLA depth sensors, then records one
+  compressed tensor and one rendered PNG per Qwen inference step.
+- Every artifact declares `oracle_depth=true` and `used_by_qwen=false`.
+  Therefore an O1 run is a sensor/alignment smoke only and is not evidence of a
+  model or safety improvement.
+- Local regression command:
+  `pytest -q tests/test_qwen_visibility_belief.py tests/test_qwen_drive_bridge.py`.
+- Result: `26 passed, 1 skipped`; Python compilation and `git diff --check`
+  also passed.
+- An attempted repository-wide `pytest -q` could not collect in the local
+  lightweight environment: 132 existing modules require unavailable `torch`
+  or `cv2`. This is an environment limitation, not a passing full-suite claim;
+  the relevant suite must be rerun in the remote Orion environment.
+- O1 remains open until a remote CARLA run validates sensor availability,
+  coordinate alignment, artifact integrity, and acceptable runtime overhead.
 
 ## Integrity constraints
 

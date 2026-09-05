@@ -126,6 +126,58 @@ def test_carla_left_camera_is_converted_to_qwen_left_coordinates():
     )
 
 
+def test_oracle_depth_sensor_specs_are_exactly_colocated_with_rgb():
+    rgb = {
+        "CAM_FRONT": {
+            "type": "sensor.camera.rgb",
+            "x": 0.8,
+            "y": 0.0,
+            "z": 1.6,
+            "roll": 0.0,
+            "pitch": 0.0,
+            "yaw": 0.0,
+            "width": 1600,
+            "height": 900,
+            "fov": 70.0,
+        }
+    }
+    result = visibility.make_colocated_depth_sensor_specs(
+        rgb, {"DEPTH_FRONT": "CAM_FRONT"}
+    )
+    assert result["DEPTH_FRONT"] == {
+        **rgb["CAM_FRONT"],
+        "type": "sensor.camera.depth",
+    }
+    assert rgb["CAM_FRONT"]["type"] == "sensor.camera.rgb"
+
+
+def test_grid_mapping_rejects_unversioned_extra_parameters():
+    payload = {
+        "x_min_m": -10,
+        "x_max_m": 50,
+        "y_min_m": -25,
+        "y_max_m": 25,
+        "z_min_m": 0,
+        "z_max_m": 3,
+        "xy_resolution_m": 0.5,
+        "z_resolution_m": 0.5,
+        "max_range_m": 60,
+        "surface_tolerance_m": 0.45,
+    }
+    assert visibility.visibility_grid_spec_from_mapping(payload).shape_3d == (
+        6,
+        120,
+        100,
+    )
+    payload["unknown_field"] = 1
+    try:
+        visibility.visibility_grid_spec_from_mapping(payload)
+    except ValueError as error:
+        assert "keys mismatch" in str(error)
+    else:
+        raise AssertionError("extra grid parameters must fail closed")
+
+
 def test_constant_depth_plane_yields_free_surface_unknown_and_outside_fov():
     spec = _line_grid()
     camera = _front_camera()

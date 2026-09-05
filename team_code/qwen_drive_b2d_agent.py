@@ -48,6 +48,28 @@ make_inference_request = _bridge.make_inference_request
 qwen_trajectory_to_world = _bridge.qwen_trajectory_to_world
 world_trajectory_to_pid = _bridge.world_trajectory_to_pid
 
+_VISIBILITY_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "uq_estimator"
+    / "qwen_visibility_belief.py"
+)
+_visibility_spec = importlib.util.spec_from_file_location(
+    "_orion_qwen_visibility_belief", _VISIBILITY_PATH
+)
+if _visibility_spec is None or _visibility_spec.loader is None:
+    raise ImportError("cannot load Qwen visibility geometry from %s" % _VISIBILITY_PATH)
+_visibility = importlib.util.module_from_spec(_visibility_spec)
+sys.modules[_visibility_spec.name] = _visibility
+_visibility_spec.loader.exec_module(_visibility)
+
+belief_metadata = _visibility.belief_metadata
+camera_from_carla_sensor = _visibility.camera_from_carla_sensor
+compute_visibility_belief = _visibility.compute_visibility_belief
+decode_carla_depth_bgra = _visibility.decode_carla_depth_bgra
+make_colocated_depth_sensor_specs = _visibility.make_colocated_depth_sensor_specs
+render_visibility_belief = _visibility.render_visibility_belief
+visibility_grid_spec_from_mapping = _visibility.visibility_grid_spec_from_mapping
+
 _SCHEDULE_PATH = (
     Path(__file__).resolve().parents[1] / "uq_estimator" / "corruption_schedule.py"
 )
@@ -182,6 +204,7 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         self.corruption_route_points = None
         self.last_plan_step = None
         self.last_inference_seconds = None
+        self.last_oracle_visibility = None
         self.trace_stream = None
         save_path = os.environ.get("SAVE_PATH")
         if save_path:
@@ -192,9 +215,37 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
             )
             service_log = output_root / "qwen_drive_sidecar.log"
         else:
+            output_root = None
             service_log = Path("/tmp") / (
                 "qwen_drive_sidecar_%d.log" % os.getpid()
             )
+        oracle = self.config.get("oracle_visibility", {"enabled": False})
+        self.oracle_visibility_enabled = bool(oracle.get("enabled", False))
+        self.oracle_depth_sensor_specs = {}
+        self.oracle_cameras = ()
+        self.oracle_grid_spec = None
+        self.oracle_far_plane_m = None
+        self.oracle_frontier_threshold = None
+        self.oracle_artifact_root = None
+        if self.oracle_visibility_enabled:
+            self.oracle_depth_sensor_specs = make_colocated_depth_sensor_specs(
+                self.config["sensors"], oracle["depth_sensor_by_rgb"]
+            )
+            self.oracle_cameras = tuple(
+                camera_from_carla_sensor(
+                    depth_id,
+                    self.config["sensors"][oracle["depth_sensor_by_rgb"][depth_id]],
+                )
+                for depth_id in self.oracle_depth_sensor_specs
+            )
+            self.oracle_grid_spec = visibility_grid_spec_from_mapping(oracle["grid"])
+            self.oracle_far_plane_m = float(oracle["far_plane_m"])
+            self.oracle_frontier_threshold = float(
+                oracle["frontier_unknown_threshold"]
+            )
+            if bool(oracle["write_artifacts"]) and output_root is not None:
+                self.oracle_artifact_root = output_root / "oracle_visibility"
+                self.oracle_artifact_root.mkdir(parents=True, exist_ok=True)
         self.reuse_sidecar = bool(
             self.config["runtime"].get("reuse_sidecar_within_evaluator", True)
         )
@@ -222,14 +273,70 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         )
 
     def sensors(self):
-        """Return only Qwen's three forward RGB views."""
+        """Return Qwen RGB views and optional co-located oracle depth views."""
 
         result = []
         for sensor_id, configured in self.config["sensors"].items():
             sensor = dict(configured)
             sensor["id"] = sensor_id
             result.append(sensor)
+        for sensor_id, configured in self.oracle_depth_sensor_specs.items():
+            sensor = dict(configured)
+            sensor["id"] = sensor_id
+            result.append(sensor)
         return result
+
+    def _capture_oracle_visibility(self, input_data):
+        if not self.oracle_visibility_enabled:
+            self.last_oracle_visibility = None
+            return None
+        depth_by_sensor = {
+            sensor_id: decode_carla_depth_bgra(
+                np.asarray(input_data[sensor_id][1]), self.oracle_far_plane_m
+            )
+            for sensor_id in self.oracle_depth_sensor_specs
+        }
+        belief = compute_visibility_belief(
+            depth_by_sensor,
+            self.oracle_cameras,
+            self.oracle_grid_spec,
+            frontier_unknown_threshold=self.oracle_frontier_threshold,
+        )
+        metadata = belief_metadata(belief)
+        metadata.update(
+            {
+                "step": int(self.step),
+                "oracle_depth": True,
+                "used_by_qwen": False,
+            }
+        )
+        artifact = None
+        if self.oracle_artifact_root is not None:
+            stem = "step_%06d" % self.step
+            array_path = self.oracle_artifact_root / (stem + ".npz")
+            image_path = self.oracle_artifact_root / (stem + ".png")
+            np.savez_compressed(
+                array_path,
+                channels=belief.as_channels(),
+                channel_names=np.asarray(belief.channel_names),
+                metadata_json=np.asarray(json.dumps(metadata, sort_keys=True)),
+            )
+            import cv2
+
+            rendered_rgb = render_visibility_belief(belief)
+            if not cv2.imwrite(
+                str(image_path), cv2.cvtColor(rendered_rgb, cv2.COLOR_RGB2BGR)
+            ):
+                raise RuntimeError("failed to write oracle visibility PNG")
+            artifact = {
+                "npz": str(array_path),
+                "png": str(image_path),
+            }
+        self.last_oracle_visibility = {
+            "metadata": metadata,
+            "artifact": artifact,
+        }
+        return belief
 
     def _initialize(self):
         hero = None
@@ -286,6 +393,7 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         nav_command,
         corruption_active,
     ):
+        self._capture_oracle_visibility(input_data)
         bgr_images = {
             sensor_id: np.asarray(input_data[sensor_id][1])[:, :, :3]
             for sensor_id in QWEN_VIEW_BY_SENSOR
@@ -438,6 +546,11 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                     self.client.last_reasoning if raw_trajectory is not None else None
                 ),
                 "qwen_runtime_metrics": self.client.last_metrics,
+                "oracle_visibility": (
+                    self.last_oracle_visibility
+                    if raw_trajectory is not None
+                    else None
+                ),
                 "inference_error": inference_error,
                 "compressed_history_bytes": self.image_history.retained_bytes,
                 "new_qwen_trajectory": (

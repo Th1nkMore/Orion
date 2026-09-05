@@ -1,6 +1,6 @@
 # Qwen visibility-belief research track
 
-> Status: accepted design; implementation not yet started
+> Status: implementation in progress; oracle geometry complete, live sensor capture pending
 > Decision date: 2026-09-06 (Asia/Shanghai)
 > Branch: `codex/qwen-drive-transition`
 

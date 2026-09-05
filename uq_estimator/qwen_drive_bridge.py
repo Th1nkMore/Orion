@@ -85,6 +85,31 @@ def load_bridge_config(path: Union[str, Path]) -> dict:
         )
     if int(payload["planning"].get("num_samples", 0)) != 1:
         raise ValueError("closed-loop bridge requires num_samples=1")
+    oracle = payload.get("oracle_visibility")
+    if oracle is not None:
+        if not isinstance(oracle, dict) or not isinstance(oracle.get("enabled"), bool):
+            raise ValueError("oracle_visibility.enabled must be boolean")
+        if oracle["enabled"]:
+            mapping = oracle.get("depth_sensor_by_rgb")
+            if not isinstance(mapping, dict) or tuple(mapping.values()) != tuple(
+                QWEN_VIEW_BY_SENSOR
+            ):
+                raise ValueError(
+                    "oracle depth mapping must cover Qwen RGB views in model order"
+                )
+            if set(mapping) & set(QWEN_VIEW_BY_SENSOR):
+                raise ValueError("oracle depth sensor ids must not collide with RGB ids")
+            if not isinstance(oracle.get("grid"), dict):
+                raise ValueError("oracle_visibility.grid must be an object")
+            if not isinstance(oracle.get("write_artifacts"), bool):
+                raise ValueError("oracle_visibility.write_artifacts must be boolean")
+            if float(oracle.get("far_plane_m", 0.0)) <= 0.0:
+                raise ValueError("oracle_visibility.far_plane_m must be positive")
+            threshold = float(oracle.get("frontier_unknown_threshold", -1.0))
+            if not 0.0 <= threshold <= 1.0:
+                raise ValueError(
+                    "oracle_visibility.frontier_unknown_threshold must lie in [0,1]"
+                )
     return payload
 
 

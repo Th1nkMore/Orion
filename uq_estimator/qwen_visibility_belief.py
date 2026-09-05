@@ -292,6 +292,59 @@ def camera_from_carla_sensor(
     )
 
 
+def visibility_grid_spec_from_mapping(
+    payload: Mapping[str, object]
+) -> VisibilityGridSpec:
+    """Construct a strict grid spec from a JSON-compatible mapping."""
+
+    names = (
+        "x_min_m",
+        "x_max_m",
+        "y_min_m",
+        "y_max_m",
+        "z_min_m",
+        "z_max_m",
+        "xy_resolution_m",
+        "z_resolution_m",
+        "max_range_m",
+        "surface_tolerance_m",
+    )
+    missing = [name for name in names if name not in payload]
+    extra = sorted(set(payload) - set(names))
+    if missing or extra:
+        raise ValueError(
+            "visibility grid keys mismatch: missing=%s extra=%s"
+            % (missing, extra)
+        )
+    return VisibilityGridSpec(**{name: float(payload[name]) for name in names})
+
+
+def make_colocated_depth_sensor_specs(
+    rgb_sensors: Mapping[str, Mapping[str, object]],
+    depth_sensor_by_rgb: Mapping[str, str],
+) -> Dict[str, Dict[str, object]]:
+    """Clone RGB geometry into uniquely named CARLA depth sensor specs."""
+
+    if not depth_sensor_by_rgb:
+        raise ValueError("depth_sensor_by_rgb must be non-empty")
+    if len(set(depth_sensor_by_rgb.values())) != len(depth_sensor_by_rgb):
+        raise ValueError("each RGB camera may have only one oracle depth sensor")
+    unknown_rgb = set(depth_sensor_by_rgb.values()) - set(rgb_sensors)
+    if unknown_rgb:
+        raise ValueError("oracle depth mapping references unknown RGB sensors")
+    collisions = set(depth_sensor_by_rgb) & set(rgb_sensors)
+    if collisions:
+        raise ValueError("oracle depth ids collide with RGB sensor ids")
+    result: Dict[str, Dict[str, object]] = {}
+    for depth_id, rgb_id in depth_sensor_by_rgb.items():
+        source = dict(rgb_sensors[rgb_id])
+        if source.get("type") != "sensor.camera.rgb":
+            raise ValueError("oracle source %s is not an RGB camera" % rgb_id)
+        source["type"] = "sensor.camera.depth"
+        result[str(depth_id)] = source
+    return result
+
+
 def _voxel_centers(spec: VisibilityGridSpec) -> np.ndarray:
     x, y, z = spec.centers()
     zz, xx, yy = np.meshgrid(z, x, y, indexing="ij")
