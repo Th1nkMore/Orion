@@ -238,6 +238,20 @@ frontiers before Route 151's pedestrian reveal without altering Qwen output.
   stopping-distance arithmetic, pre-reveal frontier selection, artifact
   integrity, and derived runtime overhead.
 
+## O2 remote attempt 1
+
+- Slurm job: `1165344`; run id:
+  `qwen_oracle_visibility_route151_reasoning_sft_seed42_o2_v1`.
+- Terminal state: Slurm `FAILED`, exit `2:0`, elapsed `00:01:06`. CARLA became
+  ready, but the isolated checkout had no in-tree `Bench2Drive` directory and
+  the submit wrapper had not forwarded the shared external asset path. Route
+  splitting therefore failed before evaluator/model initialization; no
+  experimental frames were produced and this says nothing about O2 behavior.
+- The submit wrapper now resolves Bench2Drive and Bench2DriveZoo from the
+  configured shared asset root, validates `tools/split_xml.py`, forwards both
+  paths explicitly, and prints them in dry-run provenance. Attempt 2 was
+  submitted with those explicit roots as Slurm job `1165345`.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

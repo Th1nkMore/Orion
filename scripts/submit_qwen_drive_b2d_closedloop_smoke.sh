@@ -10,6 +10,8 @@ esac
 
 project_root="${PROJECT_ROOT:-/public/home/lidachuan/project/Orion}"
 asset_root="${ASSET_ROOT:-/public/share/lidachuan/orion_assets}"
+bench2drive_root="${BENCH2DRIVE_ROOT:-${asset_root}/Bench2Drive}"
+bench2drive_zoo_root="${BENCH2DRIVE_ZOO_ROOT:-${asset_root}/Bench2DriveZoo}"
 task_id="${TASK_ID:-203}"
 run_id="${RUN_ID:-closedloop_route${task_id}_flash_gpu4_v4}"
 output_root="${OUTPUT_ROOT:-${asset_root}/qwen_drive_b2d_smokes/${run_id}}"
@@ -30,6 +32,7 @@ for prerequisite in \
   "${project_root}/team_code/qwen_drive_b2d_agent.py" \
   "${agent_config_path}" \
   "${project_root}/scripts/run_official_closedloop_job.sh" \
+  "${bench2drive_root}/tools/split_xml.py" \
   "${asset_root}/carla/CARLA_0.9.15/CarlaUE4.sh" \
   "${asset_root}/envs/orion-cl-centos7/bin/python"; do
   if [[ ! -f "${prerequisite}" ]]; then
@@ -50,6 +53,8 @@ wrapped=(
   env
   "PROJECT_ROOT=${project_root}"
   "ASSET_ROOT=${asset_root}"
+  "BENCH2DRIVE_ROOT=${bench2drive_root}"
+  "BENCH2DRIVE_ZOO_ROOT=${bench2drive_zoo_root}"
   "CARLA_ROOT=${asset_root}/carla/CARLA_0.9.15"
   "PYTHON_BIN=${project_root}/scripts/run_compat_python.sh"
   "COMPAT_PYTHON_BIN=${asset_root}/envs/orion-cl-centos7/bin/python"
@@ -92,6 +97,8 @@ if [[ "${submit}" != "1" ]]; then
   echo "PORT=${carla_port}"
   echo "TM_PORT=${traffic_manager_port}"
   echo "AGENT_CONFIG_PATH=${agent_config_path}"
+  echo "BENCH2DRIVE_ROOT=${bench2drive_root}"
+  echo "BENCH2DRIVE_ZOO_ROOT=${bench2drive_zoo_root}"
   echo "ORION_ALLOW_ORACLE_DEPTH_SENSOR=${allow_oracle_depth_sensor}"
   echo "ORION_MODEL_LOAD=0"
   echo "RESOURCE_CONTRACT=partition:Nvidia_A800,gpu:1,cpus:8,mem:96G,time:02:00:00"
