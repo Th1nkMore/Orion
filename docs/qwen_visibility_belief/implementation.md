@@ -6,18 +6,19 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `O1: live oracle visibility capture`
 
-Status: in progress (live capture complete; RGB/depth alignment audit pending)
+Status: complete
 
-The pure geometry has passed its local tests. The current gate is to prove that
-three CARLA depth cameras, explicitly co-located with Qwen's unchanged RGB
-cameras, produce aligned and auditable artifacts in a real Bench2Drive run.
+Three CARLA depth cameras, explicitly co-located with Qwen's unchanged RGB
+cameras, now produce aligned and auditable artifacts in a real Bench2Drive
+run. The next milestone is O2: temporal observation memory and a deterministic,
+route-conditioned urgency view that remains separate from task-agnostic U.
 
 ## Ordered implementation ladder
 
 | ID | Deliverable | Status |
 | --- | --- | --- |
 | O0 | CARLA depth decoding, camera calibration, 3D visibility fusion, 2.5D BEV, rendering, unit tests | Complete (`6addb2fe`) |
-| O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | In progress (live capture complete; alignment audit pending) |
+| O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | Complete (`c8fac0b5`; accepted by run `1165332`) |
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Not started |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Not started |
 | V0 | Insert U tokens into the 4B VLM with verified positions and zero-U identity | Not started |
@@ -149,7 +150,57 @@ cameras, produce aligned and auditable artifacts in a real Bench2Drive run.
 - Added `geometry_seconds` around BGRA decode plus visibility fusion, excluding
   disk I/O and Qwen inference, so the oracle path's cost is measured directly.
 - Local relevant regression: `37 passed, 1 skipped`; compilation and shell
-  syntax checks passed. Live snapshot validation remains pending.
+  syntax checks passed.
+
+## O1 remote attempt 4 and acceptance
+
+- Commit: `c8fac0b5`; Slurm job: `1165332`; run id:
+  `qwen_oracle_visibility_route151_reasoning_sft_seed42_v4`.
+- Terminal state: Slurm `COMPLETED`, exit `0:0`, elapsed `00:15:17`, peak RSS
+  `6,206,632 KiB`. The route completed 100% in 24.55 s simulation time.
+- Produced 50 Qwen plans, 50 compressed belief tensors, 50 rendered belief
+  maps, and 491 controller trace rows. Every tensor is finite float32
+  `[5,120,100]`; the four mutually exclusive visibility states sum to one in
+  every cell; every artifact declares `oracle_depth=true` and
+  `used_by_qwen=false`.
+- The five requested audit directories (`0`, `200`, `260`, `280`, `300`)
+  contain all 30 native sensor snapshots. RGB is lossless uint8
+  `1600x900x3`; depth is uint16 `1600x900`, millimetric, and bounded by the
+  configured 60 m clip. No Qwen RGB resolution or transport setting changed.
+- Manual paired inspection at all five times found matching outlines for
+  buildings, curbs, poles, signs, vehicles, and the pedestrian visible at step
+  260. Camera directions and the front/right overlap are also consistent.
+- Three files named `*_depth_vis.png` under the step-0 audit directory were
+  generated manually after the run as false-colour inspection aids. They are
+  derived from the native uint16 files, were not emitted or consumed by the
+  agent, and are excluded from the 30-file integrity count. Later false-colour
+  previews were created only under remote `/tmp`.
+- Geometry timing (BGRA decode plus 3D fusion, excluding disk and Qwen) over 50
+  frames: mean 0.150 s, median 0.137 s, p95 0.218 s, max 0.515 s. Qwen
+  inference timing: mean 5.099 s, median 4.615 s, p95 5.915 s, max 24.113 s;
+  the maximum is first-inference warm-up.
+- In the collision approach, the forward-right region `x=[0,20) m`,
+  `y=[-10,-1] m` contains persistent occluded-unknown/frontier evidence from
+  steps 180 through 250. At step 200 it has 213 cells with unknown ratio at
+  least 0.5 versus 124 in the symmetric left region, while the central
+  `|y|<=2 m` corridor remains observed-free. This supports the intended
+  physical interpretation, but is not yet a learned risk score or a causal
+  safety result.
+- The unchanged Qwen consumer still collided with one pedestrian at
+  `(103.522, 302.732)`: route score 100, penalty 0.5, driving score 50. Its
+  reasoning changes from recognizing a parked vehicle on the right to
+  recognizing a pedestrian by step 250, but the plan/controller maintains
+  speed; at step 260 the text says to decelerate while the issued control still
+  has throttle 0.75 and brake 0.0. This establishes separate consumer and
+  longitudinal-control gaps. O1 itself intentionally cannot improve either
+  because `used_by_qwen=false`.
+- As in attempt 3, the evaluator JSON's `eligible=true` field is not a valid
+  official-track claim: the explicit oracle-depth harness makes this run
+  scientifically ineligible for the Bench2Drive SENSORS track.
+- O1 acceptance: sensor availability, RGB/depth geometry, artifact integrity,
+  coordinate convention, and measured runtime overhead have passed. Claims
+  about temporal U, VLM grounding, planning response, collision avoidance, and
+  predicted-depth transfer remain gated by O2 and later milestones.
 
 ## Integrity constraints
 
