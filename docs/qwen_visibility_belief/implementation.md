@@ -4,16 +4,20 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 ## Current milestone
 
-`V0: insert U tokens into the Qwen 4B VLM`
+`V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V0a contract and direct-prefill smoke scaffold complete)
+Status: not started (V0 direct and reasoning-path interface gates accepted)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
 view on live CARLA data, but it does not establish Qwen consumption or safety.
 O3 has produced deterministic, audited physical tokens and causal controls. V0
-must now define and verify the continuous-token, attention-mask, mRoPE, cache,
-and Planning Expert anchor contract before changing the Qwen model path.
+has established that those tokens can enter both the direct and reasoning VLM
+prefixes while preserving an exact disabled-path reproduction of the released
+model. This is an interface result only: the projector is untrained, the live
+agent still records `used_by_qwen=false`, and no grounding, trajectory-quality,
+or safety improvement has been established. V1 must create learned,
+inspectable U consumption before any closed-loop claim.
 
 ## Ordered implementation ladder
 
@@ -23,7 +27,7 @@ and Planning Expert anchor contract before changing the Qwen model path.
 | O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | Complete (`c8fac0b5`; accepted by run `1165332`) |
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Complete (`c4f62543`; accepted by run `1165345`) |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Complete (`2d86b809`; accepted on 54-frame derived run) |
-| V0 | Insert U tokens into the 4B VLM with verified positions and zero-U identity | Not started |
+| V0 | Insert U tokens into the 4B VLM with verified positions and disabled-path identity | Complete (`4e4672ba`; direct job `1166148`, reasoning job `1166382`) |
 | V1 | Structured U-grounding warm-up with staged LoRA | Not started |
 | P0 | Longitudinal trajectory retiming teacher and flow-matching training path | Not started |
 | C0 | Fixed-baseline versus oracle-U Route 151 closed-loop comparison | Not started |
@@ -459,6 +463,41 @@ and Planning Expert anchor contract before changing the Qwen model path.
 - V0 remains open until a full-model reasoning smoke passes both the no-U
   reproduction and the augmented prompt/cache contracts. The projector remains
   untrained and behavior-neutral claims remain prohibited.
+
+## V0b remote reasoning acceptance
+
+- Commit under test: `4e4672ba`; Slurm job: `1166382`; run id:
+  `qwen_visibility_vlm_insertion_v0_step260_reasoning_v1`.
+- Terminal state: `COMPLETED`, exit `0:0`, elapsed `00:05:58`, peak host RSS
+  `3,217,192 KiB`. The report contains no contract failure.
+- The released upstream path, the manually reproduced no-U reference, and the
+  zero-initialized augmented path all greedily generated the same sentence:
+  `Accelerate to target speed along the clear lane markings.` The manual
+  reference is exactly equal to upstream in final cache, anchor, and fixed-seed
+  Planning Expert trajectory.
+- The no-U reasoning prefix has 4,363 positions. The accepted O3 frame adds 48
+  valid physical tokens and two boundary vectors, producing 4,413 positions
+  before continuation. The insertion index is 4,109; all prefix, suffix-shift,
+  contiguous-U-position, final-anchor, and eight-layer cache checks pass.
+- After reasoning continuation and assistant-turn closure, all eight reference
+  caches have length 4,380 and all eight augmented caches have length 4,430.
+  This verifies that the accepted insertion remains present through reasoning
+  generation and reaches the Planning Expert.
+- The zero-initialized augmented trajectory differs from the official path by
+  maximum absolute 0.68481. As in V0a, this confirms that zero-U is not the
+  released baseline: the added attention slots and shifted suffix are already
+  an intervention.
+- Model load took 161.58 s. The cold upstream reasoning call took 19.66 s;
+  subsequent manual reference and augmented calls took 1.60 s and 1.62 s.
+  These mixed cold/warm figures are retained for diagnostics and are not a
+  stable latency comparison. Peak allocated/reserved GPU memory was
+  12,102/12,366 MB.
+- V0 is accepted as an interface milestone. It proves exact disabled-path
+  reproduction and real full-model U-block propagation through direct and
+  reasoning paths. It does not prove that the untrained VLM understands U, that
+  trajectories improve, or that Route 151 becomes safer. The live CARLA agent
+  has not yet been wired to a trained sidecar and still writes
+  `used_by_qwen=false`; those are V1/C0 deliverables.
 
 ## Integrity constraints
 

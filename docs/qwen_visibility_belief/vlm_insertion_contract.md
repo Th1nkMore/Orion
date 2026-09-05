@@ -92,5 +92,8 @@ uses the augmented prompt before reasoning generation, retains the same turn
 closure semantics as upstream, and passes its own identity/position/cache
 tests. No V0 smoke is a grounding, trajectory-quality, or safety result.
 
-V0a passed this contract on the provisioned full model in Slurm job `1166148`.
-The reasoning-path gate remains open.
+V0a passed the direct-prefill contract on the provisioned full model in Slurm
+job `1166148`. V0b passed the reasoning-generation and final Planning Expert
+cache contract in job `1166382`, including exact upstream reproduction by the
+disabled manual reference. V0 is therefore accepted as an interface milestone
+only. The learned grounding, trajectory-quality, and safety gates remain open.

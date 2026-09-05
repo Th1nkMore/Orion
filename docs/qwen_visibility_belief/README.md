@@ -1,6 +1,6 @@
 # Qwen visibility-belief research track
 
-> Status: implementation in progress; O3 U tokenizer accepted, VLM insertion contract next
+> Status: implementation in progress; V0 VLM insertion accepted, V1 structured grounding next
 > Decision date: 2026-09-06 (Asia/Shanghai)
 > Branch: `codex/qwen-drive-transition`
 
@@ -25,7 +25,8 @@ Build the smallest oracle-U vertical slice on Route 151:
 
 1. generate oracle visibility belief from CARLA depth and calibration;
 2. form the accepted 2.5D BEV and frontier/global tokens;
-3. inject those tokens into the 4B VLM, not directly into the Planning Expert;
+3. inject those tokens into the 4B VLM, not directly into the Planning Expert
+   (interface accepted; learned consumption remains open);
 4. run structured U-grounding warm-up with staged LoRA;
 5. train the longitudinal trajectory response while preserving the released
    Planning Expert's 50-waypoint action representation;
