@@ -91,3 +91,6 @@ Direct prefill is V0a only. V0 is not complete until reasoning-planning also
 uses the augmented prompt before reasoning generation, retains the same turn
 closure semantics as upstream, and passes its own identity/position/cache
 tests. No V0 smoke is a grounding, trajectory-quality, or safety result.
+
+V0a passed this contract on the provisioned full model in Slurm job `1166148`.
+The reasoning-path gate remains open.

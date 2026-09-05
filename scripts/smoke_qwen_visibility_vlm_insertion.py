@@ -96,6 +96,7 @@ def main():
     parser.add_argument("--front-left", type=Path, required=True)
     parser.add_argument("--front-right", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--mode", choices=("direct", "reasoning"), default="direct")
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError("refusing to overwrite %s" % args.output)
@@ -116,7 +117,9 @@ def main():
     load_seconds = time.monotonic() - load_started
 
     scene = _scene_from_images(args.front, args.front_left, args.front_right)
-    inputs = model.processor(scene, with_reasoning=False, device="cpu")
+    inputs = model.processor(
+        scene, with_reasoning=args.mode == "reasoning", device="cpu"
+    )
     inputs = {
         key: value.to(model.device) if torch.is_tensor(value) else value
         for key, value in inputs.items()
@@ -136,27 +139,71 @@ def main():
         torch.cuda.reset_peak_memory_stats()
     with torch.no_grad():
         official_started = time.monotonic()
-        official_cache, official_anchor = model._prefill(inputs)
+        if args.mode == "reasoning":
+            official_cache, official_anchor, official_reasoning = (
+                model._prefill_with_reasoning(
+                    inputs, int(model.config.max_reasoning_tokens)
+                )
+            )
+        else:
+            official_cache, official_anchor = model._prefill(inputs)
+            official_reasoning = None
         official_seconds = time.monotonic() - official_started
-        disabled_started = time.monotonic()
-        disabled = _adapter.prefill_with_visibility_tokens(
-            model,
-            inputs,
-            token_features=None,
-            token_mask=None,
-            projector=None,
-            enabled=False,
-        )
-        disabled_seconds = time.monotonic() - disabled_started
+        reference_started = time.monotonic()
+        if args.mode == "reasoning":
+            reference = _adapter.manual_reasoning_prefill_without_visibility(
+                model, inputs, int(model.config.max_reasoning_tokens)
+            )
+            reference_cache = reference.scene_cache
+            reference_anchor = reference.anchor
+            reference_reasoning = reference.reasoning
+            reference_prompt = reference.prompt_prefill
+            reference_final_length = reference.final_sequence_length
+        else:
+            reference = _adapter.prefill_with_visibility_tokens(
+                model,
+                inputs,
+                token_features=None,
+                token_mask=None,
+                projector=None,
+                enabled=False,
+            )
+            reference_cache = reference.scene_cache
+            reference_anchor = reference.anchor
+            reference_reasoning = None
+            reference_prompt = reference
+            reference_final_length = reference.augmented_sequence_length
+        reference_seconds = time.monotonic() - reference_started
         augmented_started = time.monotonic()
-        augmented = _adapter.prefill_with_visibility_tokens(
-            model,
-            inputs,
-            token_features=token_tensor,
-            token_mask=mask_tensor,
-            projector=projector,
-            enabled=True,
-        )
+        if args.mode == "reasoning":
+            augmented = _adapter.prefill_with_visibility_reasoning(
+                model,
+                inputs,
+                token_features=token_tensor,
+                token_mask=mask_tensor,
+                projector=projector,
+                enabled=True,
+                max_new_tokens=int(model.config.max_reasoning_tokens),
+            )
+            augmented_cache = augmented.scene_cache
+            augmented_anchor = augmented.anchor
+            augmented_reasoning = augmented.reasoning
+            augmented_prompt = augmented.prompt_prefill
+            augmented_final_length = augmented.final_sequence_length
+        else:
+            augmented = _adapter.prefill_with_visibility_tokens(
+                model,
+                inputs,
+                token_features=token_tensor,
+                token_mask=mask_tensor,
+                projector=projector,
+                enabled=True,
+            )
+            augmented_cache = augmented.scene_cache
+            augmented_anchor = augmented.anchor
+            augmented_reasoning = None
+            augmented_prompt = augmented
+            augmented_final_length = augmented.augmented_sequence_length
         augmented_seconds = time.monotonic() - augmented_started
 
         official_trajectory = model._plan_from_cache(
@@ -167,17 +214,17 @@ def main():
             num_steps=int(model.config.num_inference_steps),
             seed=int(planning["seed"]),
         )
-        disabled_trajectory = model._plan_from_cache(
-            disabled.scene_cache,
-            disabled.anchor,
+        reference_trajectory = model._plan_from_cache(
+            reference_cache,
+            reference_anchor,
             inputs,
             num_samples=1,
             num_steps=int(model.config.num_inference_steps),
             seed=int(planning["seed"]),
         )
         augmented_trajectory = model._plan_from_cache(
-            augmented.scene_cache,
-            augmented.anchor,
+            augmented_cache,
+            augmented_anchor,
             inputs,
             num_samples=1,
             num_steps=int(model.config.num_inference_steps),
@@ -187,20 +234,26 @@ def main():
             projector(token_tensor[mask_tensor]).any().item()
         )
 
-    disabled_position_contract = _adapter.visibility_position_contract(disabled)
-    augmented_position_contract = _adapter.visibility_position_contract(augmented)
-    disabled_cache_equal = _cache_equal(official_cache, disabled.scene_cache)
-    disabled_anchor_equal = torch.equal(official_anchor, disabled.anchor)
+    reference_position_contract = _adapter.visibility_position_contract(
+        reference_prompt
+    )
+    augmented_position_contract = _adapter.visibility_position_contract(
+        augmented_prompt
+    )
+    reference_cache_equal = _cache_equal(official_cache, reference_cache)
+    reference_anchor_equal = torch.equal(official_anchor, reference_anchor)
     official_np = np.asarray(official_trajectory, dtype=np.float32)
-    disabled_np = np.asarray(disabled_trajectory, dtype=np.float32)
+    reference_np = np.asarray(reference_trajectory, dtype=np.float32)
     augmented_np = np.asarray(augmented_trajectory, dtype=np.float32)
     failures = []
-    if not disabled_cache_equal:
-        failures.append("disabled_cache_not_official_identity")
-    if not disabled_anchor_equal:
-        failures.append("disabled_anchor_not_official_identity")
-    if not np.array_equal(official_np, disabled_np):
-        failures.append("disabled_trajectory_not_official_identity")
+    if not reference_cache_equal:
+        failures.append("reference_cache_not_official_identity")
+    if not reference_anchor_equal:
+        failures.append("reference_anchor_not_official_identity")
+    if not np.array_equal(official_np, reference_np):
+        failures.append("reference_trajectory_not_official_identity")
+    if official_reasoning != reference_reasoning:
+        failures.append("reference_reasoning_not_official_identity")
     for key in (
         "prefix_positions_equal",
         "suffix_shift_exact",
@@ -210,10 +263,18 @@ def main():
     ):
         if not augmented_position_contract[key]:
             failures.append("augmented_%s_failed" % key)
-    if augmented.augmented_sequence_length != (
-        augmented.base_sequence_length + augmented.visibility_token_count + 2
+    if augmented_prompt.augmented_sequence_length != (
+        augmented_prompt.base_sequence_length
+        + augmented_prompt.visibility_token_count
+        + 2
     ):
         failures.append("augmented_sequence_length_mismatch")
+    reference_cache_lengths = [int(key.shape[1]) for key, _ in reference_cache]
+    augmented_cache_lengths = [int(key.shape[1]) for key, _ in augmented_cache]
+    if not all(length == reference_final_length for length in reference_cache_lengths):
+        failures.append("reference_final_cache_length_mismatch")
+    if not all(length == augmented_final_length for length in augmented_cache_lengths):
+        failures.append("augmented_final_cache_length_mismatch")
     if not projector_zero_initialized:
         failures.append("new_projector_is_not_zero_initialized")
 
@@ -230,6 +291,7 @@ def main():
         "schema": _adapter.VISIBILITY_VLM_SCHEMA,
         "status": "complete" if not failures else "failed",
         "failures": failures,
+        "mode": args.mode,
         "config": str(args.config.resolve()),
         "token_artifact": str(args.token_artifact.resolve()),
         "token_schema": token_metadata["schema"],
@@ -239,17 +301,24 @@ def main():
         "projector_parameters": int(sum(p.numel() for p in projector.parameters())),
         "projector_zero_initialized": projector_zero_initialized,
         "insertion_location": "after_last_vision_end_before_instruction",
-        "disabled_position_contract": disabled_position_contract,
+        "reference_position_contract": reference_position_contract,
         "augmented_position_contract": augmented_position_contract,
-        "disabled_cache_equal": bool(disabled_cache_equal),
-        "disabled_anchor_equal": bool(disabled_anchor_equal),
-        "disabled_trajectory_equal": bool(np.array_equal(official_np, disabled_np)),
+        "reference_cache_equal": bool(reference_cache_equal),
+        "reference_anchor_equal": bool(reference_anchor_equal),
+        "reference_trajectory_equal": bool(np.array_equal(official_np, reference_np)),
+        "official_reasoning": official_reasoning,
+        "reference_reasoning": reference_reasoning,
+        "augmented_reasoning": augmented_reasoning,
+        "reference_final_sequence_length": reference_final_length,
+        "augmented_final_sequence_length": augmented_final_length,
+        "reference_final_cache_lengths": reference_cache_lengths,
+        "augmented_final_cache_lengths": augmented_cache_lengths,
         "zero_initialized_augmented_trajectory_max_abs_difference": float(
             np.max(np.abs(official_np - augmented_np))
         ),
         "load_seconds": float(load_seconds),
         "official_prefill_seconds": float(official_seconds),
-        "disabled_prefill_seconds": float(disabled_seconds),
+        "reference_prefill_seconds": float(reference_seconds),
         "augmented_prefill_seconds": float(augmented_seconds),
         "runtime_metrics": metrics,
         "scientific_scope": (

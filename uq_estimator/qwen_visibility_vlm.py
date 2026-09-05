@@ -60,6 +60,8 @@ class VisibilityPrefillResult:
     insertion_index: int
     visibility_token_count: int
     enabled: bool
+    past_key_values: object = None
+    last_hidden_state: Optional[torch.Tensor] = None
 
     @property
     def base_sequence_length(self) -> int:
@@ -220,6 +222,8 @@ def prefill_with_visibility_tokens(
         insertion_index=insertion_index,
         visibility_token_count=int(mask.sum().item()),
         enabled=True,
+        past_key_values=outputs.past_key_values,
+        last_hidden_state=outputs.last_hidden_state,
     )
 
 
@@ -265,3 +269,216 @@ def visibility_position_contract(result: VisibilityPrefillResult) -> dict:
             and all(length == result.augmented_sequence_length for length in cache_lengths)
         ),
     }
+
+
+@dataclass
+class VisibilityReasoningResult:
+    """Reasoning text and final cache after closing the augmented assistant turn."""
+
+    scene_cache: list
+    anchor: torch.Tensor
+    reasoning: str
+    reasoning_token_ids: list
+    prompt_prefill: VisibilityPrefillResult
+    final_sequence_length: int
+    enabled: bool
+
+
+def _continue_greedy_reasoning(
+    model,
+    cache,
+    last_hidden_state: torch.Tensor,
+    prompt_anchor: torch.Tensor,
+    prompt_length: int,
+    max_new_tokens: int,
+) -> tuple[list, torch.Tensor, str, list, int]:
+    """Match released greedy reasoning and turn closure from an arbitrary prefix."""
+
+    if int(max_new_tokens) <= 0:
+        raise ValueError("max_new_tokens must be positive")
+    processor = model.processor
+    terminators = {
+        int(processor.im_end_id),
+        int(model.config.vlm_config.text_config.eos_token_id),
+    }
+    content_ids = []
+    logits = model.vlm.lm_head(last_hidden_state[:, -1]).float()
+    for step in range(int(max_new_tokens)):
+        selection_logits = logits
+        if step < int(model.config.min_reasoning_tokens):
+            selection_logits = logits.clone()
+            for token_id in terminators:
+                selection_logits[:, token_id] = -torch.inf
+        next_token = int(torch.argmax(selection_logits, dim=-1).item())
+        if next_token in terminators:
+            break
+        content_ids.append(next_token)
+        token_tensor = torch.tensor(
+            [[next_token]], dtype=torch.long, device=prompt_anchor.device
+        )
+        token_embedding = model.vlm.get_input_embeddings()(token_tensor)
+        offset = len(content_ids)
+        position_ids = prompt_anchor.unsqueeze(-1) + offset
+        outputs = model.vlm.model.language_model(
+            input_ids=None,
+            position_ids=position_ids,
+            past_key_values=cache,
+            inputs_embeds=token_embedding,
+            cache_position=torch.tensor(
+                [prompt_length + offset - 1],
+                dtype=torch.long,
+                device=prompt_anchor.device,
+            ),
+            use_cache=True,
+        )
+        cache = outputs.past_key_values
+        logits = model.vlm.lm_head(outputs.last_hidden_state[:, -1]).float()
+
+    close_ids = [int(processor.im_end_id)] + [
+        int(token_id) for token_id in processor.newline_ids
+    ]
+    close_tensor = torch.tensor(
+        [close_ids], dtype=torch.long, device=prompt_anchor.device
+    )
+    close_embeddings = model.vlm.get_input_embeddings()(close_tensor)
+    close_offsets = torch.arange(
+        len(content_ids) + 1,
+        len(content_ids) + len(close_ids) + 1,
+        dtype=prompt_anchor.dtype,
+        device=prompt_anchor.device,
+    )
+    close_positions = prompt_anchor.unsqueeze(-1) + close_offsets.view(1, 1, -1)
+    close_cache_positions = torch.arange(
+        prompt_length + len(content_ids),
+        prompt_length + len(content_ids) + len(close_ids),
+        dtype=torch.long,
+        device=prompt_anchor.device,
+    )
+    outputs = model.vlm.model.language_model(
+        input_ids=None,
+        position_ids=close_positions,
+        past_key_values=cache,
+        inputs_embeds=close_embeddings,
+        cache_position=close_cache_positions,
+        use_cache=True,
+    )
+    cache = outputs.past_key_values
+    anchor = prompt_anchor + len(content_ids) + len(close_ids)
+    decoded = processor.tokenizer.decode(content_ids, skip_special_tokens=True)
+    reasoning = decoded.split("</think>")[-1].strip()
+    final_length = prompt_length + len(content_ids) + len(close_ids)
+    return model._scene_cache(cache), anchor, reasoning, content_ids, final_length
+
+
+def manual_reasoning_prefill_without_visibility(
+    model, inputs: dict, max_new_tokens: int
+) -> VisibilityReasoningResult:
+    """Reproduce upstream reasoning manually to validate the augmented decoder."""
+
+    input_ids = inputs["input_ids"]
+    positions = model._rope_positions(input_ids, inputs["image_grid_thw"])
+    embeddings = _official_multimodal_embeddings(model, inputs)
+    outputs = model.vlm.model.language_model(
+        input_ids=None,
+        position_ids=positions,
+        inputs_embeds=embeddings,
+        use_cache=True,
+    )
+    prompt = VisibilityPrefillResult(
+        scene_cache=model._scene_cache(outputs.past_key_values),
+        anchor=positions[:, :, -1],
+        base_position_ids=positions,
+        augmented_position_ids=positions,
+        insertion_index=_last_vision_end_insertion_index(model, input_ids),
+        visibility_token_count=0,
+        enabled=False,
+        past_key_values=outputs.past_key_values,
+        last_hidden_state=outputs.last_hidden_state,
+    )
+    scene_cache, anchor, reasoning, content_ids, final_length = (
+        _continue_greedy_reasoning(
+            model,
+            prompt.past_key_values,
+            prompt.last_hidden_state,
+            prompt.anchor,
+            prompt.base_sequence_length,
+            max_new_tokens,
+        )
+    )
+    return VisibilityReasoningResult(
+        scene_cache=scene_cache,
+        anchor=anchor,
+        reasoning=reasoning,
+        reasoning_token_ids=content_ids,
+        prompt_prefill=prompt,
+        final_sequence_length=final_length,
+        enabled=False,
+    )
+
+
+def prefill_with_visibility_reasoning(
+    model,
+    inputs: dict,
+    token_features: Optional[torch.Tensor],
+    token_mask: Optional[torch.Tensor],
+    projector: Optional[VisibilityTokenProjector],
+    enabled: bool,
+    max_new_tokens: int,
+) -> VisibilityReasoningResult:
+    """Generate reasoning from a U-augmented prompt and close the turn upstream-style."""
+
+    if not enabled:
+        scene_cache, anchor, reasoning = model._prefill_with_reasoning(
+            inputs, int(max_new_tokens)
+        )
+        positions = model._rope_positions(
+            inputs["input_ids"], inputs["image_grid_thw"]
+        )
+        prompt = VisibilityPrefillResult(
+            scene_cache=[],
+            anchor=positions[:, :, -1],
+            base_position_ids=positions,
+            augmented_position_ids=positions,
+            insertion_index=_last_vision_end_insertion_index(
+                model, inputs["input_ids"]
+            ),
+            visibility_token_count=0,
+            enabled=False,
+        )
+        cache_length = int(scene_cache[0][0].shape[1]) if scene_cache else 0
+        return VisibilityReasoningResult(
+            scene_cache=scene_cache,
+            anchor=anchor,
+            reasoning=reasoning,
+            reasoning_token_ids=[],
+            prompt_prefill=prompt,
+            final_sequence_length=cache_length,
+            enabled=False,
+        )
+    prompt = prefill_with_visibility_tokens(
+        model,
+        inputs,
+        token_features=token_features,
+        token_mask=token_mask,
+        projector=projector,
+        enabled=True,
+    )
+    scene_cache, anchor, reasoning, content_ids, final_length = (
+        _continue_greedy_reasoning(
+            model,
+            prompt.past_key_values,
+            prompt.last_hidden_state,
+            prompt.anchor,
+            prompt.augmented_sequence_length,
+            max_new_tokens,
+        )
+    )
+    return VisibilityReasoningResult(
+        scene_cache=scene_cache,
+        anchor=anchor,
+        reasoning=reasoning,
+        reasoning_token_ids=content_ids,
+        prompt_prefill=prompt,
+        final_sequence_length=final_length,
+        enabled=True,
+    )

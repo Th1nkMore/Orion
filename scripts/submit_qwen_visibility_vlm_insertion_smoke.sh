@@ -22,6 +22,7 @@ front="${audit_root}/CAM_FRONT_rgb.png"
 front_left="${audit_root}/CAM_FRONT_LEFT_rgb.png"
 front_right="${audit_root}/CAM_FRONT_RIGHT_rgb.png"
 run_id="${RUN_ID:-qwen_visibility_vlm_insertion_v0_step260_v1}"
+mode="${MODE:-direct}"
 run_root="${asset_root}/qwen_visibility_vlm_smokes/${run_id}"
 output="${run_root}/report.json"
 log_root="${asset_root}/qwen_visibility_vlm_smokes/logs"
@@ -54,6 +55,7 @@ run_parts=(
   --front "${front}"
   --front-left "${front_left}"
   --front-right "${front_right}"
+  --mode "${mode}"
   --output "${output}"
 )
 printf -v run_command '%q ' "${run_parts[@]}"
@@ -69,6 +71,7 @@ sbatch_args+=(--wrap "${run_command}")
 if [[ "${submit}" != "1" ]]; then
   echo "DRY_RUN_ONLY=1"
   echo "RUN_ID=${run_id}"
+  echo "MODE=${mode}"
   echo "TOKEN_ARTIFACT=${token_artifact}"
   echo "OUTPUT=${output}"
   echo "NODELIST=${node_list}"

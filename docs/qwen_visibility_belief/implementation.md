@@ -419,6 +419,47 @@ and Planning Expert anchor contract before changing the Qwen model path.
   not an accepted V0 result. The v1 output/log is retained; attempt 2 uses a new
   run id and normalizes the three returns with `np.asarray`.
 
+## V0a remote attempt 2 and acceptance
+
+- Commit: `e599db2f`; Slurm job: `1166148`; run id:
+  `qwen_visibility_vlm_insertion_v0_step260_v2`.
+- Terminal state: `COMPLETED`, exit `0:0`, elapsed `00:05:37`, peak host RSS
+  `3,683,280 KiB`. The report contains no contract failure.
+- The official prompt has 4,348 positions. The accepted O3 frame contributes
+  48 valid physical tokens; with two learned boundary vectors the augmented
+  prefix has 4,398 positions. The insertion index is 4,109, immediately after
+  the final vision-end token and before the driving instruction.
+- All pre-insertion three-axis mRoPE positions are unchanged; every suffix
+  position advances by exactly 50; all 50 U-block positions are contiguous;
+  the anchor equals the final augmented position. Every one of the eight
+  Planning Expert scene-cache layers has sequence length 4,398.
+- The disabled path is bit-identical to the released path in cache, anchor, and
+  fixed-seed trajectory. The projector has 1,330,734 parameters and its output
+  projection and boundaries are zero-initialized for this interface probe.
+- Even with zero projected values, merely inserting the 50 attention slots
+  changes the untrained trajectory by maximum absolute 0.12085. This confirms
+  the contract's warning: augmented zero-U is a paired causal control, not a
+  substitute for the released no-block baseline.
+- Warm measured prefills in this three-cache diagnostic were 0.964 s for the
+  released disabled call and 0.793 s for the augmented call after a 12.54 s
+  first prefill. Peak allocated/reserved GPU memory was 11,255/14,024 MB.
+- V0a is accepted for direct prefill only. It provides interface evidence, not
+  grounding or safety evidence.
+
+## V0b reasoning-path implementation record
+
+- Added manual greedy continuation from an arbitrary continuous-token prefix,
+  including the released minimum reasoning length, deterministic argmax,
+  terminators, assistant turn closure, cache positions, and final Planning
+  Expert anchor.
+- Added a no-U manual reference path whose reasoning text, final cache, anchor,
+  and fixed-seed trajectory must exactly match upstream
+  `_prefill_with_reasoning`. The same smoke can now run in `direct` or
+  `reasoning` mode.
+- V0 remains open until a full-model reasoning smoke passes both the no-U
+  reproduction and the augmented prompt/cache contracts. The projector remains
+  untrained and behavior-neutral claims remain prohibited.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.
