@@ -1,0 +1,37 @@
+{
+  "schema": "orion.qwen-visibility-grounding-smoke-config/v1",
+  "stage": "V1b_gradient_smoke",
+  "base_bridge_config": "configs/qwen_drive_b2d_agent_oracle_visibility_sft_v1.json",
+  "manifest": "/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/route151_v1a_manifest_v1/manifest.json",
+  "sample_ids": ["route151-step-000260"],
+  "projector": {
+    "feature_dim": 23,
+    "hidden_dim": 512,
+    "vlm_hidden_dim": 2560
+  },
+  "lora": {
+    "layer_indices": [27, 31],
+    "module_names": ["q_proj", "k_proj", "v_proj", "o_proj"],
+    "rank": 8,
+    "alpha": 16.0,
+    "dropout": 0.0
+  },
+  "training": {
+    "optimizer_steps": 1,
+    "projector_learning_rate": 0.001,
+    "lora_learning_rate": 0.0002,
+    "weight_decay": 0.0,
+    "maximum_gradient_norm": 1.0,
+    "gradient_checkpointing": true,
+    "seed": 42
+  },
+  "evaluation": {
+    "max_new_tokens": 64,
+    "controls": ["true_u", "zero_u", "spatial_shuffle"]
+  },
+  "claim_boundary": {
+    "plumbing_overfit_only": true,
+    "reportable_generalization": false,
+    "safety_claim_allowed": false
+  }
+}

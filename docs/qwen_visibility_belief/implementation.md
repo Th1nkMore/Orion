@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1a data contract accepted; V1b gradient path next)
+Status: in progress (V1a accepted; V1b full-model gradient smoke implemented locally)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -546,6 +546,31 @@ inspectable U consumption before any closed-loop claim.
   loss reaches both the projector and declared upper-VLM LoRA tensors while
   the vision encoder, base VLM, LM head, embeddings, and Planning Expert remain
   frozen.
+
+## V1b full-model gradient-smoke implementation record
+
+- Added a sidecar-only training module that freezes every released model
+  parameter, then installs float32 rank-8 LoRA residuals only on `q/k/v/o` in
+  upper full-attention layers 27 and 31. Installation fails closed if layer
+  type, projection type, or trainable scope differs from the declared config.
+- The 23-to-512-to-2560 projector remains fully trainable. The vision encoder,
+  token embeddings, LM head, all non-LoRA VLM tensors, and complete Planning
+  Expert must report zero trainable parameters before optimization.
+- The supervised forward reuses native current-image processing and the V0
+  insertion/position contract. Cross-entropy is computed only for the compact
+  JSON assistant answer and ChatML turn ending; prompt, image, and U positions
+  are never labels. Frozen image embeddings are precomputed without changing
+  resolution, while the full language path remains differentiable to U.
+- The bounded V1b protocol permits exactly one optimizer step on Route 151 step
+  260. It records gradients before that step, evaluates true/zero/spatially
+  shuffled U after it, and saves only projector/LoRA adaptation tensors plus
+  provenance and SHA-256. It explicitly prohibits a grounding, trajectory, or
+  safety claim.
+- The Slurm wrapper requests one A800, 96 GB host memory, and leaves native
+  image preprocessing intact. V1b remains unaccepted until the real 4B job
+  proves finite nonzero gradients to both adaptation families, frozen-scope
+  integrity, answer-only lengths, control evaluation, and a base-weight-free
+  checkpoint.
 
 ## Integrity constraints
 
