@@ -155,12 +155,15 @@ The RPC now sends only Python lists, bytes, strings, and scalars across the
 environment boundary and recreates float32 arrays locally.  The CARLA Python
 3.8 environment verifies this wire payload without importing Torch.
 
-## Official one-route closed-loop result
+## Our one-route run scored by the official Bench2Drive evaluator
 
 After that fix, Job `1155519` completed normally with evaluator exit code 0 on
 Bench2Drive task 203, Town04, scenario `PedestrianCrossing_1`, weather 23.
-This is a successful end-to-end integration test but a failed driving-quality
-result:
+This is **our integration result, not an official Qwen-Drive benchmark
+result**.  The official component here is the Bench2Drive evaluator.  The
+evaluated system combines released Qwen weights with our camera/history,
+command, coordinate, resampling and Orion-PID adapters.  It is a successful
+end-to-end integration test but a failed driving-quality result:
 
 ```text
 Qwen planning calls       151
