@@ -1,6 +1,15 @@
 # UQ-ORION current state
 
-Last audited: 2026-09-02 (Asia/Shanghai)
+Last audited: 2026-09-06 (Asia/Shanghai)
+
+> **Active-direction update (2026-09-06):** the accepted research mainline is
+> now Qwen-Drive visibility-belief augmentation. Its current context and
+> architecture decision are
+> [`qwen_visibility_belief/context.md`](qwen_visibility_belief/context.md) and
+> [`qwen_visibility_belief/adr.md`](qwen_visibility_belief/adr.md). The detailed
+> Orion Stage-1/Stage-2 record below remains authoritative historical evidence,
+> but it is no longer the active implementation direction and its EVAViT
+> checkpoints must not be treated as Qwen-compatible.
 
 This is the canonical human-readable status document. It separates completed
 evidence from planned claims and points to the machine-readable protocols that

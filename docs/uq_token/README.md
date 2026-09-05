@@ -1,9 +1,15 @@
 # UQ Token Research Track
 
-> Status: active
+> Status: historical; superseded as active direction on 2026-09-06
 > Started: 2026-06-20
 > Branch: `mid-report`
 > Baseline commit: `45a4c4b`
+
+The current successor is the Qwen-Drive visibility-belief track documented in
+[`../qwen_visibility_belief/`](../qwen_visibility_belief/README.md). This
+directory remains the source of truth for the historical Density UQ and Orion
+token experiments; its results and negative evidence are not erased by the
+transition.
 
 Current gate:
 
@@ -11,10 +17,9 @@ Current gate:
 > calibrated reliability levels under correct and shuffled interventions.
 > The next gate is multi-round risk synthesis before any planning fine-tuning.
 
-This directory is the source of truth for the Density UQ + LLM uncertainty
-token stage of UQ-ORION. New design decisions, implementation notes, experiment
-plans, run records, and result interpretations for this stage must be recorded
-here.
+This directory is the source of truth for the historical Density UQ + LLM
+uncertainty-token stage of UQ-ORION. Any reproduction or reinterpretation of
+that stage must still be recorded here.
 
 Older documents elsewhere in the repository remain historical references. If
 they conflict with this directory, use the documents here unless a later entry
