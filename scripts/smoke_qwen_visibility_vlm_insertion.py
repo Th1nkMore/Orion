@@ -191,9 +191,9 @@ def main():
     augmented_position_contract = _adapter.visibility_position_contract(augmented)
     disabled_cache_equal = _cache_equal(official_cache, disabled.scene_cache)
     disabled_anchor_equal = torch.equal(official_anchor, disabled.anchor)
-    official_np = official_trajectory.cpu().numpy()
-    disabled_np = disabled_trajectory.cpu().numpy()
-    augmented_np = augmented_trajectory.cpu().numpy()
+    official_np = np.asarray(official_trajectory, dtype=np.float32)
+    disabled_np = np.asarray(disabled_trajectory, dtype=np.float32)
+    augmented_np = np.asarray(augmented_trajectory, dtype=np.float32)
     failures = []
     if not disabled_cache_equal:
         failures.append("disabled_cache_not_official_identity")

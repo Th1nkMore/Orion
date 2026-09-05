@@ -405,6 +405,20 @@ and Planning Expert anchor contract before changing the Qwen model path.
   plumbing only. V0 remains open until the direct-prefill smoke passes and the
   reasoning-planning insertion path is implemented and verified.
 
+## V0a remote attempt 1
+
+- Commit: `b69eb859`; Slurm job: `1166130`; run id:
+  `qwen_visibility_vlm_insertion_v0_step260_v1`.
+- The job loaded the released 4B model, completed the official, disabled, and
+  augmented prefill paths, and completed all three Planning Expert calls. It
+  then failed while formatting the report because the smoke treated
+  Qwen-Drive's already-NumPy `_plan_from_cache` return as a Torch tensor and
+  called `.cpu()` on it.
+- Terminal state: `FAILED`, exit `1:0`, elapsed `00:06:21`, peak host RSS
+  `2,917,768 KiB`. This is a harness type error after the interfaces under test,
+  not an accepted V0 result. The v1 output/log is retained; attempt 2 uses a new
+  run id and normalizes the three returns with `np.asarray`.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.
