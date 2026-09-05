@@ -235,6 +235,14 @@ Per-frame traces record route progress, corruption family, active state,
 affected sensors and schedule. This screen measures Qwen's native corruption
 sensitivity only; it contains no U injection or U-aware response.
 
+All six jobs completed with zero inference errors. Route 146 degraded from a
+driving score of 40.156 to 13.093 and added two vehicle collisions; Route 151
+improved from 50 to 100 by sharply shortening its trajectories and slowing in
+the dropout window; Route 203 was blocked in both arms. The engineering screen
+passes, but no Qwen clean-safe-to-corrupt-collision pair was established. See
+`docs/qwen_drive_official_input_dropout_screen_acceptance_2026-09-05.md` for
+the acceptance table, trace statistics and artifact hashes.
+
 ## Claim boundary
 
 This is an engineering bridge, not evidence that Qwen is a better closed-loop
