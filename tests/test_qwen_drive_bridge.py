@@ -101,8 +101,31 @@ def test_oracle_visibility_config_is_explicit_and_does_not_replace_rgb_views():
     assert set(oracle["depth_sensor_by_rgb"]).isdisjoint(config["sensors"])
     assert oracle["audit_snapshot_steps"] == [0, 200, 260, 280, 300]
     assert oracle["audit_depth_max_m"] == 60.0
+    assert oracle["temporal_memory"] == {
+        "enabled": True,
+        "max_age_seconds": 10.0,
+        "observed_ratio_threshold": 0.5,
+    }
+    assert oracle["exposure"]["enabled"] is True
+    assert oracle["exposure"]["safe_deceleration_mps2"] == 4.0
     assert config["planning"]["mode"] == "reasoning_planning"
     assert config["runtime"]["planner"].endswith("/planner-sft")
+
+
+def test_oracle_temporal_and_exposure_config_fail_closed(tmp_path):
+    config = bridge.load_bridge_config(ORACLE_CONFIG_PATH)
+    config["oracle_visibility"]["temporal_memory"]["max_age_seconds"] = 0.0
+    invalid_age = tmp_path / "invalid_age.json"
+    invalid_age.write_text(json.dumps(config), encoding="utf-8")
+    with pytest.raises(ValueError, match="max_age_seconds"):
+        bridge.load_bridge_config(invalid_age)
+
+    config = bridge.load_bridge_config(ORACLE_CONFIG_PATH)
+    config["oracle_visibility"]["exposure"]["safe_deceleration_mps2"] = 0.0
+    invalid_deceleration = tmp_path / "invalid_deceleration.json"
+    invalid_deceleration.write_text(json.dumps(config), encoding="utf-8")
+    with pytest.raises(ValueError, match="safe_deceleration_mps2"):
+        bridge.load_bridge_config(invalid_deceleration)
 
 
 def test_carla_to_qwen_coordinate_convention():

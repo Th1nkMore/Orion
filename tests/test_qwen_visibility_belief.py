@@ -5,6 +5,7 @@ import subprocess
 import sys
 
 import numpy as np
+import pytest
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -72,6 +73,36 @@ def _line_grid():
 def _row_nearest_x(spec, value):
     x, _, _ = spec.centers()
     return int(np.argmin(np.abs(x - value)))
+
+
+def _column_nearest_y(spec, value):
+    _, y, _ = spec.centers()
+    return int(np.argmin(np.abs(y - value)))
+
+
+def _mask_belief(spec, observed_cells=(), unknown_cells=(), frontier_cells=()):
+    shape = spec.shape_bev
+    free = np.zeros(shape, dtype=np.float32)
+    occupied = np.zeros(shape, dtype=np.float32)
+    unknown = np.zeros(shape, dtype=np.float32)
+    outside = np.ones(shape, dtype=np.float32)
+    frontier = np.zeros(shape, dtype=bool)
+    for cell in observed_cells:
+        free[cell] = 1.0
+        outside[cell] = 0.0
+    for cell in unknown_cells:
+        unknown[cell] = 1.0
+        outside[cell] = 0.0
+    for cell in frontier_cells:
+        frontier[cell] = True
+    return visibility.VisibilityBelief(
+        spec=spec,
+        visible_free_ratio=free,
+        visible_occupied_ratio=occupied,
+        occluded_unknown_ratio=unknown,
+        outside_fov_ratio=outside,
+        frontier=frontier,
+    )
 
 
 def test_standalone_geometry_import_does_not_load_torch_or_carla():
@@ -239,3 +270,148 @@ def test_visibility_render_and_metadata_are_auditable():
     assert metadata["coordinate_frame"] == "qwen_ego_x_forward_y_left_z_up"
     assert metadata["shape_3d"] == list(spec.shape_3d)
     assert metadata["summary"]["frontier_cells"] > 0
+
+
+def test_observation_memory_distinguishes_current_previous_and_never_seen():
+    spec = visibility.VisibilityGridSpec(
+        x_min_m=-2.0,
+        x_max_m=2.0,
+        y_min_m=-2.0,
+        y_max_m=2.0,
+        z_min_m=0.0,
+        z_max_m=1.0,
+        xy_resolution_m=1.0,
+        z_resolution_m=1.0,
+        max_range_m=5.0,
+        surface_tolerance_m=0.5,
+    )
+    first_cell = (_row_nearest_x(spec, 0.5), _column_nearest_y(spec, 0.5))
+    memory = visibility.VisibilityObservationMemory(
+        spec, max_age_seconds=5.0, observed_ratio_threshold=0.5
+    )
+    first = memory.update(
+        _mask_belief(spec, observed_cells=[first_cell]),
+        [0.0, 0.0, 0.0],
+        0.0,
+    )
+    assert first.currently_observed[first_cell]
+    assert first.age_seconds[first_cell] == 0.0
+    assert first.never_observed.sum() == 15
+
+    # The ego moves one metre forward. The same stationary world cell shifts
+    # from x=+0.5 to x=-0.5 in the new ego raster.
+    shifted_cell = (_row_nearest_x(spec, -0.5), _column_nearest_y(spec, 0.5))
+    second = memory.update(
+        _mask_belief(spec),
+        [1.0, 0.0, 0.0],
+        1.0,
+    )
+    assert second.previously_observed[shifted_cell]
+    assert second.age_seconds[shifted_cell] == 1.0
+    assert not second.ever_observed[first_cell]
+    np.testing.assert_allclose(second.as_channels()[1:].sum(axis=0), 1.0)
+
+
+def test_observation_memory_rejects_time_reversal():
+    spec = _line_grid()
+    memory = visibility.VisibilityObservationMemory(spec, max_age_seconds=5.0)
+    belief = _mask_belief(spec)
+    memory.update(belief, [0.0, 0.0, 0.0], 2.0)
+    try:
+        memory.update(belief, [0.0, 0.0, 0.0], 1.0)
+    except ValueError as error:
+        assert "monotonic" in str(error)
+    else:
+        raise AssertionError("observation memory must reject time reversal")
+
+
+def test_carla_world_route_conversion_preserves_qwen_left_axis():
+    route = np.asarray([[10.0, 0.0], [10.0, -5.0], [10.0, -10.0]])
+    local = visibility.carla_world_route_to_qwen_ego(
+        route,
+        ego_world_pose_xy_yaw_degrees=[0.0, 0.0, 0.0],
+        max_length_m=30.0,
+    )
+    np.testing.assert_allclose(local[0], [0.0, 0.0])
+    np.testing.assert_allclose(local[1], [10.0, 0.0])
+    np.testing.assert_allclose(local[2], [10.0, 5.0])
+
+
+def test_carla_world_route_conversion_projects_and_interpolates_horizon():
+    local = visibility.carla_world_route_to_qwen_ego(
+        np.asarray([[0.0, 0.0], [100.0, 0.0]]),
+        ego_world_pose_xy_yaw_degrees=[10.0, -1.0, 0.0],
+        max_length_m=12.0,
+    )
+    np.testing.assert_allclose(local[0], [0.0, 0.0])
+    np.testing.assert_allclose(local[1], [0.0, -1.0])
+    assert np.linalg.norm(np.diff(local, axis=0), axis=1).sum() == pytest.approx(
+        12.0
+    )
+
+
+def test_visibility_exposure_uses_route_and_stopping_margin_without_mutating_u():
+    spec = visibility.VisibilityGridSpec(
+        x_min_m=0.0,
+        x_max_m=20.0,
+        y_min_m=-4.0,
+        y_max_m=4.0,
+        z_min_m=0.0,
+        z_max_m=1.0,
+        xy_resolution_m=1.0,
+        z_resolution_m=1.0,
+        max_range_m=20.0,
+        surface_tolerance_m=0.5,
+    )
+    near = (_row_nearest_x(spec, 5.5), _column_nearest_y(spec, 0.5))
+    far = (_row_nearest_x(spec, 15.5), _column_nearest_y(spec, 0.5))
+    off_route = (_row_nearest_x(spec, 5.5), _column_nearest_y(spec, 3.5))
+    belief = _mask_belief(
+        spec,
+        unknown_cells=[near, far, off_route],
+        frontier_cells=[near, far, off_route],
+    )
+    original_u = belief.u_vis
+    exposure = visibility.compute_visibility_exposure(
+        belief,
+        route_ego_xy=np.asarray([[0.0, 0.0], [20.0, 0.0]]),
+        speed_mps=4.0,
+        reaction_time_seconds=1.0,
+        safe_deceleration_mps2=4.0,
+        route_sigma_m=2.0,
+        stopping_transition_m=4.0,
+    )
+    assert exposure.stopping_distance_m == 6.0
+    assert exposure.stopping_margin_m[near] < 0.0
+    assert exposure.urgency[near] > exposure.urgency[far]
+    assert exposure.urgency[near] > exposure.urgency[off_route]
+    np.testing.assert_array_equal(belief.u_vis, original_u)
+    assert visibility.visibility_exposure_metadata(exposure)["schema"] == (
+        visibility.VISIBILITY_EXPOSURE_SCHEMA
+    )
+
+
+def test_temporal_and_exposure_renders_are_auditable_uint8():
+    spec = _line_grid()
+    belief = _mask_belief(spec)
+    state = visibility.VisibilityObservationMemory(
+        spec, max_age_seconds=5.0
+    ).update(belief, [0.0, 0.0, 0.0], 0.0)
+    exposure = visibility.compute_visibility_exposure(
+        belief,
+        route_ego_xy=np.asarray([[0.0, 0.0], [20.0, 0.0]]),
+        speed_mps=1.0,
+        reaction_time_seconds=1.0,
+        safe_deceleration_mps2=4.0,
+        route_sigma_m=2.0,
+        stopping_transition_m=4.0,
+    )
+    memory_rgb = visibility.render_observation_memory(state)
+    exposure_rgb = visibility.render_visibility_exposure(exposure)
+    assert memory_rgb.shape == spec.shape_bev + (3,)
+    assert exposure_rgb.shape == spec.shape_bev + (3,)
+    assert memory_rgb.dtype == np.uint8
+    assert exposure_rgb.dtype == np.uint8
+    assert visibility.observation_memory_metadata(state)["schema"] == (
+        visibility.OBSERVATION_MEMORY_SCHEMA
+    )

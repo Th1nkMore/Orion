@@ -16,12 +16,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
-from typing import Dict, Mapping, Sequence, Tuple
+from typing import Dict, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
 
 VISIBILITY_SCHEMA = "orion.qwen-visibility-belief/v1"
+OBSERVATION_MEMORY_SCHEMA = "orion.qwen-observation-memory/v1"
+VISIBILITY_EXPOSURE_SCHEMA = "orion.qwen-visibility-exposure/v1"
 CARLA_DEPTH_FAR_PLANE_M = 1000.0
 _UINT24_MAX = float(256**3 - 1)
 
@@ -528,5 +530,478 @@ def belief_metadata(belief: VisibilityBelief) -> Dict[str, object]:
             "occluded_unknown_mean": float(belief.occluded_unknown_ratio.mean()),
             "outside_fov_mean": float(belief.outside_fov_ratio.mean()),
             "frontier_cells": int(belief.frontier.sum()),
+        },
+    }
+
+
+@dataclass(frozen=True)
+class ObservationMemoryState:
+    """Ego-warped observation age kept separate from current visibility U."""
+
+    spec: VisibilityGridSpec
+    age_seconds: np.ndarray
+    currently_observed: np.ndarray
+    ever_observed: np.ndarray
+    max_age_seconds: float
+
+    def __post_init__(self) -> None:
+        shape = self.spec.shape_bev
+        max_age = float(self.max_age_seconds)
+        if not math.isfinite(max_age) or max_age <= 0.0:
+            raise ValueError("max_age_seconds must be finite and positive")
+        age = np.asarray(self.age_seconds, dtype=np.float32)
+        current = np.asarray(self.currently_observed, dtype=bool)
+        ever = np.asarray(self.ever_observed, dtype=bool)
+        if age.shape != shape or not np.isfinite(age).all():
+            raise ValueError("age_seconds must be finite with shape %r" % (shape,))
+        if np.any(age < 0.0) or np.any(age > max_age + 1e-5):
+            raise ValueError("age_seconds must lie in [0,max_age_seconds]")
+        if current.shape != shape or ever.shape != shape:
+            raise ValueError("observation masks must have shape %r" % (shape,))
+        if np.any(current & ~ever):
+            raise ValueError("currently observed cells must also be ever observed")
+        if np.any(np.abs(age[current]) > 1e-6):
+            raise ValueError("currently observed cells must have zero age")
+        if np.any(np.abs(age[~ever] - max_age) > 1e-5):
+            raise ValueError("never-observed cells must use the capped age value")
+        object.__setattr__(self, "age_seconds", age.copy())
+        object.__setattr__(self, "currently_observed", current.copy())
+        object.__setattr__(self, "ever_observed", ever.copy())
+        object.__setattr__(self, "max_age_seconds", max_age)
+
+    @property
+    def previously_observed(self) -> np.ndarray:
+        return self.ever_observed & ~self.currently_observed
+
+    @property
+    def never_observed(self) -> np.ndarray:
+        return ~self.ever_observed
+
+    @property
+    def channel_names(self) -> Tuple[str, ...]:
+        return (
+            "observation_age_normalized",
+            "currently_observed",
+            "previously_observed",
+            "never_observed",
+        )
+
+    def as_channels(self) -> np.ndarray:
+        return np.stack(
+            [
+                self.age_seconds / self.max_age_seconds,
+                self.currently_observed.astype(np.float32),
+                self.previously_observed.astype(np.float32),
+                self.never_observed.astype(np.float32),
+            ],
+            axis=0,
+        ).astype(np.float32, copy=False)
+
+
+class VisibilityObservationMemory:
+    """Track when BEV cells were last observed while compensating ego motion."""
+
+    def __init__(
+        self,
+        spec: VisibilityGridSpec,
+        max_age_seconds: float,
+        observed_ratio_threshold: float = 0.5,
+    ) -> None:
+        max_age = float(max_age_seconds)
+        threshold = float(observed_ratio_threshold)
+        if not math.isfinite(max_age) or max_age <= 0.0:
+            raise ValueError("max_age_seconds must be finite and positive")
+        if not 0.0 < threshold <= 1.0:
+            raise ValueError("observed_ratio_threshold must lie in (0,1]")
+        self.spec = spec
+        self.max_age_seconds = max_age
+        self.observed_ratio_threshold = threshold
+        self._state: Optional[ObservationMemoryState] = None
+        self._pose: Optional[np.ndarray] = None
+        self._timestamp_seconds: Optional[float] = None
+
+    def reset(self) -> None:
+        self._state = None
+        self._pose = None
+        self._timestamp_seconds = None
+
+    def _warp_previous(self, pose: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        if self._state is None or self._pose is None:
+            raise RuntimeError("observation memory has no previous state")
+        x_centers, y_centers, _ = self.spec.centers()
+        current_x, current_y = np.meshgrid(x_centers, y_centers, indexing="ij")
+
+        current_yaw = math.radians(float(pose[2]))
+        current_cos, current_sin = math.cos(current_yaw), math.sin(current_yaw)
+        world_x = pose[0] + current_cos * current_x + current_sin * current_y
+        world_y = pose[1] + current_sin * current_x - current_cos * current_y
+
+        previous_yaw = math.radians(float(self._pose[2]))
+        previous_cos = math.cos(previous_yaw)
+        previous_sin = math.sin(previous_yaw)
+        delta_x = world_x - self._pose[0]
+        delta_y = world_y - self._pose[1]
+        previous_x = previous_cos * delta_x + previous_sin * delta_y
+        previous_y = previous_sin * delta_x - previous_cos * delta_y
+
+        resolution = float(self.spec.xy_resolution_m)
+        rows = np.floor((self.spec.x_max_m - previous_x) / resolution).astype(
+            np.int64
+        )
+        columns = np.floor((self.spec.y_max_m - previous_y) / resolution).astype(
+            np.int64
+        )
+        valid = (
+            (rows >= 0)
+            & (rows < self.spec.shape_bev[0])
+            & (columns >= 0)
+            & (columns < self.spec.shape_bev[1])
+        )
+        warped_age = np.full(
+            self.spec.shape_bev, self.max_age_seconds, dtype=np.float32
+        )
+        warped_ever = np.zeros(self.spec.shape_bev, dtype=bool)
+        warped_age[valid] = self._state.age_seconds[rows[valid], columns[valid]]
+        warped_ever[valid] = self._state.ever_observed[rows[valid], columns[valid]]
+        return warped_age, warped_ever
+
+    def update(
+        self,
+        belief: VisibilityBelief,
+        ego_world_pose_xy_yaw_degrees: Sequence[float],
+        timestamp_seconds: float,
+    ) -> ObservationMemoryState:
+        if belief.spec != self.spec:
+            raise ValueError("belief grid does not match observation memory grid")
+        pose = np.asarray(ego_world_pose_xy_yaw_degrees, dtype=np.float64)
+        timestamp = float(timestamp_seconds)
+        if pose.shape != (3,) or not np.isfinite(pose).all():
+            raise ValueError("ego pose must be finite [world_x,world_y,yaw_degrees]")
+        if not math.isfinite(timestamp):
+            raise ValueError("timestamp_seconds must be finite")
+        if self._timestamp_seconds is not None and timestamp < self._timestamp_seconds:
+            raise ValueError("observation timestamps must be monotonic")
+
+        currently_observed = (
+            belief.visible_free_ratio + belief.visible_occupied_ratio
+        ) >= self.observed_ratio_threshold
+        if self._state is None:
+            age = np.full(
+                self.spec.shape_bev, self.max_age_seconds, dtype=np.float32
+            )
+            ever = currently_observed.copy()
+        else:
+            warped_age, ever = self._warp_previous(pose)
+            delta_seconds = timestamp - float(self._timestamp_seconds)
+            age = np.minimum(
+                warped_age.astype(np.float64) + delta_seconds,
+                self.max_age_seconds,
+            ).astype(np.float32)
+        ever |= currently_observed
+        age[currently_observed] = 0.0
+        age[~ever] = self.max_age_seconds
+        state = ObservationMemoryState(
+            spec=self.spec,
+            age_seconds=age,
+            currently_observed=currently_observed,
+            ever_observed=ever,
+            max_age_seconds=self.max_age_seconds,
+        )
+        self._state = state
+        self._pose = pose.copy()
+        self._timestamp_seconds = timestamp
+        return state
+
+
+@dataclass(frozen=True)
+class VisibilityExposure:
+    """Deterministic route/stopping exposure derived without issuing an action."""
+
+    spec: VisibilityGridSpec
+    route_distance_m: np.ndarray
+    route_progress_m: np.ndarray
+    stopping_margin_m: np.ndarray
+    route_weight: np.ndarray
+    stopping_weight: np.ndarray
+    urgency: np.ndarray
+    stopping_distance_m: float
+
+    def __post_init__(self) -> None:
+        shape = self.spec.shape_bev
+        bounded = ("route_weight", "stopping_weight", "urgency")
+        for name in (
+            "route_distance_m",
+            "route_progress_m",
+            "stopping_margin_m",
+        ) + bounded:
+            value = np.asarray(getattr(self, name), dtype=np.float32)
+            if value.shape != shape or not np.isfinite(value).all():
+                raise ValueError("%s must be finite with shape %r" % (name, shape))
+            if name in bounded and (np.any(value < -1e-6) or np.any(value > 1.0 + 1e-6)):
+                raise ValueError("%s must lie in [0,1]" % name)
+            object.__setattr__(self, name, value.copy())
+        stopping_distance = float(self.stopping_distance_m)
+        if not math.isfinite(stopping_distance) or stopping_distance < 0.0:
+            raise ValueError("stopping_distance_m must be finite and non-negative")
+        object.__setattr__(self, "stopping_distance_m", stopping_distance)
+
+    @property
+    def channel_names(self) -> Tuple[str, ...]:
+        return (
+            "route_distance_m",
+            "route_progress_m",
+            "stopping_margin_m",
+            "route_weight",
+            "stopping_weight",
+            "urgency",
+        )
+
+    def as_channels(self) -> np.ndarray:
+        return np.stack(
+            [
+                self.route_distance_m,
+                self.route_progress_m,
+                self.stopping_margin_m,
+                self.route_weight,
+                self.stopping_weight,
+                self.urgency,
+            ],
+            axis=0,
+        ).astype(np.float32, copy=False)
+
+
+def carla_world_route_to_qwen_ego(
+    route_world_xy: np.ndarray,
+    ego_world_pose_xy_yaw_degrees: Sequence[float],
+    max_length_m: float,
+) -> np.ndarray:
+    """Select the upcoming world route and express it as Qwen ``(forward,left)``."""
+
+    route = np.asarray(route_world_xy, dtype=np.float64)
+    pose = np.asarray(ego_world_pose_xy_yaw_degrees, dtype=np.float64)
+    max_length = float(max_length_m)
+    if route.ndim != 2 or route.shape[1] != 2 or len(route) < 2:
+        raise ValueError("route_world_xy must be finite with shape [N>=2,2]")
+    if not np.isfinite(route).all():
+        raise ValueError("route_world_xy must be finite with shape [N>=2,2]")
+    if pose.shape != (3,) or not np.isfinite(pose).all():
+        raise ValueError("ego pose must be finite [world_x,world_y,yaw_degrees]")
+    if not math.isfinite(max_length) or max_length <= 0.0:
+        raise ValueError("max_length_m must be finite and positive")
+
+    world_segments = route[1:] - route[:-1]
+    world_length_squared = np.sum(world_segments * world_segments, axis=1)
+    nonzero = world_length_squared > 1e-12
+    if not np.any(nonzero):
+        raise ValueError("route_world_xy must contain a non-zero segment")
+    offset = pose[None, :2] - route[:-1]
+    fraction = np.zeros(len(world_segments), dtype=np.float64)
+    fraction[nonzero] = np.clip(
+        np.sum(offset[nonzero] * world_segments[nonzero], axis=1)
+        / world_length_squared[nonzero],
+        0.0,
+        1.0,
+    )
+    projections = route[:-1] + fraction[:, None] * world_segments
+    distance_squared = np.sum((projections - pose[None, :2]) ** 2, axis=1)
+    distance_squared[~nonzero] = np.inf
+    nearest_segment = int(np.argmin(distance_squared))
+    upcoming = np.concatenate(
+        [projections[nearest_segment][None, :], route[nearest_segment + 1 :]],
+        axis=0,
+    )
+    yaw = math.radians(float(pose[2]))
+    delta = upcoming - pose[None, :2]
+    local = np.stack(
+        [
+            math.cos(yaw) * delta[:, 0] + math.sin(yaw) * delta[:, 1],
+            math.sin(yaw) * delta[:, 0] - math.cos(yaw) * delta[:, 1],
+        ],
+        axis=-1,
+    )
+    local = np.concatenate([np.zeros((1, 2), dtype=np.float64), local], axis=0)
+    consecutive = np.concatenate(
+        [np.asarray([True]), np.linalg.norm(np.diff(local, axis=0), axis=1) > 1e-6]
+    )
+    local = local[consecutive]
+    if len(local) < 2:
+        world_direction = world_segments[nearest_segment] / math.sqrt(
+            world_length_squared[nearest_segment]
+        )
+        local_direction = np.asarray(
+            [
+                math.cos(yaw) * world_direction[0]
+                + math.sin(yaw) * world_direction[1],
+                math.sin(yaw) * world_direction[0]
+                - math.cos(yaw) * world_direction[1],
+            ]
+        )
+        local = np.asarray([[0.0, 0.0], local_direction * max_length])
+    segment_lengths = np.linalg.norm(np.diff(local, axis=0), axis=1)
+    cumulative = np.concatenate([[0.0], np.cumsum(segment_lengths)])
+    if cumulative[-1] <= max_length:
+        return local.astype(np.float32)
+    after = int(np.searchsorted(cumulative, max_length, side="right"))
+    before = after - 1
+    remaining = max_length - cumulative[before]
+    fraction = remaining / segment_lengths[before]
+    endpoint = local[before] + fraction * (local[after] - local[before])
+    return np.concatenate([local[:after], endpoint[None, :]], axis=0).astype(
+        np.float32
+    )
+
+
+def compute_visibility_exposure(
+    belief: VisibilityBelief,
+    route_ego_xy: np.ndarray,
+    speed_mps: float,
+    reaction_time_seconds: float,
+    safe_deceleration_mps2: float,
+    route_sigma_m: float,
+    stopping_transition_m: float,
+) -> VisibilityExposure:
+    """Compute inspectable U urgency without modifying ``belief.u_vis``."""
+
+    route = np.asarray(route_ego_xy, dtype=np.float64)
+    speed = float(speed_mps)
+    reaction_time = float(reaction_time_seconds)
+    deceleration = float(safe_deceleration_mps2)
+    route_sigma = float(route_sigma_m)
+    transition = float(stopping_transition_m)
+    if route.ndim != 2 or route.shape[1] != 2 or len(route) < 2:
+        raise ValueError("route_ego_xy must be finite with shape [N>=2,2]")
+    if not np.isfinite(route).all():
+        raise ValueError("route_ego_xy must be finite with shape [N>=2,2]")
+    if not math.isfinite(speed) or speed < 0.0:
+        raise ValueError("speed_mps must be finite and non-negative")
+    for name, value in (
+        ("reaction_time_seconds", reaction_time),
+        ("safe_deceleration_mps2", deceleration),
+        ("route_sigma_m", route_sigma),
+        ("stopping_transition_m", transition),
+    ):
+        if not math.isfinite(value) or value <= 0.0:
+            raise ValueError("%s must be finite and positive" % name)
+
+    segments = route[1:] - route[:-1]
+    lengths = np.linalg.norm(segments, axis=1)
+    valid_segments = lengths > 1e-6
+    if not np.any(valid_segments):
+        raise ValueError("route_ego_xy must contain a non-zero segment")
+    cumulative = np.concatenate([[0.0], np.cumsum(lengths)])[:-1]
+    starts = route[:-1][valid_segments]
+    segments = segments[valid_segments]
+    lengths = lengths[valid_segments]
+    cumulative = cumulative[valid_segments]
+
+    x_centers, y_centers, _ = belief.spec.centers()
+    grid_x, grid_y = np.meshgrid(x_centers, y_centers, indexing="ij")
+    points = np.stack([grid_x.ravel(), grid_y.ravel()], axis=-1)
+    best_distance_squared = np.full(len(points), np.inf, dtype=np.float64)
+    best_progress = np.zeros(len(points), dtype=np.float64)
+    for start, segment, length, progress in zip(
+        starts, segments, lengths, cumulative
+    ):
+        offset = points - start[None, :]
+        fraction = np.clip(
+            np.sum(offset * segment[None, :], axis=1) / (length * length),
+            0.0,
+            1.0,
+        )
+        projection = start[None, :] + fraction[:, None] * segment[None, :]
+        distance_squared = np.sum((points - projection) ** 2, axis=1)
+        replace = distance_squared < best_distance_squared
+        best_distance_squared[replace] = distance_squared[replace]
+        best_progress[replace] = progress + fraction[replace] * length
+
+    shape = belief.spec.shape_bev
+    route_distance = np.sqrt(best_distance_squared).reshape(shape)
+    route_progress = best_progress.reshape(shape)
+    stopping_distance = speed * reaction_time + speed * speed / (2.0 * deceleration)
+    stopping_margin = route_progress - stopping_distance
+    route_weight = np.exp(-0.5 * (route_distance / route_sigma) ** 2)
+    stopping_weight = np.clip(
+        (stopping_distance + transition - route_progress) / transition,
+        0.0,
+        1.0,
+    )
+    ahead = route_progress > 1e-6
+    stopping_weight *= ahead
+    frontier_strength = (
+        belief.frontier.astype(np.float64) * belief.occluded_unknown_ratio
+    )
+    urgency = frontier_strength * route_weight * stopping_weight
+    return VisibilityExposure(
+        spec=belief.spec,
+        route_distance_m=route_distance,
+        route_progress_m=route_progress,
+        stopping_margin_m=stopping_margin,
+        route_weight=route_weight,
+        stopping_weight=stopping_weight,
+        urgency=urgency,
+        stopping_distance_m=stopping_distance,
+    )
+
+
+def render_observation_memory(state: ObservationMemoryState) -> np.ndarray:
+    """Render current/previous/never observation states into RGB."""
+
+    normalized_age = state.age_seconds / state.max_age_seconds
+    rgb = np.zeros(state.spec.shape_bev + (3,), dtype=np.float32)
+    rgb[state.never_observed] = np.asarray([28, 28, 32], dtype=np.float32)
+    previous = state.previously_observed
+    rgb[..., 0] += previous * normalized_age * 220.0
+    rgb[..., 1] += previous * (1.0 - normalized_age) * 120.0
+    rgb[..., 2] += previous * (1.0 - normalized_age) * 255.0
+    rgb[state.currently_observed] = np.asarray([50, 190, 90], dtype=np.float32)
+    return np.clip(np.rint(rgb), 0, 255).astype(np.uint8)
+
+
+def render_visibility_exposure(exposure: VisibilityExposure) -> np.ndarray:
+    """Render route proximity, stopping envelope, and frontier urgency."""
+
+    rgb = np.zeros(exposure.spec.shape_bev + (3,), dtype=np.float32)
+    rgb[..., 1] = exposure.route_weight * 130.0
+    rgb[..., 2] = exposure.stopping_weight * exposure.route_weight * 150.0
+    rgb[..., 0] = exposure.urgency * 255.0
+    return np.clip(np.rint(rgb), 0, 255).astype(np.uint8)
+
+
+def observation_memory_metadata(state: ObservationMemoryState) -> Dict[str, object]:
+    """Return JSON-safe temporal observation metadata."""
+
+    return {
+        "schema": OBSERVATION_MEMORY_SCHEMA,
+        "channels": list(state.channel_names),
+        "max_age_seconds": float(state.max_age_seconds),
+        "summary": {
+            "currently_observed_cells": int(state.currently_observed.sum()),
+            "previously_observed_cells": int(state.previously_observed.sum()),
+            "never_observed_cells": int(state.never_observed.sum()),
+            "maximum_seen_age_seconds": float(
+                state.age_seconds[state.ever_observed].max()
+                if np.any(state.ever_observed)
+                else 0.0
+            ),
+        },
+    }
+
+
+def visibility_exposure_metadata(exposure: VisibilityExposure) -> Dict[str, object]:
+    """Return JSON-safe route/stopping exposure metadata."""
+
+    return {
+        "schema": VISIBILITY_EXPOSURE_SCHEMA,
+        "channels": list(exposure.channel_names),
+        "stopping_distance_m": float(exposure.stopping_distance_m),
+        "summary": {
+            "urgent_frontier_cells": int((exposure.urgency > 0.0).sum()),
+            "urgency_mean": float(exposure.urgency.mean()),
+            "urgency_max": float(exposure.urgency.max()),
+            "minimum_frontier_stopping_margin_m": float(
+                exposure.stopping_margin_m[exposure.urgency > 0.0].min()
+                if np.any(exposure.urgency > 0.0)
+                else 0.0
+            ),
         },
     }

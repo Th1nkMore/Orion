@@ -4,14 +4,14 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 ## Current milestone
 
-`O1: live oracle visibility capture`
+`O2: temporal observation memory and deterministic exposure`
 
-Status: complete
+Status: in progress (local implementation complete; live validation pending)
 
-Three CARLA depth cameras, explicitly co-located with Qwen's unchanged RGB
-cameras, now produce aligned and auditable artifacts in a real Bench2Drive
-run. The next milestone is O2: temporal observation memory and a deterministic,
-route-conditioned urgency view that remains separate from task-agnostic U.
+O1 is accepted. O2 now adds ego-motion-compensated observation age and a
+separate route/stopping exposure view. The live gate is to verify that temporal
+states persist at the same world locations and that urgency selects plausible
+frontiers before Route 151's pedestrian reveal without altering Qwen output.
 
 ## Ordered implementation ladder
 
@@ -19,7 +19,7 @@ route-conditioned urgency view that remains separate from task-agnostic U.
 | --- | --- | --- |
 | O0 | CARLA depth decoding, camera calibration, 3D visibility fusion, 2.5D BEV, rendering, unit tests | Complete (`6addb2fe`) |
 | O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | Complete (`c8fac0b5`; accepted by run `1165332`) |
-| O2 | Observation-age memory and deterministic urgency/stopping-margin map | Not started |
+| O2 | Observation-age memory and deterministic urgency/stopping-margin map | In progress (local implementation and tests complete) |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Not started |
 | V0 | Insert U tokens into the 4B VLM with verified positions and zero-U identity | Not started |
 | V1 | Structured U-grounding warm-up with staged LoRA | Not started |
@@ -201,6 +201,42 @@ route-conditioned urgency view that remains separate from task-agnostic U.
   coordinate convention, and measured runtime overhead have passed. Claims
   about temporal U, VLM grounding, planning response, collision avoidance, and
   predicted-depth transfer remain gated by O2 and later milestones.
+
+## O2 local implementation record
+
+- Added an ego-motion-compensated observation memory in the NumPy-only
+  visibility module. Every BEV cell is explicitly one of currently observed,
+  previously observed, or never observed; age is capped at 10 s, with a
+  separate never-observed mask so the cap cannot be confused with actual
+  history.
+- The memory uses CARLA world pose only to warp the prior task-agnostic grid.
+  It consumes no route, actor, TTC, collision, action, or hidden-state label.
+- Added a separate deterministic exposure object. It projects the known
+  navigation route into Qwen ego coordinates and records route distance, route
+  progress, stopping margin, route weight, stopping-envelope weight, and
+  frontier urgency. The pilot stopping distance is
+  `v * 1.0 s + v^2 / (2 * 4.0 m/s^2)`; route sigma is 2.5 m and the soft
+  stopping transition is 5 m.
+- Urgency is the product of current frontier strength, route proximity, and
+  stopping-envelope weight. It does not overwrite or distance-decay `U_vis`,
+  and it does not issue throttle, brake, steering, or trajectory changes.
+- The route helper projects onto the nearest ordered route segment, keeps the
+  upcoming portion, transforms CARLA world coordinates into Qwen
+  `x-forward/y-left`, and interpolates an exact 60 m horizon.
+- The oracle agent records the memory and exposure tensors, metadata, timing,
+  and separate PNGs at each Qwen inference step while retaining
+  `used_by_qwen=false`. This is instrumentation for O2 and cannot itself change
+  the baseline trajectory.
+- Pilot parameters are explicit in
+  `configs/qwen_drive_b2d_agent_oracle_visibility_sft_v1.json`; changing them
+  for a reported comparison requires a recorded configuration change.
+- Local relevant regression:
+  `pytest -q tests/test_qwen_visibility_belief.py tests/test_qwen_drive_bridge.py tests/test_closedloop_sensor_diagnostics.py`.
+  Result: `44 passed, 1 skipped`; Python compilation and `git diff --check`
+  also passed. The skip is the existing optional local OpenCV transport test.
+- O2 remains open until a live run validates temporal warp, route projection,
+  stopping-distance arithmetic, pre-reveal frontier selection, artifact
+  integrity, and derived runtime overhead.
 
 ## Integrity constraints
 

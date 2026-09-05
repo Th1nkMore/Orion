@@ -53,8 +53,9 @@ that replacing the backbone alone solves uncertainty-aware planning:
 
 ## 3. Current Qwen-to-Bench2Drive system
 
-The active branch is `codex/qwen-drive-transition`. At the audit point its HEAD
-is `76508df1` (`Update Qwen Route 151 acceptance status`).
+The active branch is `codex/qwen-drive-transition`. Milestone commits and live
+run identifiers are tracked in [implementation.md](implementation.md) rather
+than pinning this context document to a quickly stale HEAD.
 
 The implemented runtime is a Qwen sidecar rather than a backbone transplant
 inside Orion:

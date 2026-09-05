@@ -128,6 +128,46 @@ def load_bridge_config(path: Union[str, Path]) -> dict:
                 raise ValueError(
                     "oracle_visibility.frontier_unknown_threshold must lie in [0,1]"
                 )
+            temporal = oracle.get("temporal_memory", {"enabled": False})
+            if not isinstance(temporal, dict) or not isinstance(
+                temporal.get("enabled"), bool
+            ):
+                raise ValueError(
+                    "oracle_visibility.temporal_memory.enabled must be boolean"
+                )
+            if temporal["enabled"]:
+                max_age = float(temporal.get("max_age_seconds", 0.0))
+                observed_threshold = float(
+                    temporal.get("observed_ratio_threshold", -1.0)
+                )
+                if not math.isfinite(max_age) or max_age <= 0.0:
+                    raise ValueError(
+                        "oracle_visibility.temporal_memory.max_age_seconds must be "
+                        "positive"
+                    )
+                if not 0.0 < observed_threshold <= 1.0:
+                    raise ValueError(
+                        "oracle_visibility.temporal_memory.observed_ratio_threshold "
+                        "must lie in (0,1]"
+                    )
+            exposure = oracle.get("exposure", {"enabled": False})
+            if not isinstance(exposure, dict) or not isinstance(
+                exposure.get("enabled"), bool
+            ):
+                raise ValueError("oracle_visibility.exposure.enabled must be boolean")
+            if exposure["enabled"]:
+                for key in (
+                    "route_max_length_m",
+                    "reaction_time_seconds",
+                    "safe_deceleration_mps2",
+                    "route_sigma_m",
+                    "stopping_transition_m",
+                ):
+                    value = float(exposure.get(key, 0.0))
+                    if not math.isfinite(value) or value <= 0.0:
+                        raise ValueError(
+                            "oracle_visibility.exposure.%s must be positive" % key
+                        )
     return payload
 
 

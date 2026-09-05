@@ -65,12 +65,19 @@ _visibility_spec.loader.exec_module(_visibility)
 
 belief_metadata = _visibility.belief_metadata
 camera_from_carla_sensor = _visibility.camera_from_carla_sensor
+carla_world_route_to_qwen_ego = _visibility.carla_world_route_to_qwen_ego
 compute_visibility_belief = _visibility.compute_visibility_belief
+compute_visibility_exposure = _visibility.compute_visibility_exposure
 decode_carla_depth_bgra = _visibility.decode_carla_depth_bgra
 encode_metric_depth_uint16_mm = _visibility.encode_metric_depth_uint16_mm
 make_colocated_depth_sensor_specs = _visibility.make_colocated_depth_sensor_specs
+observation_memory_metadata = _visibility.observation_memory_metadata
+render_observation_memory = _visibility.render_observation_memory
 render_visibility_belief = _visibility.render_visibility_belief
+render_visibility_exposure = _visibility.render_visibility_exposure
+visibility_exposure_metadata = _visibility.visibility_exposure_metadata
 visibility_grid_spec_from_mapping = _visibility.visibility_grid_spec_from_mapping
+VisibilityObservationMemory = _visibility.VisibilityObservationMemory
 
 _SCHEDULE_PATH = (
     Path(__file__).resolve().parents[1] / "uq_estimator" / "corruption_schedule.py"
@@ -231,6 +238,8 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         self.oracle_audit_steps = frozenset()
         self.oracle_audit_depth_max_m = None
         self.oracle_artifact_root = None
+        self.oracle_observation_memory = None
+        self.oracle_exposure_config = None
         if self.oracle_visibility_enabled:
             self.oracle_depth_sensor_specs = make_colocated_depth_sensor_specs(
                 self.config["sensors"], oracle["depth_sensor_by_rgb"]
@@ -253,6 +262,18 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
             self.oracle_audit_depth_max_m = float(
                 oracle.get("audit_depth_max_m", 60.0)
             )
+            temporal = oracle.get("temporal_memory", {"enabled": False})
+            if bool(temporal["enabled"]):
+                self.oracle_observation_memory = VisibilityObservationMemory(
+                    self.oracle_grid_spec,
+                    max_age_seconds=float(temporal["max_age_seconds"]),
+                    observed_ratio_threshold=float(
+                        temporal["observed_ratio_threshold"]
+                    ),
+                )
+            exposure = oracle.get("exposure", {"enabled": False})
+            if bool(exposure["enabled"]):
+                self.oracle_exposure_config = dict(exposure)
             if bool(oracle["write_artifacts"]) and output_root is not None:
                 self.oracle_artifact_root = output_root / "oracle_visibility"
                 self.oracle_artifact_root.mkdir(parents=True, exist_ok=True)
@@ -296,7 +317,7 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
             result.append(sensor)
         return result
 
-    def _capture_oracle_visibility(self, input_data):
+    def _capture_oracle_visibility(self, input_data, pose, timestamp, speed):
         if not self.oracle_visibility_enabled:
             self.last_oracle_visibility = None
             return None
@@ -314,6 +335,36 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
             frontier_unknown_threshold=self.oracle_frontier_threshold,
         )
         geometry_seconds = time.perf_counter() - geometry_started
+        derived_started = time.perf_counter()
+        observation_memory = None
+        if self.oracle_observation_memory is not None:
+            observation_memory = self.oracle_observation_memory.update(
+                belief, pose, timestamp
+            )
+        exposure = None
+        route_ego = None
+        if self.oracle_exposure_config is not None:
+            route_ego = carla_world_route_to_qwen_ego(
+                self.corruption_route_points,
+                pose,
+                float(self.oracle_exposure_config["route_max_length_m"]),
+            )
+            exposure = compute_visibility_exposure(
+                belief,
+                route_ego,
+                speed_mps=float(speed),
+                reaction_time_seconds=float(
+                    self.oracle_exposure_config["reaction_time_seconds"]
+                ),
+                safe_deceleration_mps2=float(
+                    self.oracle_exposure_config["safe_deceleration_mps2"]
+                ),
+                route_sigma_m=float(self.oracle_exposure_config["route_sigma_m"]),
+                stopping_transition_m=float(
+                    self.oracle_exposure_config["stopping_transition_m"]
+                ),
+            )
+        derived_seconds = time.perf_counter() - derived_started
         audit_snapshot = int(self.step) in self.oracle_audit_steps
         metadata = belief_metadata(belief)
         metadata.update(
@@ -322,20 +373,45 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                 "oracle_depth": True,
                 "used_by_qwen": False,
                 "geometry_seconds": float(geometry_seconds),
+                "derived_seconds": float(derived_seconds),
                 "audit_snapshot": audit_snapshot,
             }
         )
+        if observation_memory is not None:
+            metadata["observation_memory"] = observation_memory_metadata(
+                observation_memory
+            )
+        if exposure is not None:
+            metadata["exposure"] = visibility_exposure_metadata(exposure)
+            metadata["route_ego_points"] = int(len(route_ego))
         artifact = None
         if self.oracle_artifact_root is not None:
             stem = "step_%06d" % self.step
             array_path = self.oracle_artifact_root / (stem + ".npz")
             image_path = self.oracle_artifact_root / (stem + ".png")
-            np.savez_compressed(
-                array_path,
-                channels=belief.as_channels(),
-                channel_names=np.asarray(belief.channel_names),
-                metadata_json=np.asarray(json.dumps(metadata, sort_keys=True)),
-            )
+            arrays = {
+                "channels": belief.as_channels(),
+                "channel_names": np.asarray(belief.channel_names),
+                "metadata_json": np.asarray(json.dumps(metadata, sort_keys=True)),
+            }
+            if observation_memory is not None:
+                arrays.update(
+                    {
+                        "observation_memory_channels": observation_memory.as_channels(),
+                        "observation_memory_channel_names": np.asarray(
+                            observation_memory.channel_names
+                        ),
+                    }
+                )
+            if exposure is not None:
+                arrays.update(
+                    {
+                        "exposure_channels": exposure.as_channels(),
+                        "exposure_channel_names": np.asarray(exposure.channel_names),
+                        "route_ego_xy": route_ego,
+                    }
+                )
+            np.savez_compressed(array_path, **arrays)
             import cv2
 
             rendered_rgb = render_visibility_belief(belief)
@@ -347,6 +423,23 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                 "npz": str(array_path),
                 "png": str(image_path),
             }
+            if observation_memory is not None:
+                memory_path = self.oracle_artifact_root / (stem + "_memory.png")
+                memory_rgb = render_observation_memory(observation_memory)
+                if not cv2.imwrite(
+                    str(memory_path), cv2.cvtColor(memory_rgb, cv2.COLOR_RGB2BGR)
+                ):
+                    raise RuntimeError("failed to write observation-memory PNG")
+                artifact["memory_png"] = str(memory_path)
+            if exposure is not None:
+                exposure_path = self.oracle_artifact_root / (stem + "_exposure.png")
+                exposure_rgb = render_visibility_exposure(exposure)
+                if not cv2.imwrite(
+                    str(exposure_path),
+                    cv2.cvtColor(exposure_rgb, cv2.COLOR_RGB2BGR),
+                ):
+                    raise RuntimeError("failed to write visibility-exposure PNG")
+                artifact["exposure_png"] = str(exposure_path)
             if audit_snapshot:
                 audit_root = self.oracle_artifact_root / "sensor_audit" / stem
                 audit_root.mkdir(parents=True, exist_ok=False)
@@ -428,11 +521,13 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         self,
         input_data,
         pose,
+        timestamp,
+        speed,
         driving_command,
         nav_command,
         corruption_active,
     ):
-        self._capture_oracle_visibility(input_data)
+        self._capture_oracle_visibility(input_data, pose, timestamp, speed)
         bgr_images = {
             sensor_id: np.asarray(input_data[sensor_id][1])[:, :, :3]
             for sensor_id in QWEN_VIEW_BY_SENSOR
@@ -502,6 +597,8 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                 raw_trajectory = self._infer(
                     input_data,
                     pose,
+                    timestamp,
+                    speed,
                     driving_command,
                     nav_command,
                     corruption_active,

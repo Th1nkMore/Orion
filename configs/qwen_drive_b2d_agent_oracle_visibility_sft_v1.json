@@ -51,6 +51,19 @@
     "write_artifacts": true,
     "audit_snapshot_steps": [0, 200, 260, 280, 300],
     "audit_depth_max_m": 60.0,
+    "temporal_memory": {
+      "enabled": true,
+      "max_age_seconds": 10.0,
+      "observed_ratio_threshold": 0.5
+    },
+    "exposure": {
+      "enabled": true,
+      "route_max_length_m": 60.0,
+      "reaction_time_seconds": 1.0,
+      "safe_deceleration_mps2": 4.0,
+      "route_sigma_m": 2.5,
+      "stopping_transition_m": 5.0
+    },
     "grid": {
       "x_min_m": -10.0,
       "x_max_m": 50.0,
