@@ -102,6 +102,14 @@ def test_carla_depth_bgra_round_trip_is_metric():
     np.testing.assert_allclose(decoded, expected, atol=0.001)
 
 
+def test_metric_depth_audit_encoding_is_millimetric_and_bounded():
+    encoded = visibility.encode_metric_depth_uint16_mm(
+        np.asarray([[0.0, 1.2344, 1.2346, 80.0]], dtype=np.float32), 60.0
+    )
+    assert encoded.dtype == np.uint16
+    np.testing.assert_array_equal(encoded, [[0, 1234, 1235, 60000]])
+
+
 def test_carla_left_camera_is_converted_to_qwen_left_coordinates():
     camera = visibility.camera_from_carla_sensor(
         "DEPTH_FRONT_LEFT",

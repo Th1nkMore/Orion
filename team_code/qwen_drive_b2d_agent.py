@@ -15,6 +15,7 @@ import importlib.util
 import math
 import os
 import sys
+import time
 from pathlib import Path
 
 import carla
@@ -66,6 +67,7 @@ belief_metadata = _visibility.belief_metadata
 camera_from_carla_sensor = _visibility.camera_from_carla_sensor
 compute_visibility_belief = _visibility.compute_visibility_belief
 decode_carla_depth_bgra = _visibility.decode_carla_depth_bgra
+encode_metric_depth_uint16_mm = _visibility.encode_metric_depth_uint16_mm
 make_colocated_depth_sensor_specs = _visibility.make_colocated_depth_sensor_specs
 render_visibility_belief = _visibility.render_visibility_belief
 visibility_grid_spec_from_mapping = _visibility.visibility_grid_spec_from_mapping
@@ -226,6 +228,8 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         self.oracle_grid_spec = None
         self.oracle_far_plane_m = None
         self.oracle_frontier_threshold = None
+        self.oracle_audit_steps = frozenset()
+        self.oracle_audit_depth_max_m = None
         self.oracle_artifact_root = None
         if self.oracle_visibility_enabled:
             self.oracle_depth_sensor_specs = make_colocated_depth_sensor_specs(
@@ -242,6 +246,12 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
             self.oracle_far_plane_m = float(oracle["far_plane_m"])
             self.oracle_frontier_threshold = float(
                 oracle["frontier_unknown_threshold"]
+            )
+            self.oracle_audit_steps = frozenset(
+                int(step) for step in oracle.get("audit_snapshot_steps", [])
+            )
+            self.oracle_audit_depth_max_m = float(
+                oracle.get("audit_depth_max_m", 60.0)
             )
             if bool(oracle["write_artifacts"]) and output_root is not None:
                 self.oracle_artifact_root = output_root / "oracle_visibility"
@@ -290,6 +300,7 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
         if not self.oracle_visibility_enabled:
             self.last_oracle_visibility = None
             return None
+        geometry_started = time.perf_counter()
         depth_by_sensor = {
             sensor_id: decode_carla_depth_bgra(
                 np.asarray(input_data[sensor_id][1]), self.oracle_far_plane_m
@@ -302,12 +313,16 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
             self.oracle_grid_spec,
             frontier_unknown_threshold=self.oracle_frontier_threshold,
         )
+        geometry_seconds = time.perf_counter() - geometry_started
+        audit_snapshot = int(self.step) in self.oracle_audit_steps
         metadata = belief_metadata(belief)
         metadata.update(
             {
                 "step": int(self.step),
                 "oracle_depth": True,
                 "used_by_qwen": False,
+                "geometry_seconds": float(geometry_seconds),
+                "audit_snapshot": audit_snapshot,
             }
         )
         artifact = None
@@ -332,6 +347,30 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                 "npz": str(array_path),
                 "png": str(image_path),
             }
+            if audit_snapshot:
+                audit_root = self.oracle_artifact_root / "sensor_audit" / stem
+                audit_root.mkdir(parents=True, exist_ok=False)
+                audit_artifacts = {}
+                for depth_id, rgb_id in self.config["oracle_visibility"][
+                    "depth_sensor_by_rgb"
+                ].items():
+                    rgb_path = audit_root / (rgb_id + "_rgb.png")
+                    depth_path = audit_root / (depth_id + "_depth_mm.png")
+                    rgb_bgr = np.asarray(input_data[rgb_id][1])[:, :, :3]
+                    depth_mm = encode_metric_depth_uint16_mm(
+                        depth_by_sensor[depth_id], self.oracle_audit_depth_max_m
+                    )
+                    if not cv2.imwrite(str(rgb_path), rgb_bgr):
+                        raise RuntimeError("failed to write oracle audit RGB PNG")
+                    if not cv2.imwrite(str(depth_path), depth_mm):
+                        raise RuntimeError("failed to write oracle audit depth PNG")
+                    audit_artifacts[rgb_id] = {
+                        "rgb_png": str(rgb_path),
+                        "depth_mm_png": str(depth_path),
+                        "depth_sensor_id": depth_id,
+                        "depth_clip_m": self.oracle_audit_depth_max_m,
+                    }
+                artifact["sensor_audit"] = audit_artifacts
         self.last_oracle_visibility = {
             "metadata": metadata,
             "artifact": artifact,

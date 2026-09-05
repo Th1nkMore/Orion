@@ -232,6 +232,20 @@ def decode_carla_depth_bgra(
     return (packed / _UINT24_MAX * float(far_plane_m)).astype(np.float32)
 
 
+def encode_metric_depth_uint16_mm(
+    depth_m: np.ndarray, clip_depth_m: float
+) -> np.ndarray:
+    """Encode metric depth as an auditable lossless-within-1mm uint16 PNG plane."""
+
+    clip_depth_m = float(clip_depth_m)
+    if not math.isfinite(clip_depth_m) or not 0.0 < clip_depth_m <= 65.535:
+        raise ValueError("clip_depth_m must lie in (0,65.535]")
+    depth = np.asarray(depth_m, dtype=np.float64)
+    if not np.isfinite(depth).all() or np.any(depth < 0.0):
+        raise ValueError("metric depth must be finite and non-negative")
+    return np.rint(np.clip(depth, 0.0, clip_depth_m) * 1000.0).astype(np.uint16)
+
+
 def camera_from_carla_sensor(
     sensor_id: str, sensor: Mapping[str, object]
 ) -> PinholeCamera:

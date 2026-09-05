@@ -103,6 +103,24 @@ def load_bridge_config(path: Union[str, Path]) -> dict:
                 raise ValueError("oracle_visibility.grid must be an object")
             if not isinstance(oracle.get("write_artifacts"), bool):
                 raise ValueError("oracle_visibility.write_artifacts must be boolean")
+            audit_steps = oracle.get("audit_snapshot_steps", [])
+            if (
+                not isinstance(audit_steps, list)
+                or any(
+                    not isinstance(step, int) or isinstance(step, bool) or step < 0
+                    for step in audit_steps
+                )
+                or audit_steps != sorted(set(audit_steps))
+            ):
+                raise ValueError(
+                    "oracle_visibility.audit_snapshot_steps must be sorted unique "
+                    "non-negative integers"
+                )
+            audit_depth_max_m = float(oracle.get("audit_depth_max_m", 60.0))
+            if not 0.0 < audit_depth_max_m <= 65.535:
+                raise ValueError(
+                    "oracle_visibility.audit_depth_max_m must lie in (0,65.535]"
+                )
             if float(oracle.get("far_plane_m", 0.0)) <= 0.0:
                 raise ValueError("oracle_visibility.far_plane_m must be positive")
             threshold = float(oracle.get("frontier_unknown_threshold", -1.0))

@@ -138,6 +138,19 @@ cameras, produce aligned and auditable artifacts in a real Bench2Drive run.
   verify actual cross-modal alignment; belief artifacts alone are insufficient
   for that claim.
 
+## O1 alignment-audit instrumentation
+
+- Added sparse snapshots at steps `0, 200, 260, 280, 300`, spanning route
+  entry and the pre-collision/collision interval observed in attempt 3.
+- Each snapshot preserves the original 1600x900 RGB as lossless PNG and stores
+  each co-located depth image as a uint16 millimetre PNG clipped at the oracle
+  grid's 60 m range. These are audit copies only; Qwen input resolution and
+  transport remain unchanged.
+- Added `geometry_seconds` around BGRA decode plus visibility fusion, excluding
+  disk I/O and Qwen inference, so the oracle path's cost is measured directly.
+- Local relevant regression: `37 passed, 1 skipped`; compilation and shell
+  syntax checks passed. Live snapshot validation remains pending.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.
