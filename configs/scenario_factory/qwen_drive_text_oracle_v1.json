@@ -1,0 +1,58 @@
+{
+  "schema": "orion.qwen-drive-text-oracle-protocol/v1",
+  "created_at": "2026-09-04T18:00:00+08:00",
+  "status": "bounded_zero_training_backbone_diagnostic",
+  "purpose": "Test whether Qwen-Drive can recover the exact authoritative U facts that frozen ORION and its v15 LoRA failed to read.",
+  "inputs": {
+    "orion_v15_2_report": "/public/share/lidachuan/orion_assets/scenario_factory/stage2l_smokes/v15_2_text_oracle_localization_120dev_v1/report.json",
+    "orion_v15_2_report_sha256": "46c30afc8a41123e5eee45386e187824c7dad1dfb99ecf282479b0084fc21b72",
+    "qwen_model": "Qwen/Qwen-Drive-1.0-4B",
+    "qwen_model_revision": "9d2eb187c2fe03d0e30fd58c0638058980ee6267",
+    "qwen_model_safetensors_sha256": "b9de4bf448f57485fdaa45c60b1eea8e41a4b6ae82ec0cee8855a1e0301caccc",
+    "qwen_code_revision": "28091c1532e869bc7aee91fc0aef6b3e6fd0b2e0"
+  },
+  "evaluation": {
+    "training_performed": false,
+    "images_present": false,
+    "planning_expert_weights_loaded": false,
+    "planning_expert_used": false,
+    "continuous_u_tokens_present": false,
+    "dev_groups": 20,
+    "u_states": 120,
+    "field_decisions": 720,
+    "decode": "length_normalized_all_candidate_nll",
+    "prompt": "exact_orion_v15_2_text_oracle",
+    "minimum_nonzero_accuracy_excluding_presence": 0.8,
+    "minimum_changed_field_exact_response": 0.7
+  },
+  "resources": {
+    "partition": "Nvidia_A800",
+    "gpus": 1,
+    "cpus_per_task": 4,
+    "memory": "64G",
+    "time_limit": "04:00:00",
+    "maximum_submissions": 2,
+    "maximum_valid_report_runs": 1
+  },
+  "runtime": {
+    "required_linear_attention_backend": "flash-linear-attention==0.5.1",
+    "required_linear_attention_core": "fla-core==0.5.1",
+    "triton_c_compiler": "/usr/bin/gcc -std=gnu99 (via scripts/triton_cc_c99.sh)",
+    "causal_conv_backend": "transformers_torch_fallback",
+    "invalidated_attempts": [
+      {
+        "slurm_job_id": "1155299",
+        "reason": "missing_flash_linear_attention_backend caused no progress after state 20 for more than 45 minutes",
+        "report_written": false
+      }
+    ]
+  },
+  "locks": {
+    "training_allowed": false,
+    "multimodal_u_claim_allowed": false,
+    "planning_allowed": false,
+    "closed_loop_allowed": false,
+    "automatic_retry": false
+  },
+  "claim_boundary": "Text-only backbone localization. A pass supports replacing ORION's language path but does not validate Qwen multimodal conditioning, planning, or closed-loop driving."
+}

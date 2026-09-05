@@ -1,0 +1,26 @@
+{
+  "schema_version": "orion.deleted-derived-artifact/v1",
+  "deleted_at": "2026-09-05T03:43:27+08:00",
+  "path": "/public/share/lidachuan/orion_assets/observation_uq_v3/runs/counterfactual_evidence_features_windowcycle_seed20260827_r1/counterfactual_evidence_features.pt",
+  "size_bytes": 70837587338,
+  "sha256": "d53ab9b7acc91b89cb061ce1ec880d05b390675f29c515337bcffceda3143499",
+  "reason": "The project is moving to the standalone Qwen-Drive Bench2Drive path. The 66 GiB Orion counterfactual feature tensor is derived, is not used by the Qwen runtime, and can be recomputed if an old Orion audit must be reproduced.",
+  "pre_delete_checks": {
+    "active_slurm_jobs_for_owner": 0,
+    "open_file_handles": 0,
+    "owner": "lidachuan",
+    "artifact_hash_record_present": true
+  },
+  "retained": [
+    "source_sha256.txt",
+    "artifact_sha256.txt",
+    "old audit and result JSON files",
+    "frozen extraction code and configuration",
+    "this deletion receipt"
+  ],
+  "recovery": {
+    "recoverable_from_trash": false,
+    "method": "Rerun scripts/submit_counterfactual_evidence_extraction_v2.sh with a new RUN_ID/output directory. The retained source_sha256.txt records the exact source lineage.",
+    "estimated_resources": "1 x A800, 8 CPU, 160 GiB RAM, up to 3 hours, approximately 66 GiB output"
+  }
+}

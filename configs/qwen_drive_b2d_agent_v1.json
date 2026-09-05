@@ -1,0 +1,99 @@
+{
+  "schema": "orion.qwen-drive-bench2drive-bridge/v1",
+  "description": "Qwen-Drive-1.0-4B direct-planning bridge for Bench2Drive; no Orion model or legacy feature branches are loaded.",
+  "sensors": {
+    "CAM_FRONT": {
+      "type": "sensor.camera.rgb",
+      "x": 0.8,
+      "y": 0.0,
+      "z": 1.6,
+      "roll": 0.0,
+      "pitch": 0.0,
+      "yaw": 0.0,
+      "width": 1600,
+      "height": 900,
+      "fov": 70
+    },
+    "CAM_FRONT_LEFT": {
+      "type": "sensor.camera.rgb",
+      "x": 0.27,
+      "y": -0.55,
+      "z": 1.6,
+      "roll": 0.0,
+      "pitch": 0.0,
+      "yaw": -55.0,
+      "width": 1600,
+      "height": 900,
+      "fov": 70
+    },
+    "CAM_FRONT_RIGHT": {
+      "type": "sensor.camera.rgb",
+      "x": 0.27,
+      "y": 0.55,
+      "z": 1.6,
+      "roll": 0.0,
+      "pitch": 0.0,
+      "yaw": 55.0,
+      "width": 1600,
+      "height": 900,
+      "fov": 70
+    }
+  },
+  "sampling": {
+    "simulator_hz": 20,
+    "inference_stride_steps": 10,
+    "image_history_frames": 4,
+    "ego_history_hz": 10,
+    "ego_history_points": 16
+  },
+  "images": {
+    "history_size": [384, 224],
+    "current_size": [768, 416],
+    "jpeg_quality": 90
+  },
+  "planning": {
+    "mode": "direct_planning",
+    "num_samples": 1,
+    "seed": 42,
+    "num_future_points": 50,
+    "source_hz": 10,
+    "controller_hz": 2,
+    "controller_horizon_points": 6,
+    "max_abs_position_m": 200.0
+  },
+  "control": {
+    "turn_KP": 1.1,
+    "turn_KI": 0.5,
+    "turn_KD": 0.4,
+    "turn_n": 40,
+    "speed_KP": 5.0,
+    "speed_KI": 0.5,
+    "speed_KD": 1.0,
+    "speed_n": 40,
+    "max_throttle": 0.75,
+    "brake_speed": 0.05,
+    "brake_ratio": 1.1,
+    "clip_delta": 0.25,
+    "aim_dist": 3.5,
+    "angle_thresh": 0.3,
+    "dist_thresh": 10.0,
+    "maximum_speed_mps": 5.0,
+    "maximum_plan_staleness_seconds": 1.0
+  },
+  "runtime": {
+    "python": "/public/share/lidachuan/orion_assets/envs/qwen-drive-py310/bin/python",
+    "qwen_source": "/public/share/lidachuan/orion_assets/third_party/Qwen-Drive-1.0",
+    "model": "/public/share/lidachuan/orion_assets/checkpoints/Qwen-Drive-1.0-4B",
+    "planner": "/public/share/lidachuan/orion_assets/checkpoints/Qwen-Drive-1.0-4B/planner-sft",
+    "device": "cuda",
+    "dtype": "bfloat16",
+    "attention_implementation": "flash_attention_2",
+    "glibc_loader": "/public/share/lidachuan/orion_assets/envs/glibc-2.28/x86_64-conda-linux-gnu/sysroot/lib64/ld-linux-x86-64.so.2",
+    "runtime_library_path": "/public/share/lidachuan/orion_assets/envs/glibc-2.28/x86_64-conda-linux-gnu/sysroot/lib64:/public/share/lidachuan/orion_assets/envs/glibc-2.28/x86_64-conda-linux-gnu/sysroot/usr/lib64:/public/share/lidachuan/orion_assets/envs/qwen-drive-py310/lib",
+    "triton_c_compiler": "/public/home/lidachuan/project/Orion/scripts/triton_cc_c99.sh",
+    "socket_directory": "/tmp",
+    "reuse_sidecar_within_evaluator": true,
+    "startup_timeout_seconds": 900,
+    "inference_timeout_seconds": 180
+  }
+}
