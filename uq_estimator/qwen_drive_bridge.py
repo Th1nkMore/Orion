@@ -30,6 +30,7 @@ import numpy as np
 
 CONFIG_SCHEMA = "orion.qwen-drive-bench2drive-bridge/v1"
 RPC_SCHEMA = "orion.qwen-drive-local-rpc/v1"
+PLANNING_MODES = {"direct_planning", "reasoning_planning"}
 QWEN_VIEW_BY_SENSOR = {
     "CAM_FRONT": "<FRONT VIEW>",
     "CAM_FRONT_LEFT": "<FRONT LEFT VIEW>",
@@ -77,8 +78,11 @@ def load_bridge_config(path: Union[str, Path]) -> dict:
         quality = int(images.get("jpeg_quality", 0))
         if not 1 <= quality <= 100:
             raise ValueError("images.jpeg_quality must be in [1,100]")
-    if payload["planning"].get("mode") != "direct_planning":
-        raise ValueError("closed-loop bridge only permits direct_planning")
+    if payload["planning"].get("mode") not in PLANNING_MODES:
+        raise ValueError(
+            "closed-loop bridge planning.mode must be one of %s"
+            % sorted(PLANNING_MODES)
+        )
     if int(payload["planning"].get("num_samples", 0)) != 1:
         raise ValueError("closed-loop bridge requires num_samples=1")
     return payload
@@ -429,6 +433,7 @@ class QwenDriveClient:
         self.socket_path: Optional[Path] = None
         self.log_stream = None
         self.last_metrics = None
+        self.last_reasoning = None
 
     def start(self, log_path: Optional[Union[str, Path]] = None) -> None:
         """Launch the configured Qwen Python runtime and wait for model readiness."""
@@ -519,6 +524,7 @@ class QwenDriveClient:
         if response.get("status") != "ok":
             raise RuntimeError("Qwen planning failed: %s" % response.get("error", response))
         self.last_metrics = dict(response.get("metrics", {}))
+        self.last_reasoning = response.get("reasoning")
         trajectory = validate_qwen_trajectory(
             response["trajectory"], self.config["planning"]["num_future_points"]
         )
@@ -609,6 +615,7 @@ def serve(config_path: Union[str, Path], socket_path: Union[str, Path]) -> int:
     config = load_bridge_config(config_path)
     runtime = config["runtime"]
     planning = config["planning"]
+    inference_mode = InferenceMode(planning["mode"])
     dtype = getattr(torch, str(runtime["dtype"]))
     model = QwenDriveForPlanning.from_pretrained(
         runtime["model"],
@@ -644,7 +651,7 @@ def serve(config_path: Union[str, Path], socket_path: Union[str, Path]) -> int:
                     torch.cuda.reset_peak_memory_stats()
                 scene, image_owners = _decode_scene(request)
                 output = model.run(
-                    InferenceMode.DIRECT_PLANNING,
+                    inference_mode,
                     scene=scene,
                     num_samples=int(planning["num_samples"]),
                     seed=int(planning["seed"]),
@@ -669,6 +676,7 @@ def serve(config_path: Union[str, Path], socket_path: Union[str, Path]) -> int:
                         # NumPy 2.  Lists avoid a numpy._core pickle dependency.
                         "trajectory": trajectory.tolist(),
                         "inference_seconds": time.monotonic() - started,
+                        "reasoning": output.reasoning,
                         "metrics": metrics,
                     }
                 )

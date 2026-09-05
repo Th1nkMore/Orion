@@ -18,10 +18,11 @@ job_name="${JOB_NAME:-qwen_b2d_route${task_id}}"
 node_list="${NODELIST:-gpu4}"
 carla_port="${PORT:-30000}"
 traffic_manager_port="${TM_PORT:-50000}"
+agent_config_path="${AGENT_CONFIG_PATH:-${project_root}/configs/qwen_drive_b2d_agent_v1.json}"
 
 for prerequisite in \
   "${project_root}/team_code/qwen_drive_b2d_agent.py" \
-  "${project_root}/configs/qwen_drive_b2d_agent_v1.json" \
+  "${agent_config_path}" \
   "${project_root}/scripts/run_official_closedloop_job.sh" \
   "${asset_root}/carla/CARLA_0.9.15/CarlaUE4.sh" \
   "${asset_root}/envs/orion-cl-centos7/bin/python"; do
@@ -54,7 +55,7 @@ wrapped=(
   "BENCH2DRIVE_MANAGES_CARLA=0"
   "BENCH2DRIVE_EXTERNAL_CARLA=1"
   "TEAM_AGENT_PATH=${project_root}/team_code/qwen_drive_b2d_agent.py"
-  "AGENT_CONFIG_PATH=${project_root}/configs/qwen_drive_b2d_agent_v1.json"
+  "AGENT_CONFIG_PATH=${agent_config_path}"
   "BASE_CHECKPOINT_PATH=qwen-drive-sidecar-no-orion-checkpoint"
   "ALGO=qwen_drive"
   "PLANNER_TYPE=traj"
@@ -83,6 +84,7 @@ if [[ "${submit}" != "1" ]]; then
   echo "NODELIST=${node_list}"
   echo "PORT=${carla_port}"
   echo "TM_PORT=${traffic_manager_port}"
+  echo "AGENT_CONFIG_PATH=${agent_config_path}"
   echo "ORION_MODEL_LOAD=0"
   echo "RESOURCE_CONTRACT=partition:Nvidia_A800,gpu:1,cpus:8,mem:96G,time:02:00:00"
   printf 'SBATCH_COMMAND='

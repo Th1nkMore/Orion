@@ -11,6 +11,9 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 BRIDGE_PATH = PROJECT_ROOT / "uq_estimator" / "qwen_drive_bridge.py"
 CONFIG_PATH = PROJECT_ROOT / "configs" / "qwen_drive_b2d_agent_v1.json"
+REASONING_CONFIG_PATH = (
+    PROJECT_ROOT / "configs" / "qwen_drive_b2d_agent_reasoning_sft_v1.json"
+)
 AGENT_PATH = PROJECT_ROOT / "team_code" / "qwen_drive_b2d_agent.py"
 SMOKE_PATH = PROJECT_ROOT / "scripts" / "smoke_qwen_drive_b2d_bridge.py"
 RUNNER_PATH = PROJECT_ROOT / "scripts" / "run_qwen_drive_b2d_smoke.sh"
@@ -69,6 +72,13 @@ def test_config_locks_direct_single_sample_planning(tmp_path):
     invalid.write_text(json.dumps(config), encoding="utf-8")
     with pytest.raises(ValueError, match="num_samples=1"):
         bridge.load_bridge_config(invalid)
+
+
+def test_reasoning_config_uses_the_official_sft_reasoning_path():
+    config = bridge.load_bridge_config(REASONING_CONFIG_PATH)
+    assert config["planning"]["mode"] == "reasoning_planning"
+    assert config["planning"]["num_samples"] == 1
+    assert config["runtime"]["planner"].endswith("/planner-sft")
 
 
 def test_carla_to_qwen_coordinate_convention():

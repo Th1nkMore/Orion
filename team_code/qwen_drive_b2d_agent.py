@@ -217,7 +217,7 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                 _SHARED_CONFIG_PATH = self.config_path
         print(
             "[QwenDrive] sidecar ready; Orion and legacy feature branches are not loaded; "
-            "log=%s" % service_log,
+            "mode=%s; log=%s" % (self.config["planning"]["mode"], service_log),
             flush=True,
         )
 
@@ -434,6 +434,9 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                 "speed_mps": float(speed),
                 "plan_age_seconds": plan_age,
                 "inference_seconds": self.last_inference_seconds,
+                "qwen_reasoning": (
+                    self.client.last_reasoning if raw_trajectory is not None else None
+                ),
                 "qwen_runtime_metrics": self.client.last_metrics,
                 "inference_error": inference_error,
                 "compressed_history_bytes": self.image_history.retained_bytes,
