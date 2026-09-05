@@ -247,3 +247,75 @@ def install_exact_frame_speedometer(
         "poll={}s stale_reuse=false".format(poll_seconds)
     )
     return True
+
+
+def install_oracle_depth_camera_support(
+    agent_wrapper_module: Any,
+    carla_module: Any,
+    *,
+    enabled: Optional[bool] = None,
+    max_instances: int = 8,
+    emit: Callable[[str], None] = lambda message: print(message, flush=True),
+) -> bool:
+    """Opt in to CARLA depth cameras for privileged oracle-U experiments.
+
+    Bench2Drive's official SENSORS track rejects depth cameras and its wrapper
+    initializes intrinsics/extrinsics only for RGB cameras. This narrow patch
+    extends both pieces without weakening validation for any other sensor type.
+    It is deliberately disabled by default because a run using it is an
+    oracle-only, non-official evaluation and must not be reported as an
+    eligible Bench2Drive sensor-track result.
+    """
+
+    if enabled is None:
+        enabled = _enabled(os.environ.get("ORION_ALLOW_ORACLE_DEPTH_SENSOR"))
+    if not enabled:
+        return False
+    max_instances = int(max_instances)
+    if max_instances <= 0:
+        raise ValueError("oracle depth camera limit must be positive")
+
+    sensor_type = "sensor.camera.depth"
+    wrapper_cls = agent_wrapper_module.AgentWrapper
+    if getattr(wrapper_cls, "_orion_oracle_depth_installed", False):
+        return True
+
+    allowed = tuple(agent_wrapper_module.ALLOWED_SENSORS)
+    if sensor_type not in allowed:
+        agent_wrapper_module.ALLOWED_SENSORS = allowed + (sensor_type,)
+    agent_wrapper_module.SENSORS_LIMITS[sensor_type] = max_instances
+    agent_wrapper_module.QUALIFIER_SENSORS_LIMITS[sensor_type] = max_instances
+
+    original_preprocess = wrapper_cls._preprocess_sensor_spec
+
+    def preprocess_sensor_spec(self: Any, sensor_spec: dict[str, Any]):
+        if sensor_spec.get("type") != sensor_type:
+            return original_preprocess(self, sensor_spec)
+        attributes = {
+            "image_size_x": str(sensor_spec["width"]),
+            "image_size_y": str(sensor_spec["height"]),
+            "fov": str(sensor_spec["fov"]),
+        }
+        sensor_location = carla_module.Location(
+            x=sensor_spec["x"], y=sensor_spec["y"], z=sensor_spec["z"]
+        )
+        sensor_rotation = carla_module.Rotation(
+            pitch=sensor_spec["pitch"],
+            roll=sensor_spec["roll"],
+            yaw=sensor_spec["yaw"],
+        )
+        return (
+            sensor_type,
+            sensor_spec["id"],
+            carla_module.Transform(sensor_location, sensor_rotation),
+            attributes,
+        )
+
+    wrapper_cls._preprocess_sensor_spec = preprocess_sensor_spec
+    wrapper_cls._orion_oracle_depth_installed = True
+    wrapper_cls._orion_original_preprocess_sensor_spec = original_preprocess
+    emit(
+        "[OracleDepthHarness] enabled sensor.camera.depth max_instances={} "
+        "official_sensor_track_eligible=false".format(max_instances)
+    )
+    return True

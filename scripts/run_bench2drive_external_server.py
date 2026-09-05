@@ -13,12 +13,14 @@ import faulthandler
 import os
 
 from leaderboard import leaderboard_evaluator
+from leaderboard.autoagents import agent_wrapper
 from leaderboard.envs import sensor_interface
 from leaderboard.scenarios import scenario_manager
 from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 
 from uq_estimator.closedloop_sensor_diagnostics import (
     install_exact_frame_speedometer,
+    install_oracle_depth_camera_support,
     install_sensor_queue_diagnostics,
 )
 
@@ -87,6 +89,7 @@ leaderboard_evaluator.LeaderboardEvaluator._load_and_wait_for_world = (
 )
 install_exact_frame_speedometer(sensor_interface)
 install_sensor_queue_diagnostics(sensor_interface)
+install_oracle_depth_camera_support(agent_wrapper, carla)
 
 
 def install_scenario_traceback_diagnostics():

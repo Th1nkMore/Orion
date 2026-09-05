@@ -82,6 +82,24 @@ cameras, produce aligned and auditable artifacts in a real Bench2Drive run.
 - O1 remains open until a remote CARLA run validates sensor availability,
   coordinate alignment, artifact integrity, and acceptable runtime overhead.
 
+## O1 remote attempt 1
+
+- Slurm job: `1165318`; run id:
+  `qwen_oracle_visibility_route151_reasoning_sft_seed42_v1`.
+- The isolated server checkout was clean at `137524ec`; its targeted regression
+  passed `27/27` tests in the Orion Python 3.8 environment.
+- CARLA, Town02, Route 151, and the Qwen sidecar all initialized. The evaluator
+  then rejected `sensor.camera.depth` before the first simulation tick because
+  Bench2Drive 0.0.4 omits depth from both its official SENSORS allowlist and
+  camera preprocessing branch.
+- Terminal state: Slurm `FAILED`, exit `127:0`; evaluator status
+  `Failed - Agent's sensors were invalid`; zero oracle artifacts. This run says
+  nothing about model behavior or visibility geometry.
+- Resolution: add a default-off, explicitly logged evaluator extension for the
+  privileged oracle-depth experiment. Any run using it is non-official and
+  ineligible as a Bench2Drive sensor-track score; the ordinary baseline remains
+  on the unmodified allowlist.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

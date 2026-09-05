@@ -19,6 +19,12 @@ node_list="${NODELIST:-gpu4}"
 carla_port="${PORT:-30000}"
 traffic_manager_port="${TM_PORT:-50000}"
 agent_config_path="${AGENT_CONFIG_PATH:-${project_root}/configs/qwen_drive_b2d_agent_v1.json}"
+allow_oracle_depth_sensor="${ORION_ALLOW_ORACLE_DEPTH_SENSOR:-0}"
+
+if [[ "${allow_oracle_depth_sensor}" != "0" && "${allow_oracle_depth_sensor}" != "1" ]]; then
+  echo "ORION_ALLOW_ORACLE_DEPTH_SENSOR must be 0 or 1" >&2
+  exit 2
+fi
 
 for prerequisite in \
   "${project_root}/team_code/qwen_drive_b2d_agent.py" \
@@ -54,6 +60,7 @@ wrapped=(
   "VULKANINFO_BIN=${asset_root}/envs/vulkan-1.3.250/bin/vulkaninfo"
   "BENCH2DRIVE_MANAGES_CARLA=0"
   "BENCH2DRIVE_EXTERNAL_CARLA=1"
+  "ORION_ALLOW_ORACLE_DEPTH_SENSOR=${allow_oracle_depth_sensor}"
   "TEAM_AGENT_PATH=${project_root}/team_code/qwen_drive_b2d_agent.py"
   "AGENT_CONFIG_PATH=${agent_config_path}"
   "BASE_CHECKPOINT_PATH=qwen-drive-sidecar-no-orion-checkpoint"
@@ -85,6 +92,7 @@ if [[ "${submit}" != "1" ]]; then
   echo "PORT=${carla_port}"
   echo "TM_PORT=${traffic_manager_port}"
   echo "AGENT_CONFIG_PATH=${agent_config_path}"
+  echo "ORION_ALLOW_ORACLE_DEPTH_SENSOR=${allow_oracle_depth_sensor}"
   echo "ORION_MODEL_LOAD=0"
   echo "RESOURCE_CONTRACT=partition:Nvidia_A800,gpu:1,cpus:8,mem:96G,time:02:00:00"
   printf 'SBATCH_COMMAND='

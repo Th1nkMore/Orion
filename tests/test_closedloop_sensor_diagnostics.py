@@ -1,14 +1,30 @@
+import importlib.util
 import json
 import queue
+import sys
 import time
 import types
+from pathlib import Path
 
 import pytest
 
-from uq_estimator.closedloop_sensor_diagnostics import (
-    install_exact_frame_speedometer,
-    install_sensor_queue_diagnostics,
+MODULE_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "uq_estimator"
+    / "closedloop_sensor_diagnostics.py"
 )
+MODULE_SPEC = importlib.util.spec_from_file_location(
+    "_closedloop_sensor_diagnostics_test", MODULE_PATH
+)
+diagnostics = importlib.util.module_from_spec(MODULE_SPEC)
+sys.modules[MODULE_SPEC.name] = diagnostics
+MODULE_SPEC.loader.exec_module(diagnostics)
+
+install_exact_frame_speedometer = diagnostics.install_exact_frame_speedometer
+install_oracle_depth_camera_support = (
+    diagnostics.install_oracle_depth_camera_support
+)
+install_sensor_queue_diagnostics = diagnostics.install_sensor_queue_diagnostics
 
 
 def make_sensor_module():
@@ -220,3 +236,81 @@ def test_exact_frame_speedometer_disabled_and_idempotent():
         module, enabled=True, poll_seconds=0.1, emit=lambda _: None
     )
     assert module.SpeedometerReader.run is patched_run
+
+
+def make_agent_wrapper_module():
+    class AgentWrapper:
+        def _preprocess_sensor_spec(self, sensor_spec):
+            return ("original", sensor_spec["id"])
+
+    return types.SimpleNamespace(
+        AgentWrapper=AgentWrapper,
+        ALLOWED_SENSORS=("sensor.camera.rgb",),
+        SENSORS_LIMITS={"sensor.camera.rgb": 8},
+        QUALIFIER_SENSORS_LIMITS={"sensor.camera.rgb": 4},
+    )
+
+
+def make_carla_module():
+    class Value:
+        def __init__(self, **values):
+            self.values = values
+
+    class Transform:
+        def __init__(self, location, rotation):
+            self.location = location
+            self.rotation = rotation
+
+    return types.SimpleNamespace(Location=Value, Rotation=Value, Transform=Transform)
+
+
+def test_oracle_depth_camera_support_is_disabled_by_default_contract():
+    module = make_agent_wrapper_module()
+    original = module.AgentWrapper._preprocess_sensor_spec
+    assert not install_oracle_depth_camera_support(
+        module, make_carla_module(), enabled=False
+    )
+    assert module.AgentWrapper._preprocess_sensor_spec is original
+    assert "sensor.camera.depth" not in module.ALLOWED_SENSORS
+
+
+def test_oracle_depth_camera_support_extends_only_depth_camera_handling():
+    module = make_agent_wrapper_module()
+    messages = []
+    assert install_oracle_depth_camera_support(
+        module, make_carla_module(), enabled=True, emit=messages.append
+    )
+    assert "sensor.camera.depth" in module.ALLOWED_SENSORS
+    assert module.SENSORS_LIMITS["sensor.camera.depth"] == 8
+    wrapper = module.AgentWrapper()
+    assert wrapper._preprocess_sensor_spec(
+        {"type": "sensor.camera.rgb", "id": "CAM_FRONT"}
+    ) == ("original", "CAM_FRONT")
+    sensor_type, sensor_id, transform, attributes = wrapper._preprocess_sensor_spec(
+        {
+            "type": "sensor.camera.depth",
+            "id": "DEPTH_FRONT",
+            "x": 0.8,
+            "y": 0.0,
+            "z": 1.6,
+            "pitch": 0.0,
+            "roll": 0.0,
+            "yaw": 0.0,
+            "width": 1600,
+            "height": 900,
+            "fov": 70,
+        }
+    )
+    assert (sensor_type, sensor_id) == ("sensor.camera.depth", "DEPTH_FRONT")
+    assert transform.location.values == {"x": 0.8, "y": 0.0, "z": 1.6}
+    assert attributes == {
+        "image_size_x": "1600",
+        "image_size_y": "900",
+        "fov": "70",
+    }
+    assert any("official_sensor_track_eligible=false" in item for item in messages)
+    patched = module.AgentWrapper._preprocess_sensor_spec
+    assert install_oracle_depth_camera_support(
+        module, make_carla_module(), enabled=True, emit=messages.append
+    )
+    assert module.AgentWrapper._preprocess_sensor_spec is patched
