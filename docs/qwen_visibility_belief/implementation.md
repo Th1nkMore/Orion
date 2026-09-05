@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1a target/manifest contract implemented locally)
+Status: in progress (V1a data contract accepted; V1b gradient path next)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -28,7 +28,7 @@ inspectable U consumption before any closed-loop claim.
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Complete (`c4f62543`; accepted by run `1165345`) |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Complete (`2d86b809`; accepted on 54-frame derived run) |
 | V0 | Insert U tokens into the 4B VLM with verified positions and disabled-path identity | Complete (`4e4672ba`; direct job `1166148`, reasoning job `1166382`) |
-| V1 | Structured U-grounding warm-up with staged LoRA | In progress (V1a target/manifest contract) |
+| V1 | Structured U-grounding warm-up with staged LoRA | In progress (V1a data contract accepted) |
 | P0 | Longitudinal trajectory retiming teacher and flow-matching training path | Not started |
 | C0 | Fixed-baseline versus oracle-U Route 151 closed-loop comparison | Not started |
 | E0 | Independent predicted-depth/visibility estimator | Blocked on interpretable oracle-U consumer evidence |
@@ -519,6 +519,33 @@ inspectable U consumption before any closed-loop claim.
   bridge regression: `48 passed, 1 skipped`. Python compilation and
   `git diff --check` pass. V1a remains open until the manifest is built and
   audited against the five retained real Route 151 sensor-audit steps.
+
+## V1a real-manifest acceptance
+
+- Commit under test: `3cc21145`. The dedicated remote checkout remained clean
+  and its target/geometry/bridge regression passed `49/49` tests in the Orion
+  Python environment.
+- Built the refuse-to-overwrite manifest at
+  `/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/route151_v1a_manifest_v1/manifest.json`.
+  It joins all five retained audit steps `0, 200, 260, 280, 300` to their exact
+  O3 artifacts and three native RGB images.
+- An independent readback verified every token and image SHA-256, all five
+  complete 32-row permutations, `hidden_actor_labels_used=false`, and
+  `controls_used_for_optimizer=false`; no integrity failure was found.
+- The seeded permutation moves the original maximum-score row from original
+  index 0 to sequence labels `F14, F11, F04, F11, F11`, so the task cannot be
+  solved by emitting `F00`. The corresponding action labels are one `KEEP`,
+  two `SLOW`, and two `STOP`; margins are one `CLEAR`, two `NEAR`, and two
+  `INSIDE`.
+- All five sparse audit records are `ON_ROUTE`. This is useful negative
+  evidence: the retained Route 151 snapshots do not contain the accepted
+  route-irrelevant hard-negative class. The manifest is sufficient for a
+  gradient and disposable overfit plumbing probe only, not V1 learned-consumer
+  acceptance or a semantic-conditioning claim.
+- V1a is accepted as a data-contract milestone. V1b must prove that answer-only
+  loss reaches both the projector and declared upper-VLM LoRA tensors while
+  the vision encoder, base VLM, LM head, embeddings, and Planning Expert remain
+  frozen.
 
 ## Integrity constraints
 
