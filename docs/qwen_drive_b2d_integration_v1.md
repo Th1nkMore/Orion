@@ -191,9 +191,49 @@ official evaluator record and full control trace are:
   sha256 787c2b548c9d825e414fda2510005a64eee4cd083eac7dff4acc48bb7f65b024
 ```
 
-This result separates the two questions cleanly: Qwen-Drive is now technically
-connected to Bench2Drive closed loop, but direct zero-shot transfer from its
-released camera/domain distribution is not a usable policy on this route.
+This result established technical connectivity, but it used the now-retired
+low-resolution transport profile. It cannot establish the formal Qwen
+zero-shot baseline on this route.
+
+## Official-input profile and dropout screen
+
+The formal profile now transports the original 1600x900 CARLA frames as
+lossless PNG, sets no `CameraFrame.target_size`, and delegates the distinct
+history/current resize to the released Qwen processor. The retired compressed
+profile is not retained as an experimental arm.
+
+GPU preflight Job `1160181` completed two real forwards on the official-input
+profile:
+
+```text
+trajectory shape             50x3
+cold inference             54.60 s
+warm inference              3.87 s
+CUDA peak allocated       13114 MiB
+CUDA peak reserved        14330 MiB
+device              NVIDIA A800 80 GB
+```
+
+It completed without OOM. The report is:
+
+```text
+/public/share/lidachuan/orion_assets/qwen_drive_b2d_smokes/bridge_official_input_png_v1/report.json
+```
+
+The first clean/corruption screen was submitted as six paired jobs. All arms
+use the same released Qwen checkpoint, official-input profile, controller and
+route. The only paired difference is front-view `camera_dropout` before the
+four-frame history buffer:
+
+| Route | Scenario role | Clean job | Dropout job | Dropout window |
+| --- | --- | ---: | ---: | --- |
+| 146 | Established Orion clean-safe/dropout-pedestrian-collision case | 1160227 | 1160228 | route progress 0.30--0.55 |
+| 151 | Parking-crossing-pedestrian event | 1160229 | 1160230 | route progress 0.321623--0.475794 |
+| 203 | Pedestrian crossing and prior Qwen integration route | 1160231 | 1160232 | full route |
+
+Per-frame traces record route progress, corruption family, active state,
+affected sensors and schedule. This screen measures Qwen's native corruption
+sensitivity only; it contains no U injection or U-aware response.
 
 ## Claim boundary
 
