@@ -16,6 +16,7 @@ with Qwen.
 | --- | --- |
 | [context.md](context.md) | Verified starting state, evidence, constraints, and claim boundary |
 | [adr.md](adr.md) | Accepted architecture, training, evaluation, fallback, and rejected alternatives |
+| [implementation.md](implementation.md) | Ordered implementation ladder, current status, and execution trace |
 
 ## Immediate execution target
 
