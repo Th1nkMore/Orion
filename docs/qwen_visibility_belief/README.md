@@ -17,6 +17,7 @@ with Qwen.
 | [context.md](context.md) | Verified starting state, evidence, constraints, and claim boundary |
 | [adr.md](adr.md) | Accepted architecture, training, evaluation, fallback, and rejected alternatives |
 | [implementation.md](implementation.md) | Ordered implementation ladder, current status, and execution trace |
+| [vlm_insertion_contract.md](vlm_insertion_contract.md) | Verified Qwen3.5 embedding, mRoPE, cache, anchor, and control contract |
 
 ## Immediate execution target
 

@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V0: insert U tokens into the Qwen 4B VLM`
 
-Status: not started (O3 accepted on all 54 Route 151 O2 frames)
+Status: in progress (V0a contract and direct-prefill smoke scaffold complete)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -382,6 +382,28 @@ and Planning Expert anchor contract before changing the Qwen model path.
   controls, spatial plausibility, and runtime. The tokens are still marked
   `used_by_qwen=false`; this run provides no grounding, trajectory, or safety
   evidence. V0 is the next gate.
+
+## V0a interface-contract record
+
+- Audited the provisioned Qwen-Drive and installed Transformers source. The 4B
+  VLM hidden width is 2,560; the released Planning Expert consumes post-rotary
+  K/V from eight full-attention VLM layers and continues waypoint mRoPE from
+  the final prefix anchor.
+- The runtime imports Transformers 5.14.1 although the checkpoint config names
+  5.15.0. A live smoke against the exact installed stack is therefore required.
+- Added `docs/qwen_visibility_belief/vlm_insertion_contract.md`. It fixes the
+  insertion after the last image and before history/navigation text, preserves
+  official image scatter, explicitly recomputes augmented three-axis positions,
+  omits invalid frontier padding from Planning Expert cache, and distinguishes
+  official disabled identity from augmented zero-U control.
+- Added the sidecar-only `uq_estimator/qwen_visibility_vlm.py` with a
+  zero-output-initialized 23-to-512-to-2560 projector, learned boundary vectors,
+  official disabled path, augmented direct-prefill path, and explicit position
+  and scene-cache audit.
+- Added an actual-model smoke and Slurm submit wrapper using the accepted
+  step-260 O3 token artifact and native three-camera audit images. This is V0a
+  plumbing only. V0 remains open until the direct-prefill smoke passes and the
+  reasoning-planning insertion path is implemented and verified.
 
 ## Integrity constraints
 
