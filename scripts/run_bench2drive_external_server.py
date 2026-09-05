@@ -89,7 +89,11 @@ leaderboard_evaluator.LeaderboardEvaluator._load_and_wait_for_world = (
 )
 install_exact_frame_speedometer(sensor_interface)
 install_sensor_queue_diagnostics(sensor_interface)
-install_oracle_depth_camera_support(agent_wrapper, carla)
+install_oracle_depth_camera_support(
+    agent_wrapper,
+    carla,
+    sensor_icons=leaderboard_evaluator.sensors_to_icons,
+)
 
 
 def install_scenario_traceback_diagnostics():

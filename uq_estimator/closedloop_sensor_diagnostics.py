@@ -253,6 +253,7 @@ def install_oracle_depth_camera_support(
     agent_wrapper_module: Any,
     carla_module: Any,
     *,
+    sensor_icons: Optional[dict[str, str]] = None,
     enabled: Optional[bool] = None,
     max_instances: int = 8,
     emit: Callable[[str], None] = lambda message: print(message, flush=True),
@@ -277,6 +278,8 @@ def install_oracle_depth_camera_support(
 
     sensor_type = "sensor.camera.depth"
     wrapper_cls = agent_wrapper_module.AgentWrapper
+    if sensor_icons is not None:
+        sensor_icons[sensor_type] = "carla_camera"
     if getattr(wrapper_cls, "_orion_oracle_depth_installed", False):
         return True
 

@@ -100,6 +100,19 @@ cameras, produce aligned and auditable artifacts in a real Bench2Drive run.
   ineligible as a Bench2Drive sensor-track score; the ordinary baseline remains
   on the unmodified allowlist.
 
+## O1 remote attempt 2
+
+- Slurm job: `1165319`; run id:
+  `qwen_oracle_visibility_route151_reasoning_sft_seed42_v2`.
+- Checkout `e496858f`; remote regression passed `37/37` tests. The explicit
+  `[OracleDepthHarness]` marker was present and the depth allowlist/preprocessor
+  patch succeeded.
+- The evaluator then raised `KeyError: sensor.camera.depth` while constructing
+  its display-only sensor icon list. This was again before the first tick and
+  produced zero oracle artifacts.
+- Resolution: extend the same default-off oracle harness to map depth to the
+  existing camera icon. No ordinary sensor validation or model path changes.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

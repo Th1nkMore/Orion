@@ -277,11 +277,17 @@ def test_oracle_depth_camera_support_is_disabled_by_default_contract():
 def test_oracle_depth_camera_support_extends_only_depth_camera_handling():
     module = make_agent_wrapper_module()
     messages = []
+    sensor_icons = {"sensor.camera.rgb": "carla_camera"}
     assert install_oracle_depth_camera_support(
-        module, make_carla_module(), enabled=True, emit=messages.append
+        module,
+        make_carla_module(),
+        sensor_icons=sensor_icons,
+        enabled=True,
+        emit=messages.append,
     )
     assert "sensor.camera.depth" in module.ALLOWED_SENSORS
     assert module.SENSORS_LIMITS["sensor.camera.depth"] == 8
+    assert sensor_icons["sensor.camera.depth"] == "carla_camera"
     wrapper = module.AgentWrapper()
     assert wrapper._preprocess_sensor_spec(
         {"type": "sensor.camera.rgb", "id": "CAM_FRONT"}
