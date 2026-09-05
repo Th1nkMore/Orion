@@ -2,6 +2,7 @@ import importlib.util
 from pathlib import Path
 import sys
 import types
+from types import SimpleNamespace
 
 import pytest
 
@@ -87,6 +88,12 @@ class _Model(nn.Module):
         super().__init__()
         self.vlm = _VLM()
         self.planning_expert = nn.Linear(4, 4)
+        self.config = SimpleNamespace(
+            vlm_config=SimpleNamespace(
+                image_token_id=98,
+                vision_end_token_id=99,
+            )
+        )
 
 
 def test_lora_installation_is_identity_then_receives_gradient():
@@ -138,3 +145,30 @@ def test_non_full_attention_target_fails_closed():
             model, training.VisibilityLoRAConfig(layer_indices=(26,))
         )
 
+
+def test_training_prompt_inserts_once_and_preserves_official_suffix():
+    model = _Model()
+    vlm_module = sys.modules[package.__name__ + ".qwen_visibility_vlm"]
+    projector = vlm_module.VisibilityTokenProjector(23, 8, 4)
+    input_ids = torch.tensor([[1, 99, 2, 99, 3, 4]], dtype=torch.long)
+    base = torch.arange(24, dtype=torch.float32).reshape(1, 6, 4)
+    tokens = torch.zeros((3, 23), dtype=torch.float32)
+    mask = torch.tensor([True, False, True])
+    prompt, shadow, insertion, valid_count = training._augmented_prompt_components(
+        model,
+        {"input_ids": input_ids},
+        tokens,
+        mask,
+        projector,
+        base_embeddings=base,
+    )
+    assert insertion == 4
+    assert valid_count == 2
+    assert prompt.shape[1] == base.shape[1] + valid_count + 2
+    assert shadow.shape[1] == prompt.shape[1]
+    torch.testing.assert_close(prompt[:, :insertion], base[:, :insertion])
+    torch.testing.assert_close(prompt[:, insertion + valid_count + 2 :], base[:, insertion:])
+    torch.testing.assert_close(shadow[:, :insertion], input_ids[:, :insertion])
+    torch.testing.assert_close(
+        shadow[:, insertion + valid_count + 2 :], input_ids[:, insertion:]
+    )

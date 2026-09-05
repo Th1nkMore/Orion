@@ -94,8 +94,34 @@ The first optimization probe must:
    one LoRA tensor before the first optimizer step;
 5. save only adaptation weights, optimizer-independent configuration,
    provenance, and an integrity hash—never a copied 4B base checkpoint;
-6. evaluate exact JSON and per-field accuracy on true U and record paired
-   zero-U and spatial-shuffle outputs without training either control;
+6. evaluate exact one-field answers during the factorized warm-up, then exact
+   JSON and per-field accuracy when the composite task is restored; record
+   paired zero-U and spatial-shuffle outputs without training either control;
 7. keep V1 open if only the Route 151 overfit succeeds. Acceptance as a learned
    consumer requires a separately generated, non-evaluation-route grounding
    set with held-out scenes and an above-chance true-versus-control gap.
+
+### V1d factorized plumbing gate
+
+The V1d probe contains all 20 `(five frame, four field)` examples and takes
+exactly 60 optimizer steps, giving every pair three updates. Each true-U field
+must reach at least `4/5` exact accuracy. The causal checks reflect what each O3
+control actually changes:
+
+- `frontier`: true U must beat the stronger of zero U and spatial shuffle by at
+  least `2/5`, because spatial shuffle moves the maximum-score content to a
+  different metric slot;
+- `margin`: true U must beat zero U by at least `2/5`;
+- `action`: true U must beat zero U by at least `2/5`;
+- `route`: accuracy must reach `4/5`, but this sparse set cannot support a
+  causal route gap because every target is `ON_ROUTE`.
+
+Spatial shuffle moves each frontier's content features together. It should
+therefore change the `frontier` sequence identity while preserving the selected
+record's route, margin, and action values. Requiring those three values to
+degrade under shuffle would reward scientifically incorrect behavior. The
+missing `OFF_ROUTE` class remains a declared dataset limitation.
+
+Passing this gate establishes only that the small Route 151 overfit can read
+the intended token fields causally. It remains non-reportable plumbing evidence
+and does not accept V1, planning behavior, or safety.

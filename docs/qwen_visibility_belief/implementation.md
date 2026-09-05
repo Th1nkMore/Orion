@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1c valid negative; V1d factorized grounding revision next)
+Status: in progress (V1c valid negative; V1d factorized protocol frozen pre-run)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -672,6 +672,33 @@ inspectable U consumption before any closed-loop claim.
   ADR-001 and the grounding contract now require a balanced factorized
   four-field warm-up before returning to composite answers. More composite
   steps alone are not the next experiment.
+
+## V1d factorized-overfit pre-run contract
+
+- The V1d protocol changes only the supervision curriculum exposed by the V1c
+  negative result. The physical targets, native three-camera inputs, V0 token
+  insertion, projector, rank-8 LoRA scope, frozen released model boundary, and
+  non-reportable Route 151 manifest remain unchanged.
+- The four labels are presented as separate exact-answer questions. All 20
+  `(five immutable frames, four fields)` pairs receive exactly three optimizer
+  updates for 60 total steps. Zero-U and spatial-shuffle remain evaluation-only
+  interventions and never enter the optimizer.
+- The factorized questions state the numeric route, normalized stopping-margin,
+  urgency, and action rules explicitly. This prevents success from depending
+  on an unstated rule that the model could not infer from the prompt.
+- A stage-specific fail-closed auditor is fixed before the run. It verifies the
+  hashed protocol and manifest, exact 20/60 evaluation coverage, balanced
+  optimizer pairs, finite nonzero updates in both adapter families, frozen
+  scope, and adaptation-only checkpoint integrity before scoring capacity.
+- Capacity requires `4/5` true accuracy for every field, a `2/5` frontier gap
+  over the stronger zero/shuffle control, and `2/5` margin and action gaps over
+  zero U. No route causal gap is permitted as a claim because all five targets
+  are `ON_ROUTE`. Margin/action are not required to degrade under spatial
+  shuffle because that control moves each frontier's complete content bundle
+  and therefore preserves those values.
+- A passing V1d result is still disposable capacity evidence, not V1 acceptance
+  or safety evidence. A valid negative result is also retained. The remote run
+  has not started at the time this contract is committed.
 
 ## Integrity constraints
 

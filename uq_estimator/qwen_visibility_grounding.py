@@ -41,6 +41,35 @@ GROUNDING_QUESTION = (
     "frontier, route, margin, action. Allowed values are F00..F31, "
     "ON_ROUTE/OFF_ROUTE, INSIDE/NEAR/CLEAR, and KEEP/SLOW/STOP."
 )
+FACTORIZED_GROUNDING_QUESTIONS = {
+    "frontier": (
+        "Read the continuous visibility-belief tokens inserted after the camera "
+        "block. Which frontier token has the largest "
+        "frontier_selection_score? Reply with exactly one label F00 through F31."
+    ),
+    "route": (
+        "Read the continuous visibility-belief tokens inserted after the camera "
+        "block. For the frontier token with the largest "
+        "frontier_selection_score, is route_weight_mean at least 0.2? Reply with "
+        "exactly ON_ROUTE or OFF_ROUTE."
+    ),
+    "margin": (
+        "Read the continuous visibility-belief tokens inserted after the camera "
+        "block. For the frontier token with the largest "
+        "frontier_selection_score, classify frontier_stopping_margin_normalized: "
+        "INSIDE for at most 0, NEAR for above 0 through 5/60, otherwise CLEAR. "
+        "Reply with exactly INSIDE, NEAR, or CLEAR."
+    ),
+    "action": (
+        "Read the continuous visibility-belief tokens inserted after the camera "
+        "block and select the frontier token with the largest "
+        "frontier_selection_score. Reply STOP when route_weight_mean is at least "
+        "0.2 and frontier_stopping_margin_normalized is at most 0. Reply SLOW "
+        "when route_weight_mean is at least 0.2 and either the normalized margin "
+        "is above 0 through 5/60 or urgency_max is at least 0.1. Otherwise reply "
+        "KEEP. Reply with exactly KEEP, SLOW, or STOP."
+    ),
+}
 
 
 @dataclass(frozen=True)

@@ -30,10 +30,9 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     module = _load_module()
-    audit = module.audit_grounding_overfit_report(args.report, args.output)
+    audit = module.audit_visibility_grounding_report(args.report, args.output)
     print(json.dumps(audit, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
     main()
-

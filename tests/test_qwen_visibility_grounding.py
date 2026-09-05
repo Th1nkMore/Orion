@@ -35,6 +35,7 @@ grounding = _load_local_module(
 VISIBILITY_TOKEN_FEATURE_NAMES = visibility.VISIBILITY_TOKEN_FEATURE_NAMES
 VISIBILITY_TOKEN_SCHEMA = visibility.VISIBILITY_TOKEN_SCHEMA
 GroundingThresholds = grounding.GroundingThresholds
+FACTORIZED_GROUNDING_QUESTIONS = grounding.FACTORIZED_GROUNDING_QUESTIONS
 build_route151_grounding_manifest = grounding.build_route151_grounding_manifest
 derive_visibility_grounding_target = grounding.derive_visibility_grounding_target
 deterministic_frontier_permutation = grounding.deterministic_frontier_permutation
@@ -100,6 +101,22 @@ def test_frontier_permutation_removes_f00_selection_shortcut():
     permuted, permuted_mask = permute_frontier_rows(tokens, mask, permutation)
     assert np.array_equal(permuted_mask, mask)
     assert permuted[1, INDEX["frontier_selection_score"]] == pytest.approx(0.9)
+
+
+def test_factorized_questions_cover_exact_grounding_fields_and_rules():
+    assert tuple(FACTORIZED_GROUNDING_QUESTIONS) == (
+        "frontier",
+        "route",
+        "margin",
+        "action",
+    )
+    assert "F00 through F31" in FACTORIZED_GROUNDING_QUESTIONS["frontier"]
+    assert "at least 0.2" in FACTORIZED_GROUNDING_QUESTIONS["route"]
+    assert "5/60" in FACTORIZED_GROUNDING_QUESTIONS["margin"]
+    action = FACTORIZED_GROUNDING_QUESTIONS["action"]
+    assert "route_weight_mean is at least 0.2" in action
+    assert "urgency_max is at least 0.1" in action
+    assert all("Reply" in question for question in FACTORIZED_GROUNDING_QUESTIONS.values())
 
 
 @pytest.mark.parametrize(

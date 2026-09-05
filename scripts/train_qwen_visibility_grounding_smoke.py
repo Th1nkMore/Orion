@@ -20,6 +20,7 @@ import torch
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SMOKE_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-smoke-config/v1"
 OVERFIT_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-overfit-config/v1"
+FACTORIZED_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-factorized-config/v1"
 REPORT_SCHEMA = "orion.qwen-visibility-grounding-smoke-report/v1"
 
 
@@ -73,6 +74,7 @@ def _load_protocol(path):
     if (schema, stage) not in {
         (SMOKE_CONFIG_SCHEMA, "V1b_gradient_smoke"),
         (OVERFIT_CONFIG_SCHEMA, "V1c_route151_plumbing_overfit"),
+        (FACTORIZED_CONFIG_SCHEMA, "V1d_route151_factorized_overfit"),
     }:
         raise ValueError("unexpected grounding training config schema/stage")
     training = protocol["training"]
@@ -92,6 +94,24 @@ def _load_protocol(path):
         }
         if set(protocol.get("sample_ids", ())) != expected_samples:
             raise ValueError("V1c must use all five immutable plumbing records")
+    if stage == "V1d_route151_factorized_overfit":
+        if int(training["optimizer_steps"]) != 60:
+            raise ValueError("V1d factorized overfit must take exactly 60 steps")
+        if training.get("separate_gradient_clipping") is not True:
+            raise ValueError("V1d requires separate projector/LoRA clipping")
+        if set(protocol.get("sample_ids", ())) != {
+            "route151-step-000000",
+            "route151-step-000200",
+            "route151-step-000260",
+            "route151-step-000280",
+            "route151-step-000300",
+        }:
+            raise ValueError("V1d must use all five immutable plumbing records")
+        if protocol.get("objective") != {
+            "type": "factorized_fields",
+            "fields": ["frontier", "route", "margin", "action"],
+        }:
+            raise ValueError("V1d requires the balanced four-field objective")
     if protocol["claim_boundary"] != {
         "plumbing_overfit_only": True,
         "reportable_generalization": False,
@@ -215,19 +235,28 @@ def _run_evaluations(model, projector, prepared, controls, max_new_tokens):
                 projector,
                 max_new_tokens=int(max_new_tokens),
             )
-            parsed = _parse_answer(answer)
+            task_field = example["task_field"]
+            if task_field is None:
+                parsed = _parse_answer(answer)
+                canonical_exact = answer == example["expected_answer"]
+                field_correct = {
+                    field: bool(parsed is not None and parsed.get(field) == value)
+                    for field, value in target.items()
+                }
+            else:
+                parsed = answer.strip()
+                canonical_exact = parsed == example["expected_answer"]
+                field_correct = {task_field: canonical_exact}
             rows.append(
                 {
                     "sample_id": example["record"]["sample_id"],
+                    "task_field": task_field,
                     "control": control,
                     "answer": answer,
                     "parsed": parsed,
-                    "canonical_exact": answer
-                    == example["record"]["canonical_answer"],
-                    "field_correct": {
-                        field: bool(parsed is not None and parsed.get(field) == value)
-                        for field, value in target.items()
-                    },
+                    "expected_answer": example["expected_answer"],
+                    "canonical_exact": canonical_exact,
+                    "field_correct": field_correct,
                 }
             )
     return rows
@@ -290,36 +319,56 @@ def main():
     projector.train()
 
     prepare_started = time.monotonic()
+    objective = protocol.get("objective", {"type": "composite_json"})
+    if objective.get("type") == "factorized_fields":
+        task_fields = list(objective["fields"])
+    elif objective.get("type") == "composite_json":
+        task_fields = [None]
+    else:
+        raise ValueError("unsupported grounding objective")
     prepared = []
     for record in records:
-        inputs = model.processor.encode_vqa(
-            record["camera_images"],
-            manifest["question"],
-            system=manifest["system_prompt"],
-            device="cpu",
-        )
-        inputs = {
-            key: value.to(model.device) if torch.is_tensor(value) else value
-            for key, value in inputs.items()
-        }
-        with torch.no_grad():
-            base_embeddings = _vlm._official_multimodal_embeddings(
-                model, inputs
-            ).detach()
         true_tokens, true_mask = _load_control_tokens(record, "true_u")
-        answer_ids = _training.encode_grounding_answer(
-            model.processor, record["canonical_answer"], model.device
-        )
-        prepared.append(
-            {
-                "record": record,
-                "inputs": inputs,
-                "base_embeddings": base_embeddings,
-                "true_tokens": torch.from_numpy(true_tokens).to(model.device),
-                "true_mask": torch.from_numpy(true_mask).to(model.device),
-                "answer_ids": answer_ids,
+        for task_field in task_fields:
+            question = (
+                manifest["question"]
+                if task_field is None
+                else _grounding.FACTORIZED_GROUNDING_QUESTIONS[task_field]
+            )
+            expected_answer = (
+                record["canonical_answer"]
+                if task_field is None
+                else record["target"][task_field]
+            )
+            inputs = model.processor.encode_vqa(
+                record["camera_images"],
+                question,
+                system=manifest["system_prompt"],
+                device="cpu",
+            )
+            inputs = {
+                key: value.to(model.device) if torch.is_tensor(value) else value
+                for key, value in inputs.items()
             }
-        )
+            with torch.no_grad():
+                base_embeddings = _vlm._official_multimodal_embeddings(
+                    model, inputs
+                ).detach()
+            answer_ids = _training.encode_grounding_answer(
+                model.processor, expected_answer, model.device
+            )
+            prepared.append(
+                {
+                    "record": record,
+                    "task_field": task_field,
+                    "expected_answer": expected_answer,
+                    "inputs": inputs,
+                    "base_embeddings": base_embeddings,
+                    "true_tokens": torch.from_numpy(true_tokens).to(model.device),
+                    "true_mask": torch.from_numpy(true_mask).to(model.device),
+                    "answer_ids": answer_ids,
+                }
+            )
     prepare_seconds = time.monotonic() - prepare_started
 
     pre_training_started = time.monotonic()
@@ -363,7 +412,10 @@ def main():
     for optimizer_step in range(1, int(protocol["training"]["optimizer_steps"]) + 1):
         step_started = time.monotonic()
         example = prepared[(optimizer_step - 1) % len(prepared)]
-        projector_before = [parameter.detach().float().clone() for parameter in projector_parameters]
+        projector_before = [
+            parameter.detach().float().clone()
+            for parameter in projector_parameters
+        ]
         lora_before = [parameter.detach().float().clone() for parameter in lora_parameters]
         forward_started = time.monotonic()
         result = _training.visibility_grounding_answer_loss(
@@ -429,6 +481,7 @@ def main():
             {
                 "optimizer_step": optimizer_step,
                 "sample_id": example["record"]["sample_id"],
+                "task_field": example["task_field"],
                 "loss": float(result.loss.detach().item()),
                 "projector_gradient_norm_before_clip": float(
                     projector_gradient_norm.item()
@@ -499,6 +552,7 @@ def main():
         "schema": REPORT_SCHEMA,
         "status": "complete",
         "stage": protocol["stage"],
+        "objective": objective,
         "claim_boundary": protocol["claim_boundary"],
         "protocol_path": str(args.protocol.resolve()),
         "protocol_sha256": _sha256(args.protocol),
