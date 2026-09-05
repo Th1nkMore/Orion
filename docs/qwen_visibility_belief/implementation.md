@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `O0: oracle visibility geometry`
 
-Status: in progress
+Status: complete
 
 The first implementation milestone is intentionally below the VLM boundary. It
 must establish a correct, inspectable, NumPy-only physical visibility map before
@@ -16,7 +16,7 @@ custom Qwen tokens or LoRA training are introduced.
 
 | ID | Deliverable | Status |
 | --- | --- | --- |
-| O0 | CARLA depth decoding, camera calibration, 3D visibility fusion, 2.5D BEV, rendering, unit tests | In progress |
+| O0 | CARLA depth decoding, camera calibration, 3D visibility fusion, 2.5D BEV, rendering, unit tests | Complete (`6addb2fe`) |
 | O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | Not started |
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Not started |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Not started |
@@ -44,6 +44,22 @@ custom Qwen tokens or LoRA training are introduced.
 - Verified against the CARLA sensor reference that depth is encoded as a
   24-bit value in BGRA bytes and represents pixel-to-camera distance with a
   1000 m far plane.
+
+## O0 terminal record
+
+- Commit: `6addb2fe` (`Add oracle visibility geometry`).
+- Added the NumPy-only module
+  `uq_estimator/qwen_visibility_belief.py`.
+- Added `tests/test_qwen_visibility_belief.py` with six physical-geometry and
+  process-isolation tests.
+- Regression command:
+  `pytest -q tests/test_qwen_drive_bridge.py tests/test_qwen_visibility_belief.py`.
+- Result: `23 passed, 1 skipped` in the local Python 3.13 environment.
+- The skipped test is the existing optional OpenCV-dependent bridge test; no O0
+  visibility test was skipped.
+- O0 establishes deterministic geometry and an inspectable schema. It does not
+  establish live CARLA sensor alignment, temporal memory, U-token consumption,
+  Qwen grounding, planning change, or safety.
 
 ## Integrity constraints
 
