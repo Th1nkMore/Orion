@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1a accepted; V1b full-model gradient smoke implemented locally)
+Status: in progress (V1a/V1b accepted; V1c bounded plumbing overfit next)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -28,7 +28,7 @@ inspectable U consumption before any closed-loop claim.
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Complete (`c4f62543`; accepted by run `1165345`) |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Complete (`2d86b809`; accepted on 54-frame derived run) |
 | V0 | Insert U tokens into the 4B VLM with verified positions and disabled-path identity | Complete (`4e4672ba`; direct job `1166148`, reasoning job `1166382`) |
-| V1 | Structured U-grounding warm-up with staged LoRA | In progress (V1a data contract accepted) |
+| V1 | Structured U-grounding warm-up with staged LoRA | In progress (V1a data + V1b gradient path accepted) |
 | P0 | Longitudinal trajectory retiming teacher and flow-matching training path | Not started |
 | C0 | Fixed-baseline versus oracle-U Route 151 closed-loop comparison | Not started |
 | E0 | Independent predicted-depth/visibility estimator | Blocked on interpretable oracle-U consumer evidence |
@@ -571,6 +571,46 @@ inspectable U consumption before any closed-loop claim.
   proves finite nonzero gradients to both adaptation families, frozen-scope
   integrity, answer-only lengths, control evaluation, and a base-weight-free
   checkpoint.
+
+## V1b remote full-model acceptance
+
+- Commit under test: `f285399f`; Slurm job: `1166774`; run id:
+  `qwen_visibility_grounding_v1b_step260_gradient_v1`.
+- Terminal state: `COMPLETED`, exit `0:0`, elapsed `00:09:42`, peak host RSS
+  `1,693,340 KiB`. The model load took 175.17 s. Peak allocated/reserved GPU
+  memory was 12,035/12,492 MB, so native three-camera input and a complete
+  checkpointed language backward fit on the requested A800 without resolution
+  reduction.
+- The answer has 25 supervised tokens. The native-image prompt has 2,798
+  positions; the 48 valid U tokens plus two boundaries produce 2,848 prompt
+  positions and 2,873 total teacher-forced positions. Insertion remains at
+  position 2,701 after the final image.
+- Trainable scope is exactly 1,330,734 projector parameters plus 393,216 LoRA
+  parameters. Vision, embeddings, LM head, and Planning Expert report zero
+  trainable parameters. All eight LoRA-B tensors across layers 27/31 and all
+  four `q/k/v/o` projections receive finite nonzero gradients before the first
+  optimizer step. Projector boundary/output tensors also receive finite
+  nonzero gradients; its earlier layers correctly have zero first-step
+  gradients because the output projection starts at zero.
+- Initial answer-only loss is 1.65026. The combined pre-clip gradient norm is
+  6.727e9, driven by the projector output projection, while the largest LoRA
+  gradient norm is 0.352. The original joint clipping would therefore nearly
+  erase the LoRA update. This is an observed optimization defect to fix before
+  the multi-step probe, not evidence for increasing model capacity.
+- The one-step outputs are not grounded: true-U and shuffled-U terminate with
+  an empty answer; zero-U emits a fenced JSON object with wrong frontier,
+  margin, and action. Exact and per-field accuracy are zero. This is expected
+  to keep V1 open: V1b accepts differentiable connectivity and frozen scope,
+  not learned consumption.
+- The adaptation checkpoint is 6,906,037 bytes with SHA-256
+  `590dc9731269a7441b057928ace06bc4d8fb3fceb73513ead99995522205a6d7`.
+  Independent `weights_only` loading confirms exactly seven projector tensors
+  (1,330,734 values), sixteen LoRA tensors (393,216 values), no base keys, and
+  no optimizer state.
+- V1b is accepted. V1c must separate projector and LoRA gradient clipping,
+  record per-family parameter updates, and attempt a bounded five-frame
+  plumbing overfit. Even a successful V1c remains non-reportable because all
+  five records are Route 151 and lack `OFF_ROUTE` examples.
 
 ## Integrity constraints
 
