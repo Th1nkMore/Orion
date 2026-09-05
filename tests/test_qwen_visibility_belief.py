@@ -325,6 +325,30 @@ def test_observation_memory_rejects_time_reversal():
         raise AssertionError("observation memory must reject time reversal")
 
 
+def test_observation_memory_compensates_carla_yaw_rotation():
+    spec = visibility.VisibilityGridSpec(
+        x_min_m=-2.0,
+        x_max_m=2.0,
+        y_min_m=-2.0,
+        y_max_m=2.0,
+        z_min_m=0.0,
+        z_max_m=1.0,
+        xy_resolution_m=1.0,
+        z_resolution_m=1.0,
+        max_range_m=5.0,
+        surface_tolerance_m=0.5,
+    )
+    initial = (_row_nearest_x(spec, 1.5), _column_nearest_y(spec, 0.5))
+    rotated = (_row_nearest_x(spec, -0.5), _column_nearest_y(spec, 1.5))
+    memory = visibility.VisibilityObservationMemory(spec, max_age_seconds=5.0)
+    memory.update(
+        _mask_belief(spec, observed_cells=[initial]), [0.0, 0.0, 0.0], 0.0
+    )
+    state = memory.update(_mask_belief(spec), [0.0, 0.0, 90.0], 0.5)
+    assert state.previously_observed[rotated]
+    assert state.age_seconds[rotated] == 0.5
+
+
 def test_carla_world_route_conversion_preserves_qwen_left_axis():
     route = np.asarray([[10.0, 0.0], [10.0, -5.0], [10.0, -10.0]])
     local = visibility.carla_world_route_to_qwen_ego(
@@ -408,10 +432,14 @@ def test_temporal_and_exposure_renders_are_auditable_uint8():
     )
     memory_rgb = visibility.render_observation_memory(state)
     exposure_rgb = visibility.render_visibility_exposure(exposure)
+    urgency_rgb = visibility.render_visibility_urgency(exposure)
     assert memory_rgb.shape == spec.shape_bev + (3,)
     assert exposure_rgb.shape == spec.shape_bev + (3,)
+    assert urgency_rgb.shape == spec.shape_bev + (3,)
     assert memory_rgb.dtype == np.uint8
     assert exposure_rgb.dtype == np.uint8
+    assert urgency_rgb.dtype == np.uint8
+    assert not urgency_rgb[..., 1:].any()
     assert visibility.observation_memory_metadata(state)["schema"] == (
         visibility.OBSERVATION_MEMORY_SCHEMA
     )

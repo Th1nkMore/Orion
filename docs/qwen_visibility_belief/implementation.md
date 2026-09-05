@@ -4,14 +4,15 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 ## Current milestone
 
-`O2: temporal observation memory and deterministic exposure`
+`O3: global/frontier U tokenizer`
 
-Status: in progress (local implementation complete; live validation pending)
+Status: not started (O2 accepted by live Route 151 run `1165345`)
 
-O1 is accepted. O2 now adds ego-motion-compensated observation age and a
-separate route/stopping exposure view. The live gate is to verify that temporal
-states persist at the same world locations and that urgency selects plausible
-frontiers before Route 151's pedestrian reveal without altering Qwen output.
+O2 is accepted as an interpretable representation milestone. It establishes
+ego-motion-compensated observation age and a separate route/stopping exposure
+view on live CARLA data, but it does not establish Qwen consumption or safety.
+O3 must turn the physical fields into deterministic global and frontier tokens,
+with serialization and zero/spatial-shuffle controls, before any VLM injection.
 
 ## Ordered implementation ladder
 
@@ -19,7 +20,7 @@ frontiers before Route 151's pedestrian reveal without altering Qwen output.
 | --- | --- | --- |
 | O0 | CARLA depth decoding, camera calibration, 3D visibility fusion, 2.5D BEV, rendering, unit tests | Complete (`6addb2fe`) |
 | O1 | Add co-located oracle depth sensors to the Qwen agent behind an explicit oracle-only config | Complete (`c8fac0b5`; accepted by run `1165332`) |
-| O2 | Observation-age memory and deterministic urgency/stopping-margin map | In progress (local implementation and tests complete) |
+| O2 | Observation-age memory and deterministic urgency/stopping-margin map | Complete (`c4f62543`; accepted by run `1165345`) |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Not started |
 | V0 | Insert U tokens into the 4B VLM with verified positions and zero-U identity | Not started |
 | V1 | Structured U-grounding warm-up with staged LoRA | Not started |
@@ -190,10 +191,13 @@ frontiers before Route 151's pedestrian reveal without altering Qwen output.
   `(103.522, 302.732)`: route score 100, penalty 0.5, driving score 50. Its
   reasoning changes from recognizing a parked vehicle on the right to
   recognizing a pedestrian by step 250, but the plan/controller maintains
-  speed; at step 260 the text says to decelerate while the issued control still
-  has throttle 0.75 and brake 0.0. This establishes separate consumer and
-  longitudinal-control gaps. O1 itself intentionally cannot improve either
-  because `used_by_qwen=false`.
+  speed. At step 260 the text says to decelerate, but the generated trajectory
+  still asks for about 5.60 m/s while ego speed is 4.96 m/s; the PID therefore
+  applies throttle 0.75 and brake 0.0. This is a reasoning/planning-output
+  mismatch, not evidence that the controller failed to execute a conservative
+  trajectory. At steps 270/280 throttle becomes zero only because ego speed is
+  above the configured 5 m/s cap; brake remains zero. O1 intentionally cannot
+  improve this consumer gap because `used_by_qwen=false`.
 - As in attempt 3, the evaluator JSON's `eligible=true` field is not a valid
   official-track claim: the explicit oracle-depth harness makes this run
   scientifically ineligible for the Bench2Drive SENSORS track.
@@ -232,10 +236,12 @@ frontiers before Route 151's pedestrian reveal without altering Qwen output.
   for a reported comparison requires a recorded configuration change.
 - Local relevant regression:
   `pytest -q tests/test_qwen_visibility_belief.py tests/test_qwen_drive_bridge.py tests/test_closedloop_sensor_diagnostics.py`.
-  Result: `44 passed, 1 skipped`; Python compilation and `git diff --check`
+  Result after the yaw-compensation and urgency-render audits:
+  `45 passed, 1 skipped`; Python compilation, shell syntax, and
+  `git diff --check`
   also passed. The skip is the existing optional local OpenCV transport test.
-- O2 remains open until a live run validates temporal warp, route projection,
-  stopping-distance arithmetic, pre-reveal frontier selection, artifact
+- O2 remained open at this point pending a live run validating temporal warp,
+  route projection, stopping-distance arithmetic, frontier selection, artifact
   integrity, and derived runtime overhead.
 
 ## O2 remote attempt 1
@@ -251,6 +257,55 @@ frontiers before Route 151's pedestrian reveal without altering Qwen output.
   configured shared asset root, validates `tools/split_xml.py`, forwards both
   paths explicitly, and prints them in dry-run provenance. Attempt 2 was
   submitted with those explicit roots as Slurm job `1165345`.
+
+## O2 remote attempt 2 and acceptance
+
+- Commit under test: `c4f62543`; Slurm job: `1165345`; run id:
+  `qwen_oracle_visibility_route151_reasoning_sft_seed42_o2_v2`.
+- Terminal state: Slurm `COMPLETED`, exit `0:0`, elapsed `00:19:05`, peak RSS
+  `6,000,380 KiB`. The route completed 100% in 26.85 s simulation time and
+  again received route score 100, penalty 0.5, driving score 50 after a
+  pedestrian collision at `(100.723, 303.171)`.
+- The 46 MB run directory contains 54 Qwen plans, 54 belief tensors, 54 base
+  belief PNGs, 54 memory PNGs, 54 exposure PNGs, 537 controller trace rows,
+  five sensor-audit directories, and all 30 requested native audit images.
+  Every NPZ has finite float32 visibility `[5,120,100]`, observation memory
+  `[4,120,100]`, and exposure `[6,120,100]` arrays. The visibility partition,
+  memory partition, current-age, never-age, stopping-margin, and exact urgency
+  formula invariants all pass.
+- Observation memory showed 0 to 2,075 previously observed cells and retained
+  the explicit never-observed state separately. The normalized previous age
+  reached 1.0, corresponding to the configured 10 s cap. The added unit audit
+  also verifies that a 90-degree CARLA yaw change rotates remembered world
+  evidence into the correct Qwen ego-grid cell.
+- Across 54 frames, geometry time was mean 0.150 s, median 0.135 s, p95
+  0.253 s, max 0.451 s. The derived memory, route, and exposure stage was mean
+  0.0074 s, median 0.0071 s, p95 0.0122 s, max 0.0139 s. Stopping distance
+  ranged from approximately 0 to 8.73 m. Non-zero urgent-frontier support
+  ranged from 52 to 1,210 cells; frame maxima ranged from `5.29e-05` to 0.650.
+- The live fields select the physically relevant forward-right occlusion near
+  the parked vehicle. For example, the maximum urgency moves from
+  `(x=6.25,y=-4.75)` at step 220 to `(5.75,-2.75)` at step 250 and
+  `(5.25,-3.75)` at step 260. The step-260 native RGB audit shows the
+  pedestrian emerging beside the parked police vehicle, while Qwen's recorded
+  reasoning never mentions the pedestrian in this run.
+- The available native audit at step 200 shows the parked occluder but no
+  pedestrian, and already has weak forward-right exposure. However, the run
+  did not save native RGB at steps 220/240/250, so the stronger signal there
+  must not be claimed as strictly pre-reveal evidence from this run alone.
+  Future audits now include all three steps to bracket the reveal directly.
+- The combined exposure PNG made low absolute urgency visually hard to audit.
+  A separate fixed-scale red-only urgency renderer is therefore added for
+  future runs; it uses absolute saturation 0.5 rather than per-frame
+  normalization, preserving cross-frame comparability.
+- Every artifact remains `used_by_qwen=false`, and the model still collided.
+  This run accepts temporal memory, route projection, exposure arithmetic,
+  plausible spatial selection, integrity, and runtime only. It makes no causal
+  safety claim. As with O1, the explicit oracle-depth harness also makes the
+  evaluator's JSON `eligible=true` field invalid as an official SENSORS score.
+- O2 acceptance: the representation is stable and inspectable enough to feed
+  the tokenizer. The next gate is O3 serialization and controls; V0 must still
+  prove that U actually enters the VLM prefix before any behavioral claim.
 
 ## Integrity constraints
 

@@ -967,6 +967,20 @@ def render_visibility_exposure(exposure: VisibilityExposure) -> np.ndarray:
     return np.clip(np.rint(rgb), 0, 255).astype(np.uint8)
 
 
+def render_visibility_urgency(
+    exposure: VisibilityExposure, saturation_value: float = 0.5
+) -> np.ndarray:
+    """Render absolute frontier urgency in red without per-frame normalization."""
+
+    saturation = float(saturation_value)
+    if not math.isfinite(saturation) or saturation <= 0.0:
+        raise ValueError("saturation_value must be finite and positive")
+    scaled = np.clip(exposure.urgency / saturation, 0.0, 1.0)
+    rgb = np.zeros(exposure.spec.shape_bev + (3,), dtype=np.uint8)
+    rgb[..., 0] = np.rint(scaled * 255.0).astype(np.uint8)
+    return rgb
+
+
 def observation_memory_metadata(state: ObservationMemoryState) -> Dict[str, object]:
     """Return JSON-safe temporal observation metadata."""
 

@@ -75,6 +75,7 @@ observation_memory_metadata = _visibility.observation_memory_metadata
 render_observation_memory = _visibility.render_observation_memory
 render_visibility_belief = _visibility.render_visibility_belief
 render_visibility_exposure = _visibility.render_visibility_exposure
+render_visibility_urgency = _visibility.render_visibility_urgency
 visibility_exposure_metadata = _visibility.visibility_exposure_metadata
 visibility_grid_spec_from_mapping = _visibility.visibility_grid_spec_from_mapping
 VisibilityObservationMemory = _visibility.VisibilityObservationMemory
@@ -440,6 +441,13 @@ class QwenDriveBench2DriveAgent(autonomous_agent.AutonomousAgent):
                 ):
                     raise RuntimeError("failed to write visibility-exposure PNG")
                 artifact["exposure_png"] = str(exposure_path)
+                urgency_path = self.oracle_artifact_root / (stem + "_urgency.png")
+                urgency_rgb = render_visibility_urgency(exposure)
+                if not cv2.imwrite(
+                    str(urgency_path), cv2.cvtColor(urgency_rgb, cv2.COLOR_RGB2BGR)
+                ):
+                    raise RuntimeError("failed to write visibility-urgency PNG")
+                artifact["urgency_png"] = str(urgency_path)
             if audit_snapshot:
                 audit_root = self.oracle_artifact_root / "sensor_audit" / stem
                 audit_root.mkdir(parents=True, exist_ok=False)

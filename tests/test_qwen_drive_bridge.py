@@ -99,7 +99,7 @@ def test_oracle_visibility_config_is_explicit_and_does_not_replace_rgb_views():
         bridge.QWEN_VIEW_BY_SENSOR
     )
     assert set(oracle["depth_sensor_by_rgb"]).isdisjoint(config["sensors"])
-    assert oracle["audit_snapshot_steps"] == [0, 200, 260, 280, 300]
+    assert oracle["audit_snapshot_steps"] == [0, 200, 220, 240, 250, 260, 280, 300]
     assert oracle["audit_depth_max_m"] == 60.0
     assert oracle["temporal_memory"] == {
         "enabled": True,
