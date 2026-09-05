@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: not started (V0 direct and reasoning-path interface gates accepted)
+Status: in progress (V1a target/manifest contract implemented locally)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -28,7 +28,7 @@ inspectable U consumption before any closed-loop claim.
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Complete (`c4f62543`; accepted by run `1165345`) |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Complete (`2d86b809`; accepted on 54-frame derived run) |
 | V0 | Insert U tokens into the 4B VLM with verified positions and disabled-path identity | Complete (`4e4672ba`; direct job `1166148`, reasoning job `1166382`) |
-| V1 | Structured U-grounding warm-up with staged LoRA | Not started |
+| V1 | Structured U-grounding warm-up with staged LoRA | In progress (V1a target/manifest contract) |
 | P0 | Longitudinal trajectory retiming teacher and flow-matching training path | Not started |
 | C0 | Fixed-baseline versus oracle-U Route 151 closed-loop comparison | Not started |
 | E0 | Independent predicted-depth/visibility estimator | Blocked on interpretable oracle-U consumer evidence |
@@ -498,6 +498,27 @@ inspectable U consumption before any closed-loop claim.
   trajectories improve, or that Route 151 becomes safer. The live CARLA agent
   has not yet been wired to a trained sidecar and still writes
   `used_by_qwen=false`; those are V1/C0 deliverables.
+
+## V1a structured-grounding data-contract record
+
+- Added `docs/qwen_visibility_belief/grounding_contract.md` before starting an
+  optimizer. It fixes the exact four-field answer, deterministic target
+  thresholds, frozen-model boundary, nonclaims, and acceptance gates.
+- Added a NumPy-only target/manifest module and refuse-to-overwrite builder.
+  The builder joins immutable O3 true-U artifacts to native 1600x900 RGB audit
+  images, hashes every input, records all numeric label evidence, and marks the
+  sparse Route 151 set as a non-reportable plumbing overfit.
+- O3 frontier rows are serialized in descending score order, which would make
+  the maximum-score identity target trivially `F00`. V1 therefore records and
+  applies a seeded complete-row permutation before deriving the frontier label.
+  This changes only arbitrary sequence order; it is distinct from the
+  spatial-shuffle causal control, which deliberately misaligns content.
+- Zero-U and spatial-shuffle controls are prohibited from optimizer examples.
+  Hidden-actor labels and the Planning Expert are also absent from this stage.
+- Local target, boundary, permutation, provenance, hashing, overwrite, O3, and
+  bridge regression: `48 passed, 1 skipped`. Python compilation and
+  `git diff --check` pass. V1a remains open until the manifest is built and
+  audited against the five retained real Route 151 sensor-audit steps.
 
 ## Integrity constraints
 

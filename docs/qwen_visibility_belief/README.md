@@ -1,6 +1,6 @@
 # Qwen visibility-belief research track
 
-> Status: implementation in progress; V0 VLM insertion accepted, V1 structured grounding next
+> Status: implementation in progress; V1 structured-grounding data contract under test
 > Decision date: 2026-09-06 (Asia/Shanghai)
 > Branch: `codex/qwen-drive-transition`
 
@@ -18,6 +18,7 @@ with Qwen.
 | [adr.md](adr.md) | Accepted architecture, training, evaluation, fallback, and rejected alternatives |
 | [implementation.md](implementation.md) | Ordered implementation ladder, current status, and execution trace |
 | [vlm_insertion_contract.md](vlm_insertion_contract.md) | Verified Qwen3.5 embedding, mRoPE, cache, anchor, and control contract |
+| [grounding_contract.md](grounding_contract.md) | V1 labels, anti-shortcut permutation, freezing boundary, and acceptance gates |
 
 ## Immediate execution target
 
