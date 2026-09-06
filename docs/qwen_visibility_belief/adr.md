@@ -22,6 +22,7 @@ that later experiments had already succeeded when the decision was made.
 | D4 | Direct planner injection risks bypassing the VLM contribution | Inject into the 4B VLM first; allow Planning Expert injection only as a gated fallback | 5, Fallback |
 | D5 | Qwen's ability to learn multimodal U is unproven | Prove oracle-U grounding first, then staged LoRA and longitudinal planning | 7–10 |
 | D6 | A weak/custom agent or changed input profile could confound the result | Keep official/native processing, one controlled baseline, Bench2Drive primary and NAVSIM secondary | 12, 13 |
+| D7 | V1i can memorize repeated target rows, while spatial shuffle is physically inconsistent | Run V1j with disjoint queried target rows and one held-out frame; keep shuffle out of optimization and report it as a non-veto diagnostic | 8, V1j target-row gate |
 
 User acceptance closed these architectural branches. Numerical implementation
 parameters listed at the end remain open and do not have decision status. A
@@ -228,6 +229,30 @@ features on those target rows. The next bounded probe must make the requested
 physical field statistically identifiable using disjoint real target rows and
 counterexamples to those covariates. It must keep semantic interpretation in
 the VLM and may not respond by moving the route decision into the adapter.
+
+#### V1j target-row gate amendment
+
+The accepted next probe changes the data split, not the model. V1j retains the
+V1i slot-typed projector, all-eight-full-attention LoRA scope, optimizer,
+questions, native inputs, seed, and frozen Planning Expert. It trains on 13
+real ON/OFF queried-row pairs and evaluates five different queried-row pairs;
+`route151-step-000200` is entirely absent from training. Each training pair has
+three randomized non-query orders and each evaluation pair has two.
+
+Spatial-shuffle examples remain excluded from the optimizer. They are still
+generated and reported, but the prior requirement that at least 80% of
+shuffled outputs follow the shuffled target is not a V1j hard gate. That
+intervention deliberately breaks physical consistency between spatial fields
+and other row content, so it is a stress diagnostic rather than a veto on the
+target-row test. This amendment does not rewrite V1f-V1i, which remain judged
+by their preregistered gates.
+
+V1j instead fails closed on at least 90% true-U accuracy overall and for each
+label, at least 80% jointly correct held-out matched pairs, and at least a
+30-percentage-point true-U gap over the stronger zero/shuffle control when
+scored against the original target. Passing establishes only bounded
+route-scalar plumbing across unseen queried rows, including one unseen frame;
+it does not establish full grounding, planning, or safety.
 
 ### 9. Train a longitudinal response first
 

@@ -34,6 +34,9 @@ ROW_ADDRESSED_CURRICULUM_SCHEMA = (
 ROUTE_READOUT_CURRICULUM_SCHEMA = (
     "orion.qwen-visibility-route-readout-curriculum/v1"
 )
+TARGET_ROW_ROUTE_READOUT_CURRICULUM_SCHEMA = (
+    "orion.qwen-visibility-target-row-route-readout-curriculum/v1"
+)
 ROW_ADDRESSED_FIELDS = ("frontier", "route", "margin", "action")
 FRONTIER_TARGET_SLOTS = (3, 13, 23)
 ROW_QUERY_SLOTS = {"route": 0, "margin": 1, "action": 2}
@@ -47,6 +50,29 @@ CONTROL_PREFIXES = {
     "true_u": "visibility_tokens",
     "zero_u": "visibility_tokens_zero_u",
     "spatial_shuffle": "visibility_tokens_spatial_shuffle",
+}
+
+V1J_TARGET_ROW_PAIRS = {
+    "route151-step-000000": {
+        "train": ((6, 24), (14, 28)),
+        "held_out_target_rows": ((1, 20),),
+    },
+    "route151-step-000200": {
+        "train": (),
+        "held_out_target_rows": ((11, 31),),
+    },
+    "route151-step-000260": {
+        "train": ((4, 15), (10, 28), (17, 31)),
+        "held_out_target_rows": ((0, 8),),
+    },
+    "route151-step-000280": {
+        "train": ((9, 3), (11, 5), (15, 20), (29, 23), (31, 25)),
+        "held_out_target_rows": ((0, 2),),
+    },
+    "route151-step-000300": {
+        "train": ((6, 24), (9, 26), (11, 30)),
+        "held_out_target_rows": ((5, 16),),
+    },
 }
 
 
@@ -821,6 +847,240 @@ def build_route151_route_readout_curriculum(
         "evaluation_label_counts": dict(sorted(evaluation_label_counts.items())),
         "optimizer_steps": optimizer_steps,
         "optimizer_label_counts": dict(sorted(schedule_label_counts.items())),
+        "training_schedule": schedule,
+        "examples": examples,
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        json.dumps(curriculum, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return curriculum
+
+
+def build_route151_target_row_route_readout_curriculum(
+    base_manifest_path: Path,
+    output_path: Path,
+    train_pair_variants: int = 3,
+    evaluation_pair_variants: int = 2,
+    optimizer_steps: int = 240,
+    seed: int = 1701,
+    thresholds: GroundingThresholds = GroundingThresholds(),
+) -> dict:
+    """Build V1j with disjoint queried target rows and one held-out frame."""
+
+    integer_values = (
+        train_pair_variants,
+        evaluation_pair_variants,
+        optimizer_steps,
+        seed,
+    )
+    if any(
+        isinstance(value, bool) or int(value) != value
+        for value in integer_values
+    ):
+        raise ValueError("target-row curriculum counts and seed must be integers")
+    train_pair_variants = int(train_pair_variants)
+    evaluation_pair_variants = int(evaluation_pair_variants)
+    optimizer_steps = int(optimizer_steps)
+    seed = int(seed)
+    if train_pair_variants <= 0 or evaluation_pair_variants <= 0:
+        raise ValueError("target-row train/evaluation variants must be positive")
+    if optimizer_steps <= 0 or optimizer_steps % 2:
+        raise ValueError("target-row optimizer steps must be positive and even")
+
+    base_manifest_path = Path(base_manifest_path).resolve()
+    output_path = Path(output_path).resolve()
+    if output_path.exists():
+        raise FileExistsError(
+            "refusing to overwrite target-row curriculum: %s" % output_path
+        )
+    base = json.loads(base_manifest_path.read_text(encoding="utf-8"))
+    if base.get("schema") != VISIBILITY_GROUNDING_MANIFEST_SCHEMA:
+        raise ValueError("unexpected base grounding manifest schema")
+    if (
+        base.get("reportable_generalization") is not False
+        or base.get("controls_used_for_optimizer") is not False
+        or base.get("hidden_actor_labels_used") is not False
+        or base.get("planning_expert_used_for_optimizer") is not False
+    ):
+        raise ValueError("base manifest violates the V1 boundary")
+
+    records = {str(record["sample_id"]): record for record in base["records"]}
+    if set(records) != set(V1J_TARGET_ROW_PAIRS):
+        raise ValueError("V1j requires the five immutable Route 151 records")
+    examples = []
+    pair_ordinal = 0
+    for sample_id in sorted(V1J_TARGET_ROW_PAIRS):
+        record = records[sample_id]
+        for image, digest in zip(record["camera_images"], record["camera_sha256"]):
+            if _sha256(Path(image)) != digest:
+                raise ValueError("base grounding image hash changed")
+        controls, mask, feature_names = _load_control_frontiers(record)
+        split_pairs = V1J_TARGET_ROW_PAIRS[sample_id]
+        for split in ("train", "held_out_target_rows"):
+            variant_count = (
+                train_pair_variants
+                if split == "train"
+                else evaluation_pair_variants
+            )
+            for pair_index, (on_index, off_index) in enumerate(split_pairs[split]):
+                pair_prefix = (
+                    "target-row-readout-%s-p%02d-on-F%02d-off-F%02d"
+                    % (sample_id, pair_index, on_index, off_index)
+                )
+                seen_orders = {"ON_ROUTE": set(), "OFF_ROUTE": set()}
+                for variant_index in range(variant_count):
+                    variant_seed = seed + pair_ordinal * 100 + variant_index
+                    on_permutation, off_permutation = paired_route_readout_permutations(
+                        int(mask.sum()), on_index, off_index, variant_seed
+                    )
+                    pair_examples = (
+                        _route_readout_example(
+                            record,
+                            controls,
+                            mask,
+                            feature_names,
+                            on_permutation,
+                            "ON_ROUTE",
+                            on_index,
+                            off_index,
+                            split,
+                            pair_prefix,
+                            variant_index,
+                            variant_seed,
+                            thresholds,
+                        ),
+                        _route_readout_example(
+                            record,
+                            controls,
+                            mask,
+                            feature_names,
+                            off_permutation,
+                            "OFF_ROUTE",
+                            off_index,
+                            on_index,
+                            split,
+                            pair_prefix,
+                            variant_index,
+                            variant_seed,
+                            thresholds,
+                        ),
+                    )
+                    for example in pair_examples:
+                        order = tuple(example["sequence_permutation_new_to_manifest"])
+                        label = str(example["expected_answer"])
+                        if order in seen_orders[label]:
+                            raise RuntimeError("target-row decoy order repeated")
+                        seen_orders[label].add(order)
+                        examples.append(example)
+                pair_ordinal += 1
+
+    examples.sort(key=lambda value: value["example_id"])
+    by_id = {example["example_id"]: example for example in examples}
+    if len(by_id) != len(examples):
+        raise RuntimeError("target-row curriculum contains duplicate ids")
+    training_ids = sorted(
+        example["example_id"]
+        for example in examples
+        if example["split"] == "train"
+    )
+    evaluation_ids = sorted(
+        example["example_id"]
+        for example in examples
+        if example["split"] == "held_out_target_rows"
+    )
+    target_rows = {"train": defaultdict(set), "held_out_target_rows": defaultdict(set)}
+    for example in examples:
+        target_rows[example["split"]][example["sample_id"]].add(
+            int(str(example["source_manifest_frontier"])[1:])
+        )
+    for sample_id in V1J_TARGET_ROW_PAIRS:
+        if target_rows["train"][sample_id] & target_rows["held_out_target_rows"][sample_id]:
+            raise RuntimeError("V1j queried target row leaked across splits")
+    held_out_frame = "route151-step-000200"
+    if target_rows["train"][held_out_frame]:
+        raise RuntimeError("V1j held-out frame entered the training split")
+
+    training_pools = {
+        label: sorted(
+            example_id
+            for example_id in training_ids
+            if by_id[example_id]["expected_answer"] == label
+        )
+        for label in ("ON_ROUTE", "OFF_ROUTE")
+    }
+    schedule = []
+    for round_index in range(optimizer_steps // 2):
+        for label in ("ON_ROUTE", "OFF_ROUTE"):
+            pool = training_pools[label]
+            if not pool:
+                raise RuntimeError("target-row training split is missing a label")
+            schedule.append(pool[round_index % len(pool)])
+
+    training_label_counts = Counter(
+        by_id[value]["expected_answer"] for value in training_ids
+    )
+    evaluation_label_counts = Counter(
+        by_id[value]["expected_answer"] for value in evaluation_ids
+    )
+    optimizer_label_counts = Counter(
+        by_id[value]["expected_answer"] for value in schedule
+    )
+    if training_label_counts != Counter({"ON_ROUTE": 39, "OFF_ROUTE": 39}):
+        raise RuntimeError("V1j training labels are not balanced")
+    if evaluation_label_counts != Counter({"ON_ROUTE": 10, "OFF_ROUTE": 10}):
+        raise RuntimeError("V1j evaluation labels are not balanced")
+    if optimizer_label_counts != Counter({"ON_ROUTE": 120, "OFF_ROUTE": 120}):
+        raise RuntimeError("V1j optimizer labels are not balanced")
+
+    serialized_split = {
+        sample_id: {
+            split: [
+                {"on_route_row": int(on_index), "off_route_row": int(off_index)}
+                for on_index, off_index in V1J_TARGET_ROW_PAIRS[sample_id][split]
+            ]
+            for split in ("train", "held_out_target_rows")
+        }
+        for sample_id in sorted(V1J_TARGET_ROW_PAIRS)
+    }
+    curriculum = {
+        "schema": TARGET_ROW_ROUTE_READOUT_CURRICULUM_SCHEMA,
+        "purpose": (
+            "Route 151 queried-target-row-disjoint matched-pair route readout "
+            "plumbing diagnostic only"
+        ),
+        "base_manifest_path": str(base_manifest_path),
+        "base_manifest_sha256": _sha256(base_manifest_path),
+        "reportable_generalization": False,
+        "oracle_depth": True,
+        "hidden_actor_labels_used": False,
+        "controls_used_for_optimizer": False,
+        "spatial_shuffle_examples_used_for_optimizer": False,
+        "planning_expert_used_for_optimizer": False,
+        "complete_row_permutations_only": True,
+        "matched_pairs_differ_only_by_query_row_swap": True,
+        "non_query_order_randomized": True,
+        "held_out_target_row_evaluation": True,
+        "queried_target_rows_disjoint_verified": True,
+        "fully_held_out_frame": held_out_frame,
+        "spatial_shuffle_target_changed_for_every_example": True,
+        "spatial_shuffle_evaluation_role": "reported_diagnostic_not_hard_gate",
+        "query_frontier": "F00",
+        "thresholds": thresholds.as_dict(),
+        "seed": seed,
+        "train_pair_variants": train_pair_variants,
+        "evaluation_pair_variants": evaluation_pair_variants,
+        "distinct_training_target_pairs": 13,
+        "distinct_evaluation_target_pairs": 5,
+        "target_row_split": serialized_split,
+        "example_count": len(examples),
+        "training_example_ids": training_ids,
+        "evaluation_example_ids": evaluation_ids,
+        "training_label_counts": dict(sorted(training_label_counts.items())),
+        "evaluation_label_counts": dict(sorted(evaluation_label_counts.items())),
+        "optimizer_steps": optimizer_steps,
+        "optimizer_label_counts": dict(sorted(optimizer_label_counts.items())),
         "training_schedule": schedule,
         "examples": examples,
     }

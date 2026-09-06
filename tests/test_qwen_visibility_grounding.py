@@ -240,6 +240,130 @@ def _write_full_control_token(path, step):
     np.savez_compressed(path, **arrays)
 
 
+def _write_v1j_control_token(path, sample_id):
+    global_tokens = np.zeros((16, len(NAMES)), dtype=np.float32)
+    global_tokens[:, INDEX["token_is_global"]] = 1.0
+    true = np.zeros((32, len(NAMES)), dtype=np.float32)
+    shuffled = np.zeros_like(true)
+    true[:, INDEX["token_is_frontier"]] = 1.0
+    shuffled[:, INDEX["token_is_frontier"]] = 1.0
+    selected = curriculum.V1J_TARGET_ROW_PAIRS[sample_id]
+    for split in ("train", "held_out_target_rows"):
+        for on_index, off_index in selected[split]:
+            true[on_index, INDEX["route_weight_mean"]] = 0.8
+            true[off_index, INDEX["route_weight_mean"]] = 0.0
+            shuffled[on_index, INDEX["route_weight_mean"]] = 0.0
+            shuffled[off_index, INDEX["route_weight_mean"]] = 0.8
+    true[:, INDEX["frontier_selection_score"]] = np.linspace(1.0, 0.1, 32)
+    shuffled[:, INDEX["frontier_selection_score"]] = np.linspace(0.1, 1.0, 32)
+    mask = np.ones(32, dtype=bool)
+    arrays = {
+        "visibility_tokens_global": global_tokens,
+        "visibility_tokens_frontier": true,
+        "visibility_tokens_global_mask": np.ones(16, dtype=bool),
+        "visibility_tokens_frontier_mask": mask,
+        "visibility_tokens_feature_names": np.asarray(NAMES),
+    }
+    for control, values in (
+        ("zero_u", np.zeros_like(true)),
+        ("spatial_shuffle", shuffled),
+    ):
+        prefix = "visibility_tokens_" + control
+        arrays[prefix + "_global"] = np.zeros_like(global_tokens)
+        arrays[prefix + "_frontier"] = values
+        arrays[prefix + "_global_mask"] = np.ones(16, dtype=bool)
+        arrays[prefix + "_frontier_mask"] = mask
+        arrays[prefix + "_feature_names"] = np.asarray(NAMES)
+    np.savez_compressed(path, **arrays)
+
+
+def test_target_row_curriculum_is_disjoint_balanced_and_refuses_overwrite(
+    tmp_path,
+):
+    base_path = tmp_path / "base-v1j.json"
+    records = []
+    for sample_id in sorted(curriculum.V1J_TARGET_ROW_PAIRS):
+        token_path = tmp_path / (sample_id + ".npz")
+        _write_v1j_control_token(token_path, sample_id)
+        images = []
+        image_hashes = []
+        for camera in ("front", "left", "right"):
+            image_path = tmp_path / (sample_id + "-" + camera + ".png")
+            image_path.write_bytes((sample_id + "-" + camera).encode())
+            images.append(str(image_path))
+            image_hashes.append(hashlib.sha256(image_path.read_bytes()).hexdigest())
+        records.append(
+            {
+                "sample_id": sample_id,
+                "token_artifact": str(token_path),
+                "token_sha256": hashlib.sha256(token_path.read_bytes()).hexdigest(),
+                "camera_images": images,
+                "camera_sha256": image_hashes,
+                "frontier_permutation_new_to_old": list(range(32)),
+            }
+        )
+    base_path.write_text(
+        json.dumps(
+            {
+                "schema": grounding.VISIBILITY_GROUNDING_MANIFEST_SCHEMA,
+                "reportable_generalization": False,
+                "controls_used_for_optimizer": False,
+                "hidden_actor_labels_used": False,
+                "planning_expert_used_for_optimizer": False,
+                "records": records,
+            }
+        )
+    )
+    output = tmp_path / "target-row-curriculum.json"
+    result = curriculum.build_route151_target_row_route_readout_curriculum(
+        base_path, output
+    )
+    assert result["example_count"] == 98
+    assert len(result["training_example_ids"]) == 78
+    assert len(result["evaluation_example_ids"]) == 20
+    assert result["distinct_training_target_pairs"] == 13
+    assert result["distinct_evaluation_target_pairs"] == 5
+    assert result["fully_held_out_frame"] == "route151-step-000200"
+    assert result["training_label_counts"] == {
+        "OFF_ROUTE": 39,
+        "ON_ROUTE": 39,
+    }
+    assert result["evaluation_label_counts"] == {
+        "OFF_ROUTE": 10,
+        "ON_ROUTE": 10,
+    }
+    assert result["optimizer_label_counts"] == {
+        "OFF_ROUTE": 120,
+        "ON_ROUTE": 120,
+    }
+    by_id = {example["example_id"]: example for example in result["examples"]}
+    assert not any(
+        by_id[example_id]["sample_id"] == "route151-step-000200"
+        for example_id in result["training_schedule"]
+    )
+    for sample_id in curriculum.V1J_TARGET_ROW_PAIRS:
+        train_rows = {
+            by_id[value]["source_manifest_frontier"]
+            for value in result["training_example_ids"]
+            if by_id[value]["sample_id"] == sample_id
+        }
+        eval_rows = {
+            by_id[value]["source_manifest_frontier"]
+            for value in result["evaluation_example_ids"]
+            if by_id[value]["sample_id"] == sample_id
+        }
+        assert train_rows.isdisjoint(eval_rows)
+    assert result["spatial_shuffle_examples_used_for_optimizer"] is False
+    assert (
+        result["spatial_shuffle_evaluation_role"]
+        == "reported_diagnostic_not_hard_gate"
+    )
+    with pytest.raises(FileExistsError):
+        curriculum.build_route151_target_row_route_readout_curriculum(
+            base_path, output
+        )
+
+
 def test_row_curriculum_is_real_row_balanced_and_refuses_overwrite(tmp_path):
     base_path = tmp_path / "base.json"
     records = []

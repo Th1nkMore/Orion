@@ -294,3 +294,24 @@ only row orders—and include real counterexamples that break route-weight
 correlation with urgency, unknown area, observation age, and frontier score.
 The adapter must continue to expose physical fields without computing the
 answer itself. Gates and causal controls remain fail-closed.
+
+### V1j queried-target-row gate
+
+V1j keeps the exact V1i model-side contract and changes only the immutable
+curriculum. Thirteen real ON/OFF row pairs supply 78 training examples under
+three decoy orders per pair. Five different ON/OFF row pairs supply 20
+evaluation examples under two decoy orders per pair. Queried source rows are
+disjoint between the two splits within every frame, and
+`route151-step-000200` supplies no optimizer example at all. Evaluation rows
+may have appeared only as unqueried decoys in other complete-row permutations;
+this is target-row-disjoint plumbing, not unseen-value or broad generalization.
+
+Only true U enters the optimizer. Zero U and spatial shuffle are evaluation
+arms. Spatial shuffle must be reported, but its changed-target accuracy is not
+a hard V1j gate. Acceptance requires at least 90% held-out true-U accuracy,
+90% for each of `ON_ROUTE` and `OFF_ROUTE`, 80% jointly correct matched pairs,
+and a 30-percentage-point true-U advantage over the stronger control on the
+original target. Curriculum hashes, exact target-row allocation, the held-out
+frame, complete permutations, schedule balance, train/evaluation leakage,
+trainable scope, gradients, and adaptation-only checkpoint contents remain
+fail-closed protocol checks.

@@ -171,6 +171,14 @@ that replacing the backbone alone solves uncertainty-aware planning:
   not distinguish exact field readout from memorized row templates. The next
   open frontier is therefore data/field identifiability, not more epochs or
   broader attention scope.
+- V1j is the accepted data-identifiability probe. It keeps the V1i model and
+  optimization settings but replaces repeated target rows with 13 training
+  ON/OFF target-row pairs and five disjoint evaluation pairs. The
+  `route151-step-000200` frame is evaluation-only. Spatial shuffle remains a
+  fully reported control and remains absent from the optimizer, but its former
+  80% changed-target threshold is no longer a hard veto; true-U/per-label,
+  matched-pair, target-row leakage, and 30-point stronger-control-gap checks
+  are the V1j gates.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
@@ -201,7 +209,10 @@ Bench2Drive score. Existing closed-loop scores are results of this repository's
 integration using the official Bench2Drive evaluator. Absolute failures must
 therefore not be described as official Qwen benchmark results.
 
-The existing server asset is the released SFT Planning Expert. SFT direct and
+The existing server asset is the released SFT Planning Expert. As of
+2026-09-06, the official release also includes a 2.1 GB `planner-rl` head; the
+server snapshot is incomplete rather than blocked on an upstream release.
+SFT direct and
 SFT reasoning Route 151 runs exist. The target main comparison selected during
 design review is the released RL Planning Expert in reasoning-planning mode,
 one sample, and a fixed seed, after that exact checkpoint is provisioned and

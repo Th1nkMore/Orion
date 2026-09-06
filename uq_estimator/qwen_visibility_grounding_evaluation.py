@@ -33,11 +33,40 @@ SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
 FULL_ATTENTION_SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
     "orion.qwen-visibility-slot-typed-full-attention-route-readout-config/v1"
 )
+TARGET_ROW_ROUTE_READOUT_CONFIG_SCHEMA = (
+    "orion.qwen-visibility-target-row-route-readout-config/v1"
+)
 ROUTE_READOUT_CURRICULUM_SCHEMA = (
     "orion.qwen-visibility-route-readout-curriculum/v1"
 )
+TARGET_ROW_ROUTE_READOUT_CURRICULUM_SCHEMA = (
+    "orion.qwen-visibility-target-row-route-readout-curriculum/v1"
+)
 V1I_FULL_ATTENTION_LAYERS = (3, 7, 11, 15, 19, 23, 27, 31)
 V1I_LORA_MODULE_NAMES = ("q_proj", "k_proj", "v_proj", "o_proj")
+V1J_FULLY_HELD_OUT_FRAME = "route151-step-000200"
+V1J_TARGET_ROW_PAIRS = {
+    "route151-step-000000": {
+        "train": ((6, 24), (14, 28)),
+        "held_out_target_rows": ((1, 20),),
+    },
+    "route151-step-000200": {
+        "train": (),
+        "held_out_target_rows": ((11, 31),),
+    },
+    "route151-step-000260": {
+        "train": ((4, 15), (10, 28), (17, 31)),
+        "held_out_target_rows": ((0, 8),),
+    },
+    "route151-step-000280": {
+        "train": ((9, 3), (11, 5), (15, 20), (29, 23), (31, 25)),
+        "held_out_target_rows": ((0, 2),),
+    },
+    "route151-step-000300": {
+        "train": ((6, 24), (9, 26), (11, 30)),
+        "held_out_target_rows": ((5, 16),),
+    },
+}
 EXPECTED_SAMPLE_IDS = (
     "route151-step-000000",
     "route151-step-000200",
@@ -1047,11 +1076,23 @@ def audit_route_readout_overfit_report(
                 "valid_run_without_causal_slot_typed_full_attention_route_readout"
             ),
         },
+        "V1j_route151_target_row_route_readout_overfit": {
+            "config_schema": TARGET_ROW_ROUTE_READOUT_CONFIG_SCHEMA,
+            "projector_parameter_count": 1_391_616,
+            "projector_type": "slot_typed_scalar_basis",
+            "lora_parameter_count": 1_572_864,
+            "lora_tensor_count": 64,
+            "pass_status": "target_row_disjoint_route_readout_plumbing_pass",
+            "negative_status": (
+                "valid_run_without_target_row_disjoint_route_readout"
+            ),
+        },
     }
     stage_spec = stage_specs.get(stage)
     if stage_spec is None:
         failures.append("report_stage")
         stage_spec = stage_specs["V1f_route151_route_readout_overfit"]
+    is_v1j = stage == "V1j_route151_target_row_route_readout_overfit"
     claim_boundary = {
         "plumbing_overfit_only": True,
         "reportable_generalization": False,
@@ -1098,7 +1139,12 @@ def audit_route_readout_overfit_report(
                 failures.append("protocol_optimizer_steps")
             if protocol.get("training", {}).get("separate_gradient_clipping") is not True:
                 failures.append("protocol_gradient_clipping")
-            if protocol.get("evaluation", {}).get("split") != "held_out_order":
+            expected_evaluation_split = (
+                "held_out_target_rows"
+                if stage == "V1j_route151_target_row_route_readout_overfit"
+                else "held_out_order"
+            )
+            if protocol.get("evaluation", {}).get("split") != expected_evaluation_split:
                 failures.append("protocol_evaluation_split")
             if protocol.get("evaluation", {}).get("pre_training_controls") != [
                 "true_u"
@@ -1116,7 +1162,10 @@ def audit_route_readout_overfit_report(
                 str(protocol.get("curriculum", ""))
             ).resolve() != curriculum_path:
                 failures.append("protocol_curriculum_path")
-            if stage == "V1i_route151_slot_typed_full_attention_route_readout_overfit":
+            if stage in {
+                "V1i_route151_slot_typed_full_attention_route_readout_overfit",
+                "V1j_route151_target_row_route_readout_overfit",
+            }:
                 expected_projector = {
                     "type": "slot_typed_scalar_basis",
                     "feature_dim": 23,
@@ -1146,10 +1195,14 @@ def audit_route_readout_overfit_report(
                 }
                 expected_evaluation = {
                     "max_new_tokens": 16,
-                    "split": "held_out_order",
+                    "split": expected_evaluation_split,
                     "pre_training_controls": ["true_u"],
                     "controls": list(EXPECTED_CONTROLS),
                 }
+                if stage == "V1j_route151_target_row_route_readout_overfit":
+                    expected_evaluation["spatial_shuffle_role"] = (
+                        "reported_diagnostic_not_hard_gate"
+                    )
                 if protocol.get("base_bridge_config") != (
                     "configs/qwen_drive_b2d_agent_oracle_visibility_sft_v1.json"
                 ):
@@ -1174,40 +1227,67 @@ def audit_route_readout_overfit_report(
         except (OSError, json.JSONDecodeError):
             failures.append("curriculum_json")
         else:
-            if curriculum.get("schema") != ROUTE_READOUT_CURRICULUM_SCHEMA:
+            expected_curriculum_schema = (
+                TARGET_ROW_ROUTE_READOUT_CURRICULUM_SCHEMA
+                if is_v1j
+                else ROUTE_READOUT_CURRICULUM_SCHEMA
+            )
+            if curriculum.get("schema") != expected_curriculum_schema:
                 failures.append("curriculum_schema")
-            false_flags = (
+            false_flags = [
                 "reportable_generalization",
                 "controls_used_for_optimizer",
                 "hidden_actor_labels_used",
                 "planning_expert_used_for_optimizer",
-            )
+            ]
+            if is_v1j:
+                false_flags.append("spatial_shuffle_examples_used_for_optimizer")
             if any(curriculum.get(name) is not False for name in false_flags):
                 failures.append("curriculum_false_flags")
-            true_flags = (
+            true_flags = [
                 "complete_row_permutations_only",
                 "matched_pairs_differ_only_by_query_row_swap",
                 "non_query_order_randomized",
-                "held_out_order_evaluation",
-                "held_out_order_disjoint_verified",
                 "spatial_shuffle_target_changed_for_every_example",
+            ]
+            true_flags.extend(
+                [
+                    "held_out_target_row_evaluation",
+                    "queried_target_rows_disjoint_verified",
+                ]
+                if is_v1j
+                else [
+                    "held_out_order_evaluation",
+                    "held_out_order_disjoint_verified",
+                ]
             )
             if any(curriculum.get(name) is not True for name in true_flags):
                 failures.append("curriculum_true_flags")
             if curriculum.get("query_frontier") != "F00":
                 failures.append("curriculum_query_frontier")
-            if curriculum.get("example_count") != 50:
+            expected_example_count = 98 if is_v1j else 50
+            if curriculum.get("example_count") != expected_example_count:
                 failures.append("curriculum_example_count")
-            if report.get("curriculum_example_count") != 50:
+            if report.get("curriculum_example_count") != expected_example_count:
                 failures.append("report_curriculum_example_count")
-            if curriculum.get("train_pair_variants_per_sample") != 3:
+            train_variant_field = (
+                "train_pair_variants" if is_v1j else "train_pair_variants_per_sample"
+            )
+            evaluation_variant_field = (
+                "evaluation_pair_variants"
+                if is_v1j
+                else "evaluation_pair_variants_per_sample"
+            )
+            if curriculum.get(train_variant_field) != 3:
                 failures.append("curriculum_train_variants")
-            if curriculum.get("evaluation_pair_variants_per_sample") != 2:
+            if curriculum.get(evaluation_variant_field) != 2:
                 failures.append("curriculum_evaluation_variants")
-            if curriculum.get("training_label_counts") != {
-                "OFF_ROUTE": 15,
-                "ON_ROUTE": 15,
-            }:
+            expected_training_labels = (
+                {"OFF_ROUTE": 39, "ON_ROUTE": 39}
+                if is_v1j
+                else {"OFF_ROUTE": 15, "ON_ROUTE": 15}
+            )
+            if curriculum.get("training_label_counts") != expected_training_labels:
                 failures.append("curriculum_training_labels")
             if curriculum.get("evaluation_label_counts") != {
                 "OFF_ROUTE": 10,
@@ -1221,6 +1301,35 @@ def audit_route_readout_overfit_report(
                 failures.append("curriculum_optimizer_labels")
             if curriculum.get("optimizer_steps") != 240:
                 failures.append("curriculum_optimizer_steps")
+            if is_v1j:
+                if curriculum.get("distinct_training_target_pairs") != 13:
+                    failures.append("curriculum_training_target_pairs")
+                if curriculum.get("distinct_evaluation_target_pairs") != 5:
+                    failures.append("curriculum_evaluation_target_pairs")
+                if curriculum.get("fully_held_out_frame") != V1J_FULLY_HELD_OUT_FRAME:
+                    failures.append("curriculum_fully_held_out_frame")
+                if (
+                    curriculum.get("spatial_shuffle_evaluation_role")
+                    != "reported_diagnostic_not_hard_gate"
+                ):
+                    failures.append("curriculum_spatial_shuffle_role")
+                expected_target_split = {
+                    sample_id: {
+                        split: [
+                            {
+                                "on_route_row": int(on_index),
+                                "off_route_row": int(off_index),
+                            }
+                            for on_index, off_index in V1J_TARGET_ROW_PAIRS[
+                                sample_id
+                            ][split]
+                        ]
+                        for split in ("train", "held_out_target_rows")
+                    }
+                    for sample_id in sorted(V1J_TARGET_ROW_PAIRS)
+                }
+                if curriculum.get("target_row_split") != expected_target_split:
+                    failures.append("curriculum_target_row_split")
             if manifest_path is not None:
                 if Path(str(curriculum.get("base_manifest_path", ""))).resolve() != manifest_path:
                     failures.append("curriculum_manifest_path")
@@ -1238,22 +1347,38 @@ def audit_route_readout_overfit_report(
         for example in examples
         if isinstance(example, dict)
     }
-    if len(example_by_id) != 50 or None in example_by_id:
+    expected_example_count = 98 if is_v1j else 50
+    expected_training_count = 78 if is_v1j else 30
+    expected_evaluation_count = 20
+    if len(example_by_id) != expected_example_count or None in example_by_id:
         failures.append("curriculum_example_ids")
     if (
-        len(training_ids) != 30
-        or len(evaluation_ids) != 20
+        len(training_ids) != expected_training_count
+        or len(evaluation_ids) != expected_evaluation_count
         or training_ids & evaluation_ids
         or training_ids | evaluation_ids != set(example_by_id)
     ):
         failures.append("curriculum_split")
     if len(schedule) != 240 or any(value not in training_ids for value in schedule):
         failures.append("curriculum_schedule")
-    if Counter(schedule) != Counter({value: 8 for value in training_ids}):
+    if is_v1j:
+        if Counter(
+            example_by_id[value].get("expected_answer") for value in schedule
+        ) != Counter({"OFF_ROUTE": 120, "ON_ROUTE": 120}):
+            failures.append("curriculum_schedule_balance")
+    elif Counter(schedule) != Counter({value: 8 for value in training_ids}):
         failures.append("curriculum_schedule_balance")
     pairs = {}
+    target_rows = {
+        "train": {},
+        "held_out_target_rows": {},
+    }
     for example_id, example in example_by_id.items():
-        expected_split = "train" if example_id in training_ids else "held_out_order"
+        expected_split = (
+            "train"
+            if example_id in training_ids
+            else ("held_out_target_rows" if is_v1j else "held_out_order")
+        )
         if example.get("split") != expected_split:
             failures.append("curriculum_example_split_" + str(example_id))
         if example.get("task_field") != "route":
@@ -1270,25 +1395,43 @@ def audit_route_readout_overfit_report(
         if sorted(permutation) != list(range(32)):
             failures.append("curriculum_permutation_" + str(example_id))
         pairs.setdefault(example.get("pair_id"), []).append(example)
-    for sample_id in EXPECTED_SAMPLE_IDS:
-        for label in ("ON_ROUTE", "OFF_ROUTE"):
-            train_orders = {
-                tuple(example_by_id[value].get("sequence_permutation_new_to_manifest", []))
-                for value in training_ids
-                if example_by_id.get(value, {}).get("sample_id") == sample_id
-                and example_by_id.get(value, {}).get("expected_answer") == label
-            }
-            evaluation_orders = {
-                tuple(example_by_id[value].get("sequence_permutation_new_to_manifest", []))
-                for value in evaluation_ids
-                if example_by_id.get(value, {}).get("sample_id") == sample_id
-                and example_by_id.get(value, {}).get("expected_answer") == label
-            }
-            if len(train_orders) != 3 or len(evaluation_orders) != 2:
-                failures.append("curriculum_order_variants_%s_%s" % (sample_id, label))
-            if train_orders & evaluation_orders:
-                failures.append("curriculum_order_leak_%s_%s" % (sample_id, label))
-    if len(pairs) != 25 or any(len(pair) != 2 for pair in pairs.values()):
+        if is_v1j:
+            sample_rows = target_rows[expected_split].setdefault(
+                example.get("sample_id"), set()
+            )
+            try:
+                sample_rows.add(int(str(example.get("source_manifest_frontier"))[1:]))
+            except (TypeError, ValueError):
+                failures.append("curriculum_source_row_" + str(example_id))
+    if not is_v1j:
+        for sample_id in EXPECTED_SAMPLE_IDS:
+            for label in ("ON_ROUTE", "OFF_ROUTE"):
+                train_orders = {
+                    tuple(example_by_id[value].get("sequence_permutation_new_to_manifest", []))
+                    for value in training_ids
+                    if example_by_id.get(value, {}).get("sample_id") == sample_id
+                    and example_by_id.get(value, {}).get("expected_answer") == label
+                }
+                evaluation_orders = {
+                    tuple(example_by_id[value].get("sequence_permutation_new_to_manifest", []))
+                    for value in evaluation_ids
+                    if example_by_id.get(value, {}).get("sample_id") == sample_id
+                    and example_by_id.get(value, {}).get("expected_answer") == label
+                }
+                if len(train_orders) != 3 or len(evaluation_orders) != 2:
+                    failures.append("curriculum_order_variants_%s_%s" % (sample_id, label))
+                if train_orders & evaluation_orders:
+                    failures.append("curriculum_order_leak_%s_%s" % (sample_id, label))
+    else:
+        for sample_id in EXPECTED_SAMPLE_IDS:
+            train_rows = target_rows["train"].get(sample_id, set())
+            evaluation_rows = target_rows["held_out_target_rows"].get(sample_id, set())
+            if train_rows & evaluation_rows:
+                failures.append("curriculum_target_row_leak_" + sample_id)
+        if target_rows["train"].get(V1J_FULLY_HELD_OUT_FRAME, set()):
+            failures.append("curriculum_held_out_frame_leak")
+    expected_pair_count = 49 if is_v1j else 25
+    if len(pairs) != expected_pair_count or any(len(pair) != 2 for pair in pairs.values()):
         failures.append("curriculum_pairs")
     else:
         for pair_id, pair in pairs.items():
@@ -1326,7 +1469,10 @@ def audit_route_readout_overfit_report(
     for name, expected in expected_scope.items():
         if scope.get(name) != expected:
             failures.append("scope_" + name)
-    if stage == "V1i_route151_slot_typed_full_attention_route_readout_overfit":
+    if stage in {
+        "V1i_route151_slot_typed_full_attention_route_readout_overfit",
+        "V1j_route151_target_row_route_readout_overfit",
+    }:
         expected_lora = {
             "layer_indices": list(V1I_FULL_ATTENTION_LAYERS),
             "module_names": list(V1I_LORA_MODULE_NAMES),
@@ -1429,7 +1575,8 @@ def audit_route_readout_overfit_report(
             failures.append("evaluation_sample_%d" % index)
         if row.get("task_field") != "route":
             failures.append("evaluation_field_%d" % index)
-        if row.get("split") != "held_out_order":
+        expected_row_split = "held_out_target_rows" if is_v1j else "held_out_order"
+        if row.get("split") != expected_row_split:
             failures.append("evaluation_split_%d" % index)
         if row.get("pair_id") != example.get("pair_id"):
             failures.append("evaluation_pair_%d" % index)
@@ -1494,11 +1641,12 @@ def audit_route_readout_overfit_report(
             for metric in true_label_metrics.values()
         ),
         "matched_pair_flip_at_least_eighty_percent": matched_pair_accuracy >= 0.8,
-        "spatial_shuffle_control_target_at_least_eighty_percent": (
-            post_metrics["spatial_shuffle"]["control_target_accuracy"] >= 0.8
-        ),
         "true_control_gap_at_least_thirty_percent": true_control_gap >= 0.3,
     }
+    if not is_v1j:
+        causal_capacity_checks[
+            "spatial_shuffle_control_target_at_least_eighty_percent"
+        ] = post_metrics["spatial_shuffle"]["control_target_accuracy"] >= 0.8
     protocol_valid = not failures
     causal_capacity_passed = protocol_valid and all(causal_capacity_checks.values())
     status = (
@@ -1525,6 +1673,9 @@ def audit_route_readout_overfit_report(
         "post_training_true_label_metrics": true_label_metrics,
         "held_out_matched_pair_accuracy": matched_pair_accuracy,
         "true_minus_control_ceiling": true_control_gap,
+        "spatial_shuffle_role": (
+            "reported_diagnostic_not_hard_gate" if is_v1j else "hard_gate"
+        ),
         "loss_first": float(history[0]["loss"]) if history else None,
         "loss_last": float(history[-1]["loss"]) if history else None,
         "claim_boundary": claim_boundary,
@@ -1545,6 +1696,7 @@ def audit_visibility_grounding_report(report_path: Path, output_path: Path) -> d
         "V1g_route151_typed_route_readout_overfit",
         "V1h_route151_slot_typed_route_readout_overfit",
         "V1i_route151_slot_typed_full_attention_route_readout_overfit",
+        "V1j_route151_target_row_route_readout_overfit",
     }:
         return audit_route_readout_overfit_report(report_path, output_path)
     if report.get("stage") == "V1e_route151_row_addressed_overfit":

@@ -1114,6 +1114,55 @@ inspectable U consumption before any closed-loop claim.
   complete physical rows, reserve disjoint target rows for evaluation, retain
   target-changing controls, and continue to keep the Planning Expert frozen.
 
+## V1j target-row-disjoint route-readout pre-run contract
+
+- User decision: proceed with V1j and relax spatial shuffle. Shuffle examples
+  do not enter optimization; their complete results remain reportable, but the
+  former 80% changed-target gate is not a V1j veto.
+- V1j holds the complete V1i model side fixed: 1,391,616-parameter slot-typed
+  projector; all eight full-attention layers with 1,572,864 LoRA parameters;
+  240 steps; the same learning rates, clipping, seed, native images, question,
+  U insertion, frozen vision encoder, base VLM weights, LM head, embeddings,
+  and Planning Expert.
+- The immutable split has 13 training target pairs and five evaluation target
+  pairs. Three randomized non-query orders per training pair produce 78
+  examples (39 per label); two orders per evaluation pair produce 20 examples
+  (10 per label). Queried target rows never cross the split, and
+  `route151-step-000200` is fully evaluation-only.
+- The predeclared hard numerical gates are: true-U evaluation accuracy at
+  least 90% overall and per label; at least 80% of matched pairs jointly
+  correct; and a true-U advantage of at least 30 percentage points over the
+  stronger zero/shuffle control when scored against the original target.
+  Spatial-shuffle changed-target accuracy is reported separately without a
+  threshold.
+- Passing is evidence only that the V1i consumer can read the route scalar on
+  unseen queried rows in this small oracle-U slice. It is not full structured
+  grounding, Planning Expert conditioning, closed-loop safety, or deployable
+  predicted U.
+
+## Qwen RL and Robusto-2 external review (2026-09-06)
+
+- Qwen's official release now lists both 2.1 GB planning heads. `planner-rl`
+  is public and must be used in reasoning-planning mode; our shared checkpoint
+  directory contains only `planner-sft`, so this is an incomplete local
+  snapshot rather than an upstream-release wait. The shared filesystem has
+  sufficient capacity to provision it without deleting SFT.
+- Robusto-2 is useful as a secondary VLM/OOD diagnostic: 20 curated dashcam
+  clips (10 Lima, 10 New York), 20 questions per clip in factual, rating,
+  counterfactual, and reasoning blocks, plus repeated outputs from 10 VLMs and
+  answers from 20 humans. Its open data and analysis code can support a
+  human-alignment and scenario-reasoning comparison.
+- Robusto-2 is not a planning or closed-loop benchmark: it has no trajectory
+  target, collision exposure, route progress, intervention timing, or
+  clean/U paired actuation. It may therefore supplement but not replace the
+  Bench2Drive primary and NAVSIM secondary evaluation. The relevant reference
+  is its question taxonomy and repeated human/VLM comparison, especially for
+  visibility, hazard, counterfactual-crash, and reasoning prompts.
+- Primary sources: Qwen official README
+  <https://github.com/QwenLM/Qwen-Drive-1.0/blob/main/README.md>, Robusto-2
+  paper <https://arxiv.org/abs/2606.20980>, and official dataset/code card
+  <https://huggingface.co/datasets/Artificio/robusto-2>.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import argparse
-from collections import Counter
+from collections import Counter, defaultdict
 import hashlib
 import importlib.util
 import json
@@ -32,6 +32,9 @@ SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
 )
 FULL_ATTENTION_SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
     "orion.qwen-visibility-slot-typed-full-attention-route-readout-config/v1"
+)
+TARGET_ROW_ROUTE_READOUT_CONFIG_SCHEMA = (
+    "orion.qwen-visibility-target-row-route-readout-config/v1"
 )
 REPORT_SCHEMA = "orion.qwen-visibility-grounding-smoke-report/v1"
 
@@ -105,6 +108,10 @@ def _load_protocol(path):
             FULL_ATTENTION_SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
             "V1i_route151_slot_typed_full_attention_route_readout_overfit",
         ),
+        (
+            TARGET_ROW_ROUTE_READOUT_CONFIG_SCHEMA,
+            "V1j_route151_target_row_route_readout_overfit",
+        ),
     }:
         raise ValueError("unexpected grounding training config schema/stage")
     training = protocol["training"]
@@ -167,6 +174,7 @@ def _load_protocol(path):
         "V1g_route151_typed_route_readout_overfit",
         "V1h_route151_slot_typed_route_readout_overfit",
         "V1i_route151_slot_typed_full_attention_route_readout_overfit",
+        "V1j_route151_target_row_route_readout_overfit",
     }:
         if int(training["optimizer_steps"]) != 240:
             raise ValueError("V1f route readout must take exactly 240 steps")
@@ -185,8 +193,13 @@ def _load_protocol(path):
             "fields": ["route"],
         }:
             raise ValueError("V1f requires the matched-pair route objective")
-        if protocol.get("evaluation", {}).get("split") != "held_out_order":
-            raise ValueError("V1f must evaluate unseen decoy-row orders")
+        expected_evaluation_split = (
+            "held_out_target_rows"
+            if stage == "V1j_route151_target_row_route_readout_overfit"
+            else "held_out_order"
+        )
+        if protocol.get("evaluation", {}).get("split") != expected_evaluation_split:
+            raise ValueError("route-readout evaluation split changed")
         if not protocol.get("curriculum"):
             raise ValueError("route-readout stage requires an immutable curriculum")
         projector_type = protocol.get("projector", {}).get("type", "generic_mlp")
@@ -202,7 +215,10 @@ def _load_protocol(path):
             and projector_type != "slot_typed_scalar_basis"
         ):
             raise ValueError("V1h requires explicit slot-typed scalar basis")
-        if stage == "V1i_route151_slot_typed_full_attention_route_readout_overfit":
+        if stage in {
+            "V1i_route151_slot_typed_full_attention_route_readout_overfit",
+            "V1j_route151_target_row_route_readout_overfit",
+        }:
             if protocol.get("projector") != {
                 "type": "slot_typed_scalar_basis",
                 "feature_dim": 23,
@@ -211,7 +227,7 @@ def _load_protocol(path):
                 "hidden_dim": 512,
                 "vlm_hidden_dim": 2560,
             }:
-                raise ValueError("V1i must retain the exact V1h slot-typed projector")
+                raise ValueError("V1i/V1j must retain the exact slot-typed projector")
             if protocol.get("lora") != {
                 "layer_indices": [3, 7, 11, 15, 19, 23, 27, 31],
                 "module_names": ["q_proj", "k_proj", "v_proj", "o_proj"],
@@ -219,7 +235,12 @@ def _load_protocol(path):
                 "alpha": 16.0,
                 "dropout": 0.0,
             }:
-                raise ValueError("V1i must adapt exactly all eight full-attention layers")
+                raise ValueError("V1i/V1j must adapt all eight full-attention layers")
+        if stage == "V1j_route151_target_row_route_readout_overfit" and (
+            protocol.get("evaluation", {}).get("spatial_shuffle_role")
+            != "reported_diagnostic_not_hard_gate"
+        ):
+            raise ValueError("V1j spatial-shuffle diagnostic role changed")
     if protocol["claim_boundary"] != {
         "plumbing_overfit_only": True,
         "reportable_generalization": False,
@@ -477,6 +498,177 @@ def _verify_route_readout_curriculum(path, manifest_path, records):
     return curriculum
 
 
+def _verify_target_row_route_readout_curriculum(path, manifest_path, records):
+    curriculum_path = Path(path)
+    curriculum = json.loads(curriculum_path.read_text(encoding="utf-8"))
+    if (
+        curriculum.get("schema")
+        != _curriculum.TARGET_ROW_ROUTE_READOUT_CURRICULUM_SCHEMA
+    ):
+        raise ValueError("unexpected target-row route-readout curriculum schema")
+    if Path(curriculum.get("base_manifest_path", "")).resolve() != Path(
+        manifest_path
+    ).resolve():
+        raise ValueError("target-row curriculum base manifest path changed")
+    if curriculum.get("base_manifest_sha256") != _sha256(manifest_path):
+        raise ValueError("target-row curriculum base manifest hash changed")
+    required_true_flags = (
+        "complete_row_permutations_only",
+        "matched_pairs_differ_only_by_query_row_swap",
+        "non_query_order_randomized",
+        "held_out_target_row_evaluation",
+        "queried_target_rows_disjoint_verified",
+        "spatial_shuffle_target_changed_for_every_example",
+    )
+    required_false_flags = (
+        "reportable_generalization",
+        "controls_used_for_optimizer",
+        "spatial_shuffle_examples_used_for_optimizer",
+        "hidden_actor_labels_used",
+        "planning_expert_used_for_optimizer",
+    )
+    if any(curriculum.get(name) is not True for name in required_true_flags):
+        raise ValueError("target-row curriculum true boundary flags changed")
+    if any(curriculum.get(name) is not False for name in required_false_flags):
+        raise ValueError("target-row curriculum false boundary flags changed")
+    if (
+        curriculum.get("spatial_shuffle_evaluation_role")
+        != "reported_diagnostic_not_hard_gate"
+    ):
+        raise ValueError("target-row spatial-shuffle role changed")
+    if curriculum.get("query_frontier") != "F00":
+        raise ValueError("V1j query frontier changed")
+    if curriculum.get("fully_held_out_frame") != "route151-step-000200":
+        raise ValueError("V1j fully held-out frame changed")
+    if curriculum.get("train_pair_variants") != 3:
+        raise ValueError("V1j train pair variants changed")
+    if curriculum.get("evaluation_pair_variants") != 2:
+        raise ValueError("V1j evaluation pair variants changed")
+    if curriculum.get("distinct_training_target_pairs") != 13:
+        raise ValueError("V1j training target-pair count changed")
+    if curriculum.get("distinct_evaluation_target_pairs") != 5:
+        raise ValueError("V1j evaluation target-pair count changed")
+    if curriculum.get("example_count") != 98:
+        raise ValueError("V1j requires exactly 98 route-readout examples")
+    if curriculum.get("training_label_counts") != {
+        "OFF_ROUTE": 39,
+        "ON_ROUTE": 39,
+    }:
+        raise ValueError("V1j training labels changed")
+    if curriculum.get("evaluation_label_counts") != {
+        "OFF_ROUTE": 10,
+        "ON_ROUTE": 10,
+    }:
+        raise ValueError("V1j evaluation labels changed")
+    if curriculum.get("optimizer_label_counts") != {
+        "OFF_ROUTE": 120,
+        "ON_ROUTE": 120,
+    }:
+        raise ValueError("V1j optimizer labels changed")
+    expected_split = {
+        sample_id: {
+            split: [
+                {"on_route_row": int(on_index), "off_route_row": int(off_index)}
+                for on_index, off_index in _curriculum.V1J_TARGET_ROW_PAIRS[
+                    sample_id
+                ][split]
+            ]
+            for split in ("train", "held_out_target_rows")
+        }
+        for sample_id in sorted(_curriculum.V1J_TARGET_ROW_PAIRS)
+    }
+    if curriculum.get("target_row_split") != expected_split:
+        raise ValueError("V1j target-row split changed")
+
+    examples = curriculum.get("examples", [])
+    by_id = {example.get("example_id"): example for example in examples}
+    if len(by_id) != 98 or None in by_id:
+        raise ValueError("V1j curriculum example ids are not unique")
+    training_ids = set(curriculum.get("training_example_ids", []))
+    evaluation_ids = set(curriculum.get("evaluation_example_ids", []))
+    if (
+        len(training_ids) != 78
+        or len(evaluation_ids) != 20
+        or training_ids & evaluation_ids
+        or training_ids | evaluation_ids != set(by_id)
+    ):
+        raise ValueError("V1j train/evaluation split changed")
+    schedule = curriculum.get("training_schedule", [])
+    if curriculum.get("optimizer_steps") != 240 or len(schedule) != 240:
+        raise ValueError("V1j optimizer schedule must contain 240 steps")
+    if any(example_id not in training_ids for example_id in schedule):
+        raise ValueError("V1j optimizer contains a held-out or control example")
+    if Counter(by_id[value]["expected_answer"] for value in schedule) != Counter(
+        {"ON_ROUTE": 120, "OFF_ROUTE": 120}
+    ):
+        raise ValueError("V1j optimizer labels are not balanced")
+
+    selected_ids = {record["sample_id"] for record in records}
+    if selected_ids != set(_curriculum.V1J_TARGET_ROW_PAIRS):
+        raise ValueError("V1j selected sample set changed")
+    if any(
+        by_id[value]["sample_id"] == "route151-step-000200"
+        for value in training_ids
+    ):
+        raise ValueError("V1j held-out frame entered the optimizer")
+    target_rows = {
+        "train": defaultdict(set),
+        "held_out_target_rows": defaultdict(set),
+    }
+    pairs = defaultdict(list)
+    for example_id, example in by_id.items():
+        split = "train" if example_id in training_ids else "held_out_target_rows"
+        if example.get("split") != split:
+            raise ValueError("V1j example split changed")
+        if example.get("sample_id") not in selected_ids:
+            raise ValueError("V1j curriculum names an unselected sample")
+        if example.get("task_field") != "route":
+            raise ValueError("V1j curriculum contains a non-route task")
+        if example.get("query_frontier") != "F00":
+            raise ValueError("V1j example query slot changed")
+        answer = example.get("expected_answer")
+        if answer not in {"ON_ROUTE", "OFF_ROUTE"}:
+            raise ValueError("V1j example answer changed")
+        controls = example.get("control_expected_answers", {})
+        if controls.get("true_u") != answer:
+            raise ValueError("V1j true-U target changed")
+        if controls.get("spatial_shuffle") == answer:
+            raise ValueError("V1j shuffle diagnostic target did not change")
+        permutation = example.get("sequence_permutation_new_to_manifest", [])
+        if sorted(permutation) != list(range(32)):
+            raise ValueError("V1j example lacks a complete row permutation")
+        target_rows[split][example["sample_id"]].add(
+            int(str(example["source_manifest_frontier"])[1:])
+        )
+        pairs[example.get("pair_id")].append(example)
+    for sample_id in selected_ids:
+        if target_rows["train"][sample_id] & target_rows[
+            "held_out_target_rows"
+        ][sample_id]:
+            raise ValueError("V1j queried target row leaked across splits")
+    if len(pairs) != 49 or any(len(pair) != 2 for pair in pairs.values()):
+        raise ValueError("V1j matched-pair variants changed")
+    for pair in pairs.values():
+        if {example["expected_answer"] for example in pair} != {
+            "ON_ROUTE",
+            "OFF_ROUTE",
+        }:
+            raise ValueError("V1j matched pair lacks both route labels")
+        first, second = pair
+        if first["sample_id"] != second["sample_id"] or first["split"] != second["split"]:
+            raise ValueError("V1j matched pair crosses sample or split")
+        first_order = first["sequence_permutation_new_to_manifest"]
+        second_order = second["sequence_permutation_new_to_manifest"]
+        changed = [
+            index
+            for index, values in enumerate(zip(first_order, second_order))
+            if values[0] != values[1]
+        ]
+        if len(changed) != 2 or 0 not in changed:
+            raise ValueError("V1j matched pair is not one complete-row swap")
+    return curriculum
+
+
 def _load_control_tokens(record, control, sequence_permutation=None):
     prefixes = {
         "true_u": "visibility_tokens",
@@ -646,6 +838,10 @@ def main():
         "V1i_route151_slot_typed_full_attention_route_readout_overfit",
     }:
         curriculum = _verify_route_readout_curriculum(
+            protocol["curriculum"], protocol["manifest"], records
+        )
+    if protocol["stage"] == "V1j_route151_target_row_route_readout_overfit":
+        curriculum = _verify_target_row_route_readout_curriculum(
             protocol["curriculum"], protocol["manifest"], records
         )
     seed = int(protocol["training"]["seed"])

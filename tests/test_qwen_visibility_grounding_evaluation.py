@@ -845,6 +845,273 @@ def _promote_route_readout_report_to_v1i(report):
     return report
 
 
+def _promote_route_readout_report_to_v1j(report):
+    stage = "V1j_route151_target_row_route_readout_overfit"
+    examples = []
+    training_ids = []
+    evaluation_ids = []
+    pair_ordinal = 0
+    for sample_id in evaluation.EXPECTED_SAMPLE_IDS:
+        split_pairs = evaluation.V1J_TARGET_ROW_PAIRS[sample_id]
+        for split in ("train", "held_out_target_rows"):
+            variants = 3 if split == "train" else 2
+            for pair_index, (on_source, off_source) in enumerate(
+                split_pairs[split]
+            ):
+                for variant in range(variants):
+                    order = list(range(32))
+                    shift = (pair_ordinal * 5 + variant * 7 + 1) % 32
+                    order = order[shift:] + order[:shift]
+                    on_position = order.index(on_source)
+                    order[0], order[on_position] = order[on_position], order[0]
+                    off_position = order.index(off_source)
+                    off_order = list(order)
+                    off_order[0], off_order[off_position] = (
+                        off_order[off_position],
+                        off_order[0],
+                    )
+                    pair_id = "%s-%s-p%d-v%d" % (
+                        sample_id,
+                        split,
+                        pair_index,
+                        variant,
+                    )
+                    for label, source, paired, permutation in (
+                        ("ON_ROUTE", on_source, off_source, order),
+                        ("OFF_ROUTE", off_source, on_source, off_order),
+                    ):
+                        alternate = (
+                            "OFF_ROUTE" if label == "ON_ROUTE" else "ON_ROUTE"
+                        )
+                        example_id = pair_id + "-" + label.lower()
+                        examples.append(
+                            {
+                                "example_id": example_id,
+                                "sample_id": sample_id,
+                                "task_field": "route",
+                                "split": split,
+                                "pair_id": pair_id,
+                                "query_frontier": "F00",
+                                "source_manifest_frontier": "F%02d" % source,
+                                "paired_source_manifest_frontier": "F%02d" % paired,
+                                "expected_answer": label,
+                                "control_expected_answers": {
+                                    "true_u": label,
+                                    "zero_u": alternate,
+                                    "spatial_shuffle": alternate,
+                                },
+                                "sequence_permutation_new_to_manifest": permutation,
+                            }
+                        )
+                        (
+                            training_ids
+                            if split == "train"
+                            else evaluation_ids
+                        ).append(example_id)
+                pair_ordinal += 1
+    by_id = {example["example_id"]: example for example in examples}
+    pools = {
+        label: sorted(
+            example_id
+            for example_id in training_ids
+            if by_id[example_id]["expected_answer"] == label
+        )
+        for label in ("ON_ROUTE", "OFF_ROUTE")
+    }
+    schedule = []
+    for index in range(120):
+        schedule.extend(
+            [
+                pools["ON_ROUTE"][index % len(pools["ON_ROUTE"])],
+                pools["OFF_ROUTE"][index % len(pools["OFF_ROUTE"])],
+            ]
+        )
+    target_row_split = {
+        sample_id: {
+            split: [
+                {"on_route_row": on_index, "off_route_row": off_index}
+                for on_index, off_index in evaluation.V1J_TARGET_ROW_PAIRS[
+                    sample_id
+                ][split]
+            ]
+            for split in ("train", "held_out_target_rows")
+        }
+        for sample_id in sorted(evaluation.V1J_TARGET_ROW_PAIRS)
+    }
+    curriculum = {
+        "schema": evaluation.TARGET_ROW_ROUTE_READOUT_CURRICULUM_SCHEMA,
+        "base_manifest_path": report["manifest_path"],
+        "base_manifest_sha256": report["manifest_sha256"],
+        "reportable_generalization": False,
+        "controls_used_for_optimizer": False,
+        "spatial_shuffle_examples_used_for_optimizer": False,
+        "hidden_actor_labels_used": False,
+        "planning_expert_used_for_optimizer": False,
+        "complete_row_permutations_only": True,
+        "matched_pairs_differ_only_by_query_row_swap": True,
+        "non_query_order_randomized": True,
+        "held_out_target_row_evaluation": True,
+        "queried_target_rows_disjoint_verified": True,
+        "spatial_shuffle_target_changed_for_every_example": True,
+        "spatial_shuffle_evaluation_role": "reported_diagnostic_not_hard_gate",
+        "fully_held_out_frame": evaluation.V1J_FULLY_HELD_OUT_FRAME,
+        "query_frontier": "F00",
+        "train_pair_variants": 3,
+        "evaluation_pair_variants": 2,
+        "distinct_training_target_pairs": 13,
+        "distinct_evaluation_target_pairs": 5,
+        "target_row_split": target_row_split,
+        "example_count": 98,
+        "training_label_counts": {"OFF_ROUTE": 39, "ON_ROUTE": 39},
+        "evaluation_label_counts": {"OFF_ROUTE": 10, "ON_ROUTE": 10},
+        "optimizer_steps": 240,
+        "optimizer_label_counts": {"OFF_ROUTE": 120, "ON_ROUTE": 120},
+        "training_example_ids": sorted(training_ids),
+        "evaluation_example_ids": sorted(evaluation_ids),
+        "training_schedule": schedule,
+        "examples": examples,
+    }
+    curriculum_path = Path(report["curriculum_path"])
+    curriculum_path.write_text(json.dumps(curriculum))
+    report["curriculum_sha256"] = hashlib.sha256(
+        curriculum_path.read_bytes()
+    ).hexdigest()
+    report["curriculum_example_count"] = 98
+
+    layers = list(evaluation.V1I_FULL_ATTENTION_LAYERS)
+    modules = list(evaluation.V1I_LORA_MODULE_NAMES)
+    lora = {
+        "layer_indices": layers,
+        "module_names": modules,
+        "rank": 8,
+        "alpha": 16.0,
+        "dropout": 0.0,
+    }
+    installed = [
+        "vlm.model.language_model.layers.%d.self_attn.%s" % (layer, module)
+        for layer in layers
+        for module in modules
+    ]
+    report["stage"] = stage
+    report["lora"] = lora
+    report["installed_lora_modules"] = installed
+    report["scope"].update(
+        {
+            "projector_trainable_parameter_count": 1_391_616,
+            "model_trainable_parameter_count": 1_572_864,
+            "model_trainable_names": [
+                module + suffix
+                for module in installed
+                for suffix in (".lora_a", ".lora_b")
+            ],
+        }
+    )
+    report["checkpoint"]["lora_tensor_count"] = 64
+    report["history"] = [
+        {
+            "optimizer_step": step,
+            "example_id": example_id,
+            "sample_id": by_id[example_id]["sample_id"],
+            "task_field": "route",
+            "loss": 2.0 - step / 500,
+            "projector_gradient_norm_before_clip": 10.0,
+            "lora_gradient_norm_before_clip": 0.2,
+            "projector_update_norm": 0.1,
+            "lora_update_norm": 0.01,
+            "projector_nonzero_gradient_tensors": 3,
+            "lora_nonzero_gradient_tensors": 8,
+            "forward_seconds": 1.0,
+            "backward_seconds": 2.0,
+            "optimizer_step_seconds": 3.0,
+        }
+        for step, example_id in enumerate(schedule, start=1)
+    ]
+
+    def result_row(example, control, answer):
+        true_answer = example["expected_answer"]
+        control_answer = example["control_expected_answers"][control]
+        true_exact = answer == true_answer
+        return {
+            "example_id": example["example_id"],
+            "sample_id": example["sample_id"],
+            "task_field": "route",
+            "split": "held_out_target_rows",
+            "pair_id": example["pair_id"],
+            "control": control,
+            "answer": answer,
+            "parsed": answer,
+            "expected_answer": true_answer,
+            "control_expected_answer": control_answer,
+            "control_semantic_exact": answer == control_answer,
+            "canonical_exact": true_exact,
+            "field_correct": {"route": true_exact},
+        }
+
+    held_out = [by_id[value] for value in evaluation_ids]
+    report["pre_training_evaluations"] = [
+        result_row(example, "true_u", "") for example in held_out
+    ]
+    report["evaluations"] = []
+    for example in held_out:
+        for control in evaluation.EXPECTED_CONTROLS:
+            answer = (
+                example["expected_answer"]
+                if control == "true_u"
+                else (
+                    example["control_expected_answers"][control]
+                    if control == "zero_u"
+                    else "UNKNOWN"
+                )
+            )
+            report["evaluations"].append(result_row(example, control, answer))
+
+    protocol_path = Path(report["protocol_path"])
+    protocol = {
+        "schema": evaluation.TARGET_ROW_ROUTE_READOUT_CONFIG_SCHEMA,
+        "stage": stage,
+        "base_bridge_config": (
+            "configs/qwen_drive_b2d_agent_oracle_visibility_sft_v1.json"
+        ),
+        "sample_ids": list(evaluation.EXPECTED_SAMPLE_IDS),
+        "objective": report["objective"],
+        "curriculum": str(curriculum_path),
+        "projector": {
+            "type": "slot_typed_scalar_basis",
+            "feature_dim": 23,
+            "scalar_basis_dim": 4,
+            "maximum_token_slots": 48,
+            "hidden_dim": 512,
+            "vlm_hidden_dim": 2560,
+        },
+        "lora": lora,
+        "training": {
+            "optimizer_steps": 240,
+            "projector_learning_rate": 0.0001,
+            "lora_learning_rate": 0.0002,
+            "weight_decay": 0.0,
+            "maximum_gradient_norm": 1.0,
+            "projector_maximum_gradient_norm": 1.0,
+            "lora_maximum_gradient_norm": 1.0,
+            "separate_gradient_clipping": True,
+            "gradient_checkpointing": True,
+            "seed": 42,
+        },
+        "evaluation": {
+            "max_new_tokens": 16,
+            "split": "held_out_target_rows",
+            "pre_training_controls": ["true_u"],
+            "controls": list(evaluation.EXPECTED_CONTROLS),
+            "spatial_shuffle_role": "reported_diagnostic_not_hard_gate",
+        },
+        "claim_boundary": report["claim_boundary"],
+    }
+    protocol_path.write_text(json.dumps(protocol))
+    report["protocol_sha256"] = hashlib.sha256(
+        protocol_path.read_bytes()
+    ).hexdigest()
+    return report
+
+
 def test_route_readout_causal_pairs_pass_only_as_plumbing(tmp_path):
     report_path = tmp_path / "route-readout-report.json"
     report_path.write_text(json.dumps(_route_readout_report(tmp_path, causal=True)))
@@ -958,6 +1225,65 @@ def test_full_attention_slot_typed_route_readout_rejects_reduced_scope(tmp_path)
     )
     assert audit["protocol_valid"] is False
     assert "protocol_lora_config" in audit["protocol_failures"]
+
+
+def test_target_row_route_readout_passes_without_shuffle_hard_gate(tmp_path):
+    report = _promote_route_readout_report_to_v1j(
+        _route_readout_report(tmp_path, causal=True)
+    )
+    report_path = tmp_path / "target-row-report.json"
+    report_path.write_text(json.dumps(report))
+    audit = evaluation.audit_visibility_grounding_report(
+        report_path, tmp_path / "target-row-audit.json"
+    )
+    assert audit["protocol_valid"] is True
+    assert audit["causal_capacity_passed"] is True
+    assert audit["status"] == "target_row_disjoint_route_readout_plumbing_pass"
+    assert audit["held_out_matched_pair_accuracy"] == 1.0
+    assert audit["true_minus_control_ceiling"] == 1.0
+    assert audit["post_training_held_out_metrics"]["spatial_shuffle"][
+        "control_target_accuracy"
+    ] == 0.0
+    assert (
+        "spatial_shuffle_control_target_at_least_eighty_percent"
+        not in audit["causal_capacity_checks"]
+    )
+    assert audit["spatial_shuffle_role"] == "reported_diagnostic_not_hard_gate"
+
+
+def test_target_row_route_readout_rejects_held_out_row_leak(tmp_path):
+    report = _promote_route_readout_report_to_v1j(
+        _route_readout_report(tmp_path, causal=True)
+    )
+    curriculum_path = Path(report["curriculum_path"])
+    curriculum = json.loads(curriculum_path.read_text())
+    by_id = {
+        example["example_id"]: example for example in curriculum["examples"]
+    }
+    held_out_row = next(
+        by_id[value]["source_manifest_frontier"]
+        for value in curriculum["evaluation_example_ids"]
+        if by_id[value]["sample_id"] == "route151-step-000000"
+    )
+    training_example = next(
+        by_id[value]
+        for value in curriculum["training_example_ids"]
+        if by_id[value]["sample_id"] == "route151-step-000000"
+    )
+    training_example["source_manifest_frontier"] = held_out_row
+    curriculum_path.write_text(json.dumps(curriculum))
+    report["curriculum_sha256"] = hashlib.sha256(
+        curriculum_path.read_bytes()
+    ).hexdigest()
+    report_path = tmp_path / "target-row-leak-report.json"
+    report_path.write_text(json.dumps(report))
+    audit = evaluation.audit_visibility_grounding_report(
+        report_path, tmp_path / "target-row-leak-audit.json"
+    )
+    assert audit["protocol_valid"] is False
+    assert "curriculum_target_row_leak_route151-step-000000" in audit[
+        "protocol_failures"
+    ]
 
 
 def test_route_readout_held_out_example_in_optimizer_invalidates_report(tmp_path):
