@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1c valid negative; V1d factorized protocol frozen pre-run)
+Status: in progress (V1d valid negative; V1e row-addressed grounding next)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -699,6 +699,50 @@ inspectable U consumption before any closed-loop claim.
 - A passing V1d result is still disposable capacity evidence, not V1 acceptance
   or safety evidence. A valid negative result is also retained. The remote run
   has not started at the time this contract is committed.
+
+## V1d remote negative result
+
+- Commit under test: `6fffebdd`; Slurm job: `1167134`; run id:
+  `qwen_visibility_grounding_v1d_route151_factorized_v1`.
+- Terminal state: `COMPLETED`, exit `0:0`, elapsed `00:07:55`, peak host RSS
+  `2,966,824 KiB`. Model load took 164.44 s, native-image preparation 29.35 s,
+  20 pre-training generations 23.47 s, all 60 optimizer steps 48.27 s, and 60
+  post-training control generations 30.40 s. Peak allocated/reserved GPU memory
+  was 13,399/13,832 MB; no input resolution or camera view was changed.
+- The predeclared audit is protocol-valid with no failures. Every one of the 20
+  frame/field pairs appears exactly three times; both adaptation families have
+  finite nonzero updates at every step; the vision encoder, base VLM, embeddings,
+  LM head, and Planning Expert remain frozen; all 20/60 evaluation rows exist;
+  and the protocol, manifest, report, and checkpoint hashes are intact.
+- Teacher-forced loss falls from 4.99236 on the first step to 0.43227 on the
+  last. Per-field mean loss from epoch 1 to epoch 3 falls from 2.558 to 0.732
+  for frontier, 2.743 to 0.002 for route, and 2.037 to 0.515 for action; margin
+  changes from 2.544 to 1.283 after reaching 1.141 in epoch 2.
+- True-U exact accuracy is frontier `3/5`, route `5/5`, margin `2/5`, and action
+  `3/5`. The frontier gap over the stronger zero/shuffle control is `0/5`;
+  margin and action each beat zero U by only `1/5`. Every predeclared causal
+  capacity check fails, so the audit status is
+  `valid_run_without_causal_grounding`.
+- The failure pattern remains shortcut-dominated. All five true, zero, and
+  shuffled frontier queries emit `F11`; that happens to match three of the five
+  targets. Route always emits the dataset's constant `ON_ROUTE`. Margin mostly
+  emits `NEAR`, and action mostly emits `SLOW`, with one learned `STOP`. The
+  factorized objective reduced syntax dominance but did not force the model to
+  read U.
+- The adaptation checkpoint is 6,906,485 bytes with SHA-256
+  `81e3ad416452e37e360f90070b8c67891561991f0e6d6797a8223bea2eb9d3a4`.
+  Independent `weights_only` readback verifies seven projector tensors
+  (1,330,734 values), sixteen LoRA tensors (393,216 values), no optimizer state,
+  and no base-model tensors. Report and audit SHA-256 are respectively
+  `731a2f57387c933dff43f5b28365d21de4bf84068c25669cfc537a9bebcad84b`
+  and `cbb79c5239b74073dacf539a04e8f4f5265921737cb020767c15c14ff2ccbb29`.
+- This is an accepted negative experiment, not evidence that the Qwen backbone
+  cannot consume continuous U. Each image still has only one U/label tuple and
+  a fixed frontier permutation, so image identity and majority answers remain
+  easier shortcuts. Repeating the same protocol for more steps would not remove
+  that confound. V1e must make one image/token set support multiple row-addressed
+  labels from its real frontier records and balance the queried classes before
+  any capacity conclusion is revisited.
 
 ## Integrity constraints
 

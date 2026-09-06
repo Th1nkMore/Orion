@@ -125,3 +125,12 @@ missing `OFF_ROUTE` class remains a declared dataset limitation.
 Passing this gate establishes only that the small Route 151 overfit can read
 the intended token fields causally. It remains non-reportable plumbing evidence
 and does not accept V1, planning behavior, or safety.
+
+V1d produced a protocol-valid negative result: separating the fields removed
+JSON-syntax dominance but still allowed fixed image identity, fixed frontier
+permutation, and majority-label shortcuts. The next bounded curriculum must
+therefore create multiple questions and labels from different real frontier
+rows of the same image/token set. Route, margin, and action supervision remains
+derived from the unchanged physical features and thresholds above; no hidden
+actor label or synthetic final action may be introduced. More epochs on the
+unchanged one-image/one-target V1d protocol are not an accepted next probe.
