@@ -1248,6 +1248,36 @@ inspectable U consumption before any closed-loop claim.
 - Full CARLA recapture is deferred. It becomes justified only if that bounded
   preflight shows unstable U rows under the stored-depth ambiguity.
 
+## Offline-depth token-stability preflight contract
+
+- The accepted next action remains no-training. Protocol
+  `configs/qwen_visibility_offline_depth_preflight_v1.json` uses only the ten
+  frozen calibration routes and never opens train, validation, or held-out
+  routes for this decision.
+- Each route contributes one centered 12-frame exact-stride window. Raw data
+  is 10 Hz and stride five gives the live Qwen U cadence of 2 Hz; observation
+  memory resets at the route boundary.
+- Four in-memory variants are preregistered: stored integer-metre center depth
+  at the live 0.45 m tolerance, the minus/plus 0.5 m quantization endpoints at
+  the same tolerance, and center depth at a quantization-aware 0.95 m
+  tolerance. Stored value 255 is restored to the configured 1000 m far plane.
+- Route exposure uses only current pose, near/far navigation commands, current
+  camera yaw, and non-negative current speed. Future executed ego motion is
+  explicitly prohibited.
+- Primary stability compares nearest physical frontier centers within the
+  existing 2 m NMS radius and their `route_weight_mean >= 0.2` labels.
+  Same-slot location/label stability is reported separately because row
+  reordering and physical disagreement are different failure modes.
+- Engineering acceptance requires each variant to populate all 32 frontier
+  rows on at least 90% of frames and each comparison to retain at least 90%
+  nearest physical matching, nearest-matched route labels, and same-slot route
+  labels. These are source-acceptance gates only, not learning or safety
+  claims. Failure blocks curriculum generation and triggers a targeted
+  lossless-depth recapture audit.
+- Added `scripts/preflight_qwen_visibility_offline_depth.py` and isolated tests.
+  Local pre-run regression is `4 passed`; compilation and `git diff --check`
+  pass. No Qwen model or training code is imported by the preflight.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

@@ -1,0 +1,103 @@
+{
+  "schema": "orion.qwen-visibility-offline-depth-preflight-protocol/v1",
+  "status": "preregistered_no_training_preflight",
+  "claim_boundary": {
+    "loads_qwen": false,
+    "generates_training_examples": false,
+    "writes_u_token_npz": false,
+    "proves_offline_depth_equals_live_oracle": false,
+    "purpose": "decide whether uint8 Bench2Drive depth is stable enough for a route-diverse grounding-data pilot"
+  },
+  "inputs": {
+    "dataset_root": "/public/share/lidachuan/orion_assets/data/bench2drive",
+    "infos": {
+      "path": "/public/share/lidachuan/orion_assets/data/infos_expansion100_seed20260827/b2d_infos_val.pkl",
+      "sha256": "e50584ee0eb39df11068a726418117958a0b2f3e5cd82ba76fe20ca63814d1d3"
+    },
+    "route_manifest": {
+      "path": "configs/spatial_uq_route_manifests/b2d_expansion100_seed20260827.json",
+      "sha256": "9f2acaaf8b9ec291ac803bb3a014e880265f0399bcc22e3d1fdb66dd5a628fd3"
+    },
+    "qwen_visibility_config": {
+      "path": "configs/qwen_drive_b2d_agent_oracle_visibility_sft_v1.json",
+      "sha256": "bc5c469846bdf821319dbfd243b4df6470627fdbe5a5d1d8db7ca8d0a9ece352"
+    },
+    "source_inventory": {
+      "path": "/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/cross_route_source_inventory_v1/inventory.json",
+      "sha256": "f21695d91df467a83d2a66abe3ef849c24fe0fe7f6fd751abaca96392581507d"
+    }
+  },
+  "sampling": {
+    "split": "calibration",
+    "route_count": 10,
+    "window_policy": "longest-centered-exact-stride-window/v1",
+    "window_frames": 12,
+    "raw_data_hz": 10.0,
+    "raw_frame_stride": 5,
+    "effective_u_hz": 2.0,
+    "temporal_memory_reset_per_route": true,
+    "use_train_routes": false,
+    "use_validation_routes": false,
+    "use_held_out_routes": false
+  },
+  "depth": {
+    "stored_units": "uint8_rounded_metric_metres",
+    "saturated_value": 255,
+    "saturated_replacement_m": 1000.0,
+    "quantization_half_width_m": 0.5,
+    "variants": [
+      {
+        "name": "center_t045",
+        "depth_offset_m": 0.0,
+        "surface_tolerance_m": 0.45
+      },
+      {
+        "name": "lower_t045",
+        "depth_offset_m": -0.5,
+        "surface_tolerance_m": 0.45
+      },
+      {
+        "name": "upper_t045",
+        "depth_offset_m": 0.5,
+        "surface_tolerance_m": 0.45
+      },
+      {
+        "name": "center_t095",
+        "depth_offset_m": 0.0,
+        "surface_tolerance_m": 0.95
+      }
+    ]
+  },
+  "route_exposure": {
+    "policy": "current-near-far-navigation-polyline/v1",
+    "world_points": [
+      ["x", "y"],
+      ["x_command_near", "y_command_near"],
+      ["x_command_far", "y_command_far"]
+    ],
+    "yaw_source": "sensors.CAM_FRONT.rotation[2]",
+    "speed_policy": "max(0,speed)",
+    "future_executed_ego_motion_used": false
+  },
+  "comparisons": {
+    "reference_variant": "center_t045",
+    "pairs": [
+      ["center_t045", "lower_t045"],
+      ["center_t045", "upper_t045"],
+      ["lower_t045", "upper_t045"],
+      ["center_t045", "center_t095"]
+    ],
+    "frontier_match_radius_m": 2.0,
+    "route_label": "route_weight_mean >= 0.2",
+    "same_slot_metrics_are_diagnostic": true,
+    "nearest_physical_frontier_metrics_are_primary": true
+  },
+  "engineering_gates": {
+    "scope": "offline data-source acceptance only; not a learning or safety gate",
+    "minimum_fraction_frames_with_32_valid_frontiers_per_variant": 0.9,
+    "minimum_nearest_physical_frontier_match_fraction_within_2m_per_comparison": 0.9,
+    "minimum_nearest_matched_route_label_agreement_per_comparison": 0.9,
+    "minimum_same_slot_route_label_agreement_per_comparison": 0.9,
+    "failure_action": "do not generate the cross-route grounding curriculum; audit targeted lossless-depth recapture"
+  }
+}
