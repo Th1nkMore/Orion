@@ -821,6 +821,30 @@ def test_typed_route_readout_uses_stage_specific_scope_and_status(tmp_path):
     assert audit["status"] == "causal_typed_route_readout_plumbing_pass"
 
 
+def test_slot_typed_route_readout_uses_its_own_scope_and_status(tmp_path):
+    report = _route_readout_report(tmp_path, causal=True)
+    report["stage"] = "V1h_route151_slot_typed_route_readout_overfit"
+    report["scope"]["projector_trainable_parameter_count"] = 1_391_616
+    protocol_path = Path(report["protocol_path"])
+    protocol = json.loads(protocol_path.read_text())
+    protocol["schema"] = evaluation.SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA
+    protocol["stage"] = "V1h_route151_slot_typed_route_readout_overfit"
+    protocol["projector"] = {"type": "slot_typed_scalar_basis"}
+    protocol_path.write_text(json.dumps(protocol))
+    report["protocol_sha256"] = hashlib.sha256(
+        protocol_path.read_bytes()
+    ).hexdigest()
+    report_path = tmp_path / "slot-typed-route-readout-report.json"
+    report_path.write_text(json.dumps(report))
+    audit = evaluation.audit_visibility_grounding_report(
+        report_path, tmp_path / "slot-typed-route-readout-audit.json"
+    )
+    assert audit["protocol_valid"] is True
+    assert audit["causal_capacity_passed"] is True
+    assert audit["projector_type"] == "slot_typed_scalar_basis"
+    assert audit["status"] == "causal_slot_typed_route_readout_plumbing_pass"
+
+
 def test_route_readout_held_out_example_in_optimizer_invalidates_report(tmp_path):
     report = _route_readout_report(tmp_path, causal=True)
     curriculum_path = Path(report["curriculum_path"])

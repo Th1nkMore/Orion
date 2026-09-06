@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1g typed-adapter probe is a valid negative)
+Status: in progress (V1g valid negative; V1h explicit-slot protocol pre-run)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -968,6 +968,30 @@ inspectable U consumption before any closed-loop claim.
   slot identity, while only full-attention layers 27 and 31 receive LoRA even
   though the released VLM exposes eight full-attention layers. These are
   competing hypotheses and must be isolated rather than changed together.
+
+## V1h explicit-slot route-readout pre-run contract
+
+- The released Qwen config records eight full-attention layers at indices
+  `[3, 7, 11, 15, 19, 23, 27, 31]`. V1g adapts only `[27, 31]`. V1h leaves
+  that LoRA scope unchanged and tests the other open interface hypothesis:
+  missing explicit G/F row identity.
+- V1h reuses V1g's typed scalar basis and the exact V1f curriculum, split,
+  schedule, optimizer, seed, questions, controls, LoRA, native inputs, and
+  numerical gates. Its only change is to append a fixed 48-way one-hot slot
+  code before the learned hidden projection. Sequence slots `0..15` identify
+  `G00..G15`; slots `16..47` identify `F00..F31`. No semantic label or action
+  is computed by the adapter.
+- The resulting slot-typed projector has 1,391,616 trainable parameters and
+  seven saved tensors, adding 24,576 input-projection weights relative to V1g.
+  The one-hot itself is deterministic and untrained. The auditor verifies the
+  exact projector type/count while retaining all V1f/V1g leakage, scope,
+  checkpoint, held-out-order, pair, and causal checks.
+- Passing would support the slot-addressing hypothesis and show that the two
+  upper adapted full-attention layers are sufficient for the minimal route
+  readout. Failure would justify a separate V1i test that expands attention
+  LoRA while keeping this slot-typed adapter fixed. Neither outcome establishes
+  full grounding, planning, or safety, and neither activates the direct
+  Planning Expert fallback.
 
 ## Integrity constraints
 

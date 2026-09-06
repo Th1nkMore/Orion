@@ -27,6 +27,9 @@ ROUTE_READOUT_CONFIG_SCHEMA = "orion.qwen-visibility-route-readout-config/v1"
 TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
     "orion.qwen-visibility-typed-route-readout-config/v1"
 )
+SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
+    "orion.qwen-visibility-slot-typed-route-readout-config/v1"
+)
 REPORT_SCHEMA = "orion.qwen-visibility-grounding-smoke-report/v1"
 
 
@@ -91,6 +94,10 @@ def _load_protocol(path):
             TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
             "V1g_route151_typed_route_readout_overfit",
         ),
+        (
+            SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
+            "V1h_route151_slot_typed_route_readout_overfit",
+        ),
     }:
         raise ValueError("unexpected grounding training config schema/stage")
     training = protocol["training"]
@@ -151,6 +158,7 @@ def _load_protocol(path):
     if stage in {
         "V1f_route151_route_readout_overfit",
         "V1g_route151_typed_route_readout_overfit",
+        "V1h_route151_slot_typed_route_readout_overfit",
     }:
         if int(training["optimizer_steps"]) != 240:
             raise ValueError("V1f route readout must take exactly 240 steps")
@@ -181,6 +189,11 @@ def _load_protocol(path):
             and projector_type != "typed_scalar_basis"
         ):
             raise ValueError("V1g requires the typed scalar-basis projector")
+        if (
+            stage == "V1h_route151_slot_typed_route_readout_overfit"
+            and projector_type != "slot_typed_scalar_basis"
+        ):
+            raise ValueError("V1h requires explicit slot-typed scalar basis")
     if protocol["claim_boundary"] != {
         "plumbing_overfit_only": True,
         "reportable_generalization": False,
@@ -478,6 +491,8 @@ def _build_projector(config):
         return _vlm.VisibilityTokenProjector(**values)
     if projector_type == "typed_scalar_basis":
         return _vlm.TypedScalarVisibilityTokenProjector(**values)
+    if projector_type == "slot_typed_scalar_basis":
+        return _vlm.SlotTypedScalarVisibilityTokenProjector(**values)
     raise ValueError("unsupported visibility projector type: %s" % projector_type)
 
 
@@ -601,6 +616,7 @@ def main():
     if protocol["stage"] in {
         "V1f_route151_route_readout_overfit",
         "V1g_route151_typed_route_readout_overfit",
+        "V1h_route151_slot_typed_route_readout_overfit",
     }:
         curriculum = _verify_route_readout_curriculum(
             protocol["curriculum"], protocol["manifest"], records

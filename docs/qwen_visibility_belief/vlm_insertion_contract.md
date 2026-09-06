@@ -118,6 +118,14 @@ and 31 although the released VLM exposes eight full-attention layers. These
 are recorded as distinct interface hypotheses and may not be changed together
 in the next diagnostic.
 
+V1h changes only slot identity. The typed per-row basis is concatenated with a
+fixed 48-way one-hot code before its learned projection. Because the physical
+sequence is always global rows followed by valid frontier rows, one-hot indices
+`0..15` denote `G00..G15` and `16..47` denote `F00..F31`. The code is not a
+semantic prediction and does not change sequence length, masks, mRoPE, cache,
+or Planning Expert input. LoRA remains restricted to layers 27 and 31 so the
+attention-reachability hypothesis is not changed in the same experiment.
+
 V0a passed the direct-prefill contract on the provisioned full model in Slurm
 job `1166148`. V0b passed the reasoning-generation and final Planning Expert
 cache contract in job `1166382`, including exact upstream reproduction by the

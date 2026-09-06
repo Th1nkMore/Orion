@@ -118,6 +118,53 @@ class TypedScalarVisibilityTokenProjector(nn.Module):
         return self.output_projection(hidden)
 
 
+class SlotTypedScalarVisibilityTokenProjector(
+    TypedScalarVisibilityTokenProjector
+):
+    """Add a deterministic one-hot G/F sequence-slot identity to each row."""
+
+    def __init__(
+        self,
+        feature_dim: int,
+        hidden_dim: int,
+        vlm_hidden_dim: int,
+        scalar_basis_dim: int = 4,
+        maximum_token_slots: int = 48,
+    ) -> None:
+        super().__init__(
+            feature_dim=feature_dim,
+            hidden_dim=hidden_dim,
+            vlm_hidden_dim=vlm_hidden_dim,
+            scalar_basis_dim=scalar_basis_dim,
+        )
+        if int(maximum_token_slots) <= 0:
+            raise ValueError("maximum_token_slots must be positive")
+        self.maximum_token_slots = int(maximum_token_slots)
+        expanded_dim = (
+            self.feature_dim * self.scalar_basis_dim + self.maximum_token_slots
+        )
+        self.field_basis_projection = nn.Linear(expanded_dim, self.hidden_dim)
+
+    def forward(self, features: torch.Tensor) -> torch.Tensor:
+        basis = self.scalar_basis(features)
+        token_count = int(basis.shape[0])
+        if token_count > self.maximum_token_slots:
+            raise ValueError(
+                "visibility token count exceeds the configured slot budget"
+            )
+        slot_identity = torch.eye(
+            self.maximum_token_slots,
+            device=basis.device,
+            dtype=basis.dtype,
+        )[:token_count]
+        expanded = torch.cat(
+            [basis.reshape(token_count, -1), slot_identity], dim=-1
+        )
+        hidden = self.field_basis_projection(expanded)
+        hidden = self.activation(self.hidden_norm(hidden))
+        return self.output_projection(hidden)
+
+
 @dataclass
 class VisibilityPrefillResult:
     """Auditable output of one official or visibility-augmented VLM prefill."""

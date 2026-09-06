@@ -159,6 +159,31 @@ def test_typed_scalar_projector_preserves_field_identity_and_absolute_value():
     assert len(full.state_dict()) == 7
 
 
+def test_slot_typed_projector_adds_deterministic_sequence_identity():
+    vlm_module = sys.modules[package.__name__ + ".qwen_visibility_vlm"]
+    projector = vlm_module.SlotTypedScalarVisibilityTokenProjector(
+        23, 4, 2, maximum_token_slots=3
+    )
+    assert projector.field_basis_projection.in_features == 23 * 4 + 3
+    with torch.no_grad():
+        projector.field_basis_projection.weight.zero_()
+        projector.field_basis_projection.bias.zero_()
+        projector.field_basis_projection.weight[0, 23 * 4] = 1.0
+        projector.field_basis_projection.weight[1, 23 * 4 + 1] = 1.0
+        projector.output_projection.weight.zero_()
+        projector.output_projection.weight[0, 0] = 1.0
+        projector.output_projection.weight[1, 1] = 1.0
+        projector.output_projection.bias.zero_()
+    output = projector(torch.zeros((2, 23)))
+    assert output.shape == (2, 2)
+    assert not torch.equal(output[0], output[1])
+    with pytest.raises(ValueError, match="slot budget"):
+        projector(torch.zeros((4, 23)))
+    full = vlm_module.SlotTypedScalarVisibilityTokenProjector(23, 512, 2560)
+    assert sum(parameter.numel() for parameter in full.parameters()) == 1_391_616
+    assert len(full.state_dict()) == 7
+
+
 def test_non_full_attention_target_fails_closed():
     model = _Model()
     training.freeze_qwen_for_visibility_grounding(model)

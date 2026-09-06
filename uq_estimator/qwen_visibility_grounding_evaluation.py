@@ -27,6 +27,9 @@ ROUTE_READOUT_CONFIG_SCHEMA = "orion.qwen-visibility-route-readout-config/v1"
 TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
     "orion.qwen-visibility-typed-route-readout-config/v1"
 )
+SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
+    "orion.qwen-visibility-slot-typed-route-readout-config/v1"
+)
 ROUTE_READOUT_CURRICULUM_SCHEMA = (
     "orion.qwen-visibility-route-readout-curriculum/v1"
 )
@@ -1011,6 +1014,15 @@ def audit_route_readout_overfit_report(
             "pass_status": "causal_typed_route_readout_plumbing_pass",
             "negative_status": "valid_run_without_causal_typed_route_readout",
         },
+        "V1h_route151_slot_typed_route_readout_overfit": {
+            "config_schema": SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
+            "projector_parameter_count": 1_391_616,
+            "projector_type": "slot_typed_scalar_basis",
+            "pass_status": "causal_slot_typed_route_readout_plumbing_pass",
+            "negative_status": (
+                "valid_run_without_causal_slot_typed_route_readout"
+            ),
+        },
     }
     stage_spec = stage_specs.get(stage)
     if stage_spec is None:
@@ -1437,6 +1449,7 @@ def audit_visibility_grounding_report(report_path: Path, output_path: Path) -> d
     if report.get("stage") in {
         "V1f_route151_route_readout_overfit",
         "V1g_route151_typed_route_readout_overfit",
+        "V1h_route151_slot_typed_route_readout_overfit",
     }:
         return audit_route_readout_overfit_report(report_path, output_path)
     if report.get("stage") == "V1e_route151_row_addressed_overfit":

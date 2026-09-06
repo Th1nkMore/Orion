@@ -238,3 +238,16 @@ whether every continuous row needs an explicit `Gxx/Fxx` identity, and whether
 two adapted full-attention layers can route a named local row to the answer.
 One experiment may change only one of those factors unless a preceding
 read-only/interface test makes the other irrelevant.
+
+### V1h explicit-slot adapter gate
+
+V1h holds the V1g typed scalar basis and two-layer LoRA scope fixed. It appends
+a deterministic 48-way one-hot slot code before the hidden projection, with
+slots `0..15` mapped to `G00..G15` and `16..47` to `F00..F31`. This adds row
+identity but no semantic judgment. The projector must contain exactly
+1,391,616 trainable parameters and seven saved tensors.
+
+The immutable V1f curriculum and all held-out-order gates are reused without
+change. A passing result isolates slot addressing as necessary in this bounded
+probe. A valid failure permits a later attention-scope experiment only if the
+slot-typed adapter, data, seed, optimizer, and gates stay fixed.
