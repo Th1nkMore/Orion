@@ -1323,6 +1323,33 @@ inspectable U consumption before any closed-loop claim.
   `7df7a8192b6efce77322b050e8d3208b7b4b187d86c02de1b6e471653f0e2b1f`.
   No learning or safety claim follows from this source-acceptance result.
 
+## Route-diverse random-query data pre-run contract
+
+- Protocol `configs/qwen_visibility_route_diverse_data_v1.json` freezes one
+  natural query per physical route: 70 train, ten validation, and ten held-out
+  routes. The ten calibration routes used to select the depth policy are
+  excluded from both optimization and evaluation.
+- Within each split, a recorded seed assigns exactly half the routes to
+  `ON_ROUTE` and half to `OFF_ROUTE`. For each route, the builder tokenizes one
+  centered 12-frame, stride-five window with memory reset at the route
+  boundary, then uniformly chooses one natural row carrying the assigned
+  label. It does not create an ON/OFF pair or require two answers to differ.
+- The selected `Fxx` remains in its tokenizer-produced row. No permutation is
+  used to manufacture the example. Each `(route, frame, Fxx)` key must be
+  unique, every selected frame must contain all 32 rows, and every token/image
+  hash is recorded.
+- The accepted offline policy is center integer-metre depth, restored 1000 m
+  saturation, and 0.95 m surface tolerance. Artifacts must state
+  `source_oracle_depth=false` and
+  `source_visibility_supervision=bench2drive_offline_uint8_depth`.
+- Zero-U and spatial-shuffle artifacts are generated for evaluation only.
+  The sole training schedule is ordinary per-example route-label
+  cross-entropy, balanced over 240 steps. This data build does not load Qwen or
+  start training.
+- Pre-run local tests cover deterministic balanced route assignment and
+  label-constrained natural-row selection. The relevant suite reports
+  `7 passed`; compilation, JSON parsing, and `git diff --check` pass.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.
