@@ -184,6 +184,23 @@ that replacing the backbone alone solves uncertainty-aware planning:
   correct, and the control gap is zero. The prediction is constant within each
   frame across its ON/OFF target rows, exposing a sample/global-context
   shortcut. V1i's 100% result does not generalize to unseen queried rows.
+- The proposed response of penalizing equal answers within a constructed pair
+  is rejected. Equal answers can be physically correct, so pair-flip loss
+  would supervise the dataset construction rather than U grounding. The next
+  data path uses route-diverse natural rows, random addressed `F00`--`F31`
+  queries, and ordinary per-example labels; controls remain diagnostics.
+- A read-only cross-route inventory found 100 installed Bench2Drive routes and
+  24,024 indexed frames over 43 scenario types and 12 towns. The existing
+  route-disjoint split has 70/10/10/10 routes for
+  train/validation/calibration/held-out. A 300-frame first/middle/last sample
+  found no missing required front RGB/depth stream or calibration. This is
+  enough source diversity to build a pilot, but no offline U tokens have yet
+  been generated.
+- The raw depth has a non-negotiable fidelity caveat: it is 1600 x 900 8-bit
+  grayscale storing rounded metric metres, whereas the live oracle uses
+  24-bit CARLA depth. With 0.5 m BEV cells, the offline source needs an explicit
+  quantization-interval/tolerance audit before it can supervise U. It must not
+  be described as equivalent oracle depth.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
@@ -328,7 +345,9 @@ The next work is intentionally oracle-first:
 2. Collapse it to the accepted 2.5D BEV schema and render it for inspection.
 3. Produce global and frontier tokens and inject them into the 4B VLM.
 4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1i
-   bounded probes are valid negatives, so this step remains open.
+   bounded probes and V1j are valid negatives, so this step remains open. The
+   next admissible probe first tokenizes a small route-diverse offline slice
+   under an explicit 8-bit depth policy; it does not add a pair-flip loss.
 5. Train a longitudinal-only trajectory response using paired robust targets.
 6. Run one fixed baseline and one otherwise identical oracle-U Route 151 arm.
 7. Replace oracle depth with the independent predicted-U module only after the
@@ -348,4 +367,5 @@ or an isolated collision avoidance to a learned-U generalization result.
 - `docs/qwen_drive_official_input_dropout_screen_acceptance_2026-09-05.md`
 - `docs/qwen_route151_failure_and_navsim_pair_plan_2026-09-05.md`
 - `docs/qwen_drive_orion_backbone_diagnostic_2026-09-05.md`
+- `docs/qwen_visibility_belief/cross_route_source_inventory_v1.md`
 - `docs/CURRENT_STATE.md` for the complete historical Orion evidence chain

@@ -1207,6 +1207,47 @@ inspectable U consumption before any closed-loop claim.
   trajectory training or direct Planning Expert injection now would bypass the
   accepted structured-grounding prerequisite and requires a new decision.
 
+## Cross-route grounding source inventory
+
+- User review rejected a proposed same-frame answer-equality penalty as too
+  mechanical: two U inputs may legitimately imply the same answer. The ADR now
+  prohibits pair-flip supervision. The accepted next step is data inventory,
+  not another training run.
+- Added `scripts/audit_qwen_visibility_grounding_source_inventory.py` and its
+  isolated test. Local result: `1 passed`; compilation and `git diff --check`
+  pass. Commit under audit: `b15a810d`.
+- The read-only remote run consumed the immutable 100-route infos and frozen
+  route manifest, did not load Qwen, did not generate U tokens, and did not
+  start training. Its report is
+  `/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/cross_route_source_inventory_v1/inventory.json`,
+  4,752 bytes, SHA-256
+  `f21695d91df467a83d2a66abe3ef849c24fe0fe7f6fd751abaca96392581507d`.
+- Source capacity is 100 routes, 24,024 indexed frames, 43 scenario types, and
+  12 towns. The already frozen, leakage-checked split is 70/10/10/10 routes
+  and 16,207/2,423/2,790/2,604 frames for
+  train/validation/calibration/held-out. At most this exposes
+  518,624/77,536/89,280/83,328 `(frame,F00--F31)` query pairs before filtering
+  invalid frontier rows.
+- The sampled file audit selected first/middle/last from every route: 300
+  frames and 1,800 required camera-file checks. No required front RGB/depth
+  file was missing and all sampled annotations passed camera calibration plus
+  ego/navigation state checks. The 900 depth headers were uniformly 1600 x
+  900, 8-bit grayscale. Two source routes have one indexed-frame gap each;
+  expert assessment is absent only from the 100 sampled terminal frames.
+- Existing Qwen U tokens still cover only Route 151: 54 frames, all with 32
+  valid frontier rows. Random `F00`--`F31` query construction is feasible, but
+  route-diverse frontier-row coverage remains unmeasured until offline
+  tokenization.
+- Bench2Drive collection source computes metric `float16` depth and writes it
+  through OpenCV. A server round-trip probe confirmed the OpenCV PNG fallback
+  rounds to `uint8` metres and saturates at 255. This source is not equivalent
+  to the live 24-bit oracle and cannot silently use the live 0.45 m surface
+  tolerance on a 0.5 m grid. A quantization-interval/tolerance policy and route
+  reconstruction policy must be frozen before a small, no-training
+  tokenization preflight.
+- Full CARLA recapture is deferred. It becomes justified only if that bounded
+  preflight shows unstable U rows under the stored-depth ambiguity.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

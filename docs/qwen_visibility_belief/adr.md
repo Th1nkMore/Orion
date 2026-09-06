@@ -23,6 +23,7 @@ that later experiments had already succeeded when the decision was made.
 | D5 | Qwen's ability to learn multimodal U is unproven | Prove oracle-U grounding first, then staged LoRA and longitudinal planning | 7–10 |
 | D6 | A weak/custom agent or changed input profile could confound the result | Keep official/native processing, one controlled baseline, Bench2Drive primary and NAVSIM secondary | 12, 13 |
 | D7 | V1i can memorize repeated target rows, while spatial shuffle is physically inconsistent | Run V1j with disjoint queried target rows and one held-out frame; keep shuffle out of optimization and report it as a non-veto diagnostic | 8, V1j target-row gate |
+| D8 | A same-frame opposite-label penalty would force answers to differ even when the physical answer should agree | Reject pair-flip/equality penalties; move to route-diverse natural rows, random addressed queries, ordinary per-example supervision, and diagnostic-only controls | 8, Post-V1j supervision amendment |
 
 User acceptance closed these architectural branches. Numerical implementation
 parameters listed at the end remain open and do not have decision status. A
@@ -263,6 +264,29 @@ not F00 route-scalar readout. The prior V1i result is therefore not accepted as
 target-row generalization. This failure does not by itself activate direct
 Planning Expert injection because the agreed VLM structured-grounding
 prerequisite remains unmet.
+
+#### Post-V1j supervision amendment
+
+A loss that penalizes identical answers for two examples from the same frame
+is rejected. Some physically different U inputs legitimately imply the same
+answer or action, so such a loss would teach the construction of an artificial
+pair rather than the requested physical field. The same restriction applies
+to forcing a prediction to flip under every spatial shuffle.
+
+The next admissible grounding dataset must instead draw complete, natural U
+rows from multiple routes and frames, address a deterministically selected but
+randomized `F00`--`F31` row, and use the ordinary label for that one example.
+No cross-example anti-invariance term is allowed. Matched pairs and shuffled U
+may still be reported as diagnostics, but an expected answer change is scored
+only when the queried physical field actually crosses the predeclared label
+boundary.
+
+Before another Qwen optimization run, a source inventory must establish
+route/frame coverage, a route-disjoint split, calibration and depth
+provenance, and whether the selected frames actually populate the requested
+frontier rows. A strict global target-row-identity holdout may be added as an
+interface extrapolation test, but it is not a substitute for route- and
+frame-disjoint natural examples.
 
 ### 9. Train a longitudinal response first
 
