@@ -134,3 +134,23 @@ rows of the same image/token set. Route, margin, and action supervision remains
 derived from the unchanged physical features and thresholds above; no hidden
 actor label or synthetic final action may be introduced. More epochs on the
 unchanged one-image/one-target V1d protocol are not an accepted next probe.
+
+### V1e row-addressed anti-shortcut gate
+
+V1e may reuse the same immutable true-U token artifact under multiple complete
+frontier-row permutations. It may ask for the maximum-score row or ask for a
+declared row's route, margin, or action field. A row permutation must move all
+23 features together; altering individual true-U features would create new
+physical evidence and is prohibited.
+
+For each row-addressed field, one fixed query slot receives different real rows
+and balanced labels under the same source images. Every selected example must
+also have a different label under its paired O3 spatial-shuffle control. The
+curriculum stores both control targets for audit, but neither zero U nor
+spatial-shuffle may occur in the optimizer schedule.
+
+The bounded capacity gate requires at least 80% exact true-U accuracy per field
+and per label, plus at least a 30-point gap between true U and the stronger of
+zero U or spatial shuffle for every field. This closes the fixed-image,
+fixed-slot, majority-label shortcuts exposed by V1d; it does not establish
+held-out grounding, semantic relevance, planning quality, or safety.

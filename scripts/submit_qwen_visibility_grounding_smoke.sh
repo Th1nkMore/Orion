@@ -15,6 +15,7 @@ glibc_sysroot="${asset_root}/envs/glibc-2.28/x86_64-conda-linux-gnu/sysroot"
 glibc_loader="${glibc_sysroot}/lib64/ld-linux-x86-64.so.2"
 runtime_library_path="${glibc_sysroot}/lib64:${glibc_sysroot}/usr/lib64:${asset_root}/envs/qwen-drive-py310/lib"
 protocol="${PROTOCOL:-${project_root}/configs/qwen_visibility_grounding_smoke_v1.json}"
+curriculum="${CURRICULUM:-}"
 trainer="${project_root}/scripts/train_qwen_visibility_grounding_smoke.py"
 manifest="${asset_root}/qwen_visibility_grounding_runs/route151_v1a_manifest_v1/manifest.json"
 run_id="${RUN_ID:-qwen_visibility_grounding_v1b_step260_gradient_v1}"
@@ -31,6 +32,10 @@ for prerequisite in \
     exit 2
   fi
 done
+if [[ -n "${curriculum}" && ! -f "${curriculum}" ]]; then
+  echo "missing Qwen visibility-grounding curriculum: ${curriculum}" >&2
+  exit 2
+fi
 if [[ -e "${run_root}" ]]; then
   echo "refusing to reuse Qwen visibility-grounding output: ${run_root}" >&2
   exit 1
@@ -63,6 +68,10 @@ if [[ "${submit}" != "1" ]]; then
   echo "OUTPUT=${run_root}"
   echo "NODELIST=${node_list}"
   echo "WALLTIME=${walltime}"
+  if [[ -n "${curriculum}" ]]; then
+    echo "CURRICULUM=${curriculum}"
+    echo "CURRICULUM_SHA256=$(sha256sum "${curriculum}" | awk '{print $1}')"
+  fi
   printf 'SBATCH_COMMAND='
   printf '%q ' "${sbatch_args[@]}"
   printf '\n'

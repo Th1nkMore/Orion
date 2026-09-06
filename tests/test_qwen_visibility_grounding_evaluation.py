@@ -307,3 +307,250 @@ def test_factorized_unbalanced_optimizer_invalidates_report(tmp_path):
     assert audit["protocol_valid"] is False
     assert audit["causal_capacity_passed"] is False
     assert "optimizer_sample_field_balance" in audit["protocol_failures"]
+
+
+def _alternate_label(field, label):
+    labels = {
+        "frontier": ("F03", "F13", "F23"),
+        "route": ("ON_ROUTE", "OFF_ROUTE"),
+        "margin": ("INSIDE", "NEAR", "CLEAR"),
+        "action": ("KEEP", "SLOW", "STOP"),
+    }[field]
+    return labels[(labels.index(label) + 1) % len(labels)]
+
+
+def _row_addressed_report(tmp_path, causal=True):
+    manifest_path = tmp_path / "row-base-manifest.json"
+    manifest_path.write_text('{"immutable":"synthetic-row-test"}')
+    examples = []
+    label_repetitions = {
+        "frontier": {"F03": 5, "F13": 5, "F23": 5},
+        "route": {"OFF_ROUTE": 5, "ON_ROUTE": 5},
+        "margin": {"CLEAR": 4, "INSIDE": 4, "NEAR": 4},
+        "action": {"KEEP": 2, "SLOW": 2, "STOP": 2},
+    }
+    sample_index = 0
+    for field in evaluation.TARGET_FIELDS:
+        for label, repetitions in label_repetitions[field].items():
+            for repetition in range(repetitions):
+                sample_id = evaluation.EXPECTED_SAMPLE_IDS[
+                    sample_index % len(evaluation.EXPECTED_SAMPLE_IDS)
+                ]
+                sample_index += 1
+                example_id = "%s-%s-%d" % (field, label, repetition)
+                examples.append(
+                    {
+                        "example_id": example_id,
+                        "sample_id": sample_id,
+                        "task_field": field,
+                        "expected_answer": label,
+                        "control_expected_answers": {
+                            "true_u": label,
+                            "zero_u": _alternate_label(field, label),
+                            "spatial_shuffle": _alternate_label(field, label),
+                        },
+                        "sequence_permutation_new_to_manifest": list(range(32)),
+                    }
+                )
+    pools = {}
+    for example in examples:
+        pools.setdefault(
+            (example["task_field"], example["expected_answer"]), []
+        ).append(example["example_id"])
+    for pool in pools.values():
+        pool.sort()
+    label_order = {
+        "frontier": ("F03", "F13", "F23"),
+        "route": ("ON_ROUTE", "OFF_ROUTE"),
+        "margin": ("INSIDE", "NEAR", "CLEAR"),
+        "action": ("KEEP", "SLOW", "STOP"),
+    }
+    schedule = []
+    for round_index in range(90):
+        for field in evaluation.TARGET_FIELDS:
+            labels = label_order[field]
+            label_index = round_index % len(labels)
+            label = labels[label_index]
+            occurrence = round_index // len(labels)
+            pool = pools[(field, label)]
+            schedule.append(pool[occurrence % len(pool)])
+    curriculum = {
+        "schema": "orion.qwen-visibility-row-grounding-curriculum/v1",
+        "base_manifest_path": str(manifest_path),
+        "base_manifest_sha256": hashlib.sha256(
+            manifest_path.read_bytes()
+        ).hexdigest(),
+        "reportable_generalization": False,
+        "controls_used_for_optimizer": False,
+        "hidden_actor_labels_used": False,
+        "planning_expert_used_for_optimizer": False,
+        "complete_row_permutations_only": True,
+        "spatial_shuffle_target_changed_for_every_example": True,
+        "example_count": 43,
+        "steps_per_field": 90,
+        "optimizer_steps": 360,
+        "field_counts": {
+            "action": 6,
+            "frontier": 15,
+            "margin": 12,
+            "route": 10,
+        },
+        "label_counts": label_repetitions,
+        "training_schedule": schedule,
+        "examples": examples,
+    }
+    curriculum_path = tmp_path / "row-curriculum.json"
+    curriculum_path.write_text(json.dumps(curriculum))
+    claim_boundary = {
+        "plumbing_overfit_only": True,
+        "reportable_generalization": False,
+        "safety_claim_allowed": False,
+    }
+    objective = {
+        "type": "row_addressed_fields",
+        "fields": list(evaluation.TARGET_FIELDS),
+    }
+    protocol = {
+        "schema": "orion.qwen-visibility-row-grounding-config/v1",
+        "stage": "V1e_route151_row_addressed_overfit",
+        "sample_ids": list(evaluation.EXPECTED_SAMPLE_IDS),
+        "objective": objective,
+        "curriculum": str(curriculum_path),
+        "training": {
+            "optimizer_steps": 360,
+            "separate_gradient_clipping": True,
+        },
+        "evaluation": {
+            "pre_training_controls": ["true_u"],
+            "controls": list(evaluation.EXPECTED_CONTROLS),
+        },
+        "claim_boundary": claim_boundary,
+    }
+    protocol_path = tmp_path / "row-protocol.json"
+    protocol_path.write_text(json.dumps(protocol))
+    by_id = {example["example_id"]: example for example in examples}
+    history = []
+    for step, example_id in enumerate(schedule, start=1):
+        example = by_id[example_id]
+        history.append(
+            {
+                "optimizer_step": step,
+                "example_id": example_id,
+                "sample_id": example["sample_id"],
+                "task_field": example["task_field"],
+                "loss": 2.0 - step / 500,
+                "projector_gradient_norm_before_clip": 10.0,
+                "lora_gradient_norm_before_clip": 0.2,
+                "projector_update_norm": 0.1,
+                "lora_update_norm": 0.01,
+                "projector_nonzero_gradient_tensors": 3,
+                "lora_nonzero_gradient_tensors": 8,
+                "forward_seconds": 1.0,
+                "backward_seconds": 2.0,
+                "optimizer_step_seconds": 3.0,
+            }
+        )
+
+    def row(example, control, correct):
+        true_answer = example["expected_answer"]
+        control_answer = example["control_expected_answers"][control]
+        answer = true_answer if correct else control_answer
+        true_exact = answer == true_answer
+        return {
+            "example_id": example["example_id"],
+            "sample_id": example["sample_id"],
+            "task_field": example["task_field"],
+            "control": control,
+            "answer": answer,
+            "parsed": answer,
+            "expected_answer": true_answer,
+            "control_expected_answer": control_answer,
+            "canonical_exact": true_exact,
+            "control_semantic_exact": answer == control_answer,
+            "field_correct": {example["task_field"]: true_exact},
+        }
+
+    pre = [row(example, "true_u", False) for example in examples]
+    post = []
+    for example in examples:
+        for control in evaluation.EXPECTED_CONTROLS:
+            post.append(row(example, control, control == "true_u" or not causal))
+    checkpoint = tmp_path / "row-adaptation.pt"
+    checkpoint.write_bytes(b"row-small-adaptation")
+    return {
+        "schema": "orion.qwen-visibility-grounding-smoke-report/v1",
+        "status": "complete",
+        "stage": "V1e_route151_row_addressed_overfit",
+        "objective": objective,
+        "claim_boundary": claim_boundary,
+        "protocol_path": str(protocol_path),
+        "protocol_sha256": hashlib.sha256(protocol_path.read_bytes()).hexdigest(),
+        "manifest_path": str(manifest_path),
+        "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+        "curriculum_path": str(curriculum_path),
+        "curriculum_sha256": hashlib.sha256(
+            curriculum_path.read_bytes()
+        ).hexdigest(),
+        "curriculum_example_count": 43,
+        "sample_ids": list(evaluation.EXPECTED_SAMPLE_IDS),
+        "optimizer_controls": [],
+        "hidden_actor_labels_used": False,
+        "planning_expert_in_optimizer": False,
+        "scope": {
+            "projector_trainable_parameter_count": 1_330_734,
+            "model_trainable_parameter_count": 393_216,
+            "vision_trainable_parameter_count": 0,
+            "planning_expert_trainable_parameter_count": 0,
+            "embedding_trainable": False,
+            "lm_head_trainable": False,
+        },
+        "history": history,
+        "pre_training_evaluations": pre,
+        "evaluations": post,
+        "checkpoint": {
+            "path": str(checkpoint),
+            "sha256": hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
+            "contains_optimizer_state": False,
+            "contains_base_model_weights": False,
+            "projector_tensor_count": 7,
+            "lora_tensor_count": 16,
+        },
+    }
+
+
+def test_row_addressed_causal_overfit_passes_only_as_plumbing(tmp_path):
+    report_path = tmp_path / "row-report.json"
+    report_path.write_text(json.dumps(_row_addressed_report(tmp_path, causal=True)))
+    audit = evaluation.audit_visibility_grounding_report(
+        report_path, tmp_path / "row-audit.json"
+    )
+    assert audit["protocol_valid"] is True
+    assert audit["causal_capacity_passed"] is True
+    assert audit["status"] == "causal_row_addressed_plumbing_overfit_pass"
+    assert all(
+        gap == 1.0 for gap in audit["true_minus_control_ceiling"].values()
+    )
+    assert audit["claim_boundary"]["reportable_generalization"] is False
+
+
+def test_row_addressed_noncausal_outputs_do_not_pass(tmp_path):
+    report_path = tmp_path / "row-report.json"
+    report_path.write_text(json.dumps(_row_addressed_report(tmp_path, causal=False)))
+    audit = evaluation.audit_row_addressed_grounding_overfit_report(
+        report_path, tmp_path / "row-audit.json"
+    )
+    assert audit["protocol_valid"] is True
+    assert audit["causal_capacity_passed"] is False
+    assert audit["status"] == "valid_run_without_causal_grounding"
+
+
+def test_row_addressed_schedule_mismatch_invalidates_report(tmp_path):
+    report = _row_addressed_report(tmp_path, causal=True)
+    report["history"][0]["example_id"] = report["history"][1]["example_id"]
+    report_path = tmp_path / "row-report.json"
+    report_path.write_text(json.dumps(report))
+    audit = evaluation.audit_row_addressed_grounding_overfit_report(
+        report_path, tmp_path / "row-audit.json"
+    )
+    assert audit["protocol_valid"] is False
+    assert "optimizer_schedule" in audit["protocol_failures"]

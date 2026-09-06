@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1d valid negative; V1e row-addressed grounding next)
+Status: in progress (V1d valid negative; V1e row-addressed protocol pre-run)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -743,6 +743,38 @@ inspectable U consumption before any closed-loop claim.
   that confound. V1e must make one image/token set support multiple row-addressed
   labels from its real frontier records and balance the queried classes before
   any capacity conclusion is revisited.
+
+## V1e row-addressed-overfit pre-run contract
+
+- V1e derives every target from the 32 real frontier rows already present in
+  each immutable V1a token artifact. It does not invent an actor, risk value,
+  or action label. The existing route/margin/urgency thresholds remain the sole
+  source of `ON/OFF_ROUTE`, `INSIDE/NEAR/CLEAR`, and `KEEP/SLOW/STOP`.
+- Complete-row cyclic permutations place different real physical rows at the
+  same query slot. Route always queries `F00`, margin `F01`, and action `F02`;
+  within a field, the same image/slot receives different labels. Frontier-max
+  examples move the true maximum to balanced `F03`, `F13`, and `F23` slots.
+  Because coordinates and content move together, this is an arbitrary sequence
+  reordering rather than the O3 spatial-shuffle intervention.
+- Candidate rows are selected only when their spatial-shuffle target differs
+  from their true target. Selection is deterministic, uses the highest-score
+  qualifying row per sample/class, and balances the 43 unique examples as 15
+  frontier, 10 route, 12 margin, and 6 action questions. Label counts are
+  respectively `5/5/5`, `5/5`, `4/4/4`, and `2/2/2`.
+- The immutable curriculum records every question, source row, complete
+  permutation, true/zero/shuffle expected answer, and an explicit 360-step
+  schedule. Each field receives 90 optimizer updates and every label within a
+  field receives equal updates. Controls remain evaluation-only.
+- The stage-specific auditor is fixed before the run. It verifies the protocol,
+  base manifest, curriculum, schedule, per-example evaluation coverage, frozen
+  model scope, finite nonzero adapter updates, and adaptation-only checkpoint.
+  Capacity requires at least 80% true-U accuracy for every field, at least 80%
+  for every label within every field, and a true-minus-stronger-control gap of
+  at least 30 percentage points for every field.
+- Native three-camera image processing, V0 insertion, projector, rank-8 LoRA,
+  and the Planning Expert freeze are unchanged. Passing remains a disposable
+  Route 151 plumbing result; the remote curriculum and training run have not
+  started at the time this contract is committed.
 
 ## Integrity constraints
 

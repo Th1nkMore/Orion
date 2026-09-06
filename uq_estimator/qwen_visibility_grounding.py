@@ -245,7 +245,25 @@ def derive_visibility_grounding_target(
     scores = valid[:, index["frontier_selection_score"]]
     selected = int(np.argmax(scores))
     old_index = int(np.asarray(permutation, dtype=np.int64)[selected])
-    row = valid[selected]
+    return _grounding_target_from_row(
+        valid[selected],
+        index,
+        frontier_index=selected,
+        original_frontier_index=old_index,
+        thresholds=thresholds,
+    )
+
+
+def _grounding_target_from_row(
+    row: np.ndarray,
+    feature_index: Mapping[str, int],
+    frontier_index: int,
+    original_frontier_index: int,
+    thresholds: GroundingThresholds,
+) -> VisibilityGroundingTarget:
+    """Apply the fixed categorical rules to one selected physical row."""
+
+    index = feature_index
     route_weight = float(row[index["route_weight_mean"]])
     margin_value = float(row[index["frontier_stopping_margin_normalized"]])
     urgency_max = float(row[index["urgency_max"]])
@@ -276,8 +294,8 @@ def derive_visibility_grounding_target(
         action = "KEEP"
 
     return VisibilityGroundingTarget(
-        frontier_index=selected,
-        original_frontier_index=old_index,
+        frontier_index=frontier_index,
+        original_frontier_index=original_frontier_index,
         route=route,
         margin=margin,
         action=action,
@@ -285,6 +303,36 @@ def derive_visibility_grounding_target(
         stopping_margin_normalized=margin_value,
         urgency_max=urgency_max,
         frontier_selection_score=selection_score,
+    )
+
+
+def derive_visibility_grounding_row_target(
+    frontier_tokens: np.ndarray,
+    frontier_mask: np.ndarray,
+    feature_names: Sequence[str],
+    permutation: Sequence[int],
+    frontier_index: int,
+    thresholds: GroundingThresholds = GroundingThresholds(),
+) -> VisibilityGroundingTarget:
+    """Derive labels for an explicitly addressed row after a complete permutation."""
+
+    index = _feature_index(feature_names)
+    permuted, mask = permute_frontier_rows(
+        frontier_tokens, frontier_mask, permutation
+    )
+    valid_count = int(mask.sum())
+    if isinstance(frontier_index, bool) or int(frontier_index) != frontier_index:
+        raise ValueError("frontier_index must be an integer")
+    frontier_index = int(frontier_index)
+    if not 0 <= frontier_index < valid_count:
+        raise ValueError("frontier_index must address a valid row")
+    order = np.asarray(permutation, dtype=np.int64)
+    return _grounding_target_from_row(
+        permuted[frontier_index],
+        index,
+        frontier_index=frontier_index,
+        original_frontier_index=int(order[frontier_index]),
+        thresholds=thresholds,
     )
 
 

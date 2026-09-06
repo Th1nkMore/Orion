@@ -21,6 +21,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SMOKE_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-smoke-config/v1"
 OVERFIT_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-overfit-config/v1"
 FACTORIZED_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-factorized-config/v1"
+ROW_CONFIG_SCHEMA = "orion.qwen-visibility-row-grounding-config/v1"
 REPORT_SCHEMA = "orion.qwen-visibility-grounding-smoke-report/v1"
 
 
@@ -44,6 +45,10 @@ _belief = _load_local_module(
 _grounding = _load_local_module(
     package.__name__ + ".qwen_visibility_grounding",
     PROJECT_ROOT / "uq_estimator" / "qwen_visibility_grounding.py",
+)
+_curriculum = _load_local_module(
+    package.__name__ + ".qwen_visibility_grounding_curriculum",
+    PROJECT_ROOT / "uq_estimator" / "qwen_visibility_grounding_curriculum.py",
 )
 _vlm = _load_local_module(
     package.__name__ + ".qwen_visibility_vlm",
@@ -75,6 +80,7 @@ def _load_protocol(path):
         (SMOKE_CONFIG_SCHEMA, "V1b_gradient_smoke"),
         (OVERFIT_CONFIG_SCHEMA, "V1c_route151_plumbing_overfit"),
         (FACTORIZED_CONFIG_SCHEMA, "V1d_route151_factorized_overfit"),
+        (ROW_CONFIG_SCHEMA, "V1e_route151_row_addressed_overfit"),
     }:
         raise ValueError("unexpected grounding training config schema/stage")
     training = protocol["training"]
@@ -112,6 +118,26 @@ def _load_protocol(path):
             "fields": ["frontier", "route", "margin", "action"],
         }:
             raise ValueError("V1d requires the balanced four-field objective")
+    if stage == "V1e_route151_row_addressed_overfit":
+        if int(training["optimizer_steps"]) != 360:
+            raise ValueError("V1e row-addressed overfit must take exactly 360 steps")
+        if training.get("separate_gradient_clipping") is not True:
+            raise ValueError("V1e requires separate projector/LoRA clipping")
+        if set(protocol.get("sample_ids", ())) != {
+            "route151-step-000000",
+            "route151-step-000200",
+            "route151-step-000260",
+            "route151-step-000280",
+            "route151-step-000300",
+        }:
+            raise ValueError("V1e must use all five immutable plumbing records")
+        if protocol.get("objective") != {
+            "type": "row_addressed_fields",
+            "fields": ["frontier", "route", "margin", "action"],
+        }:
+            raise ValueError("V1e requires the balanced row-addressed objective")
+        if not protocol.get("curriculum"):
+            raise ValueError("V1e requires an immutable curriculum manifest")
     if protocol["claim_boundary"] != {
         "plumbing_overfit_only": True,
         "reportable_generalization": False,
@@ -156,7 +182,75 @@ def _verify_manifest(path, sample_ids):
     return manifest, selected
 
 
-def _load_control_tokens(record, control):
+def _verify_row_curriculum(path, manifest_path, records):
+    curriculum_path = Path(path)
+    curriculum = json.loads(curriculum_path.read_text(encoding="utf-8"))
+    if curriculum.get("schema") != _curriculum.ROW_ADDRESSED_CURRICULUM_SCHEMA:
+        raise ValueError("unexpected row-addressed curriculum schema")
+    if Path(curriculum.get("base_manifest_path", "")).resolve() != Path(
+        manifest_path
+    ).resolve():
+        raise ValueError("row curriculum base manifest path changed")
+    if curriculum.get("base_manifest_sha256") != _sha256(manifest_path):
+        raise ValueError("row curriculum base manifest hash changed")
+    if (
+        curriculum.get("reportable_generalization") is not False
+        or curriculum.get("controls_used_for_optimizer") is not False
+        or curriculum.get("hidden_actor_labels_used") is not False
+        or curriculum.get("planning_expert_used_for_optimizer") is not False
+        or curriculum.get("complete_row_permutations_only") is not True
+        or curriculum.get("spatial_shuffle_target_changed_for_every_example")
+        is not True
+    ):
+        raise ValueError("row curriculum violates the V1e boundary")
+    if curriculum.get("field_counts") != {
+        "action": 6,
+        "frontier": 15,
+        "margin": 12,
+        "route": 10,
+    }:
+        raise ValueError("row curriculum field counts changed")
+    if curriculum.get("label_counts") != {
+        "action": {"KEEP": 2, "SLOW": 2, "STOP": 2},
+        "frontier": {"F03": 5, "F13": 5, "F23": 5},
+        "margin": {"CLEAR": 4, "INSIDE": 4, "NEAR": 4},
+        "route": {"OFF_ROUTE": 5, "ON_ROUTE": 5},
+    }:
+        raise ValueError("row curriculum label counts changed")
+    if int(curriculum.get("example_count", -1)) != 43:
+        raise ValueError("V1e requires exactly 43 row-addressed examples")
+    if int(curriculum.get("steps_per_field", -1)) != 90:
+        raise ValueError("V1e requires exactly 90 optimizer steps per field")
+    schedule = curriculum.get("training_schedule", [])
+    if int(curriculum.get("optimizer_steps", -1)) != 360 or len(schedule) != 360:
+        raise ValueError("V1e curriculum schedule must contain 360 steps")
+    selected_ids = {record["sample_id"] for record in records}
+    examples = curriculum.get("examples", [])
+    by_id = {example.get("example_id"): example for example in examples}
+    if len(by_id) != 43 or None in by_id:
+        raise ValueError("V1e curriculum example ids are not unique")
+    if any(example_id not in by_id for example_id in schedule):
+        raise ValueError("V1e schedule names an unknown example")
+    for example in examples:
+        field = example.get("task_field")
+        if example.get("sample_id") not in selected_ids:
+            raise ValueError("V1e curriculum names an unselected sample")
+        if field not in _curriculum.ROW_ADDRESSED_FIELDS:
+            raise ValueError("V1e curriculum names an invalid field")
+        control_answers = example.get("control_expected_answers", {})
+        if control_answers.get("true_u") != example.get("expected_answer"):
+            raise ValueError("V1e true-U target changed")
+        if control_answers.get("spatial_shuffle") == example.get(
+            "expected_answer"
+        ):
+            raise ValueError("V1e spatial shuffle does not change a target")
+        permutation = example.get("sequence_permutation_new_to_manifest", [])
+        if sorted(permutation) != list(range(32)):
+            raise ValueError("V1e example lacks a complete row permutation")
+    return curriculum
+
+
+def _load_control_tokens(record, control, sequence_permutation=None):
     prefixes = {
         "true_u": "visibility_tokens",
         "zero_u": "visibility_tokens_zero_u",
@@ -179,6 +273,10 @@ def _load_control_tokens(record, control):
     frontier_tokens, frontier_mask = _grounding.permute_frontier_rows(
         frontier_tokens, frontier_mask, permutation
     )
+    if sequence_permutation is not None:
+        frontier_tokens, frontier_mask = _grounding.permute_frontier_rows(
+            frontier_tokens, frontier_mask, sequence_permutation
+        )
     return (
         np.concatenate([global_tokens, frontier_tokens], axis=0),
         np.concatenate([global_mask, frontier_mask], axis=0),
@@ -226,7 +324,11 @@ def _run_evaluations(model, projector, prepared, controls, max_new_tokens):
     for example in prepared:
         target = example["record"]["target"]
         for control in controls:
-            tokens, mask = _load_control_tokens(example["record"], control)
+            tokens, mask = _load_control_tokens(
+                example["record"],
+                control,
+                example.get("sequence_permutation"),
+            )
             answer = _training.generate_visibility_grounding_answer(
                 model,
                 example["inputs"],
@@ -247,14 +349,22 @@ def _run_evaluations(model, projector, prepared, controls, max_new_tokens):
                 parsed = answer.strip()
                 canonical_exact = parsed == example["expected_answer"]
                 field_correct = {task_field: canonical_exact}
+            control_expected_answer = example.get(
+                "control_expected_answers", {}
+            ).get(control, example["expected_answer"])
             rows.append(
                 {
+                    "example_id": example.get("example_id"),
                     "sample_id": example["record"]["sample_id"],
                     "task_field": task_field,
                     "control": control,
                     "answer": answer,
                     "parsed": parsed,
                     "expected_answer": example["expected_answer"],
+                    "control_expected_answer": control_expected_answer,
+                    "control_semantic_exact": (
+                        answer.strip() == control_expected_answer
+                    ),
                     "canonical_exact": canonical_exact,
                     "field_correct": field_correct,
                 }
@@ -283,6 +393,11 @@ def main():
     manifest, records = _verify_manifest(
         protocol["manifest"], protocol["sample_ids"]
     )
+    curriculum = None
+    if protocol["stage"] == "V1e_route151_row_addressed_overfit":
+        curriculum = _verify_row_curriculum(
+            protocol["curriculum"], protocol["manifest"], records
+        )
     seed = int(protocol["training"]["seed"])
     random.seed(seed)
     np.random.seed(seed)
@@ -324,51 +439,91 @@ def main():
         task_fields = list(objective["fields"])
     elif objective.get("type") == "composite_json":
         task_fields = [None]
+    elif objective.get("type") == "row_addressed_fields":
+        task_fields = []
     else:
         raise ValueError("unsupported grounding objective")
-    prepared = []
-    for record in records:
-        true_tokens, true_mask = _load_control_tokens(record, "true_u")
-        for task_field in task_fields:
-            question = (
-                manifest["question"]
-                if task_field is None
-                else _grounding.FACTORIZED_GROUNDING_QUESTIONS[task_field]
-            )
-            expected_answer = (
-                record["canonical_answer"]
-                if task_field is None
-                else record["target"][task_field]
-            )
-            inputs = model.processor.encode_vqa(
-                record["camera_images"],
-                question,
-                system=manifest["system_prompt"],
-                device="cpu",
-            )
-            inputs = {
-                key: value.to(model.device) if torch.is_tensor(value) else value
-                for key, value in inputs.items()
+    record_by_id = {record["sample_id"]: record for record in records}
+    if curriculum is None:
+        preparation_specs = [
+            {
+                "record": record,
+                "task_field": task_field,
+                "question": (
+                    manifest["question"]
+                    if task_field is None
+                    else _grounding.FACTORIZED_GROUNDING_QUESTIONS[task_field]
+                ),
+                "expected_answer": (
+                    record["canonical_answer"]
+                    if task_field is None
+                    else record["target"][task_field]
+                ),
+                "example_id": None,
+                "sequence_permutation": None,
+                "control_expected_answers": {},
             }
-            with torch.no_grad():
-                base_embeddings = _vlm._official_multimodal_embeddings(
-                    model, inputs
-                ).detach()
-            answer_ids = _training.encode_grounding_answer(
-                model.processor, expected_answer, model.device
-            )
-            prepared.append(
-                {
-                    "record": record,
-                    "task_field": task_field,
-                    "expected_answer": expected_answer,
-                    "inputs": inputs,
-                    "base_embeddings": base_embeddings,
-                    "true_tokens": torch.from_numpy(true_tokens).to(model.device),
-                    "true_mask": torch.from_numpy(true_mask).to(model.device),
-                    "answer_ids": answer_ids,
-                }
-            )
+            for record in records
+            for task_field in task_fields
+        ]
+    else:
+        preparation_specs = [
+            {
+                "record": record_by_id[example["sample_id"]],
+                "task_field": example["task_field"],
+                "question": example["question"],
+                "expected_answer": example["expected_answer"],
+                "example_id": example["example_id"],
+                "sequence_permutation": example[
+                    "sequence_permutation_new_to_manifest"
+                ],
+                "control_expected_answers": example[
+                    "control_expected_answers"
+                ],
+            }
+            for example in curriculum["examples"]
+        ]
+    prepared = []
+    for spec in preparation_specs:
+        record = spec["record"]
+        true_tokens, true_mask = _load_control_tokens(
+            record, "true_u", spec["sequence_permutation"]
+        )
+        inputs = model.processor.encode_vqa(
+            record["camera_images"],
+            spec["question"],
+            system=manifest["system_prompt"],
+            device="cpu",
+        )
+        inputs = {
+            key: value.to(model.device) if torch.is_tensor(value) else value
+            for key, value in inputs.items()
+        }
+        with torch.no_grad():
+            base_embeddings = _vlm._official_multimodal_embeddings(
+                model, inputs
+            ).detach()
+        answer_ids = _training.encode_grounding_answer(
+            model.processor, spec["expected_answer"], model.device
+        )
+        prepared.append(
+            {
+                "record": record,
+                "task_field": spec["task_field"],
+                "question": spec["question"],
+                "expected_answer": spec["expected_answer"],
+                "example_id": spec["example_id"],
+                "sequence_permutation": spec["sequence_permutation"],
+                "control_expected_answers": spec[
+                    "control_expected_answers"
+                ],
+                "inputs": inputs,
+                "base_embeddings": base_embeddings,
+                "true_tokens": torch.from_numpy(true_tokens).to(model.device),
+                "true_mask": torch.from_numpy(true_mask).to(model.device),
+                "answer_ids": answer_ids,
+            }
+        )
     prepare_seconds = time.monotonic() - prepare_started
 
     pre_training_started = time.monotonic()
@@ -409,9 +564,21 @@ def main():
     optimizer.zero_grad(set_to_none=True)
     if torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
-    for optimizer_step in range(1, int(protocol["training"]["optimizer_steps"]) + 1):
+    if curriculum is None:
+        optimizer_examples = [
+            prepared[index % len(prepared)]
+            for index in range(int(protocol["training"]["optimizer_steps"]))
+        ]
+    else:
+        prepared_by_id = {example["example_id"]: example for example in prepared}
+        optimizer_examples = [
+            prepared_by_id[example_id]
+            for example_id in curriculum["training_schedule"]
+        ]
+    if len(optimizer_examples) != int(protocol["training"]["optimizer_steps"]):
+        raise RuntimeError("optimizer schedule length changed")
+    for optimizer_step, example in enumerate(optimizer_examples, start=1):
         step_started = time.monotonic()
-        example = prepared[(optimizer_step - 1) % len(prepared)]
         projector_before = [
             parameter.detach().float().clone()
             for parameter in projector_parameters
@@ -481,6 +648,7 @@ def main():
             {
                 "optimizer_step": optimizer_step,
                 "sample_id": example["record"]["sample_id"],
+                "example_id": example["example_id"],
                 "task_field": example["task_field"],
                 "loss": float(result.loss.detach().item()),
                 "projector_gradient_norm_before_clip": float(
@@ -591,6 +759,14 @@ def main():
         "gpu_memory": gpu_memory,
         "torch_version": torch.__version__,
     }
+    if curriculum is not None:
+        report.update(
+            {
+                "curriculum_path": str(Path(protocol["curriculum"]).resolve()),
+                "curriculum_sha256": _sha256(protocol["curriculum"]),
+                "curriculum_example_count": len(curriculum["examples"]),
+            }
+        )
     (args.output_dir / "report.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )

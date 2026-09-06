@@ -31,6 +31,12 @@ grounding = _load_local_module(
     package.__name__ + ".qwen_visibility_grounding",
     PROJECT_ROOT / "uq_estimator" / "qwen_visibility_grounding.py",
 )
+curriculum = _load_local_module(
+    package.__name__ + ".qwen_visibility_grounding_curriculum",
+    PROJECT_ROOT
+    / "uq_estimator"
+    / "qwen_visibility_grounding_curriculum.py",
+)
 
 VISIBILITY_TOKEN_FEATURE_NAMES = visibility.VISIBILITY_TOKEN_FEATURE_NAMES
 VISIBILITY_TOKEN_SCHEMA = visibility.VISIBILITY_TOKEN_SCHEMA
@@ -38,6 +44,9 @@ GroundingThresholds = grounding.GroundingThresholds
 FACTORIZED_GROUNDING_QUESTIONS = grounding.FACTORIZED_GROUNDING_QUESTIONS
 build_route151_grounding_manifest = grounding.build_route151_grounding_manifest
 derive_visibility_grounding_target = grounding.derive_visibility_grounding_target
+derive_visibility_grounding_row_target = (
+    grounding.derive_visibility_grounding_row_target
+)
 deterministic_frontier_permutation = grounding.deterministic_frontier_permutation
 permute_frontier_rows = grounding.permute_frontier_rows
 
@@ -117,6 +126,157 @@ def test_factorized_questions_cover_exact_grounding_fields_and_rules():
     assert "route_weight_mean is at least 0.2" in action
     assert "urgency_max is at least 0.1" in action
     assert all("Reply" in question for question in FACTORIZED_GROUNDING_QUESTIONS.values())
+
+
+def test_row_target_and_complete_permutation_address_the_requested_record():
+    tokens, mask = _frontiers(
+        [
+            {
+                "frontier_selection_score": 0.8,
+                "route_weight_mean": 0.7,
+                "frontier_stopping_margin_normalized": -0.1,
+            },
+            {
+                "frontier_selection_score": 0.2,
+                "route_weight_mean": 0.0,
+                "frontier_stopping_margin_normalized": 0.5,
+            },
+            {
+                "frontier_selection_score": 0.1,
+                "route_weight_mean": 0.7,
+                "frontier_stopping_margin_normalized": 0.05,
+            },
+        ]
+    )
+    order = curriculum.complete_permutation_moving_row(3, 0, 2)
+    assert order.tolist() == [1, 2, 0]
+    target = derive_visibility_grounding_row_target(
+        tokens, mask, NAMES, order, frontier_index=2
+    )
+    assert target.original_frontier_index == 0
+    assert target.frontier == "F02"
+    assert (target.route, target.margin, target.action) == (
+        "ON_ROUTE",
+        "INSIDE",
+        "STOP",
+    )
+
+
+def _write_full_control_token(path, step):
+    global_tokens = np.zeros((16, len(NAMES)), dtype=np.float32)
+    global_tokens[:, INDEX["token_is_global"]] = 1.0
+    true = np.zeros((32, len(NAMES)), dtype=np.float32)
+    shuffled = np.zeros_like(true)
+    true[:, INDEX["token_is_frontier"]] = 1.0
+    shuffled[:, INDEX["token_is_frontier"]] = 1.0
+    prototypes = (
+        # true route, margin, urgency, score; shuffled values
+        (0.8, -0.1, 0.8, 1.0, 0.0, 0.5, 0.0, 0.1),
+        (0.8, 0.05, 0.8, 0.8, 0.0, 0.5, 0.0, 1.2),
+        (0.0, 0.5, 0.0, 0.6, 0.8, -0.1, 0.8, 0.2),
+        (0.8, 0.5, 0.0, 0.4, 0.8, 0.05, 0.8, 0.3),
+    )
+    for index in range(32):
+        values = prototypes[index % len(prototypes)]
+        for array, offset in ((true, 0), (shuffled, 4)):
+            array[index, INDEX["route_weight_mean"]] = values[offset]
+            array[index, INDEX["frontier_stopping_margin_normalized"]] = values[
+                offset + 1
+            ]
+            array[index, INDEX["urgency_max"]] = values[offset + 2]
+            score_decay = 0.01 if array is true else 0.001
+            array[index, INDEX["frontier_selection_score"]] = (
+                values[offset + 3] - index * score_decay
+            )
+    mask = np.ones(32, dtype=bool)
+    metadata = {
+        "schema": VISIBILITY_TOKEN_SCHEMA,
+        "control": "true_u",
+        "feature_names": list(NAMES),
+    }
+    provenance = {
+        "source_oracle_depth": True,
+        "source_used_by_qwen": False,
+        "source_step": step,
+    }
+    arrays = {
+        "visibility_tokens_global": global_tokens,
+        "visibility_tokens_frontier": true,
+        "visibility_tokens_global_mask": np.ones(16, dtype=bool),
+        "visibility_tokens_frontier_mask": mask,
+        "visibility_tokens_feature_names": np.asarray(NAMES),
+        "visibility_tokens_metadata_json": np.asarray(json.dumps(metadata)),
+        "provenance_json": np.asarray(json.dumps(provenance)),
+    }
+    for control, values in (("zero_u", np.zeros_like(true)), ("spatial_shuffle", shuffled)):
+        prefix = "visibility_tokens_" + control
+        arrays[prefix + "_global"] = np.zeros_like(global_tokens)
+        arrays[prefix + "_frontier"] = values
+        arrays[prefix + "_global_mask"] = np.ones(16, dtype=bool)
+        arrays[prefix + "_frontier_mask"] = mask
+        arrays[prefix + "_feature_names"] = np.asarray(NAMES)
+    np.savez_compressed(path, **arrays)
+
+
+def test_row_curriculum_is_real_row_balanced_and_refuses_overwrite(tmp_path):
+    base_path = tmp_path / "base.json"
+    records = []
+    for step in (0, 200, 260, 280, 300):
+        token_path = tmp_path / ("step_%06d.npz" % step)
+        _write_full_control_token(token_path, step)
+        images = []
+        image_hashes = []
+        for camera in ("front", "left", "right"):
+            image_path = tmp_path / ("%06d-%s.png" % (step, camera))
+            image_path.write_bytes(("%d-%s" % (step, camera)).encode())
+            images.append(str(image_path))
+            image_hashes.append(hashlib.sha256(image_path.read_bytes()).hexdigest())
+        records.append(
+            {
+                "sample_id": "route151-step-%06d" % step,
+                "token_artifact": str(token_path),
+                "token_sha256": hashlib.sha256(token_path.read_bytes()).hexdigest(),
+                "camera_images": images,
+                "camera_sha256": image_hashes,
+                "frontier_permutation_new_to_old": list(range(32)),
+            }
+        )
+    base_path.write_text(
+        json.dumps(
+            {
+                "schema": grounding.VISIBILITY_GROUNDING_MANIFEST_SCHEMA,
+                "reportable_generalization": False,
+                "controls_used_for_optimizer": False,
+                "hidden_actor_labels_used": False,
+                "planning_expert_used_for_optimizer": False,
+                "records": records,
+            }
+        )
+    )
+    output = tmp_path / "curriculum.json"
+    result = curriculum.build_route151_row_grounding_curriculum(
+        base_path, output, steps_per_field=90
+    )
+    assert result["example_count"] == 43
+    assert result["field_counts"] == {
+        "action": 6,
+        "frontier": 15,
+        "margin": 12,
+        "route": 10,
+    }
+    assert result["label_counts"]["route"] == {
+        "OFF_ROUTE": 5,
+        "ON_ROUTE": 5,
+    }
+    assert result["optimizer_steps"] == 360
+    assert all(
+        example["control_expected_answers"]["true_u"]
+        != example["control_expected_answers"]["spatial_shuffle"]
+        for example in result["examples"]
+    )
+    assert not result["controls_used_for_optimizer"]
+    with pytest.raises(FileExistsError):
+        curriculum.build_route151_row_grounding_curriculum(base_path, output)
 
 
 @pytest.mark.parametrize(
