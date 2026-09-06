@@ -197,3 +197,15 @@ This route-only result is a lower-bound capacity check. Passing does not imply
 that frontier argmax, stopping margin, action composition, semantic relevance,
 or planning are solved. Failing after a valid run rules out only the current
 generic projector plus upper-layer-LoRA recipe under this bounded protocol.
+
+V1f produced a protocol-valid negative result. Held-out-order true-U accuracy
+was 75% (`ON_ROUTE` 90%, `OFF_ROUTE` 60%), only 50% of matched pairs were fully
+correct, spatial-shuffle changed-target accuracy was 45%, and the true-U causal
+gap was 20 points. The training loss fell and both adapter families updated on
+every step, so this is not a broken-gradient or checkpoint result.
+
+The unchanged generic whole-row MLP is no longer an accepted first adapter for
+formal data generation. A replacement must make physical feature identity and
+continuous value structure explicit without predicting semantic relevance or
+driving action in the adapter. It must first rerun the held-out-order route
+gate above; only after passing may the other grounding fields be restored.

@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1e valid negative; V1f matched-pair protocol pre-run)
+Status: in progress (V1f matched-pair route readout is a valid negative)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -859,6 +859,49 @@ inspectable U consumption before any closed-loop claim.
   motivates an explicit typed/feature-aware modality adapter while retaining
   VLM-first consumption; it does not automatically promote direct Planning
   Expert injection.
+
+## V1f remote negative result
+
+- Commit under test: `eb91f55a`; Slurm job: `1167927`; run id:
+  `qwen_visibility_grounding_v1f_route151_route_readout_v1`.
+- Terminal state: `COMPLETED`, exit `0:0`, elapsed `00:10:03`, peak host RSS
+  `2,890,012 KiB`. Model load took 164.02 s, preparation 34.99 s, 20
+  pre-training held-out generations 23.71 s, all 240 optimizer steps 173.74 s,
+  and 60 post-training held-out/control generations 30.57 s. Peak
+  allocated/reserved GPU memory was 15,637/15,974 MB; native three-camera
+  processing was unchanged.
+- The real curriculum SHA-256 is
+  `63bb8fbe6fc929591b5e97bbd55e30a1437c309a58b507765085f00b4566d592`.
+  Independent readback verifies 25 matched pairs, a 30-example training split,
+  a disjoint 20-example held-out-order split, balanced 120/120 optimizer label
+  counts, complete-row permutations, two-position pair swaps, and no
+  control/hidden-actor/Planning-Expert optimizer input.
+- The stage-specific audit is protocol-valid with no failures. Pre-training
+  held-out accuracy is `0/20`. Post-training true-U accuracy is `15/20`:
+  `ON_ROUTE 9/10` and `OFF_ROUTE 6/10`. Only `5/10` matched pairs are correct
+  on both members. Spatial shuffle reaches `9/20` on its changed target, and
+  the true-U gap over the stronger control is 20 percentage points. Every
+  preregistered causal-capacity check fails; status is
+  `valid_run_without_causal_route_readout`.
+- Loss and updates confirm a real optimization path rather than an execution
+  failure. First/last-step loss is 6.56275 to 0.14613; first/last 30-step mean
+  loss is 0.81566 to 0.17091. Projector and LoRA update norms are finite and
+  nonzero on every step. On unseen orders, both pairs for steps 000000 and
+  000200 collapse to `ON_ROUTE`, while one step-000280 pair collapses to
+  `OFF_ROUTE`; this is consistent with an image/order fallback rather than a
+  stable local F00 readout.
+- The adaptation checkpoint is 6,906,677 bytes with SHA-256
+  `1ae5b805e91e8522dd711105b9cedd25607911cd06c5c2ab6b370a50d517e586`.
+  Independent `weights_only` readback again verifies seven projector tensors
+  (1,330,734 values), sixteen LoRA tensors (393,216 values), no optimizer state,
+  and no base-model tensors. Report and audit SHA-256 are respectively
+  `bccc36c59e681fee7acba1f5ea784fd5d80c34349dc1743dc1f2749c09f25144`
+  and `3687ff9bd95d380db5cdabe01689b347f753db0725ceeb20d7195a1aea6d850b`.
+- V1f rejects the unchanged generic whole-row MLP plus upper-layer-LoRA recipe
+  as a sufficient bounded small-data consumer. The next experiment must change
+  the modality adapter so physical field identity and scalar value structure
+  are explicit while Qwen remains the semantic consumer. More V1e/V1f epochs
+  are not the next step, and the Planning Expert fallback remains inactive.
 
 ## Integrity constraints
 

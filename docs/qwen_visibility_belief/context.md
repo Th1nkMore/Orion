@@ -137,6 +137,14 @@ that replacing the backbone alone solves uncertainty-aware planning:
   control was only 16.7 percentage points. This does not show that Qwen can
   never consume continuous U, but it does show that the current projector,
   upper-layer LoRA, and bounded supervision do not yet provide causal grounding.
+- V1f then isolated a single explicitly addressed `route_weight_mean` threshold.
+  It trained balanced within-image ON/OFF row-swap pairs under three randomized
+  decoy orders and evaluated two unseen orders. Held-out true-U accuracy was
+  75%, only half of the pairs flipped correctly, spatial-shuffle target accuracy
+  was 45%, and the causal gap was 20 points. This valid negative rules out the
+  current generic whole-row MLP projector as a sufficient small-data adapter;
+  it still does not rule out a field-typed physical adapter or Qwen consumption
+  in general.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
@@ -277,7 +285,7 @@ The next work is intentionally oracle-first:
 1. Generate oracle 3D visibility from CARLA depth and calibration.
 2. Collapse it to the accepted 2.5D BEV schema and render it for inspection.
 3. Produce global and frontier tokens and inject them into the 4B VLM.
-4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1e
+4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1f
    bounded probes are valid negatives, so this step remains open.
 5. Train a longitudinal-only trajectory response using paired robust targets.
 6. Run one fixed baseline and one otherwise identical oracle-U Route 151 arm.

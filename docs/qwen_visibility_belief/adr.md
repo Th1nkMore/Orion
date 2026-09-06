@@ -182,6 +182,17 @@ capacity. A subsequent bounded probe must remove correlations between the
 target label and the ordering of non-queried frontier rows, or explicitly
 change the modality adapter, before formal grounding data are generated.
 
+V1f removed that ordering confound for the simplest route scalar by training
+matched complete-row swaps under three decoy orders and evaluating two unseen
+orders per image. It was protocol-valid but reached only 75% held-out true-U
+accuracy, 50% matched-pair accuracy, 45% changed spatial-shuffle target
+accuracy, and a 20-point causal gap. The generic whole-row MLP projector is
+therefore rejected as a sufficient initial small-data modality adapter. The
+next VLM-first adapter must expose deterministic physical field identity and
+value structure explicitly; it may not move semantic relevance or action
+prediction into the small module. This is an implementation decision within
+D1/D4, not activation of the Planning Expert fallback.
+
 ### 9. Train a longitudinal response first
 
 The first safety teacher preserves a valid base trajectory's lateral path and
