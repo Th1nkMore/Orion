@@ -108,6 +108,16 @@ projection complete the adapter. This changes the adapter representation only;
 the insertion index, mRoPE construction, cache extraction, masks, and disabled
 official path are unchanged.
 
+V1g used that typed adapter under the exact V1f matched-pair curriculum and
+collapsed all held-out true/zero/shuffle outputs to `OFF_ROUTE`. Scalar typing
+without explicit row-slot identity is therefore insufficient. The current U
+block relies on sequence order plus mRoPE to imply `G00..G15` and `F00..F31`;
+it contains no direct slot embeddings or pretrained textual slot anchors.
+Separately, the grounding LoRA currently adapts only full-attention layers 27
+and 31 although the released VLM exposes eight full-attention layers. These
+are recorded as distinct interface hypotheses and may not be changed together
+in the next diagnostic.
+
 V0a passed the direct-prefill contract on the provisioned full model in Slurm
 job `1166148`. V0b passed the reasoning-generation and final Planning Expert
 cache contract in job `1166382`, including exact upstream reproduction by the

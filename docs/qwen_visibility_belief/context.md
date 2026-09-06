@@ -145,6 +145,13 @@ that replacing the backbone alone solves uncertainty-aware planning:
   current generic whole-row MLP projector as a sufficient small-data adapter;
   it still does not rule out a field-typed physical adapter or Qwen consumption
   in general.
+- V1g changed only that projector to a field-disjoint scalar basis while
+  reusing the exact V1f data, split, schedule, LoRA, seed, and gates. It collapsed
+  every true/zero/shuffle output to `OFF_ROUTE`: held-out true-U accuracy was
+  50%, matched-pair accuracy 0%, and causal gap 0. This rules out scalar typing
+  alone. The unresolved interface gaps are explicit G/F slot identity and
+  whether adapting only two of Qwen's eight full-attention layers provides
+  enough reachability; those are hypotheses, not established causes.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
@@ -285,7 +292,7 @@ The next work is intentionally oracle-first:
 1. Generate oracle 3D visibility from CARLA depth and calibration.
 2. Collapse it to the accepted 2.5D BEV schema and render it for inspection.
 3. Produce global and frontier tokens and inject them into the 4B VLM.
-4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1f
+4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1g
    bounded probes are valid negatives, so this step remains open.
 5. Train a longitudinal-only trajectory response using paired robust targets.
 6. Run one fixed baseline and one otherwise identical oracle-U Route 151 arm.

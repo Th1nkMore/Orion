@@ -193,6 +193,17 @@ value structure explicitly; it may not move semantic relevance or action
 prediction into the small module. This is an implementation decision within
 D1/D4, not activation of the Planning Expert fallback.
 
+V1g implemented that deterministic field/value typing as the sole change from
+V1f and failed more strongly: every true, zero, and shuffled held-out answer
+collapsed to `OFF_ROUTE`, yielding 50% true-U accuracy, 0% matched-pair
+accuracy, and no causal gap. Field-disjoint scalar basis expansion by itself is
+therefore also rejected as sufficient. Before another training run, the VLM
+interface review must make G/F slot identity explicit and verify whether the
+adapted attention scope can actually route a named local U token into the
+answer. Slot addressing and attention reachability must be changed or tested
+separately; their current status is an open implementation frontier, not a
+reason to move semantic interpretation into the small adapter.
+
 ### 9. Train a longitudinal response first
 
 The first safety teacher preserves a valid base trajectory's lateral path and

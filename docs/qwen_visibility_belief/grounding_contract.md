@@ -225,3 +225,16 @@ tensors; Qwen upper-layer LoRA remains 393,216 parameters. All frozen-scope,
 checkpoint, split-leakage, matched-pair, zero-U, spatial-shuffle, and claim
 boundaries from V1f remain mandatory. A different dataset, extra epoch, changed
 LoRA scope, or relaxed gate would invalidate the intended paired comparison.
+
+V1g is a protocol-valid negative result. All true, zero, and spatial-shuffle
+held-out answers collapse to `OFF_ROUTE`; true-U accuracy is 50%, matched-pair
+accuracy 0%, changed spatial-shuffle target accuracy 50%, and causal gap 0.
+Both trainable families update on every step and training loss becomes small,
+so the failure is held-out causal readout rather than optimizer connectivity.
+
+Field/value typing alone is not an accepted next adapter. Before another
+grounding run, the insertion contract must resolve two separate questions:
+whether every continuous row needs an explicit `Gxx/Fxx` identity, and whether
+two adapted full-attention layers can route a named local row to the answer.
+One experiment may change only one of those factors unless a preceding
+read-only/interface test makes the other irrelevant.

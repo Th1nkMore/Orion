@@ -1,6 +1,6 @@
 # Qwen visibility-belief research track
 
-> Status: implementation in progress; V1g typed route-readout protocol pre-run
+> Status: implementation in progress; V1g is a valid negative, interface under review
 > Decision date: 2026-09-06 (Asia/Shanghai)
 > Branch: `codex/qwen-drive-transition`
 

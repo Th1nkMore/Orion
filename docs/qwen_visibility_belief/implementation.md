@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1f valid negative; V1g typed-adapter protocol pre-run)
+Status: in progress (V1g typed-adapter probe is a valid negative)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -931,6 +931,43 @@ inspectable U consumption before any closed-loop claim.
   adapter. Failure would leave structured VLM consumption open and motivate a
   stronger semantically anchored or query-based adapter review; it would not
   by itself satisfy the ADR's Planning Expert fallback condition.
+
+## V1g remote negative result
+
+- Commit under test: `6cc097f9`; Slurm job: `1168178`; run id:
+  `qwen_visibility_grounding_v1g_route151_typed_route_readout_v1`.
+- Terminal state: `COMPLETED`, exit `0:0`, elapsed `00:10:00`, peak host RSS
+  `2,965,416 KiB`. Model load took 170.45 s, preparation 27.19 s, pre-training
+  held-out generation 22.95 s, 240 optimizer steps 171.23 s, and post-training
+  evaluation 32.09 s. Peak allocated/reserved GPU memory was
+  15,638/15,974 MB; native inputs were unchanged.
+- The V1f curriculum was reused byte-for-byte at SHA-256
+  `63bb8fbe6fc929591b5e97bbd55e30a1437c309a58b507765085f00b4566d592`.
+  The stage-specific audit is protocol-valid with no failures and verifies the
+  typed projector's exact 1,367,040 parameters, frozen released-model boundary,
+  held-out split, pair structure, schedule, controls, updates, and checkpoint.
+- All 20 true-U, 20 zero-U, and 20 spatial-shuffle held-out generations emit
+  `OFF_ROUTE`. True-U accuracy is therefore 50% (`OFF_ROUTE 10/10`,
+  `ON_ROUTE 0/10`), matched-pair accuracy is 0%, spatial-shuffle changed-target
+  accuracy is 50%, and the true-U causal gap is zero. Every predeclared gate
+  fails; status is `valid_run_without_causal_typed_route_readout`.
+- The optimization path is active: first/last-step loss is 6.56275 to 0.10740,
+  first/last 30-step mean loss is 0.87931 to 0.20084, and both projector and
+  LoRA update norms are finite and nonzero on all 240 steps. The low training
+  loss together with complete held-out collapse is memorization, not evidence
+  of a working physical readout.
+- The adaptation checkpoint is 7,052,021 bytes with SHA-256
+  `d82997c22f00bdb49659585af70599cb7f92dc90b4b106480003c5a7f9fb9743`.
+  Independent `weights_only` readback verifies seven typed-projector tensors
+  (1,367,040 values), sixteen LoRA tensors (393,216 values), no optimizer state,
+  and no base-model tensors. Report and audit SHA-256 are respectively
+  `a2cc8c5881f46052a21c9ed6e68569d1a9529dd7b2133b95292b11e160702847`
+  and `9c25f87dcfeb80732cd812ec20a59b38371caf8790be97195d5a27b06da22a39`.
+- V1g rejects scalar typing alone. The next work is an interface audit before
+  another run: the physical U sequence currently carries no explicit `Gxx/Fxx`
+  slot identity, while only full-attention layers 27 and 31 receive LoRA even
+  though the released VLM exposes eight full-attention layers. These are
+  competing hypotheses and must be isolated rather than changed together.
 
 ## Integrity constraints
 
