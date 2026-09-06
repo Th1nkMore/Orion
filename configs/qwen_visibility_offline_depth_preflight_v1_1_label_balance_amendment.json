@@ -1,0 +1,33 @@
+{
+  "schema": "orion.qwen-visibility-offline-depth-preflight-amendment/v1",
+  "status": "post_v1_diagnostic_amendment_before_curriculum_decision",
+  "parent_protocol": {
+    "path": "configs/qwen_visibility_offline_depth_preflight_v1.json",
+    "sha256": "6050cb7063a1dc26625303818d7990abdf881de76d4d7715ccd04c468164bec0"
+  },
+  "parent_report": {
+    "path": "/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/offline_depth_preflight_v1/report.json",
+    "sha256": "905e15b0b0514606b8097c2475545dada1b7d63a1d2d4c45edd2dc34dd2c9b5c"
+  },
+  "trigger": {
+    "observation": "same-slot physical match was only 29.2% to 44.4% while aggregate route-label agreement exceeded 94%",
+    "risk": "OFF_ROUTE prevalence could make aggregate label agreement look stronger than minority-label stability",
+    "user_concern_respected": "do not replace physical evidence with a mechanical aggregate metric"
+  },
+  "additional_read_only_metrics": [
+    "per-variant ON_ROUTE and OFF_ROUTE row counts",
+    "nearest-physical route-label agreement conditioned on source ON and OFF",
+    "same-slot route-label confusion matrix",
+    "same-slot route-label balanced agreement"
+  ],
+  "unchanged": {
+    "routes": true,
+    "frames": true,
+    "depth_variants": true,
+    "route_policy": true,
+    "original_engineering_gates": true,
+    "training_started": false,
+    "tokens_serialized": false
+  },
+  "decision_rule": "Do not accept the data source from aggregate route-label agreement alone; inspect conditioned and balanced results before freezing a random-F query curriculum."
+}

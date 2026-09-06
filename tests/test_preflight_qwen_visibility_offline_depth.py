@@ -74,3 +74,27 @@ def test_snapshot_comparison_separates_physical_match_from_slot_order():
     assert result["nearest_route_label_agree"] == 6
     assert result["same_slot_within_radius"] == 0
     assert result["same_slot_route_label_agree"] == 1
+    assert result["nearest_label_source_on_total"] == 4
+    assert result["nearest_label_source_on_agree"] == 4
+    assert result["nearest_label_source_off_total"] == 2
+    assert result["nearest_label_source_off_agree"] == 2
+    assert result["same_slot_left_on_right_on"] == 1
+    assert result["same_slot_left_on_right_off"] == 1
+    assert result["same_slot_left_off_right_on"] == 1
+    assert result["same_slot_left_off_right_off"] == 0
+
+    aggregate = MODULE._aggregate_comparison([result])
+    assert aggregate[
+        "nearest_matched_route_label_agreement_conditioned_on_source_ON"
+    ] == 1.0
+    assert aggregate[
+        "nearest_matched_route_label_agreement_conditioned_on_source_OFF"
+    ] == 1.0
+    assert aggregate["nearest_matched_route_label_balanced_agreement"] == 1.0
+    assert aggregate[
+        "same_slot_route_label_agreement_conditioned_on_left_ON"
+    ] == 0.5
+    assert aggregate[
+        "same_slot_route_label_agreement_conditioned_on_left_OFF"
+    ] == 0.0
+    assert aggregate["same_slot_route_label_balanced_agreement"] == 0.25

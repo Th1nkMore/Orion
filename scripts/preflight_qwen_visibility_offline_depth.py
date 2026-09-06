@@ -286,6 +286,14 @@ def compare_snapshots(
             "nearest_distance_m": [],
             "global_content_absolute_error_sum": 0.0,
             "global_content_value_count": 0,
+            "nearest_label_source_on_total": 0,
+            "nearest_label_source_on_agree": 0,
+            "nearest_label_source_off_total": 0,
+            "nearest_label_source_off_agree": 0,
+            "same_slot_left_on_right_on": 0,
+            "same_slot_left_on_right_off": 0,
+            "same_slot_left_off_right_on": 0,
+            "same_slot_left_off_right_off": 0,
         }
     distances = np.linalg.norm(
         left_centers[:, None, :] - right_centers[None, :, :], axis=-1
@@ -301,12 +309,15 @@ def compare_snapshots(
             right_labels == left_labels[right_nearest],
         ]
     )
+    nearest_source_labels = np.concatenate([left_labels, right_labels])
 
     same_count = min(len(left_centers), len(right_centers))
     same_distances = np.linalg.norm(
         left_centers[:same_count] - right_centers[:same_count], axis=1
     )
     same_labels = left_labels[:same_count] == right_labels[:same_count]
+    same_left = left_labels[:same_count]
+    same_right = right_labels[:same_count]
     content_start = left.feature_names.index("visible_free_height_ratio")
     if left.feature_names != right.feature_names:
         raise ValueError("token feature schemas differ")
@@ -330,6 +341,18 @@ def compare_snapshots(
         "nearest_distance_m": nearest_distances.tolist(),
         "global_content_absolute_error_sum": float(global_error.sum()),
         "global_content_value_count": int(global_error.size),
+        "nearest_label_source_on_total": int(np.sum(nearest_source_labels)),
+        "nearest_label_source_on_agree": int(
+            np.sum(nearest_label_agreement & nearest_source_labels)
+        ),
+        "nearest_label_source_off_total": int(np.sum(~nearest_source_labels)),
+        "nearest_label_source_off_agree": int(
+            np.sum(nearest_label_agreement & ~nearest_source_labels)
+        ),
+        "same_slot_left_on_right_on": int(np.sum(same_left & same_right)),
+        "same_slot_left_on_right_off": int(np.sum(same_left & ~same_right)),
+        "same_slot_left_off_right_on": int(np.sum(~same_left & same_right)),
+        "same_slot_left_off_right_off": int(np.sum(~same_left & ~same_right)),
     }
 
 
@@ -353,11 +376,39 @@ def _aggregate_comparison(rows: Sequence[Mapping[str, Any]]) -> Dict[str, Any]:
             "same_slot_within_radius",
             "same_slot_route_label_agree",
             "global_content_value_count",
+            "nearest_label_source_on_total",
+            "nearest_label_source_on_agree",
+            "nearest_label_source_off_total",
+            "nearest_label_source_off_agree",
+            "same_slot_left_on_right_on",
+            "same_slot_left_on_right_off",
+            "same_slot_left_off_right_on",
+            "same_slot_left_off_right_off",
         )
     }
     global_error = sum(float(row["global_content_absolute_error_sum"]) for row in rows)
     nearest = [value for row in rows for value in row["nearest_distance_m"]]
     same = [value for row in rows for value in row["same_slot_distance_m"]]
+    nearest_on_agreement = _ratio(
+        sums["nearest_label_source_on_agree"],
+        sums["nearest_label_source_on_total"],
+    )
+    nearest_off_agreement = _ratio(
+        sums["nearest_label_source_off_agree"],
+        sums["nearest_label_source_off_total"],
+    )
+    same_on_total = (
+        sums["same_slot_left_on_right_on"]
+        + sums["same_slot_left_on_right_off"]
+    )
+    same_off_total = (
+        sums["same_slot_left_off_right_on"]
+        + sums["same_slot_left_off_right_off"]
+    )
+    same_on_agreement = _ratio(sums["same_slot_left_on_right_on"], same_on_total)
+    same_off_agreement = _ratio(
+        sums["same_slot_left_off_right_off"], same_off_total
+    )
     return {
         "frame_count": len(rows),
         "bidirectional_nearest_match_fraction_within_radius": _ratio(
@@ -367,12 +418,26 @@ def _aggregate_comparison(rows: Sequence[Mapping[str, Any]]) -> Dict[str, Any]:
         "nearest_matched_route_label_agreement": _ratio(
             sums["nearest_route_label_agree"], sums["nearest_route_label_total"]
         ),
+        "nearest_matched_route_label_agreement_conditioned_on_source_ON": nearest_on_agreement,
+        "nearest_matched_route_label_agreement_conditioned_on_source_OFF": nearest_off_agreement,
+        "nearest_matched_route_label_balanced_agreement": 0.5
+        * (nearest_on_agreement + nearest_off_agreement),
         "same_slot_match_fraction_within_radius": _ratio(
             sums["same_slot_within_radius"], sums["same_slot_total"]
         ),
         "same_slot_route_label_agreement": _ratio(
             sums["same_slot_route_label_agree"], sums["same_slot_total"]
         ),
+        "same_slot_route_label_agreement_conditioned_on_left_ON": same_on_agreement,
+        "same_slot_route_label_agreement_conditioned_on_left_OFF": same_off_agreement,
+        "same_slot_route_label_balanced_agreement": 0.5
+        * (same_on_agreement + same_off_agreement),
+        "same_slot_route_label_confusion_left_to_right": {
+            "ON_to_ON": sums["same_slot_left_on_right_on"],
+            "ON_to_OFF": sums["same_slot_left_on_right_off"],
+            "OFF_to_ON": sums["same_slot_left_off_right_on"],
+            "OFF_to_OFF": sums["same_slot_left_off_right_off"],
+        },
         "nearest_distance_m_median": _percentile(nearest, 50.0),
         "nearest_distance_m_p95": _percentile(nearest, 95.0),
         "same_slot_distance_m_median": _percentile(same, 50.0),
@@ -558,11 +623,20 @@ def run_preflight(protocol_path: Path) -> Dict[str, Any]:
     total_frames = sum(len(window) for window in windows.values())
     variant_summary = {}
     for name in variants:
-        valid_counts = [
-            int(snapshots[(folder, frame, name)].frontier_mask.sum())
+        selected_snapshots = [
+            snapshots[(folder, frame, name)]
             for folder in folders
             for frame in windows[folder]
         ]
+        valid_counts = [
+            int(snapshot.frontier_mask.sum()) for snapshot in selected_snapshots
+        ]
+        route_labels = [
+            label
+            for snapshot in selected_snapshots
+            for label in snapshot.route_labels(route_threshold).tolist()
+        ]
+        on_count = sum(bool(value) for value in route_labels)
         variant_summary[name] = {
             "frame_count": len(valid_counts),
             "minimum_valid_frontier_rows": min(valid_counts),
@@ -574,6 +648,9 @@ def run_preflight(protocol_path: Path) -> Dict[str, Any]:
             "fraction_frames_with_32_valid_frontier_rows": _ratio(
                 sum(value == 32 for value in valid_counts), len(valid_counts)
             ),
+            "route_label_ON_rows": on_count,
+            "route_label_OFF_rows": len(route_labels) - on_count,
+            "route_label_ON_fraction": _ratio(on_count, len(route_labels)),
         }
 
     gates = protocol["engineering_gates"]
@@ -620,6 +697,7 @@ def run_preflight(protocol_path: Path) -> Dict[str, Any]:
     all_passed = all(row["passed"] for row in gate_results)
     return {
         "schema": SCHEMA,
+        "implementation": _reference(Path(__file__)),
         "protocol": _reference(protocol_path),
         "inputs": {
             "infos": _reference(infos_path),
