@@ -128,6 +128,15 @@ that replacing the backbone alone solves uncertainty-aware planning:
   Route 146 and did not rescue Route 203. This is evidence of a strong but
   context-dependent native response to evidence loss, not a calibrated safety
   policy.
+- Three progressively stricter Route 151 oracle-U grounding probes are valid
+  negative results. V1c learned composite answer syntax and majority fields;
+  V1d factorized the fields but retained image/label shortcuts; V1e balanced
+  multiple real row-addressed labels for the same images and slots. V1e reached
+  80% only on the route field, while frontier, margin, and action reached 40%,
+  50%, and 66.7%. Its largest true-U advantage over the stronger zero/shuffle
+  control was only 16.7 percentage points. This does not show that Qwen can
+  never consume continuous U, but it does show that the current projector,
+  upper-layer LoRA, and bounded supervision do not yet provide causal grounding.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
@@ -268,7 +277,8 @@ The next work is intentionally oracle-first:
 1. Generate oracle 3D visibility from CARLA depth and calibration.
 2. Collapse it to the accepted 2.5D BEV schema and render it for inspection.
 3. Produce global and frontier tokens and inject them into the 4B VLM.
-4. Verify structured U grounding with the Planning Expert frozen.
+4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1e
+   bounded probes are valid negatives, so this step remains open.
 5. Train a longitudinal-only trajectory response using paired robust targets.
 6. Run one fixed baseline and one otherwise identical oracle-U Route 151 arm.
 7. Replace oracle depth with the independent predicted-U module only after the

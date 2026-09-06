@@ -154,3 +154,19 @@ and per label, plus at least a 30-point gap between true U and the stronger of
 zero U or spatial shuffle for every field. This closes the fixed-image,
 fixed-slot, majority-label shortcuts exposed by V1d; it does not establish
 held-out grounding, semantic relevance, planning quality, or safety.
+
+V1e produced a protocol-valid negative result. True-U field accuracy was 40%
+frontier, 80% route, 50% margin, and 66.7% action; the corresponding gaps over
+the stronger zero/spatial-shuffle arm were 0, 10.0, 8.3, and 16.7 percentage
+points. Every capacity check failed despite nonzero projector and LoRA updates
+on all 360 steps. The balanced labels elicited more diverse answers than V1d,
+but `F13` remained dominant, `INSIDE` was never correct, and target-changing
+spatial shuffles usually did not change the prediction correctly.
+
+One remaining confound is the deterministic cyclic ordering of all non-queried
+rows: every selected row/label is paired with one repeatable surrounding token
+order. Any next overfit diagnostic must keep complete physical rows intact,
+place the same queried row under multiple independently randomized decoy-row
+orders, and reserve unseen orders plus target-changing complete-row swaps for
+evaluation. It must retain balanced labels and evaluation-only zero/shuffle
+controls. More steps on the unchanged V1e schedule are not a new experiment.

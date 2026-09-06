@@ -1,6 +1,6 @@
 # Qwen visibility-belief research track
 
-> Status: implementation in progress; V1 structured-grounding data contract under test
+> Status: implementation in progress; V1e row-addressed grounding is a valid negative
 > Decision date: 2026-09-06 (Asia/Shanghai)
 > Branch: `codex/qwen-drive-transition`
 

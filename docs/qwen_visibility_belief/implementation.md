@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1d valid negative; V1e row-addressed protocol pre-run)
+Status: in progress (V1e row-addressed probe is a valid negative)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -28,7 +28,7 @@ inspectable U consumption before any closed-loop claim.
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Complete (`c4f62543`; accepted by run `1165345`) |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Complete (`2d86b809`; accepted on 54-frame derived run) |
 | V0 | Insert U tokens into the 4B VLM with verified positions and disabled-path identity | Complete (`4e4672ba`; direct job `1166148`, reasoning job `1166382`) |
-| V1 | Structured U-grounding warm-up with staged LoRA | In progress (V1a data + V1b gradient path accepted) |
+| V1 | Structured U-grounding warm-up with staged LoRA | In progress (V1a/V1b accepted; V1c-V1e valid negatives) |
 | P0 | Longitudinal trajectory retiming teacher and flow-matching training path | Not started |
 | C0 | Fixed-baseline versus oracle-U Route 151 closed-loop comparison | Not started |
 | E0 | Independent predicted-depth/visibility estimator | Blocked on interpretable oracle-U consumer evidence |
@@ -775,6 +775,54 @@ inspectable U consumption before any closed-loop claim.
   and the Planning Expert freeze are unchanged. Passing remains a disposable
   Route 151 plumbing result; the remote curriculum and training run have not
   started at the time this contract is committed.
+
+## V1e remote negative result
+
+- Commit under test: `9e9dc348`; Slurm job: `1167453`; run id:
+  `qwen_visibility_grounding_v1e_route151_row_addressed_v1`.
+- Terminal state: `COMPLETED`, exit `0:0`, elapsed `00:12:18`, peak host RSS
+  `2,828,268 KiB`. Model load took 170.31 s, native-image preparation 25.68 s,
+  43 pre-training generations 49.83 s, all 360 optimizer steps 252.93 s, and
+  129 post-training control generations 63.47 s. Peak allocated/reserved GPU
+  memory was 15,133/15,580 MB; native image processing and all three camera
+  views were retained.
+- The immutable curriculum SHA-256 is
+  `036ad03b11c715e0ba69c0ce171e43172fbb1117cd97e14797dafb637070d7fe`.
+  Its 43 real-row examples and explicit schedule give every field 90 updates
+  and balance every label. The predeclared auditor reports no protocol failure;
+  controls never enter the optimizer, hidden-actor labels are absent, the
+  Planning Expert and released base remain frozen, and both adaptation families
+  have a finite nonzero update at every optimizer step.
+- Pre-training exact accuracy is zero for all four fields. Post-training true-U
+  accuracy is frontier `6/15`, route `8/10`, margin `6/12`, and action `4/6`.
+  Per-label accuracy is frontier `F03 0/5`, `F13 5/5`, `F23 1/5`; route
+  `ON_ROUTE 4/5`, `OFF_ROUTE 4/5`; margin `INSIDE 0/4`, `NEAR 3/4`,
+  `CLEAR 3/4`; and action `KEEP 1/2`, `SLOW 2/2`, `STOP 1/2`.
+- The true-U advantage over the stronger zero/spatial-shuffle arm is only 0,
+  10.0, 8.3, and 16.7 percentage points for frontier, route, margin, and action.
+  All three preregistered capacity checks therefore fail, and the audit status
+  is `valid_run_without_causal_grounding`.
+- Training is real but insufficient. Overall first/last-step loss is 5.01959
+  to 1.38632. Mean loss over the first versus last 30 updates of each field is
+  frontier 0.847 to 0.246, route 0.468 to 0.159, margin 0.800 to 0.327, and
+  action 0.652 to 0.277. Projector and LoRA update norms are nonzero on all 360
+  steps. Predictions are more class-diverse than V1d, but the model still
+  overpredicts `F13`, never learns `INSIDE`, and mostly preserves the original
+  target under target-changing spatial shuffles.
+- The adaptation checkpoint is 6,906,677 bytes with SHA-256
+  `36ba2281848901c8eb122558cd5c64963c25365086a3e41c94648b79650b3a0d`.
+  Independent `weights_only` readback verifies seven projector tensors
+  (1,330,734 values), sixteen LoRA tensors (393,216 values), no optimizer state,
+  and no base-model tensors. Report and audit SHA-256 are respectively
+  `d5dd61925a845b06037491f2f0fb98aae9290c50622f03160293d12202fcffc9`
+  and `bbb552b1339cb488d73eb2589c8f49323823d08d7106898dc1ec9bc72ea1e503`.
+- V1e closes the fixed-image, fixed-slot, and globally imbalanced-label
+  explanations, but each label is still correlated with one deterministic
+  cyclic ordering of all non-queried rows. The negative result therefore
+  rejects this bounded consumer protocol, not continuous-U consumption in
+  general. The next bounded diagnostic must randomize non-queried complete-row
+  order while holding the queried row and label fixed, then test unseen row
+  orders and target-changing swaps. Blindly extending V1e is not justified.
 
 ## Integrity constraints
 

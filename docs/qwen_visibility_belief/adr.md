@@ -171,6 +171,17 @@ before asking for their composite serialization. Causal zero/shuffle
 evaluation remains mandatory, so this factorization cannot be accepted merely
 for learning output format.
 
+V1d and V1e evidence further constrain how that warm-up may be interpreted.
+Factorizing the answer did not remove fixed-image and majority-label shortcuts.
+Balancing real row-addressed labels for the same image and query slot produced
+more varied predictions, but still failed every predeclared causal-capacity
+gate: only route reached 80%, no field had a 30-point true-versus-control gap,
+and several individual labels remained far below the gate. Repeating either
+unchanged curriculum for more epochs is not an accepted inference about model
+capacity. A subsequent bounded probe must remove correlations between the
+target label and the ordering of non-queried frontier rows, or explicitly
+change the modality adapter, before formal grounding data are generated.
+
 ### 9. Train a longitudinal response first
 
 The first safety teacher preserves a valid base trajectory's lateral path and
