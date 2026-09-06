@@ -1367,6 +1367,20 @@ inspectable U consumption before any closed-loop claim.
   window. The amended relevant suite reports `9 passed`; compilation, JSON
   parsing, and `git diff --check` pass.
 
+### Data-build attempt 2: fail-closed full-row selection
+
+- Commit `d964e110` scanned all route windows and completed the
+  feasibility-aware label assignment, but stopped before a complete manifest
+  when the row sampler chose a frame with fewer than 32 valid rows. Protocol
+  v1.1 already required every selected frame to contain all 32 rows; the
+  implementation had recorded per-frame counts but had not filtered the
+  candidate pool by that requirement.
+- The retry changes only that implementation defect: rows from incomplete
+  frames are excluded before route-label feasibility and random selection.
+  The frozen windows, seeds, target counts, and all training boundaries remain
+  unchanged. The partial v1.1 output without a complete manifest/curriculum is
+  invalid and not training-eligible.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

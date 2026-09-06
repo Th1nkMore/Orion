@@ -174,6 +174,23 @@ def _label(tokens, row_index: int, threshold: float) -> str:
     return "ON_ROUTE" if value >= float(threshold) else "OFF_ROUTE"
 
 
+def full_row_candidates(route_tokens, threshold: float):
+    """Return natural rows only from frames that fill the complete 32-row table."""
+
+    flat = []
+    labels = []
+    valid_counts = []
+    for frame, tokens in route_tokens:
+        valid_count = int(tokens.frontier_mask.sum())
+        valid_counts.append(valid_count)
+        if valid_count != 32:
+            continue
+        for row_index in range(valid_count):
+            flat.append((frame, row_index, tokens))
+            labels.append(_label(tokens, row_index, threshold) == "ON_ROUTE")
+    return flat, labels, valid_counts
+
+
 def _image_paths(dataset_root: Path, folder: str, frame: int) -> list[Path]:
     return [
         dataset_root
@@ -360,15 +377,9 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
                 depth_config=protocol["depth"],
                 raw_hz=float(sampling["raw_data_hz"]),
             )
-            flat = []
-            labels = []
-            valid_counts = []
-            for frame, tokens in route_tokens:
-                valid_count = int(tokens.frontier_mask.sum())
-                valid_counts.append(valid_count)
-                for row_index in range(valid_count):
-                    flat.append((frame, row_index, tokens))
-                    labels.append(_label(tokens, row_index, route_threshold) == "ON_ROUTE")
+            flat, labels, valid_counts = full_row_candidates(
+                route_tokens, route_threshold
+            )
             route_candidates[folder] = {
                 "frames": frames,
                 "flat": flat,
@@ -396,7 +407,7 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
             selected_flat_index = choose_candidate_index(labels, assigned, route_seed)
             frame, row_index, tokens = flat[selected_flat_index]
             if int(tokens.frontier_mask.sum()) != 32:
-                raise ValueError("selected frame lacks all 32 frontier rows")
+                raise RuntimeError("full-row candidate filtering failed")
             query_frontier = "F%02d" % row_index
             sample_id = "%s-route-%03d-frame-%05d" % (split, route_index, frame)
             token_path = token_root / (sample_id + ".npz")

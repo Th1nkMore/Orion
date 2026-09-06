@@ -1,6 +1,9 @@
 import importlib.util
 from pathlib import Path
 import sys
+from types import SimpleNamespace
+
+import numpy as np
 
 
 SCRIPT = (
@@ -72,3 +75,26 @@ def test_feasible_balanced_assignment_rejects_impossible_split():
         assert "cannot support" in str(error)
     else:
         raise AssertionError("infeasible balanced split must fail closed")
+
+
+def test_full_row_candidates_exclude_incomplete_frames():
+    feature_names = ("route_weight_mean",)
+    complete = SimpleNamespace(
+        feature_names=feature_names,
+        frontier_tokens=np.concatenate(
+            [np.ones((1, 1), dtype=np.float32), np.zeros((31, 1), dtype=np.float32)]
+        ),
+        frontier_mask=np.ones(32, dtype=bool),
+    )
+    incomplete = SimpleNamespace(
+        feature_names=feature_names,
+        frontier_tokens=np.ones((32, 1), dtype=np.float32),
+        frontier_mask=np.asarray([True] * 31 + [False]),
+    )
+    flat, labels, valid_counts = MODULE.full_row_candidates(
+        [(10, incomplete), (20, complete)], 0.2
+    )
+    assert valid_counts == [31, 32]
+    assert len(flat) == 32
+    assert {frame for frame, _, _ in flat} == {20}
+    assert labels.count(True) == 1
