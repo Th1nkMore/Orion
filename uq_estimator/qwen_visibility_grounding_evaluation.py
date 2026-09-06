@@ -30,9 +30,14 @@ TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
 SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
     "orion.qwen-visibility-slot-typed-route-readout-config/v1"
 )
+FULL_ATTENTION_SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
+    "orion.qwen-visibility-slot-typed-full-attention-route-readout-config/v1"
+)
 ROUTE_READOUT_CURRICULUM_SCHEMA = (
     "orion.qwen-visibility-route-readout-curriculum/v1"
 )
+V1I_FULL_ATTENTION_LAYERS = (3, 7, 11, 15, 19, 23, 27, 31)
+V1I_LORA_MODULE_NAMES = ("q_proj", "k_proj", "v_proj", "o_proj")
 EXPECTED_SAMPLE_IDS = (
     "route151-step-000000",
     "route151-step-000200",
@@ -1004,6 +1009,8 @@ def audit_route_readout_overfit_report(
             "config_schema": ROUTE_READOUT_CONFIG_SCHEMA,
             "projector_parameter_count": 1_330_734,
             "projector_type": "generic_mlp",
+            "lora_parameter_count": 393_216,
+            "lora_tensor_count": 16,
             "pass_status": "causal_route_readout_plumbing_pass",
             "negative_status": "valid_run_without_causal_route_readout",
         },
@@ -1011,6 +1018,8 @@ def audit_route_readout_overfit_report(
             "config_schema": TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
             "projector_parameter_count": 1_367_040,
             "projector_type": "typed_scalar_basis",
+            "lora_parameter_count": 393_216,
+            "lora_tensor_count": 16,
             "pass_status": "causal_typed_route_readout_plumbing_pass",
             "negative_status": "valid_run_without_causal_typed_route_readout",
         },
@@ -1018,9 +1027,24 @@ def audit_route_readout_overfit_report(
             "config_schema": SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
             "projector_parameter_count": 1_391_616,
             "projector_type": "slot_typed_scalar_basis",
+            "lora_parameter_count": 393_216,
+            "lora_tensor_count": 16,
             "pass_status": "causal_slot_typed_route_readout_plumbing_pass",
             "negative_status": (
                 "valid_run_without_causal_slot_typed_route_readout"
+            ),
+        },
+        "V1i_route151_slot_typed_full_attention_route_readout_overfit": {
+            "config_schema": FULL_ATTENTION_SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
+            "projector_parameter_count": 1_391_616,
+            "projector_type": "slot_typed_scalar_basis",
+            "lora_parameter_count": 1_572_864,
+            "lora_tensor_count": 64,
+            "pass_status": (
+                "causal_slot_typed_full_attention_route_readout_plumbing_pass"
+            ),
+            "negative_status": (
+                "valid_run_without_causal_slot_typed_full_attention_route_readout"
             ),
         },
     }
@@ -1092,6 +1116,52 @@ def audit_route_readout_overfit_report(
                 str(protocol.get("curriculum", ""))
             ).resolve() != curriculum_path:
                 failures.append("protocol_curriculum_path")
+            if stage == "V1i_route151_slot_typed_full_attention_route_readout_overfit":
+                expected_projector = {
+                    "type": "slot_typed_scalar_basis",
+                    "feature_dim": 23,
+                    "scalar_basis_dim": 4,
+                    "maximum_token_slots": 48,
+                    "hidden_dim": 512,
+                    "vlm_hidden_dim": 2560,
+                }
+                expected_lora = {
+                    "layer_indices": list(V1I_FULL_ATTENTION_LAYERS),
+                    "module_names": list(V1I_LORA_MODULE_NAMES),
+                    "rank": 8,
+                    "alpha": 16.0,
+                    "dropout": 0.0,
+                }
+                expected_training = {
+                    "optimizer_steps": 240,
+                    "projector_learning_rate": 0.0001,
+                    "lora_learning_rate": 0.0002,
+                    "weight_decay": 0.0,
+                    "maximum_gradient_norm": 1.0,
+                    "projector_maximum_gradient_norm": 1.0,
+                    "lora_maximum_gradient_norm": 1.0,
+                    "separate_gradient_clipping": True,
+                    "gradient_checkpointing": True,
+                    "seed": 42,
+                }
+                expected_evaluation = {
+                    "max_new_tokens": 16,
+                    "split": "held_out_order",
+                    "pre_training_controls": ["true_u"],
+                    "controls": list(EXPECTED_CONTROLS),
+                }
+                if protocol.get("base_bridge_config") != (
+                    "configs/qwen_drive_b2d_agent_oracle_visibility_sft_v1.json"
+                ):
+                    failures.append("protocol_base_bridge_config")
+                if protocol.get("projector") != expected_projector:
+                    failures.append("protocol_projector_config")
+                if protocol.get("lora") != expected_lora:
+                    failures.append("protocol_lora_config")
+                if protocol.get("training") != expected_training:
+                    failures.append("protocol_training_config")
+                if protocol.get("evaluation") != expected_evaluation:
+                    failures.append("protocol_evaluation_config")
 
     curriculum = {}
     examples = []
@@ -1247,7 +1317,7 @@ def audit_route_readout_overfit_report(
         "projector_trainable_parameter_count": stage_spec[
             "projector_parameter_count"
         ],
-        "model_trainable_parameter_count": 393_216,
+        "model_trainable_parameter_count": stage_spec["lora_parameter_count"],
         "vision_trainable_parameter_count": 0,
         "planning_expert_trainable_parameter_count": 0,
         "embedding_trainable": False,
@@ -1256,6 +1326,30 @@ def audit_route_readout_overfit_report(
     for name, expected in expected_scope.items():
         if scope.get(name) != expected:
             failures.append("scope_" + name)
+    if stage == "V1i_route151_slot_typed_full_attention_route_readout_overfit":
+        expected_lora = {
+            "layer_indices": list(V1I_FULL_ATTENTION_LAYERS),
+            "module_names": list(V1I_LORA_MODULE_NAMES),
+            "rank": 8,
+            "alpha": 16.0,
+            "dropout": 0.0,
+        }
+        expected_modules = [
+            "vlm.model.language_model.layers.%d.self_attn.%s" % (layer, module)
+            for layer in V1I_FULL_ATTENTION_LAYERS
+            for module in V1I_LORA_MODULE_NAMES
+        ]
+        expected_trainable_names = [
+            module + suffix
+            for module in expected_modules
+            for suffix in (".lora_a", ".lora_b")
+        ]
+        if report.get("lora") != expected_lora:
+            failures.append("report_lora_config")
+        if report.get("installed_lora_modules") != expected_modules:
+            failures.append("installed_lora_modules")
+        if scope.get("model_trainable_names") != expected_trainable_names:
+            failures.append("scope_model_trainable_names")
 
     history = report.get("history", [])
     if len(history) != 240 or [row.get("optimizer_step") for row in history] != list(
@@ -1305,7 +1399,7 @@ def audit_route_readout_overfit_report(
         failures.append("checkpoint_base_weights")
     if checkpoint.get("projector_tensor_count") != 7:
         failures.append("checkpoint_projector_tensors")
-    if checkpoint.get("lora_tensor_count") != 16:
+    if checkpoint.get("lora_tensor_count") != stage_spec["lora_tensor_count"]:
         failures.append("checkpoint_lora_tensors")
 
     pre_rows = report.get("pre_training_evaluations", [])
@@ -1450,6 +1544,7 @@ def audit_visibility_grounding_report(report_path: Path, output_path: Path) -> d
         "V1f_route151_route_readout_overfit",
         "V1g_route151_typed_route_readout_overfit",
         "V1h_route151_slot_typed_route_readout_overfit",
+        "V1i_route151_slot_typed_full_attention_route_readout_overfit",
     }:
         return audit_route_readout_overfit_report(report_path, output_path)
     if report.get("stage") == "V1e_route151_row_addressed_overfit":

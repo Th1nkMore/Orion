@@ -261,3 +261,20 @@ not as proof of causal readout. A V1i attention-scope probe must keep every
 other V1h contract item fixed and adapt all eight released full-attention
 layers. Until that gate passes, restoring the full frontier/margin/action
 curriculum or activating Planning Expert injection is premature.
+
+### V1i full-attention adapter gate
+
+V1i retains the exact V1h slot-typed projector and immutable V1f
+matched-pair/held-out-order curriculum. Its sole change is LoRA coverage: all
+eight released full-attention layers `[3, 7, 11, 15, 19, 23, 27, 31]` replace
+the prior `[27, 31]` scope. Rank, alpha, dropout, target modules, learning
+rates, optimizer, clipping, seed, insertion contract, questions, controls, and
+five numerical gates remain fixed.
+
+The expected trainable scope is seven projector tensors with 1,391,616 values
+and 64 LoRA tensors with 1,572,864 values across 32 wrapped attention modules.
+The vision encoder, base VLM, embeddings, LM head, and Planning Expert remain
+frozen. A passing result is only a causal route-scalar plumbing lower bound; a
+failure is a bounded VLM-interface negative. The Planning Expert fallback
+requires a later successful structured-grounding result followed by failed
+trajectory conditioning, so V1i cannot activate it.

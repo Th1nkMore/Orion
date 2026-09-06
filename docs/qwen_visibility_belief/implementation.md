@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1h valid negative; attention-scope probe next)
+Status: in progress (V1h valid negative; V1i full-attention protocol pre-run)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -1036,6 +1036,31 @@ inspectable U consumption before any closed-loop claim.
   and gates fixed while expanding LoRA from `[27, 31]` to all eight released
   full-attention layers `[3, 7, 11, 15, 19, 23, 27, 31]`. The Planning Expert
   remains frozen and its fallback remains inactive.
+
+## V1i full-attention route-readout pre-run contract
+
+- V1i changes exactly one factor relative to V1h: LoRA coverage expands from
+  full-attention layers `[27, 31]` to all released full-attention layers
+  `[3, 7, 11, 15, 19, 23, 27, 31]`. The four target modules, rank 8, alpha 16,
+  zero dropout, and both learning rates remain unchanged.
+- The exact V1h slot-typed projector remains fixed at 1,391,616 trainable
+  parameters and seven saved tensors. The immutable V1f curriculum, 30/20
+  train/held-out split, 240-step balanced schedule, images, questions, paired
+  row swaps, controls, seed, native processing, insertion positions, mRoPE,
+  optimizer, clipping, and claim boundary are unchanged.
+- Full attention adds 32 LoRA-wrapped modules and 64 saved LoRA tensors,
+  totaling 1,572,864 trainable LoRA parameters. The vision encoder, base VLM,
+  embeddings, LM head, and Planning Expert remain frozen. The protocol loader
+  and auditor fail closed on the exact layer list, module list, parameter
+  names/counts, tensor count, and all unchanged V1h settings.
+- The five numerical gates remain verbatim: at least 90% true-U held-out
+  accuracy overall and per label, at least 80% matched-pair correctness, at
+  least 80% spatial-shuffle changed-target accuracy, and at least a 30-point
+  true-U gap over the stronger control. Passing establishes only that the
+  slot-typed, full-attention VLM path can causally read this one route scalar.
+  Failure rejects this bounded interface/training recipe; neither result is
+  full grounding, planning, safety, or permission to activate the Planning
+  Expert fallback.
 
 ## Integrity constraints
 

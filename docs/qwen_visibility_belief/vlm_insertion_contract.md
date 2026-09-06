@@ -135,6 +135,13 @@ adapter and expands LoRA from layers `[27, 31]` to all full-attention layers
 `[3, 7, 11, 15, 19, 23, 27, 31]`; insertion position, token count, mRoPE,
 controls, data, and Planning Expert scope remain unchanged.
 
+That isolated expansion is registered as V1i. It wraps `q_proj`, `k_proj`,
+`v_proj`, and `o_proj` at each of the eight full-attention layers with rank-8,
+alpha-16 LoRA: 32 wrapped modules, 64 trainable/saved tensors, and 1,572,864
+parameters. The slot-typed projector remains seven tensors and 1,391,616
+parameters. The audit rejects missing layers, extra trainable model weights,
+or any change to the V1h projector/data/evaluation contract.
+
 V0a passed the direct-prefill contract on the provisioned full model in Slurm
 job `1166148`. V0b passed the reasoning-generation and final Planning Expert
 cache contract in job `1166382`, including exact upstream reproduction by the

@@ -30,6 +30,9 @@ TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
 SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
     "orion.qwen-visibility-slot-typed-route-readout-config/v1"
 )
+FULL_ATTENTION_SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
+    "orion.qwen-visibility-slot-typed-full-attention-route-readout-config/v1"
+)
 REPORT_SCHEMA = "orion.qwen-visibility-grounding-smoke-report/v1"
 
 
@@ -98,6 +101,10 @@ def _load_protocol(path):
             SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
             "V1h_route151_slot_typed_route_readout_overfit",
         ),
+        (
+            FULL_ATTENTION_SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
+            "V1i_route151_slot_typed_full_attention_route_readout_overfit",
+        ),
     }:
         raise ValueError("unexpected grounding training config schema/stage")
     training = protocol["training"]
@@ -159,6 +166,7 @@ def _load_protocol(path):
         "V1f_route151_route_readout_overfit",
         "V1g_route151_typed_route_readout_overfit",
         "V1h_route151_slot_typed_route_readout_overfit",
+        "V1i_route151_slot_typed_full_attention_route_readout_overfit",
     }:
         if int(training["optimizer_steps"]) != 240:
             raise ValueError("V1f route readout must take exactly 240 steps")
@@ -194,6 +202,24 @@ def _load_protocol(path):
             and projector_type != "slot_typed_scalar_basis"
         ):
             raise ValueError("V1h requires explicit slot-typed scalar basis")
+        if stage == "V1i_route151_slot_typed_full_attention_route_readout_overfit":
+            if protocol.get("projector") != {
+                "type": "slot_typed_scalar_basis",
+                "feature_dim": 23,
+                "scalar_basis_dim": 4,
+                "maximum_token_slots": 48,
+                "hidden_dim": 512,
+                "vlm_hidden_dim": 2560,
+            }:
+                raise ValueError("V1i must retain the exact V1h slot-typed projector")
+            if protocol.get("lora") != {
+                "layer_indices": [3, 7, 11, 15, 19, 23, 27, 31],
+                "module_names": ["q_proj", "k_proj", "v_proj", "o_proj"],
+                "rank": 8,
+                "alpha": 16.0,
+                "dropout": 0.0,
+            }:
+                raise ValueError("V1i must adapt exactly all eight full-attention layers")
     if protocol["claim_boundary"] != {
         "plumbing_overfit_only": True,
         "reportable_generalization": False,
@@ -617,6 +643,7 @@ def main():
         "V1f_route151_route_readout_overfit",
         "V1g_route151_typed_route_readout_overfit",
         "V1h_route151_slot_typed_route_readout_overfit",
+        "V1i_route151_slot_typed_full_attention_route_readout_overfit",
     }:
         curriculum = _verify_route_readout_curriculum(
             protocol["curriculum"], protocol["manifest"], records

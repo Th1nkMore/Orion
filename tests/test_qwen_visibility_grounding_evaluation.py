@@ -769,6 +769,82 @@ def _route_readout_report(tmp_path, causal=True):
     }
 
 
+def _promote_route_readout_report_to_v1i(report):
+    stage = "V1i_route151_slot_typed_full_attention_route_readout_overfit"
+    layers = list(evaluation.V1I_FULL_ATTENTION_LAYERS)
+    modules = list(evaluation.V1I_LORA_MODULE_NAMES)
+    lora = {
+        "layer_indices": layers,
+        "module_names": modules,
+        "rank": 8,
+        "alpha": 16.0,
+        "dropout": 0.0,
+    }
+    installed = [
+        "vlm.model.language_model.layers.%d.self_attn.%s" % (layer, module)
+        for layer in layers
+        for module in modules
+    ]
+    report["stage"] = stage
+    report["lora"] = lora
+    report["installed_lora_modules"] = installed
+    report["scope"].update(
+        {
+            "projector_trainable_parameter_count": 1_391_616,
+            "model_trainable_parameter_count": 1_572_864,
+            "model_trainable_names": [
+                module + suffix
+                for module in installed
+                for suffix in (".lora_a", ".lora_b")
+            ],
+        }
+    )
+    report["checkpoint"]["lora_tensor_count"] = 64
+    protocol_path = Path(report["protocol_path"])
+    protocol = json.loads(protocol_path.read_text())
+    protocol.update(
+        {
+            "schema": evaluation.FULL_ATTENTION_SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
+            "stage": stage,
+            "base_bridge_config": (
+                "configs/qwen_drive_b2d_agent_oracle_visibility_sft_v1.json"
+            ),
+            "projector": {
+                "type": "slot_typed_scalar_basis",
+                "feature_dim": 23,
+                "scalar_basis_dim": 4,
+                "maximum_token_slots": 48,
+                "hidden_dim": 512,
+                "vlm_hidden_dim": 2560,
+            },
+            "lora": lora,
+            "training": {
+                "optimizer_steps": 240,
+                "projector_learning_rate": 0.0001,
+                "lora_learning_rate": 0.0002,
+                "weight_decay": 0.0,
+                "maximum_gradient_norm": 1.0,
+                "projector_maximum_gradient_norm": 1.0,
+                "lora_maximum_gradient_norm": 1.0,
+                "separate_gradient_clipping": True,
+                "gradient_checkpointing": True,
+                "seed": 42,
+            },
+            "evaluation": {
+                "max_new_tokens": 16,
+                "split": "held_out_order",
+                "pre_training_controls": ["true_u"],
+                "controls": list(evaluation.EXPECTED_CONTROLS),
+            },
+        }
+    )
+    protocol_path.write_text(json.dumps(protocol))
+    report["protocol_sha256"] = hashlib.sha256(
+        protocol_path.read_bytes()
+    ).hexdigest()
+    return report
+
+
 def test_route_readout_causal_pairs_pass_only_as_plumbing(tmp_path):
     report_path = tmp_path / "route-readout-report.json"
     report_path.write_text(json.dumps(_route_readout_report(tmp_path, causal=True)))
@@ -843,6 +919,45 @@ def test_slot_typed_route_readout_uses_its_own_scope_and_status(tmp_path):
     assert audit["causal_capacity_passed"] is True
     assert audit["projector_type"] == "slot_typed_scalar_basis"
     assert audit["status"] == "causal_slot_typed_route_readout_plumbing_pass"
+
+
+def test_full_attention_slot_typed_route_readout_has_exact_scope_and_status(
+    tmp_path,
+):
+    report = _promote_route_readout_report_to_v1i(
+        _route_readout_report(tmp_path, causal=True)
+    )
+    report_path = tmp_path / "full-attention-route-readout-report.json"
+    report_path.write_text(json.dumps(report))
+    audit = evaluation.audit_visibility_grounding_report(
+        report_path, tmp_path / "full-attention-route-readout-audit.json"
+    )
+    assert audit["protocol_valid"] is True
+    assert audit["causal_capacity_passed"] is True
+    assert audit["projector_type"] == "slot_typed_scalar_basis"
+    assert audit["status"] == (
+        "causal_slot_typed_full_attention_route_readout_plumbing_pass"
+    )
+
+
+def test_full_attention_slot_typed_route_readout_rejects_reduced_scope(tmp_path):
+    report = _promote_route_readout_report_to_v1i(
+        _route_readout_report(tmp_path, causal=True)
+    )
+    protocol_path = Path(report["protocol_path"])
+    protocol = json.loads(protocol_path.read_text())
+    protocol["lora"]["layer_indices"] = [27, 31]
+    protocol_path.write_text(json.dumps(protocol))
+    report["protocol_sha256"] = hashlib.sha256(
+        protocol_path.read_bytes()
+    ).hexdigest()
+    report_path = tmp_path / "reduced-attention-route-readout-report.json"
+    report_path.write_text(json.dumps(report))
+    audit = evaluation.audit_visibility_grounding_report(
+        report_path, tmp_path / "reduced-attention-route-readout-audit.json"
+    )
+    assert audit["protocol_valid"] is False
+    assert "protocol_lora_config" in audit["protocol_failures"]
 
 
 def test_route_readout_held_out_example_in_optimizer_invalidates_report(tmp_path):
