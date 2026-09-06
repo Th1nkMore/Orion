@@ -1381,6 +1381,20 @@ inspectable U consumption before any closed-loop claim.
   unchanged. The partial v1.1 output without a complete manifest/curriculum is
   invalid and not training-eligible.
 
+### Data-build attempt 3: relax the unnecessary full-table gate
+
+- The full scan at commit `1a3c48ae` showed that
+  `v1/HardBreakRoute_Town11_Route50_Weather23` has no 32-row-complete frame in
+  the frozen window. This is not absence of U: the tokenizer supplies a valid
+  masked prefix of frontier rows, and the VLM insertion path already consumes
+  that mask.
+- Protocol v1.2 therefore requires only that the queried `Fxx` is a real valid
+  row under the serialized mask. It preserves all 90 physical routes and
+  records the selected row count rather than dropping the route, widening its
+  window, or inventing labels for padding. The 32-row completeness rate remains
+  an audit metric, not a baseline veto. All other data and optimization
+  boundaries are unchanged.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

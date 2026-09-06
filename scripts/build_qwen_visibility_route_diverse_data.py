@@ -174,8 +174,8 @@ def _label(tokens, row_index: int, threshold: float) -> str:
     return "ON_ROUTE" if value >= float(threshold) else "OFF_ROUTE"
 
 
-def full_row_candidates(route_tokens, threshold: float):
-    """Return natural rows only from frames that fill the complete 32-row table."""
+def natural_valid_row_candidates(route_tokens, threshold: float):
+    """Return every real row and retain each frame's valid-row count for audit."""
 
     flat = []
     labels = []
@@ -183,8 +183,6 @@ def full_row_candidates(route_tokens, threshold: float):
     for frame, tokens in route_tokens:
         valid_count = int(tokens.frontier_mask.sum())
         valid_counts.append(valid_count)
-        if valid_count != 32:
-            continue
         for row_index in range(valid_count):
             flat.append((frame, row_index, tokens))
             labels.append(_label(tokens, row_index, threshold) == "ON_ROUTE")
@@ -377,7 +375,7 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
                 depth_config=protocol["depth"],
                 raw_hz=float(sampling["raw_data_hz"]),
             )
-            flat, labels, valid_counts = full_row_candidates(
+            flat, labels, valid_counts = natural_valid_row_candidates(
                 route_tokens, route_threshold
             )
             route_candidates[folder] = {
@@ -406,8 +404,9 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
             route_seed = selection_seed + split_seed_offsets[split] + route_index + 1
             selected_flat_index = choose_candidate_index(labels, assigned, route_seed)
             frame, row_index, tokens = flat[selected_flat_index]
-            if int(tokens.frontier_mask.sum()) != 32:
-                raise RuntimeError("full-row candidate filtering failed")
+            selected_valid_count = int(tokens.frontier_mask.sum())
+            if not 0 <= row_index < selected_valid_count:
+                raise RuntimeError("selected query does not address a valid row")
             query_frontier = "F%02d" % row_index
             sample_id = "%s-route-%03d-frame-%05d" % (split, route_index, frame)
             token_path = token_root / (sample_id + ".npz")
@@ -423,6 +422,7 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
                 "future_executed_ego_motion_used": False,
                 "split": split,
                 "query_frontier": query_frontier,
+                "valid_frontier_rows": selected_valid_count,
             }
             _write_token_artifact(
                 token_path,
@@ -444,7 +444,7 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
             }
             if control_answers["true_u"] != assigned:
                 raise RuntimeError("selected row label changed")
-            identity = list(range(32))
+            identity = list(range(selected_valid_count))
             records.append(
                 {
                     "sample_id": sample_id,
@@ -457,6 +457,7 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
                     "camera_sha256": [_sha256(path) for path in image_paths],
                     "frontier_permutation_new_to_old": identity,
                     "query_frontier": query_frontier,
+                    "valid_frontier_rows": selected_valid_count,
                     "target": {"route": assigned},
                     "canonical_answer": assigned,
                     "control_expected_answers": control_answers,
@@ -467,6 +468,7 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
                         "eligible_ON_ROUTE_rows": int(sum(labels)),
                         "eligible_OFF_ROUTE_rows": int(len(labels) - sum(labels)),
                         "selected_flat_candidate_index": selected_flat_index,
+                        "selected_frame_valid_frontier_rows": selected_valid_count,
                     },
                 }
             )
@@ -547,7 +549,9 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
                 "question": _query_question(frontier),
                 "expected_answer": record["target"]["route"],
                 "control_expected_answers": record["control_expected_answers"],
-                "sequence_permutation_new_to_manifest": list(range(32)),
+                "sequence_permutation_new_to_manifest": list(
+                    range(int(record["valid_frontier_rows"]))
+                ),
             }
         )
     by_id = {row["example_id"]: row for row in examples}
@@ -645,13 +649,26 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
             "minimum_OFF_ROUTE_candidates_per_route": min(
                 row["eligible_OFF_ROUTE_rows"] for row in candidate_summaries
             ),
+            "selected_valid_frontier_rows_minimum": min(
+                int(row["valid_frontier_rows"]) for row in records
+            ),
+            "selected_valid_frontier_rows_maximum": max(
+                int(row["valid_frontier_rows"]) for row in records
+            ),
+            "selected_frames_with_all_32_rows": sum(
+                int(row["valid_frontier_rows"]) == 32 for row in records
+            ),
         },
         "audit": {
             "duplicate_sample_ids": False,
             "duplicate_route_frame_Fxx_queries": False,
             "one_query_per_route": len(records) == len(set(row["source_folder"] for row in records)),
             "route_disjoint_by_frozen_manifest": True,
-            "all_selected_frames_have_32_rows": True,
+            "all_queries_address_valid_rows": all(
+                int(row["query_frontier"][1:])
+                < int(row["valid_frontier_rows"])
+                for row in records
+            ),
             "all_artifact_and_image_hashes_recorded": True,
             "ordinary_per_example_supervision_only": True,
             "controls_used_for_optimizer": False,

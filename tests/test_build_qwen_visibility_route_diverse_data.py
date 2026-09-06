@@ -77,7 +77,7 @@ def test_feasible_balanced_assignment_rejects_impossible_split():
         raise AssertionError("infeasible balanced split must fail closed")
 
 
-def test_full_row_candidates_exclude_incomplete_frames():
+def test_natural_valid_row_candidates_keep_masked_real_rows():
     feature_names = ("route_weight_mean",)
     complete = SimpleNamespace(
         feature_names=feature_names,
@@ -91,10 +91,11 @@ def test_full_row_candidates_exclude_incomplete_frames():
         frontier_tokens=np.ones((32, 1), dtype=np.float32),
         frontier_mask=np.asarray([True] * 31 + [False]),
     )
-    flat, labels, valid_counts = MODULE.full_row_candidates(
+    flat, labels, valid_counts = MODULE.natural_valid_row_candidates(
         [(10, incomplete), (20, complete)], 0.2
     )
     assert valid_counts == [31, 32]
-    assert len(flat) == 32
-    assert {frame for frame, _, _ in flat} == {20}
-    assert labels.count(True) == 1
+    assert len(flat) == 63
+    assert {frame for frame, _, _ in flat} == {10, 20}
+    assert max(row for frame, row, _ in flat if frame == 10) == 30
+    assert labels.count(True) == 32
