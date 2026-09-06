@@ -31,6 +31,9 @@ from .qwen_visibility_grounding import (
 ROW_ADDRESSED_CURRICULUM_SCHEMA = (
     "orion.qwen-visibility-row-grounding-curriculum/v1"
 )
+ROUTE_READOUT_CURRICULUM_SCHEMA = (
+    "orion.qwen-visibility-route-readout-curriculum/v1"
+)
 ROW_ADDRESSED_FIELDS = ("frontier", "route", "margin", "action")
 FRONTIER_TARGET_SLOTS = (3, 13, 23)
 ROW_QUERY_SLOTS = {"route": 0, "margin": 1, "action": 2}
@@ -459,6 +462,365 @@ def build_route151_row_grounding_curriculum(
         "label_counts": label_counts,
         "steps_per_field": int(steps_per_field),
         "optimizer_steps": len(schedule),
+        "training_schedule": schedule,
+        "examples": examples,
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        json.dumps(curriculum, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return curriculum
+
+
+def paired_route_readout_permutations(
+    count: int,
+    on_route_source_index: int,
+    off_route_source_index: int,
+    seed: int,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Create a matched pair differing only by a complete-row swap at F00."""
+
+    values = (count, on_route_source_index, off_route_source_index, seed)
+    if any(isinstance(value, bool) or int(value) != value for value in values):
+        raise ValueError("paired route-readout arguments must be integers")
+    count, on_route_source_index, off_route_source_index, seed = (
+        int(value) for value in values
+    )
+    if count <= 1:
+        raise ValueError("paired route readout requires at least two rows")
+    if not 0 <= on_route_source_index < count:
+        raise ValueError("ON_ROUTE source index is invalid")
+    if not 0 <= off_route_source_index < count:
+        raise ValueError("OFF_ROUTE source index is invalid")
+    if on_route_source_index == off_route_source_index:
+        raise ValueError("paired route rows must be distinct")
+    generator = np.random.default_rng(seed)
+    on_route = generator.permutation(count).astype(np.int64, copy=False)
+    on_position = int(np.flatnonzero(on_route == on_route_source_index)[0])
+    on_route[0], on_route[on_position] = (
+        on_route[on_position],
+        on_route[0],
+    )
+    off_position = int(np.flatnonzero(on_route == off_route_source_index)[0])
+    off_route = on_route.copy()
+    off_route[0], off_route[off_position] = (
+        off_route[off_position],
+        off_route[0],
+    )
+    if int(on_route[0]) != on_route_source_index:
+        raise RuntimeError("failed to place the ON_ROUTE row at F00")
+    if int(off_route[0]) != off_route_source_index:
+        raise RuntimeError("failed to place the OFF_ROUTE row at F00")
+    changed = np.flatnonzero(on_route != off_route).tolist()
+    if changed != [0, off_position]:
+        raise RuntimeError("matched route pair changed more than two row slots")
+    return on_route, off_route
+
+
+def _route_readout_example(
+    record: Mapping[str, object],
+    controls: Mapping[str, np.ndarray],
+    mask: np.ndarray,
+    feature_names: Sequence[str],
+    permutation: Sequence[int],
+    expected_answer: str,
+    source_index: int,
+    paired_source_index: int,
+    split: str,
+    pair_id: str,
+    variant_index: int,
+    seed: int,
+    thresholds: GroundingThresholds,
+) -> dict:
+    targets, true_target = _target_for_example(
+        controls,
+        mask,
+        feature_names,
+        permutation,
+        "route",
+        0,
+        thresholds,
+    )
+    if targets["true_u"] != expected_answer:
+        raise RuntimeError("paired route-readout true target changed")
+    if targets["spatial_shuffle"] == expected_answer:
+        raise ValueError("paired route-readout shuffle target did not change")
+    example_id = "%s-%s-%s-v%02d" % (
+        pair_id,
+        expected_answer.lower(),
+        split,
+        variant_index,
+    )
+    return {
+        "example_id": example_id,
+        "sample_id": record["sample_id"],
+        "task_field": "route",
+        "split": split,
+        "pair_id": pair_id + "-%s-v%02d" % (split, variant_index),
+        "question": row_grounding_question("route", "F00"),
+        "query_frontier": "F00",
+        "source_manifest_frontier": "F%02d" % int(source_index),
+        "paired_source_manifest_frontier": "F%02d" % int(paired_source_index),
+        "decoy_permutation_seed": int(seed),
+        "sequence_permutation_new_to_manifest": [
+            int(value) for value in permutation
+        ],
+        "expected_answer": expected_answer,
+        "control_expected_answers": targets,
+        "spatial_shuffle_changes_target": True,
+        "target_evidence": true_target.evidence_dict(),
+    }
+
+
+def build_route151_route_readout_curriculum(
+    base_manifest_path: Path,
+    output_path: Path,
+    train_pair_variants: int = 3,
+    evaluation_pair_variants: int = 2,
+    optimizer_steps: int = 240,
+    seed: int = 1701,
+    thresholds: GroundingThresholds = GroundingThresholds(),
+) -> dict:
+    """Build the V1f matched-pair route-scalar readout diagnostic."""
+
+    integer_values = (
+        train_pair_variants,
+        evaluation_pair_variants,
+        optimizer_steps,
+        seed,
+    )
+    if any(
+        isinstance(value, bool) or int(value) != value
+        for value in integer_values
+    ):
+        raise ValueError("route-readout curriculum counts and seed must be integers")
+    train_pair_variants = int(train_pair_variants)
+    evaluation_pair_variants = int(evaluation_pair_variants)
+    optimizer_steps = int(optimizer_steps)
+    seed = int(seed)
+    if train_pair_variants <= 0 or evaluation_pair_variants <= 0:
+        raise ValueError("route-readout train/evaluation variants must be positive")
+    if optimizer_steps <= 0 or optimizer_steps % 2:
+        raise ValueError("route-readout optimizer steps must be positive and even")
+
+    base_manifest_path = Path(base_manifest_path).resolve()
+    output_path = Path(output_path).resolve()
+    if output_path.exists():
+        raise FileExistsError(
+            "refusing to overwrite route-readout curriculum: %s" % output_path
+        )
+    base = json.loads(base_manifest_path.read_text(encoding="utf-8"))
+    if base.get("schema") != VISIBILITY_GROUNDING_MANIFEST_SCHEMA:
+        raise ValueError("unexpected base grounding manifest schema")
+    if (
+        base.get("reportable_generalization") is not False
+        or base.get("controls_used_for_optimizer") is not False
+        or base.get("hidden_actor_labels_used") is not False
+        or base.get("planning_expert_used_for_optimizer") is not False
+    ):
+        raise ValueError("base manifest violates the V1 boundary")
+
+    examples = []
+    for sample_index, record in enumerate(base["records"]):
+        for image, digest in zip(record["camera_images"], record["camera_sha256"]):
+            if _sha256(Path(image)) != digest:
+                raise ValueError("base grounding image hash changed")
+        controls, mask, feature_names = _load_control_frontiers(record)
+        identity = np.arange(int(mask.sum()), dtype=np.int64)
+        candidates = defaultdict(list)
+        for row_index in range(int(mask.sum())):
+            true_target = derive_visibility_grounding_row_target(
+                controls["true_u"],
+                mask,
+                feature_names,
+                identity,
+                frontier_index=row_index,
+                thresholds=thresholds,
+            )
+            shuffle_target = derive_visibility_grounding_row_target(
+                controls["spatial_shuffle"],
+                mask,
+                feature_names,
+                identity,
+                frontier_index=row_index,
+                thresholds=thresholds,
+            )
+            if true_target.route == shuffle_target.route:
+                continue
+            candidates[true_target.route].append(
+                (float(true_target.frontier_selection_score), row_index)
+            )
+        selected = {}
+        for label in ("ON_ROUTE", "OFF_ROUTE"):
+            ranked = sorted(candidates[label], key=lambda value: (-value[0], value[1]))
+            if not ranked:
+                raise ValueError(
+                    "route-readout curriculum lacks shuffle-sensitive %s for %s"
+                    % (label, record["sample_id"])
+                )
+            selected[label] = int(ranked[0][1])
+
+        pair_prefix = "route-readout-%s" % record["sample_id"]
+        split_variants = (
+            ("train", train_pair_variants),
+            ("held_out_order", evaluation_pair_variants),
+        )
+        variant_offset = 0
+        for split, variant_count in split_variants:
+            for variant_index in range(variant_count):
+                variant_seed = seed + sample_index * 1000 + variant_offset
+                variant_offset += 1
+                on_permutation, off_permutation = paired_route_readout_permutations(
+                    int(mask.sum()),
+                    selected["ON_ROUTE"],
+                    selected["OFF_ROUTE"],
+                    variant_seed,
+                )
+                pair_id = pair_prefix
+                examples.extend(
+                    [
+                        _route_readout_example(
+                            record,
+                            controls,
+                            mask,
+                            feature_names,
+                            on_permutation,
+                            "ON_ROUTE",
+                            selected["ON_ROUTE"],
+                            selected["OFF_ROUTE"],
+                            split,
+                            pair_id,
+                            variant_index,
+                            variant_seed,
+                            thresholds,
+                        ),
+                        _route_readout_example(
+                            record,
+                            controls,
+                            mask,
+                            feature_names,
+                            off_permutation,
+                            "OFF_ROUTE",
+                            selected["OFF_ROUTE"],
+                            selected["ON_ROUTE"],
+                            split,
+                            pair_id,
+                            variant_index,
+                            variant_seed,
+                            thresholds,
+                        ),
+                    ]
+                )
+
+    examples.sort(key=lambda value: value["example_id"])
+    by_id = {example["example_id"]: example for example in examples}
+    if len(by_id) != len(examples):
+        raise RuntimeError("route-readout curriculum contains duplicate ids")
+    training_ids = sorted(
+        example["example_id"]
+        for example in examples
+        if example["split"] == "train"
+    )
+    evaluation_ids = sorted(
+        example["example_id"]
+        for example in examples
+        if example["split"] == "held_out_order"
+    )
+    training_pools = {
+        label: sorted(
+            example_id
+            for example_id in training_ids
+            if by_id[example_id]["expected_answer"] == label
+        )
+        for label in ("ON_ROUTE", "OFF_ROUTE")
+    }
+    if any(not pool for pool in training_pools.values()):
+        raise RuntimeError("route-readout training split is missing a label")
+    schedule = []
+    for round_index in range(optimizer_steps // 2):
+        for label in ("ON_ROUTE", "OFF_ROUTE"):
+            pool = training_pools[label]
+            schedule.append(pool[round_index % len(pool)])
+    train_label_counts = Counter(by_id[value]["expected_answer"] for value in training_ids)
+    evaluation_label_counts = Counter(
+        by_id[value]["expected_answer"] for value in evaluation_ids
+    )
+    expected_samples = {
+        "route151-step-000000",
+        "route151-step-000200",
+        "route151-step-000260",
+        "route151-step-000280",
+        "route151-step-000300",
+    }
+    for sample_id in expected_samples:
+        for label in ("ON_ROUTE", "OFF_ROUTE"):
+            train_orders = {
+                tuple(by_id[value]["sequence_permutation_new_to_manifest"])
+                for value in training_ids
+                if by_id[value]["sample_id"] == sample_id
+                and by_id[value]["expected_answer"] == label
+            }
+            evaluation_orders = {
+                tuple(by_id[value]["sequence_permutation_new_to_manifest"])
+                for value in evaluation_ids
+                if by_id[value]["sample_id"] == sample_id
+                and by_id[value]["expected_answer"] == label
+            }
+            if len(train_orders) != train_pair_variants:
+                raise RuntimeError("route-readout training row orders repeated")
+            if len(evaluation_orders) != evaluation_pair_variants:
+                raise RuntimeError("route-readout evaluation row orders repeated")
+            if train_orders & evaluation_orders:
+                raise RuntimeError("route-readout evaluation row order leaked")
+    schedule_label_counts = Counter(
+        by_id[value]["expected_answer"] for value in schedule
+    )
+    if {str(record["sample_id"]) for record in base["records"]} != expected_samples:
+        raise ValueError("V1f requires the five immutable Route 151 records")
+    expected_train_per_label = len(expected_samples) * train_pair_variants
+    expected_eval_per_label = len(expected_samples) * evaluation_pair_variants
+    if train_label_counts != Counter(
+        {"ON_ROUTE": expected_train_per_label, "OFF_ROUTE": expected_train_per_label}
+    ):
+        raise RuntimeError("route-readout training labels are not balanced")
+    if evaluation_label_counts != Counter(
+        {"ON_ROUTE": expected_eval_per_label, "OFF_ROUTE": expected_eval_per_label}
+    ):
+        raise RuntimeError("route-readout evaluation labels are not balanced")
+    if schedule_label_counts != Counter(
+        {"ON_ROUTE": optimizer_steps // 2, "OFF_ROUTE": optimizer_steps // 2}
+    ):
+        raise RuntimeError("route-readout optimizer labels are not balanced")
+
+    curriculum = {
+        "schema": ROUTE_READOUT_CURRICULUM_SCHEMA,
+        "purpose": "Route 151 matched-pair route readout plumbing diagnostic only",
+        "base_manifest_path": str(base_manifest_path),
+        "base_manifest_sha256": _sha256(base_manifest_path),
+        "reportable_generalization": False,
+        "oracle_depth": True,
+        "hidden_actor_labels_used": False,
+        "controls_used_for_optimizer": False,
+        "planning_expert_used_for_optimizer": False,
+        "complete_row_permutations_only": True,
+        "matched_pairs_differ_only_by_query_row_swap": True,
+        "non_query_order_randomized": True,
+        "held_out_order_evaluation": True,
+        "held_out_order_disjoint_verified": True,
+        "spatial_shuffle_target_changed_for_every_example": True,
+        "query_frontier": "F00",
+        "thresholds": thresholds.as_dict(),
+        "seed": seed,
+        "train_pair_variants_per_sample": train_pair_variants,
+        "evaluation_pair_variants_per_sample": evaluation_pair_variants,
+        "example_count": len(examples),
+        "training_example_ids": training_ids,
+        "evaluation_example_ids": evaluation_ids,
+        "training_label_counts": dict(sorted(train_label_counts.items())),
+        "evaluation_label_counts": dict(sorted(evaluation_label_counts.items())),
+        "optimizer_steps": optimizer_steps,
+        "optimizer_label_counts": dict(sorted(schedule_label_counts.items())),
         "training_schedule": schedule,
         "examples": examples,
     }

@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1e row-addressed probe is a valid negative)
+Status: in progress (V1e valid negative; V1f matched-pair protocol pre-run)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -823,6 +823,42 @@ inspectable U consumption before any closed-loop claim.
   general. The next bounded diagnostic must randomize non-queried complete-row
   order while holding the queried row and label fixed, then test unseen row
   orders and target-changing swaps. Blindly extending V1e is not justified.
+
+## V1f matched-pair route-readout pre-run contract
+
+- V1f is a deliberately narrower causal-capacity diagnostic, not a fourth
+  attempt to claim full grounding. It tests the simplest physical readout that
+  V1e partially learned: whether `route_weight_mean` in the complete frontier
+  record at `F00` is at least 0.2.
+- Each of the five immutable Route 151 frames contributes one real
+  shuffle-sensitive `ON_ROUTE` row and one real shuffle-sensitive `OFF_ROUTE`
+  row. A matched pair has the same image, question, complete 32-row multiset,
+  and non-query order. Its two members differ only by swapping the row at
+  `F00` with the paired row at one other slot. No individual feature, actor,
+  risk, or action label is synthesized.
+- Every frame has three training pair variants and two evaluation-only pair
+  variants. The non-query 31-row order is independently seeded per variant.
+  The 30 training examples are balanced 15/15 and each appears exactly eight
+  times in a 240-step alternating-label schedule. The 20 held-out-order
+  examples are balanced 10/10 and never enter the optimizer.
+- The Planning Expert, vision encoder, base VLM weights, embeddings, and LM
+  head remain frozen. Only the unchanged 1,330,734-parameter projector and
+  393,216 upper-layer LoRA parameters train. Native three-camera processing,
+  V0 insertion, separate gradient clipping, zero U, and the O3 spatial-shuffle
+  control remain unchanged.
+- The stage-specific audit is fixed before the run. It requires at least 90%
+  held-out-order true-U accuracy overall and for each route label, at least 80%
+  of held-out matched pairs to flip correctly, at least 80% accuracy against
+  the spatial-shuffle arm's changed control target, and at least a 30-point
+  true-U gap over the stronger zero/shuffle true-target accuracy. It also
+  fail-closes on split leakage, pair structure, hashes, trainable scope,
+  gradient/update connectivity, coverage, and checkpoint contents.
+- Passing establishes only that the current VLM path can causally read one
+  continuous scalar from a locally addressed U row under unseen decoy orders.
+  It does not accept full structured grounding, planning, or safety. Failure
+  motivates an explicit typed/feature-aware modality adapter while retaining
+  VLM-first consumption; it does not automatically promote direct Planning
+  Expert injection.
 
 ## Integrity constraints
 

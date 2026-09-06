@@ -554,3 +554,264 @@ def test_row_addressed_schedule_mismatch_invalidates_report(tmp_path):
     )
     assert audit["protocol_valid"] is False
     assert "optimizer_schedule" in audit["protocol_failures"]
+
+
+def _route_readout_report(tmp_path, causal=True):
+    manifest_path = tmp_path / "route-readout-manifest.json"
+    manifest_path.write_text('{"immutable":"synthetic-route-readout"}')
+    examples = []
+    training_ids = []
+    evaluation_ids = []
+    for sample_index, sample_id in enumerate(evaluation.EXPECTED_SAMPLE_IDS):
+        for split, variants in (("train", 3), ("held_out_order", 2)):
+            for variant in range(variants):
+                pair_id = "%s-%s-%d" % (sample_id, split, variant)
+                on_order = list(range(32))
+                order_variant = variant + (0 if split == "train" else 3)
+                on_source = 1 + (sample_index * 5 + order_variant) % 15
+                off_source = 16 + (sample_index * 3 + order_variant) % 15
+                on_position = on_order.index(on_source)
+                on_order[0], on_order[on_position] = (
+                    on_order[on_position],
+                    on_order[0],
+                )
+                off_position = on_order.index(off_source)
+                off_order = list(on_order)
+                off_order[0], off_order[off_position] = (
+                    off_order[off_position],
+                    off_order[0],
+                )
+                for label, order in (
+                    ("ON_ROUTE", on_order),
+                    ("OFF_ROUTE", off_order),
+                ):
+                    alternate = "OFF_ROUTE" if label == "ON_ROUTE" else "ON_ROUTE"
+                    example_id = "%s-%s" % (pair_id, label.lower())
+                    examples.append(
+                        {
+                            "example_id": example_id,
+                            "sample_id": sample_id,
+                            "task_field": "route",
+                            "split": split,
+                            "pair_id": pair_id,
+                            "expected_answer": label,
+                            "control_expected_answers": {
+                                "true_u": label,
+                                "zero_u": alternate,
+                                "spatial_shuffle": alternate,
+                            },
+                            "sequence_permutation_new_to_manifest": order,
+                        }
+                    )
+                    (training_ids if split == "train" else evaluation_ids).append(
+                        example_id
+                    )
+    schedule = []
+    for _ in range(8):
+        schedule.extend(sorted(training_ids))
+    curriculum = {
+        "schema": evaluation.ROUTE_READOUT_CURRICULUM_SCHEMA,
+        "base_manifest_path": str(manifest_path),
+        "base_manifest_sha256": hashlib.sha256(
+            manifest_path.read_bytes()
+        ).hexdigest(),
+        "reportable_generalization": False,
+        "controls_used_for_optimizer": False,
+        "hidden_actor_labels_used": False,
+        "planning_expert_used_for_optimizer": False,
+        "complete_row_permutations_only": True,
+        "matched_pairs_differ_only_by_query_row_swap": True,
+        "non_query_order_randomized": True,
+        "held_out_order_evaluation": True,
+        "held_out_order_disjoint_verified": True,
+        "spatial_shuffle_target_changed_for_every_example": True,
+        "query_frontier": "F00",
+        "example_count": 50,
+        "train_pair_variants_per_sample": 3,
+        "evaluation_pair_variants_per_sample": 2,
+        "training_label_counts": {"OFF_ROUTE": 15, "ON_ROUTE": 15},
+        "evaluation_label_counts": {"OFF_ROUTE": 10, "ON_ROUTE": 10},
+        "optimizer_steps": 240,
+        "optimizer_label_counts": {"OFF_ROUTE": 120, "ON_ROUTE": 120},
+        "training_example_ids": sorted(training_ids),
+        "evaluation_example_ids": sorted(evaluation_ids),
+        "training_schedule": schedule,
+        "examples": examples,
+    }
+    curriculum_path = tmp_path / "route-readout-curriculum.json"
+    curriculum_path.write_text(json.dumps(curriculum))
+    claim_boundary = {
+        "plumbing_overfit_only": True,
+        "reportable_generalization": False,
+        "safety_claim_allowed": False,
+    }
+    objective = {"type": "route_readout_pairs", "fields": ["route"]}
+    protocol = {
+        "schema": evaluation.ROUTE_READOUT_CONFIG_SCHEMA,
+        "stage": "V1f_route151_route_readout_overfit",
+        "sample_ids": list(evaluation.EXPECTED_SAMPLE_IDS),
+        "objective": objective,
+        "curriculum": str(curriculum_path),
+        "training": {
+            "optimizer_steps": 240,
+            "separate_gradient_clipping": True,
+        },
+        "evaluation": {
+            "split": "held_out_order",
+            "pre_training_controls": ["true_u"],
+            "controls": list(evaluation.EXPECTED_CONTROLS),
+        },
+        "claim_boundary": claim_boundary,
+    }
+    protocol_path = tmp_path / "route-readout-protocol.json"
+    protocol_path.write_text(json.dumps(protocol))
+    by_id = {example["example_id"]: example for example in examples}
+    history = []
+    for step, example_id in enumerate(schedule, start=1):
+        example = by_id[example_id]
+        history.append(
+            {
+                "optimizer_step": step,
+                "example_id": example_id,
+                "sample_id": example["sample_id"],
+                "task_field": "route",
+                "loss": 2.0 - step / 500,
+                "projector_gradient_norm_before_clip": 10.0,
+                "lora_gradient_norm_before_clip": 0.2,
+                "projector_update_norm": 0.1,
+                "lora_update_norm": 0.01,
+                "projector_nonzero_gradient_tensors": 3,
+                "lora_nonzero_gradient_tensors": 8,
+                "forward_seconds": 1.0,
+                "backward_seconds": 2.0,
+                "optimizer_step_seconds": 3.0,
+            }
+        )
+
+    def result_row(example, control):
+        true_answer = example["expected_answer"]
+        control_answer = example["control_expected_answers"][control]
+        answer = (
+            true_answer
+            if control == "true_u" or not causal
+            else control_answer
+        )
+        true_exact = answer == true_answer
+        return {
+            "example_id": example["example_id"],
+            "sample_id": example["sample_id"],
+            "task_field": "route",
+            "split": "held_out_order",
+            "pair_id": example["pair_id"],
+            "control": control,
+            "answer": answer,
+            "parsed": answer,
+            "expected_answer": true_answer,
+            "control_expected_answer": control_answer,
+            "control_semantic_exact": answer == control_answer,
+            "canonical_exact": true_exact,
+            "field_correct": {"route": true_exact},
+        }
+
+    held_out_examples = [by_id[example_id] for example_id in evaluation_ids]
+    pre = [result_row(example, "true_u") for example in held_out_examples]
+    for row in pre:
+        row["answer"] = ""
+        row["parsed"] = ""
+        row["canonical_exact"] = False
+        row["control_semantic_exact"] = False
+        row["field_correct"] = {"route": False}
+    post = [
+        result_row(example, control)
+        for example in held_out_examples
+        for control in evaluation.EXPECTED_CONTROLS
+    ]
+    checkpoint = tmp_path / "route-readout-adaptation.pt"
+    checkpoint.write_bytes(b"route-readout-small-adaptation")
+    return {
+        "schema": "orion.qwen-visibility-grounding-smoke-report/v1",
+        "status": "complete",
+        "stage": "V1f_route151_route_readout_overfit",
+        "objective": objective,
+        "claim_boundary": claim_boundary,
+        "protocol_path": str(protocol_path),
+        "protocol_sha256": hashlib.sha256(protocol_path.read_bytes()).hexdigest(),
+        "manifest_path": str(manifest_path),
+        "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+        "curriculum_path": str(curriculum_path),
+        "curriculum_sha256": hashlib.sha256(
+            curriculum_path.read_bytes()
+        ).hexdigest(),
+        "curriculum_example_count": 50,
+        "sample_ids": list(evaluation.EXPECTED_SAMPLE_IDS),
+        "optimizer_controls": [],
+        "hidden_actor_labels_used": False,
+        "planning_expert_in_optimizer": False,
+        "scope": {
+            "projector_trainable_parameter_count": 1_330_734,
+            "model_trainable_parameter_count": 393_216,
+            "vision_trainable_parameter_count": 0,
+            "planning_expert_trainable_parameter_count": 0,
+            "embedding_trainable": False,
+            "lm_head_trainable": False,
+        },
+        "history": history,
+        "pre_training_evaluations": pre,
+        "evaluations": post,
+        "checkpoint": {
+            "path": str(checkpoint),
+            "sha256": hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
+            "contains_optimizer_state": False,
+            "contains_base_model_weights": False,
+            "projector_tensor_count": 7,
+            "lora_tensor_count": 16,
+        },
+    }
+
+
+def test_route_readout_causal_pairs_pass_only_as_plumbing(tmp_path):
+    report_path = tmp_path / "route-readout-report.json"
+    report_path.write_text(json.dumps(_route_readout_report(tmp_path, causal=True)))
+    audit = evaluation.audit_visibility_grounding_report(
+        report_path, tmp_path / "route-readout-audit.json"
+    )
+    assert audit["protocol_valid"] is True
+    assert audit["causal_capacity_passed"] is True
+    assert audit["status"] == "causal_route_readout_plumbing_pass"
+    assert audit["held_out_matched_pair_accuracy"] == 1.0
+    assert audit["post_training_held_out_metrics"]["spatial_shuffle"][
+        "control_target_accuracy"
+    ] == 1.0
+    assert audit["claim_boundary"]["reportable_generalization"] is False
+
+
+def test_route_readout_noncausal_pairs_do_not_pass(tmp_path):
+    report_path = tmp_path / "route-readout-report.json"
+    report_path.write_text(json.dumps(_route_readout_report(tmp_path, causal=False)))
+    audit = evaluation.audit_route_readout_overfit_report(
+        report_path, tmp_path / "route-readout-audit.json"
+    )
+    assert audit["protocol_valid"] is True
+    assert audit["causal_capacity_passed"] is False
+    assert audit["status"] == "valid_run_without_causal_route_readout"
+    assert audit["true_minus_control_ceiling"] == 0.0
+
+
+def test_route_readout_held_out_example_in_optimizer_invalidates_report(tmp_path):
+    report = _route_readout_report(tmp_path, causal=True)
+    curriculum_path = Path(report["curriculum_path"])
+    curriculum = json.loads(curriculum_path.read_text())
+    held_out_id = curriculum["evaluation_example_ids"][0]
+    curriculum["training_schedule"][0] = held_out_id
+    curriculum_path.write_text(json.dumps(curriculum))
+    report["curriculum_sha256"] = hashlib.sha256(
+        curriculum_path.read_bytes()
+    ).hexdigest()
+    report["history"][0]["example_id"] = held_out_id
+    report_path = tmp_path / "route-readout-report.json"
+    report_path.write_text(json.dumps(report))
+    audit = evaluation.audit_route_readout_overfit_report(
+        report_path, tmp_path / "route-readout-audit.json"
+    )
+    assert audit["protocol_valid"] is False
+    assert "curriculum_schedule" in audit["protocol_failures"]

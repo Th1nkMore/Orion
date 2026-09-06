@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import importlib.util
 import json
@@ -22,6 +23,7 @@ SMOKE_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-smoke-config/v1"
 OVERFIT_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-overfit-config/v1"
 FACTORIZED_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-factorized-config/v1"
 ROW_CONFIG_SCHEMA = "orion.qwen-visibility-row-grounding-config/v1"
+ROUTE_READOUT_CONFIG_SCHEMA = "orion.qwen-visibility-route-readout-config/v1"
 REPORT_SCHEMA = "orion.qwen-visibility-grounding-smoke-report/v1"
 
 
@@ -81,6 +83,7 @@ def _load_protocol(path):
         (OVERFIT_CONFIG_SCHEMA, "V1c_route151_plumbing_overfit"),
         (FACTORIZED_CONFIG_SCHEMA, "V1d_route151_factorized_overfit"),
         (ROW_CONFIG_SCHEMA, "V1e_route151_row_addressed_overfit"),
+        (ROUTE_READOUT_CONFIG_SCHEMA, "V1f_route151_route_readout_overfit"),
     }:
         raise ValueError("unexpected grounding training config schema/stage")
     training = protocol["training"]
@@ -138,6 +141,28 @@ def _load_protocol(path):
             raise ValueError("V1e requires the balanced row-addressed objective")
         if not protocol.get("curriculum"):
             raise ValueError("V1e requires an immutable curriculum manifest")
+    if stage == "V1f_route151_route_readout_overfit":
+        if int(training["optimizer_steps"]) != 240:
+            raise ValueError("V1f route readout must take exactly 240 steps")
+        if training.get("separate_gradient_clipping") is not True:
+            raise ValueError("V1f requires separate projector/LoRA clipping")
+        if set(protocol.get("sample_ids", ())) != {
+            "route151-step-000000",
+            "route151-step-000200",
+            "route151-step-000260",
+            "route151-step-000280",
+            "route151-step-000300",
+        }:
+            raise ValueError("V1f must use all five immutable plumbing records")
+        if protocol.get("objective") != {
+            "type": "route_readout_pairs",
+            "fields": ["route"],
+        }:
+            raise ValueError("V1f requires the matched-pair route objective")
+        if protocol.get("evaluation", {}).get("split") != "held_out_order":
+            raise ValueError("V1f must evaluate unseen decoy-row orders")
+        if not protocol.get("curriculum"):
+            raise ValueError("V1f requires an immutable curriculum manifest")
     if protocol["claim_boundary"] != {
         "plumbing_overfit_only": True,
         "reportable_generalization": False,
@@ -250,6 +275,151 @@ def _verify_row_curriculum(path, manifest_path, records):
     return curriculum
 
 
+def _verify_route_readout_curriculum(path, manifest_path, records):
+    curriculum_path = Path(path)
+    curriculum = json.loads(curriculum_path.read_text(encoding="utf-8"))
+    if curriculum.get("schema") != _curriculum.ROUTE_READOUT_CURRICULUM_SCHEMA:
+        raise ValueError("unexpected route-readout curriculum schema")
+    if Path(curriculum.get("base_manifest_path", "")).resolve() != Path(
+        manifest_path
+    ).resolve():
+        raise ValueError("route-readout curriculum base manifest path changed")
+    if curriculum.get("base_manifest_sha256") != _sha256(manifest_path):
+        raise ValueError("route-readout curriculum base manifest hash changed")
+    required_true_flags = (
+        "complete_row_permutations_only",
+        "matched_pairs_differ_only_by_query_row_swap",
+        "non_query_order_randomized",
+        "held_out_order_evaluation",
+        "held_out_order_disjoint_verified",
+        "spatial_shuffle_target_changed_for_every_example",
+    )
+    if (
+        curriculum.get("reportable_generalization") is not False
+        or curriculum.get("controls_used_for_optimizer") is not False
+        or curriculum.get("hidden_actor_labels_used") is not False
+        or curriculum.get("planning_expert_used_for_optimizer") is not False
+        or any(curriculum.get(name) is not True for name in required_true_flags)
+    ):
+        raise ValueError("route-readout curriculum violates the V1f boundary")
+    if curriculum.get("query_frontier") != "F00":
+        raise ValueError("V1f query frontier changed")
+    if curriculum.get("example_count") != 50:
+        raise ValueError("V1f requires exactly 50 route-readout examples")
+    if curriculum.get("train_pair_variants_per_sample") != 3:
+        raise ValueError("V1f train pair variants changed")
+    if curriculum.get("evaluation_pair_variants_per_sample") != 2:
+        raise ValueError("V1f evaluation pair variants changed")
+    if curriculum.get("training_label_counts") != {
+        "OFF_ROUTE": 15,
+        "ON_ROUTE": 15,
+    }:
+        raise ValueError("V1f training labels changed")
+    if curriculum.get("evaluation_label_counts") != {
+        "OFF_ROUTE": 10,
+        "ON_ROUTE": 10,
+    }:
+        raise ValueError("V1f evaluation labels changed")
+    if curriculum.get("optimizer_label_counts") != {
+        "OFF_ROUTE": 120,
+        "ON_ROUTE": 120,
+    }:
+        raise ValueError("V1f optimizer labels changed")
+    schedule = curriculum.get("training_schedule", [])
+    if curriculum.get("optimizer_steps") != 240 or len(schedule) != 240:
+        raise ValueError("V1f curriculum schedule must contain 240 steps")
+    examples = curriculum.get("examples", [])
+    by_id = {example.get("example_id"): example for example in examples}
+    if len(by_id) != 50 or None in by_id:
+        raise ValueError("V1f curriculum example ids are not unique")
+    training_ids = set(curriculum.get("training_example_ids", []))
+    evaluation_ids = set(curriculum.get("evaluation_example_ids", []))
+    if (
+        len(training_ids) != 30
+        or len(evaluation_ids) != 20
+        or training_ids & evaluation_ids
+        or training_ids | evaluation_ids != set(by_id)
+    ):
+        raise ValueError("V1f train/evaluation split changed")
+    if any(example_id not in training_ids for example_id in schedule):
+        raise ValueError("V1f optimizer schedule contains a held-out example")
+    if Counter(schedule) != Counter({example_id: 8 for example_id in training_ids}):
+        raise ValueError("V1f optimizer example balance changed")
+    selected_ids = {record["sample_id"] for record in records}
+    pairs = {}
+    for example in examples:
+        example_id = example["example_id"]
+        if example.get("sample_id") not in selected_ids:
+            raise ValueError("V1f curriculum names an unselected sample")
+        if example.get("task_field") != "route":
+            raise ValueError("V1f curriculum contains a non-route task")
+        expected_split = (
+            "train" if example_id in training_ids else "held_out_order"
+        )
+        if example.get("split") != expected_split:
+            raise ValueError("V1f example split changed")
+        if example.get("query_frontier") != "F00":
+            raise ValueError("V1f example query slot changed")
+        expected_answer = example.get("expected_answer")
+        if expected_answer not in {"ON_ROUTE", "OFF_ROUTE"}:
+            raise ValueError("V1f example answer changed")
+        controls = example.get("control_expected_answers", {})
+        if controls.get("true_u") != expected_answer:
+            raise ValueError("V1f true-U target changed")
+        if controls.get("spatial_shuffle") == expected_answer:
+            raise ValueError("V1f spatial shuffle target did not change")
+        permutation = example.get("sequence_permutation_new_to_manifest", [])
+        if sorted(permutation) != list(range(32)):
+            raise ValueError("V1f example lacks a complete row permutation")
+        pair_id = example.get("pair_id")
+        pairs.setdefault(pair_id, []).append(example)
+    for sample_id in selected_ids:
+        for label in ("ON_ROUTE", "OFF_ROUTE"):
+            train_orders = {
+                tuple(by_id[value]["sequence_permutation_new_to_manifest"])
+                for value in training_ids
+                if by_id[value]["sample_id"] == sample_id
+                and by_id[value]["expected_answer"] == label
+            }
+            evaluation_orders = {
+                tuple(by_id[value]["sequence_permutation_new_to_manifest"])
+                for value in evaluation_ids
+                if by_id[value]["sample_id"] == sample_id
+                and by_id[value]["expected_answer"] == label
+            }
+            if len(train_orders) != 3 or len(evaluation_orders) != 2:
+                raise ValueError("V1f row-order variant count changed")
+            if train_orders & evaluation_orders:
+                raise ValueError("V1f held-out row order leaked into training")
+    if len(pairs) != 25 or any(len(pair) != 2 for pair in pairs.values()):
+        raise ValueError("V1f matched-pair count changed")
+    for pair in pairs.values():
+        if {example["expected_answer"] for example in pair} != {
+            "ON_ROUTE",
+            "OFF_ROUTE",
+        }:
+            raise ValueError("V1f matched pair lacks both route labels")
+        first, second = pair
+        if first["sample_id"] != second["sample_id"] or first["split"] != second["split"]:
+            raise ValueError("V1f matched pair crosses sample or split")
+        first_order = first["sequence_permutation_new_to_manifest"]
+        second_order = second["sequence_permutation_new_to_manifest"]
+        changed = [
+            index
+            for index, values in enumerate(zip(first_order, second_order))
+            if values[0] != values[1]
+        ]
+        if len(changed) != 2 or 0 not in changed:
+            raise ValueError("V1f matched pair changes more than one row swap")
+        other = changed[1] if changed[0] == 0 else changed[0]
+        if not (
+            first_order[0] == second_order[other]
+            and first_order[other] == second_order[0]
+        ):
+            raise ValueError("V1f matched-pair rows are not swapped")
+    return curriculum
+
+
 def _load_control_tokens(record, control, sequence_permutation=None):
     prefixes = {
         "true_u": "visibility_tokens",
@@ -357,6 +527,8 @@ def _run_evaluations(model, projector, prepared, controls, max_new_tokens):
                     "example_id": example.get("example_id"),
                     "sample_id": example["record"]["sample_id"],
                     "task_field": task_field,
+                    "split": example.get("split"),
+                    "pair_id": example.get("pair_id"),
                     "control": control,
                     "answer": answer,
                     "parsed": parsed,
@@ -396,6 +568,10 @@ def main():
     curriculum = None
     if protocol["stage"] == "V1e_route151_row_addressed_overfit":
         curriculum = _verify_row_curriculum(
+            protocol["curriculum"], protocol["manifest"], records
+        )
+    if protocol["stage"] == "V1f_route151_route_readout_overfit":
+        curriculum = _verify_route_readout_curriculum(
             protocol["curriculum"], protocol["manifest"], records
         )
     seed = int(protocol["training"]["seed"])
@@ -439,7 +615,7 @@ def main():
         task_fields = list(objective["fields"])
     elif objective.get("type") == "composite_json":
         task_fields = [None]
-    elif objective.get("type") == "row_addressed_fields":
+    elif objective.get("type") in {"row_addressed_fields", "route_readout_pairs"}:
         task_fields = []
     else:
         raise ValueError("unsupported grounding objective")
@@ -480,6 +656,8 @@ def main():
                 "control_expected_answers": example[
                     "control_expected_answers"
                 ],
+                "split": example.get("split"),
+                "pair_id": example.get("pair_id"),
             }
             for example in curriculum["examples"]
         ]
@@ -517,6 +695,8 @@ def main():
                 "control_expected_answers": spec[
                     "control_expected_answers"
                 ],
+                "split": spec.get("split"),
+                "pair_id": spec.get("pair_id"),
                 "inputs": inputs,
                 "base_embeddings": base_embeddings,
                 "true_tokens": torch.from_numpy(true_tokens).to(model.device),
@@ -526,11 +706,25 @@ def main():
         )
     prepare_seconds = time.monotonic() - prepare_started
 
+    evaluation_example_ids = (
+        set(curriculum.get("evaluation_example_ids", []))
+        if curriculum is not None
+        else set()
+    )
+    evaluation_prepared = (
+        [
+            example
+            for example in prepared
+            if example["example_id"] in evaluation_example_ids
+        ]
+        if evaluation_example_ids
+        else prepared
+    )
     pre_training_started = time.monotonic()
     pre_training_evaluations = _run_evaluations(
         model,
         projector,
-        prepared,
+        evaluation_prepared,
         protocol["evaluation"].get("pre_training_controls", []),
         protocol["evaluation"]["max_new_tokens"],
     )
@@ -681,7 +875,7 @@ def main():
     evaluations = _run_evaluations(
         model,
         projector,
-        prepared,
+        evaluation_prepared,
         protocol["evaluation"]["controls"],
         protocol["evaluation"]["max_new_tokens"],
     )

@@ -162,6 +162,28 @@ def test_row_target_and_complete_permutation_address_the_requested_record():
     )
 
 
+def test_route_readout_pair_randomizes_decoys_and_only_swaps_query_row():
+    on_route, off_route = curriculum.paired_route_readout_permutations(
+        32, 7, 19, seed=1701
+    )
+    repeated_on, repeated_off = curriculum.paired_route_readout_permutations(
+        32, 7, 19, seed=1701
+    )
+    different_on, _ = curriculum.paired_route_readout_permutations(
+        32, 7, 19, seed=1702
+    )
+    assert np.array_equal(on_route, repeated_on)
+    assert np.array_equal(off_route, repeated_off)
+    assert not np.array_equal(on_route, different_on)
+    assert on_route[0] == 7
+    assert off_route[0] == 19
+    assert sorted(on_route.tolist()) == list(range(32))
+    assert sorted(off_route.tolist()) == list(range(32))
+    changed = np.flatnonzero(on_route != off_route).tolist()
+    assert len(changed) == 2
+    assert 0 in changed
+
+
 def _write_full_control_token(path, step):
     global_tokens = np.zeros((16, len(NAMES)), dtype=np.float32)
     global_tokens[:, INDEX["token_is_global"]] = 1.0
@@ -277,6 +299,61 @@ def test_row_curriculum_is_real_row_balanced_and_refuses_overwrite(tmp_path):
     assert not result["controls_used_for_optimizer"]
     with pytest.raises(FileExistsError):
         curriculum.build_route151_row_grounding_curriculum(base_path, output)
+
+    route_output = tmp_path / "route-readout-curriculum.json"
+    route_result = curriculum.build_route151_route_readout_curriculum(
+        base_path,
+        route_output,
+        train_pair_variants=3,
+        evaluation_pair_variants=2,
+        optimizer_steps=240,
+        seed=1701,
+    )
+    assert route_result["example_count"] == 50
+    assert len(route_result["training_example_ids"]) == 30
+    assert len(route_result["evaluation_example_ids"]) == 20
+    assert route_result["training_label_counts"] == {
+        "OFF_ROUTE": 15,
+        "ON_ROUTE": 15,
+    }
+    assert route_result["evaluation_label_counts"] == {
+        "OFF_ROUTE": 10,
+        "ON_ROUTE": 10,
+    }
+    assert route_result["optimizer_label_counts"] == {
+        "OFF_ROUTE": 120,
+        "ON_ROUTE": 120,
+    }
+    assert len(route_result["training_schedule"]) == 240
+    assert all(
+        example["control_expected_answers"]["true_u"]
+        != example["control_expected_answers"]["spatial_shuffle"]
+        for example in route_result["examples"]
+    )
+    pairs = {}
+    for example in route_result["examples"]:
+        pairs.setdefault(example["pair_id"], []).append(example)
+    assert len(pairs) == 25
+    for pair in pairs.values():
+        assert {example["expected_answer"] for example in pair} == {
+            "ON_ROUTE",
+            "OFF_ROUTE",
+        }
+        first, second = pair
+        changed = [
+            index
+            for index, values in enumerate(
+                zip(
+                    first["sequence_permutation_new_to_manifest"],
+                    second["sequence_permutation_new_to_manifest"],
+                )
+            )
+            if values[0] != values[1]
+        ]
+        assert len(changed) == 2
+        assert 0 in changed
+    with pytest.raises(FileExistsError):
+        curriculum.build_route151_route_readout_curriculum(base_path, route_output)
 
 
 @pytest.mark.parametrize(

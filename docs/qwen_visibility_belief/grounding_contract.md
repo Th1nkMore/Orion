@@ -170,3 +170,30 @@ place the same queried row under multiple independently randomized decoy-row
 orders, and reserve unseen orders plus target-changing complete-row swaps for
 evaluation. It must retain balanced labels and evaluation-only zero/shuffle
 controls. More steps on the unchanged V1e schedule are not a new experiment.
+
+### V1f held-out-order route-readout gate
+
+V1f isolates the simplest local continuous-field readout before changing the
+adapter. For each of the five immutable images, one real `ON_ROUTE` row and one
+real `OFF_ROUTE` row form a matched pair at `F00`. Pair members contain the same
+32 complete rows and differ only by one two-position row swap. Three independent
+decoy-row orders per image are optimizer examples; two different orders per
+image are evaluation-only. The question, image, query slot, and label balance
+therefore cannot identify the answer, and a fixed global ordering cannot
+transfer to evaluation.
+
+The 30 training examples receive eight updates each for 240 balanced steps.
+The 20 held-out-order examples and their zero/spatial-shuffle arms never enter
+the optimizer. Acceptance requires all of the following:
+
+- at least 90% true-U exact accuracy across held-out examples;
+- at least 90% true-U accuracy for both `ON_ROUTE` and `OFF_ROUTE`;
+- at least 80% of the ten held-out matched pairs correct on both members;
+- at least 80% accuracy for the changed spatial-shuffle control target;
+- at least a 30-point gap between true-U accuracy and the stronger zero/shuffle
+  arm measured against the original true target.
+
+This route-only result is a lower-bound capacity check. Passing does not imply
+that frontier argmax, stopping margin, action composition, semantic relevance,
+or planning are solved. Failing after a valid run rules out only the current
+generic projector plus upper-layer-LoRA recipe under this bounded protocol.

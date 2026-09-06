@@ -1,6 +1,6 @@
 # Qwen visibility-belief research track
 
-> Status: implementation in progress; V1e row-addressed grounding is a valid negative
+> Status: implementation in progress; V1f route-readout protocol pre-run
 > Decision date: 2026-09-06 (Asia/Shanghai)
 > Branch: `codex/qwen-drive-transition`
 
