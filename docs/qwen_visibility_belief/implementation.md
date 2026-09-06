@@ -1,13 +1,13 @@
 # Qwen visibility-belief implementation status
 
-Last updated: 2026-09-06 (Asia/Shanghai)
+Last updated: 2026-09-07 (Asia/Shanghai)
 
 ## Current milestone
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1j valid negative; offline depth source accepted for a
-bounded route-diverse pilot; query-manifest construction next)
+Status: in progress (V1k route-diverse baseline completed as a valid negative;
+next consumer-interface choice requires a decision)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -1427,6 +1427,53 @@ inspectable U consumption before any closed-loop claim.
   claim is allowed from V1k. It tests only whether the VLM can read one
   addressed route scalar across unseen routes under the accepted offline
   visibility source.
+
+## V1k route-diverse random-row baseline result
+
+- Slurm job `1175093` completed successfully in 11 min 06 s. The run used
+  native 1600 x 900 camera files and the released Qwen preprocessing path.
+  Peak allocated/reserved GPU memory was 18,666.97/19,172 MB.
+- The adaptation boundary is intact: 1,391,616 projector parameters and
+  1,572,864 LoRA parameters were trainable; vision, embeddings, LM head, base
+  VLM, and Planning Expert remained frozen. Every projector and LoRA tensor
+  received a finite first-step gradient, and both parameter groups updated on
+  every optimizer step.
+- Training optimization itself worked: loss fell from 6.43777 to 0.00485;
+  the first-30-step mean was 1.01344 and the last-30-step mean was 0.13342.
+  This establishes learnability/memorization on optimizer examples, not
+  route-disjoint grounding.
+- `exact accuracy` means the generated canonical `ON_ROUTE`/`OFF_ROUTE`
+  equals the natural label of the queried row in the unmodified example.
+  True-U exact accuracy is 10/20 = 50% overall: validation 6/10 and held-out
+  4/10. Each split is balanced 5/5 by target label. Across both splits the
+  model also emits exactly ten ON and ten OFF answers, so the result is not a
+  one-class output collapse.
+- `causal gap` is true-U exact accuracy minus the better of zero-U and
+  shuffled-U accuracy, with every arm scored against the same original natural
+  target. Zero U is 10/20 and shuffle is 10/20, so the gap is 0 percentage
+  points. The current VLM interface therefore shows no usable dependence on
+  the supplied true U on unseen routes.
+- The independent result audit rehashed the report, checkpoint, protocol,
+  manifest, curriculum, and prior data audit; replayed the 240-example schedule;
+  checked route-disjoint evaluation membership and frozen/trainable scope; and
+  recomputed all metrics from 60 raw evaluation rows. It passed with zero
+  integrity failures and assigned status
+  `valid_route_diverse_baseline_without_causal_route_readout`.
+- Immutable artifacts:
+  - report:
+    `/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/qwen_visibility_grounding_v1k_route_diverse_random_row_v1/report.json`,
+    SHA-256
+    `fc910278ad12524b1a75cb2a9b76600f3b230ea9b2d885ed91032a607899a0db`;
+  - adaptation checkpoint: same directory, `adaptation.pt`, SHA-256
+    `41f7e4fed974d1721d76b104bd066d6a9291cbdc7634840ac05405df463e7b45`;
+  - independent result audit: same directory, `audit_v1.json`, SHA-256
+    `e0d3aca44d47bf564c6dac1f21f315087281c70b36270f43801b2fd288c96b35`.
+- V1k removes the same-frame opposite-answer construction and the repeated-row
+  shortcut as explanations for failure. It does not prove that Qwen can never
+  consume U; it shows that the current prefix-token projector plus ordinary
+  route-readout supervision does not generalize causally across routes. Per
+  the one-baseline agreement, no automatic seed, epoch, or architecture sweep
+  follows this result.
 
 ## Integrity constraints
 

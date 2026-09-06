@@ -24,6 +24,7 @@ that later experiments had already succeeded when the decision was made.
 | D6 | A weak/custom agent or changed input profile could confound the result | Keep official/native processing, one controlled baseline, Bench2Drive primary and NAVSIM secondary | 12, 13 |
 | D7 | V1i can memorize repeated target rows, while spatial shuffle is physically inconsistent | Run V1j with disjoint queried target rows and one held-out frame; keep shuffle out of optimization and report it as a non-veto diagnostic | 8, V1j target-row gate |
 | D8 | A same-frame opposite-label penalty would force answers to differ even when the physical answer should agree | Reject pair-flip/equality penalties; move to route-diverse natural rows, random addressed queries, ordinary per-example supervision, and diagnostic-only controls | 8, Post-V1j supervision amendment |
+| D9 | The route-diverse V1k baseline may fail without proving whether another VLM interface or direct planner conditioning is preferable | Record the valid negative, stop automatic sweeps, and require an explicit follow-on decision | 8, Post-V1k evidence |
 
 User acceptance closed these architectural branches. Numerical implementation
 parameters listed at the end remain open and do not have decision status. A
@@ -305,6 +306,32 @@ answer from the same index in another tokenization, and a global index holdout
 may be described only as address-interface extrapolation. Any causal or source
 stability comparison across tokenizations must first match frontier centers in
 physical space.
+
+#### Post-V1k evidence and unresolved consumer decision
+
+The accepted route-diverse construction completed with 90 unique routes, one
+natural query per route, route-disjoint 70/10/10 train/validation/held-out
+splits, and exact per-split ON/OFF balance. Independent data and result audits
+both pass. The V1k baseline retains the V1j model-side contract and uses no
+pair-flip, answer-equality, or shuffle optimization term.
+
+V1k is a valid negative. On the 20 validation plus held-out routes, true-U
+exact accuracy is 50%, zero-U exact accuracy is 50%, and spatial-shuffle exact
+accuracy is 50%, all scored against the original natural queried-row target.
+The true-versus-stronger-control causal gap is therefore zero. Loss decreases
+and every permitted parameter group updates, and true-U predictions are evenly
+split between ON and OFF, so neither optimizer failure nor single-label output
+collapse explains the result. The bounded conclusion is that the current
+prefix-token/readout recipe does not causally generalize across routes.
+
+This evidence closes the authorized one-baseline execution but does not itself
+choose the next architecture. There is a genuine decision between redesigning
+the VLM-side query/attention interface, amending the fallback prerequisite to
+permit direct Planning Expert conditioning after failed grounding, or stopping
+this consumer path. The existing Fallback section requires successful
+structured grounding followed by failed trajectory conditioning; V1k instead
+fails at structured grounding. Therefore direct Planning Expert injection is
+not silently activated and requires an explicit ADR amendment if selected.
 
 ### 9. Train a longitudinal response first
 

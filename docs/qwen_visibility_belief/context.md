@@ -1,6 +1,6 @@
 # Qwen visibility-belief context
 
-Last audited: 2026-09-06 (Asia/Shanghai)
+Last audited: 2026-09-07 (Asia/Shanghai)
 
 ## 1. Current objective
 
@@ -215,6 +215,19 @@ that replacing the backbone alone solves uncertainty-aware planning:
   p95 drift is 39.03 m. `Fxx` is therefore only a deterministic frame-local
   table address. Random queries must use the exact current row, and
   cross-tokenization comparisons must rematch physical centers.
+- The resulting immutable V1k corpus contains 90 unique physical routes and
+  one natural random-row query per route, split 70/10/10 for
+  train/validation/held-out with exact ON/OFF balance. Its independent audit
+  rehashed all 90 token artifacts and 270 native RGB images and passed with
+  zero failures. This removes the earlier repeated-row and artificial
+  same-frame-pair construction from the test.
+- The single V1k Qwen baseline is a protocol-valid negative. True-U exact
+  accuracy is 10/20 = 50%; zero-U and shuffled-U accuracy against the same
+  original targets are also 10/20, hence the causal gap is zero. Training loss
+  fell from 6.43777 to 0.00485 and all allowed tensors updated, while true-U
+  outputs remained class-balanced. The evidence therefore points to train-set
+  memorization and failure of the present VLM prefix/readout interface to
+  generalize across routes, not a broken optimizer or one-label collapse.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
@@ -359,10 +372,11 @@ The next work is intentionally oracle-first:
 2. Collapse it to the accepted 2.5D BEV schema and render it for inspection.
 3. Produce global and frontier tokens and inject them into the 4B VLM.
 4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1i
-   bounded probes and V1j are valid negatives, so this step remains open. The
-   8-bit calibration preflight now accepts a bounded route-diverse source.
-   The next admissible probe freezes and audits a class-aware random-query
-   manifest from exact frame-local rows; it does not add a pair-flip loss.
+   bounded probes, V1j, and the route-diverse V1k baseline are valid negatives,
+   so this step remains open. V1k used an audited class-balanced random-query
+   manifest with exact frame-local rows and no pair-flip loss; true U did not
+   beat either control. No further VLM architecture sweep is authorized by the
+   current one-baseline decision.
 5. Train a longitudinal-only trajectory response using paired robust targets.
 6. Run one fixed baseline and one otherwise identical oracle-U Route 151 arm.
 7. Replace oracle depth with the independent predicted-U module only after the
