@@ -142,6 +142,14 @@ parameters. The slot-typed projector remains seven tensors and 1,391,616
 parameters. The audit rejects missing layers, extra trainable model weights,
 or any change to the V1h projector/data/evaluation contract.
 
+V1i reaches perfect true-U and matched-pair accuracy but fails the unchanged
+spatial-shuffle target at 50%. The all-layer attention path is therefore
+reachable, yet the current data do not identify the requested scalar: the same
+ten true target rows appear in train and held-out-order variants, and several
+other physical fields separate their labels perfectly. The next interface
+probe must change the target-row split/curriculum rather than add more model
+scope. Direct Planning Expert injection remains outside this grounding stage.
+
 V0a passed the direct-prefill contract on the provisioned full model in Slurm
 job `1166148`. V0b passed the reasoning-generation and final Planning Expert
 cache contract in job `1166382`, including exact upstream reproduction by the

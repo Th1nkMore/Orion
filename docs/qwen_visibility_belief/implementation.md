@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1h valid negative; V1i full-attention protocol pre-run)
+Status: in progress (V1i valid negative; field-identifiability audit next)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -28,7 +28,7 @@ inspectable U consumption before any closed-loop claim.
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Complete (`c4f62543`; accepted by run `1165345`) |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Complete (`2d86b809`; accepted on 54-frame derived run) |
 | V0 | Insert U tokens into the 4B VLM with verified positions and disabled-path identity | Complete (`4e4672ba`; direct job `1166148`, reasoning job `1166382`) |
-| V1 | Structured U-grounding warm-up with staged LoRA | In progress (V1a/V1b accepted; V1c-V1h valid negatives) |
+| V1 | Structured U-grounding warm-up with staged LoRA | In progress (V1a/V1b accepted; V1c-V1i valid negatives) |
 | P0 | Longitudinal trajectory retiming teacher and flow-matching training path | Not started |
 | C0 | Fixed-baseline versus oracle-U Route 151 closed-loop comparison | Not started |
 | E0 | Independent predicted-depth/visibility estimator | Blocked on interpretable oracle-U consumer evidence |
@@ -1061,6 +1061,58 @@ inspectable U consumption before any closed-loop claim.
   Failure rejects this bounded interface/training recipe; neither result is
   full grounding, planning, safety, or permission to activate the Planning
   Expert fallback.
+
+## V1i remote negative result
+
+- Commit under test: `b6bbd245`; Slurm job: `1168669`; run id:
+  `qwen_visibility_grounding_v1i_route151_slot_typed_full_attention_route_readout_v1`.
+- Terminal state: `COMPLETED`, exit `0:0`, elapsed `00:09:54`, peak host RSS
+  `2,923,844 KiB`. Model load took 153.68 s, preparation 25.75 s,
+  pre-training held-out generation 24.36 s, 240 optimizer steps 183.87 s, and
+  post-training evaluation 29.69 s. Peak allocated/reserved GPU memory was
+  15,656/16,000 MB; native image processing was unchanged.
+- The V1f curriculum was reused byte-for-byte at SHA-256
+  `63bb8fbe6fc929591b5e97bbd55e30a1437c309a58b507765085f00b4566d592`.
+  The V1i-specific fail-closed audit is protocol-valid with no failures. It
+  verifies all eight layer indices, 32 wrapped modules, 64 LoRA parameter
+  names/tensors, exact unchanged V1h settings, held-out split, schedule,
+  controls, updates, and frozen released-model boundary.
+- Pre-training true-U accuracy was `0/20`. Post-training true-U accuracy is
+  `20/20`, both labels are `10/10`, all ten matched pairs are jointly correct,
+  and the true-U gap over the stronger control is 50 points. Those four gates
+  pass, modestly improving V1h's 19/20 and 9/10 results.
+- Spatial-shuffle changed-target accuracy is only `10/20` (50%), so the fifth
+  gate fails. The shuffled arm emits `OFF_ROUTE` on 18/20 examples despite
+  balanced targets. Status is
+  `valid_run_without_causal_slot_typed_full_attention_route_readout`; perfect
+  true-U order accuracy is not causal-readout acceptance.
+- First/last-step loss is 6.56275 to 0.0000743; first/last 30-step mean loss is
+  0.96975 to 0.03331. Projector and LoRA gradients and update norms are finite
+  and nonzero on all 240 steps. Expanding attention scope did not repair the
+  unchanged control failure.
+- The adaptation checkpoint is 11,886,709 bytes with SHA-256
+  `8bf1de866f8c963b0e7a473e8db50addbe47d982df44a189f7d8ceee7adc9903`.
+  Independent `weights_only` readback verifies seven projector tensors
+  (1,391,616 values), 64 LoRA tensors (1,572,864 values) at exactly layers
+  `[3, 7, 11, 15, 19, 23, 27, 31]`, no other tensors, no optimizer state, and
+  no base-model tensors. Report and audit SHA-256 are respectively
+  `aa7915735cf93f2281bad4013149b4f91886048f6ef64559ae816affce7ca43f`
+  and `d574a43ca804165f5163d659dd12337db567c1591c8a4cf546db7167d8e9b10d`.
+- A read-only post-run feature audit validates every control target directly
+  from the serialized F00 row: thresholding `route_weight_mean` at 0.2 gives
+  20/20 correct targets for both true and shuffled U. The model agrees on
+  20/20 true rows but only 10/20 shuffled rows. On the ten distinct true target
+  rows reused across order variants, multiple other individual features also
+  separate ON/OFF perfectly, including urgency, unknown-area,
+  occluded-unknown, observation-age, never-observed, and frontier-score fields.
+  Thus the existing curriculum does not identify the requested route field
+  independently of real-row templates and correlated physical covariates.
+- V1i rejects broader attention as a sufficient repair. More layers or epochs
+  are not the next step. Before another full-model run, the real-row inventory
+  must show that a training/held-out-target-row split can balance route labels
+  while breaking the identified covariates. Any new curriculum must keep
+  complete physical rows, reserve disjoint target rows for evaluation, retain
+  target-changing controls, and continue to keep the Planning Expert frozen.
 
 ## Integrity constraints
 

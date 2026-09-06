@@ -1,6 +1,6 @@
 # Qwen visibility-belief research track
 
-> Status: implementation in progress; V1i full-attention protocol pre-run
+> Status: implementation in progress; V1i valid negative, field-identifiability audit next
 > Decision date: 2026-09-06 (Asia/Shanghai)
 > Branch: `codex/qwen-drive-transition`
 

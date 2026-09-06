@@ -160,6 +160,17 @@ that replacing the backbone alone solves uncertainty-aware planning:
   negative rather than causal-readout acceptance. It supports explicit slot
   identity as useful but not sufficient; attention reachability remains the
   next isolated interface hypothesis.
+- V1i kept the V1h adapter/data fixed and expanded LoRA to all eight released
+  full-attention layers. True-U accuracy and matched-pair correctness both
+  reached 100%, with a 50-point control gap, but spatial-shuffle changed-target
+  accuracy remained 50% and 18/20 shuffled outputs were `OFF_ROUTE`. A
+  read-only feature audit found that the five real ON/OFF target-row pairs are
+  reused across train/evaluation order variants and that, on those rows,
+  `route_weight_mean` is perfectly confounded with multiple urgency,
+  unknown-space, observation-age, and frontier-score features. The result does
+  not distinguish exact field readout from memorized row templates. The next
+  open frontier is therefore data/field identifiability, not more epochs or
+  broader attention scope.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
@@ -300,7 +311,7 @@ The next work is intentionally oracle-first:
 1. Generate oracle 3D visibility from CARLA depth and calibration.
 2. Collapse it to the accepted 2.5D BEV schema and render it for inspection.
 3. Produce global and frontier tokens and inject them into the 4B VLM.
-4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1h
+4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1i
    bounded probes are valid negatives, so this step remains open.
 5. Train a longitudinal-only trajectory response using paired robust targets.
 6. Run one fixed baseline and one otherwise identical oracle-U Route 151 arm.

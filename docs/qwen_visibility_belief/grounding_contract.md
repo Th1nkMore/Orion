@@ -278,3 +278,19 @@ frozen. A passing result is only a causal route-scalar plumbing lower bound; a
 failure is a bounded VLM-interface negative. The Planning Expert fallback
 requires a later successful structured-grounding result followed by failed
 trajectory conditioning, so V1i cannot activate it.
+
+V1i is a protocol-valid negative. It reaches 100% true-U held-out accuracy,
+100% matched-pair correctness, and a 50-point true-versus-control gap, but only
+50% spatial-shuffle changed-target accuracy. Eighteen of twenty shuffled
+outputs are `OFF_ROUTE`. All trainable tensors update and the expanded
+eight-layer scope is independently verified, so repeating or broadening that
+scope is not justified.
+
+The V1f-V1i curriculum also shares each target row between training and
+held-out-order evaluation; only decoy order is held out. On the ten distinct
+true target rows, route labels are perfectly separable by several other
+physical fields. The next route probe must therefore reserve target rows—not
+only row orders—and include real counterexamples that break route-weight
+correlation with urgency, unknown area, observation age, and frontier score.
+The adapter must continue to expose physical fields without computing the
+answer itself. Gates and causal controls remain fail-closed.

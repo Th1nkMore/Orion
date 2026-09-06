@@ -216,6 +216,19 @@ slot-typed adapter and immutable V1f data while expanding LoRA from the last
 two to all eight released full-attention layers. This remains a VLM-consumer
 test; the Planning Expert fallback is not activated.
 
+V1i post-decision evidence then expanded LoRA to all eight full-attention
+layers while holding the V1h adapter and data fixed. True-U and matched-pair
+accuracy reached 100%, but the spatial-shuffle changed-target result remained
+at 50%, with 18/20 shuffled answers equal to `OFF_ROUTE`. The expanded scope is
+therefore not accepted as causal grounding. A read-only feature audit explains
+why more model capacity is not the next justified change: the five true-U
+ON/OFF row pairs are repeated across order variants, and route threshold is
+perfectly correlated with multiple urgency, unknown-space, and frontier-score
+features on those target rows. The next bounded probe must make the requested
+physical field statistically identifiable using disjoint real target rows and
+counterexamples to those covariates. It must keep semantic interpretation in
+the VLM and may not respond by moving the route decision into the adapter.
+
 ### 9. Train a longitudinal response first
 
 The first safety teacher preserves a valid base trajectory's lateral path and
