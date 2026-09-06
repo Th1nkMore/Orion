@@ -1350,6 +1350,23 @@ inspectable U consumption before any closed-loop claim.
   label-constrained natural-row selection. The relevant suite reports
   `7 passed`; compilation, JSON parsing, and `git diff --check` pass.
 
+### Data-build attempt 1: fail-closed label feasibility
+
+- Commit `fe8153d4` began the no-training build at
+  `route_diverse_random_query_data_v1`. It stopped after ten token files,
+  before writing a manifest or curriculum, because the next route had been
+  randomly assigned `ON_ROUTE` but its frozen 12-frame window contained no
+  natural ON row. The 143 KB partial directory is invalid and may not be used
+  for training.
+- Protocol v1.1 preserves the route sets, windows, 50/50 counts, depth policy,
+  random-row selection, and seeds. It changes only the order of operations:
+  scan each split's frozen windows first, retain routes that can supply only
+  one label as forced assignments, then use the existing seed to choose among
+  flexible routes until exact balance is reached. It fails if the split cannot
+  support that balance; it does not relabel any physical row or widen a
+  window. The amended relevant suite reports `9 passed`; compilation, JSON
+  parsing, and `git diff --check` pass.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

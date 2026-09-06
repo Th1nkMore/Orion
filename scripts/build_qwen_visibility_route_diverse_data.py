@@ -100,6 +100,52 @@ def balanced_route_label_assignments(
     }
 
 
+def feasible_balanced_route_label_assignments(
+    availability: Mapping[str, Mapping[str, bool]], seed: int
+) -> Dict[str, str]:
+    """Balance labels while respecting which natural labels each route contains."""
+
+    ordered = sorted(str(folder) for folder in availability)
+    if not ordered or len(ordered) % 2:
+        raise ValueError("feasible label assignment requires an even route count")
+    forced_on = []
+    forced_off = []
+    flexible = []
+    for folder in ordered:
+        labels = availability[folder]
+        has_on = bool(labels.get("ON_ROUTE"))
+        has_off = bool(labels.get("OFF_ROUTE"))
+        if not has_on and not has_off:
+            raise ValueError("route has no valid query label: %s" % folder)
+        if has_on and has_off:
+            flexible.append(folder)
+        elif has_on:
+            forced_on.append(folder)
+        else:
+            forced_off.append(folder)
+    target_on = len(ordered) // 2
+    flexible_on_count = target_on - len(forced_on)
+    if flexible_on_count < 0 or flexible_on_count > len(flexible):
+        raise ValueError("split cannot support a balanced feasible label assignment")
+    shuffled = [
+        flexible[int(index)]
+        for index in np.random.default_rng(int(seed)).permutation(len(flexible))
+    ]
+    selected_on = set(forced_on + shuffled[:flexible_on_count])
+    assignments = {
+        folder: ("ON_ROUTE" if folder in selected_on else "OFF_ROUTE")
+        for folder in ordered
+    }
+    if sum(value == "ON_ROUTE" for value in assignments.values()) != target_on:
+        raise RuntimeError("feasible assignment is not balanced")
+    if any(
+        not bool(availability[folder][label])
+        for folder, label in assignments.items()
+    ):
+        raise RuntimeError("feasible assignment selected an unavailable label")
+    return assignments
+
+
 def choose_candidate_index(labels: Sequence[bool], target: str, seed: int) -> int:
     """Choose one natural row uniformly from rows carrying the assigned label."""
 
@@ -298,9 +344,7 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
     split_seed_offsets = {"train": 0, "validation": 100000, "held_out": 200000}
     for split in included_splits:
         folders = split_folders[split]
-        assignments = balanced_route_label_assignments(
-            folders, selection_seed + split_seed_offsets[split]
-        )
+        route_candidates = {}
         for route_index, folder in enumerate(folders):
             frames = _preflight.select_centered_stride_window(
                 frames_by_folder[folder],
@@ -325,6 +369,28 @@ def build(protocol_path: Path, output_root: Path) -> Dict[str, Any]:
                 for row_index in range(valid_count):
                     flat.append((frame, row_index, tokens))
                     labels.append(_label(tokens, row_index, route_threshold) == "ON_ROUTE")
+            route_candidates[folder] = {
+                "frames": frames,
+                "flat": flat,
+                "labels": labels,
+                "valid_counts": valid_counts,
+            }
+        availability = {
+            folder: {
+                "ON_ROUTE": any(value["labels"]),
+                "OFF_ROUTE": any(not label for label in value["labels"]),
+            }
+            for folder, value in route_candidates.items()
+        }
+        assignments = feasible_balanced_route_label_assignments(
+            availability, selection_seed + split_seed_offsets[split]
+        )
+        for route_index, folder in enumerate(folders):
+            candidate = route_candidates[folder]
+            frames = candidate["frames"]
+            flat = candidate["flat"]
+            labels = candidate["labels"]
+            valid_counts = candidate["valid_counts"]
             assigned = assignments[folder]
             route_seed = selection_seed + split_seed_offsets[split] + route_index + 1
             selected_flat_index = choose_candidate_index(labels, assigned, route_seed)

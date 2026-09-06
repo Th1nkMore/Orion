@@ -1,0 +1,85 @@
+{
+  "schema": "orion.qwen-visibility-route-diverse-data-protocol/v1",
+  "status": "v1_1_feasibility_aware_assignment_after_fail_closed_v1",
+  "parent_attempt": {
+    "protocol": "configs/qwen_visibility_route_diverse_data_v1.json",
+    "protocol_sha256": "4e8f64599380a5d5b79f179c442b1e2846fb007acc350f6434bcf403fe9739a6",
+    "output": "/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/route_diverse_random_query_data_v1",
+    "status": "invalid_partial_no_manifest_no_curriculum_not_training_eligible",
+    "failure": "a route randomly assigned ON_ROUTE had no natural ON_ROUTE row in its frozen 12-frame window"
+  },
+  "inputs": {
+    "dataset_root": "/public/share/lidachuan/orion_assets/data/bench2drive",
+    "infos": {
+      "path": "/public/share/lidachuan/orion_assets/data/infos_expansion100_seed20260827/b2d_infos_val.pkl",
+      "sha256": "e50584ee0eb39df11068a726418117958a0b2f3e5cd82ba76fe20ca63814d1d3"
+    },
+    "route_manifest": {
+      "path": "configs/spatial_uq_route_manifests/b2d_expansion100_seed20260827.json",
+      "sha256": "9f2acaaf8b9ec291ac803bb3a014e880265f0399bcc22e3d1fdb66dd5a628fd3"
+    },
+    "qwen_visibility_config": {
+      "path": "configs/qwen_drive_b2d_agent_oracle_visibility_sft_v1.json",
+      "sha256": "bc5c469846bdf821319dbfd243b4df6470627fdbe5a5d1d8db7ca8d0a9ece352"
+    },
+    "accepted_depth_preflight": {
+      "path": "/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/offline_depth_preflight_v1_1_label_balance/report.json",
+      "sha256": "2f694458497b6e93227ea4cb1130c239fd781763c3a77d50c88c2949c36082c5"
+    }
+  },
+  "sampling": {
+    "included_splits": ["train", "validation", "held_out"],
+    "excluded_splits": ["calibration"],
+    "queries_per_route": 1,
+    "candidate_window_frames": 12,
+    "raw_data_hz": 10.0,
+    "raw_frame_stride": 5,
+    "effective_u_hz": 2.0,
+    "temporal_memory_reset_per_route": true,
+    "selection_seed": 2026090601,
+    "label_assignment": "scan frozen windows first; preserve forced labels; seeded choice among flexible routes to obtain exact 50/50 balance within each split",
+    "candidate_selection": "uniform seeded choice among natural rows with the assigned label",
+    "row_permutation": "identity; Fxx addresses the exact current sorted row"
+  },
+  "depth": {
+    "source": "Bench2Drive uint8 rounded metric metres",
+    "depth_offset_m": 0.0,
+    "surface_tolerance_m": 0.95,
+    "saturated_value": 255,
+    "saturated_replacement_m": 1000.0,
+    "equivalent_to_live_24bit_oracle": false
+  },
+  "target": {
+    "field": "route_weight_mean",
+    "threshold": 0.2,
+    "labels": ["ON_ROUTE", "OFF_ROUTE"],
+    "ordinary_per_example_supervision_only": true,
+    "same_frame_answer_equality_penalty": false,
+    "pair_flip_loss": false
+  },
+  "controls": {
+    "generated": ["zero_u", "spatial_shuffle"],
+    "used_for_optimizer": false,
+    "spatial_shuffle_role": "reported_diagnostic_not_hard_gate",
+    "seed": 2026090602
+  },
+  "expected_counts": {
+    "train": {"routes": 70, "ON_ROUTE": 35, "OFF_ROUTE": 35},
+    "validation": {"routes": 10, "ON_ROUTE": 5, "OFF_ROUTE": 5},
+    "held_out": {"routes": 10, "ON_ROUTE": 5, "OFF_ROUTE": 5}
+  },
+  "curriculum": {
+    "optimizer_steps": 240,
+    "optimizer_ON_ROUTE": 120,
+    "optimizer_OFF_ROUTE": 120
+  },
+  "claim_boundary": {
+    "loads_qwen": false,
+    "starts_training": false,
+    "uses_hidden_actor_labels": false,
+    "uses_future_executed_ego_motion": false,
+    "uses_planning_expert_labels": false,
+    "bounded_route_disjoint_grounding_baseline_only": true,
+    "safety_claim_allowed": false
+  }
+}

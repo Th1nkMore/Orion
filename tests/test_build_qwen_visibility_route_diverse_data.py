@@ -41,3 +41,34 @@ def test_balanced_assignment_rejects_odd_route_count():
         assert "even route count" in str(error)
     else:
         raise AssertionError("odd route count must fail closed")
+
+
+def test_feasible_balanced_assignment_respects_forced_routes():
+    availability = {
+        "forced-on": {"ON_ROUTE": True, "OFF_ROUTE": False},
+        "forced-off": {"ON_ROUTE": False, "OFF_ROUTE": True},
+        "flex-a": {"ON_ROUTE": True, "OFF_ROUTE": True},
+        "flex-b": {"ON_ROUTE": True, "OFF_ROUTE": True},
+    }
+    assignments = MODULE.feasible_balanced_route_label_assignments(
+        availability, 19
+    )
+    assert assignments["forced-on"] == "ON_ROUTE"
+    assert assignments["forced-off"] == "OFF_ROUTE"
+    assert list(assignments.values()).count("ON_ROUTE") == 2
+    assert list(assignments.values()).count("OFF_ROUTE") == 2
+
+
+def test_feasible_balanced_assignment_rejects_impossible_split():
+    availability = {
+        "a": {"ON_ROUTE": False, "OFF_ROUTE": True},
+        "b": {"ON_ROUTE": False, "OFF_ROUTE": True},
+        "c": {"ON_ROUTE": False, "OFF_ROUTE": True},
+        "d": {"ON_ROUTE": True, "OFF_ROUTE": True},
+    }
+    try:
+        MODULE.feasible_balanced_route_label_assignments(availability, 2)
+    except ValueError as error:
+        assert "cannot support" in str(error)
+    else:
+        raise AssertionError("infeasible balanced split must fail closed")
