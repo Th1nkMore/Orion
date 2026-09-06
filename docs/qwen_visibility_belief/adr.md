@@ -288,6 +288,24 @@ frontier rows. A strict global target-row-identity holdout may be added as an
 interface extrapolation test, but it is not a substitute for route- and
 frame-disjoint natural examples.
 
+#### Post-inventory frame-local address clarification
+
+The preregistered no-training depth audit accepts the coarse Bench2Drive source
+for a bounded route-diverse pilot, with an important representation boundary.
+Across the minus/plus 0.5 m quantization endpoints, 95.31% of frontier centers
+retain a nearest physical match within 2 m and nearest-physical `ON_ROUTE`
+label agreement is 93.91%. However, the same `Fxx` row remains within 2 m only
+29.24% of the time and same-slot `ON_ROUTE` agreement is 59.56%.
+
+Consequently, `Fxx` is normative only as a deterministic address into the
+current frame's sorted token table. It is not a persistent world-space or
+cross-variant frontier identity. Training may ask about a random valid `Fxx`
+and supervise the exact row present in that example. It may not carry an
+answer from the same index in another tokenization, and a global index holdout
+may be described only as address-interface extrapolation. Any causal or source
+stability comparison across tokenizations must first match frontier centers in
+physical space.
+
 ### 9. Train a longitudinal response first
 
 The first safety teacher preserves a valid base trajectory's lateral path and

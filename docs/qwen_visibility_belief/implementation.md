@@ -6,7 +6,8 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1i valid negative; field-identifiability audit next)
+Status: in progress (V1j valid negative; offline depth source accepted for a
+bounded route-diverse pilot; query-manifest construction next)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -1277,6 +1278,50 @@ inspectable U consumption before any closed-loop claim.
 - Added `scripts/preflight_qwen_visibility_offline_depth.py` and isolated tests.
   Local pre-run regression is `4 passed`; compilation and `git diff --check`
   pass. No Qwen model or training code is imported by the preflight.
+
+## Offline-depth token-stability preflight result
+
+- The immutable no-training run used exactly the preregistered ten calibration
+  routes, 12 frames per route, and four in-memory depth/tolerance variants. It
+  produced no serialized U corpus and did not load Qwen.
+- Report:
+  `/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/offline_depth_preflight_v1_1_label_balance/report.json`,
+  110,364 bytes, SHA-256
+  `2f694458497b6e93227ea4cb1130c239fd781763c3a77d50c88c2949c36082c5`.
+  Runtime was 53.31 s total, or 0.444 s per source frame for all four
+  variants. The recorded implementation SHA-256 is
+  `d38604e5fdc1692c06db55b015d20880c3b335f66c2bfbe0a9437213e7abb9ed`.
+- Every variant populated exactly 32 frontier rows on all 120 frames. A route
+  label means `route_weight_mean >= 0.2`; only 7.5%--8.3% of rows are
+  `ON_ROUTE`, so aggregate label accuracy alone is not accepted as evidence.
+- `nearest physical match` is the bidirectional fraction of frontier centers
+  whose closest center in the other depth variant lies within the existing
+  2 m NMS radius. It is 95.31% for the strict minus/plus 0.5 m endpoint
+  comparison and 97.32%--97.76% for the other comparisons.
+- After nearest-physical matching, route-label agreement conditioned on a
+  source `ON_ROUTE` row is 93.91% for the strict endpoint comparison and
+  95.90%--96.10% for the other comparisons. Conditioned `OFF_ROUTE`
+  agreement is 99.14%--99.61%; the equal-class average is 96.53%--97.85%.
+  Thus the physical-source conclusion survives the minority-label check.
+- `same slot` instead compares row `Fxx` to row `Fxx` without spatial
+  rematching. Its within-2 m physical match is only 29.24%--44.38%; for the
+  strict endpoint comparison, same-slot `ON_ROUTE` agreement is 59.56%, the
+  equal-class average is 78.37%, and same-slot distance p95 is 39.03 m.
+  Therefore `Fxx` is a deterministic address in one frame's sorted table, not
+  a persistent spatial identity across depth hypotheses or frames.
+- The source passes the preregistered engineering gates and is accepted only
+  for a bounded route-diverse grounding-data pilot. The pilot should use the
+  quantization-aware center-depth/0.95 m tolerance policy and retain explicit
+  `offline_uint8_depth` provenance. Random queries may address the exact
+  current `(route, frame, Fxx)` row, but no global `Fxx` holdout may be
+  described as spatial generalization. Cross-variant audits must match
+  physical frontier centers before comparing labels.
+- The post-run class-balance diagnostic was declared in
+  `configs/qwen_visibility_offline_depth_preflight_v1_1_label_balance_amendment.json`
+  before using those additional metrics to make the curriculum decision. Its
+  SHA-256 is
+  `7df7a8192b6efce77322b050e8d3208b7b4b187d86c02de1b6e471653f0e2b1f`.
+  No learning or safety claim follows from this source-acceptance result.
 
 ## Integrity constraints
 

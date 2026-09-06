@@ -201,6 +201,20 @@ that replacing the backbone alone solves uncertainty-aware planning:
   24-bit CARLA depth. With 0.5 m BEV cells, the offline source needs an explicit
   quantization-interval/tolerance audit before it can supervise U. It must not
   be described as equivalent oracle depth.
+- That no-training audit is now complete on 120 frames from the ten frozen
+  calibration routes. All four depth/tolerance variants produce 32 rows per
+  frame. Under the strict minus/plus 0.5 m endpoint comparison, 95.31% of
+  frontier centers have a nearest cross-variant match within 2 m. Although
+  `ON_ROUTE` rows are only 7.5%--8.3% of the data, their nearest-physical label
+  agreement is still 93.91%; the equal-class ON/OFF agreement is 96.53%.
+  This accepts the coarse source for a bounded pilot, not as live-oracle
+  equivalence and not as a safety result.
+- The same audit rejects persistent spatial semantics for `Fxx`. At the strict
+  depth endpoints, the same row index refers to positions within 2 m only
+  29.24% of the time; same-slot `ON_ROUTE` agreement is 59.56% and location
+  p95 drift is 39.03 m. `Fxx` is therefore only a deterministic frame-local
+  table address. Random queries must use the exact current row, and
+  cross-tokenization comparisons must rematch physical centers.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
@@ -346,8 +360,9 @@ The next work is intentionally oracle-first:
 3. Produce global and frontier tokens and inject them into the 4B VLM.
 4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1i
    bounded probes and V1j are valid negatives, so this step remains open. The
-   next admissible probe first tokenizes a small route-diverse offline slice
-   under an explicit 8-bit depth policy; it does not add a pair-flip loss.
+   8-bit calibration preflight now accepts a bounded route-diverse source.
+   The next admissible probe freezes and audits a class-aware random-query
+   manifest from exact frame-local rows; it does not add a pair-flip loss.
 5. Train a longitudinal-only trajectory response using paired robust targets.
 6. Run one fixed baseline and one otherwise identical oracle-U Route 151 arm.
 7. Replace oracle depth with the independent predicted-U module only after the

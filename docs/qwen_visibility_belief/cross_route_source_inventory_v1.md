@@ -4,9 +4,12 @@ Date: 2026-09-06 (Asia/Shanghai)
 
 ## Outcome
 
-The installed Bench2Drive raw subset is large and diverse enough to build the
-next route-diverse grounding pilot without first running Qwen or recollecting
-every scene. It is not yet a training-ready U-token dataset.
+The installed Bench2Drive raw subset is large and diverse enough to build a
+bounded route-diverse grounding pilot without first running Qwen or
+recollecting every scene. A 120-frame no-training preflight now shows that its
+coarse depth preserves the physical frontier set and minority `ON_ROUTE`
+labels well enough for that pilot. It is not yet a training-ready U-token
+dataset because the query manifest and serialized corpus remain unbuilt.
 
 The current Qwen visibility-token corpus remains Route 151 only: 54 frames,
 with all 32 frontier rows populated in every frame. The installed raw corpus
@@ -87,31 +90,64 @@ it does not prove the same rate across the 100 offline routes.
 
 Route and frame isolation are already available: assign routes first using the
 frozen split, so no frame can cross a split. A global frontier-index holdout is
-also mechanically possible, for example by reserving selected `Fxx` identities
-for a separate interface-extrapolation test. It should not be confused with
-the main generalization claim; the primary split must remain natural,
-route-disjoint data with no repeated `(route,frame,Fxx)` query.
+mechanically possible only as a slot-address interface test. The preflight
+shows that `Fxx` is a row in a per-frame sorted table, not a persistent spatial
+identity, so reserving an index cannot support a spatial-generalization claim.
+The primary split must remain natural, route-disjoint data with no repeated
+`(route,frame,Fxx)` query.
 
 The training loss remains ordinary per-example supervision. There is no loss
 for giving the same answer to two examples from one frame. Matched-pair and
 shuffle comparisons remain diagnostics and demand a changed answer only when
 the queried field crosses the declared threshold.
 
+## No-training depth preflight result
+
+The preflight used the ten frozen calibration routes only: 120 frames at the
+live 2 Hz U cadence. It compared stored integer-metre depth, its minus/plus
+0.5 m quantization endpoints, and a quantization-aware 0.95 m surface
+tolerance. No Qwen model was loaded and no U-token corpus was serialized.
+
+- All four variants produced 32 valid rows on all 120 frames.
+- A `route label` is `ON_ROUTE` when `route_weight_mean >= 0.2`.
+  `ON_ROUTE` prevalence is only 7.5%--8.3%, so all label results were checked
+  separately by class.
+- `nearest physical match` is the bidirectional fraction whose nearest
+  cross-variant frontier center is within 2 m. The strict minus/plus 0.5 m
+  endpoint result is 95.31%.
+- For those nearest physical matches, source-conditioned `ON_ROUTE` label
+  agreement is 93.91% at the strict endpoints; `OFF_ROUTE` agreement is
+  99.14%, and their equal-class average is 96.53%.
+- In contrast, comparing the same `Fxx` index at the strict endpoints gives
+  only 29.24% physical agreement within 2 m, 59.56% `ON_ROUTE` agreement, and
+  a 39.03 m p95 location difference. Ranking changes can reassign an index to
+  a distant frontier even when the physical frontier set itself is stable.
+
+The coarse source is therefore accepted for a bounded pilot under the
+quantization-aware center-depth/0.95 m tolerance policy. A query label must be
+computed from the exact current row; `Fxx` must never be treated as a stable
+world-space object. Comparisons between tokenizations must spatially rematch
+frontiers before comparing their attributes.
+
+Immutable report:
+`/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/offline_depth_preflight_v1_1_label_balance/report.json`;
+SHA-256
+`2f694458497b6e93227ea4cb1130c239fd781763c3a77d50c88c2949c36082c5`.
+
 ## Remaining gates before training
 
-1. Freeze the integer-depth interval/tolerance policy.
-2. Freeze how the offline route polyline is reconstructed from the current
-   pose and near/far navigation annotations; do not silently use future
-   executed motion as a planning input.
-3. Tokenize a small route-diverse pilot in memory or into a new immutable
-   artifact root and report valid-frontier-row coverage and tolerance
-   stability.
-4. Freeze the random-query and route/frame/optional-row split manifest.
-5. Only then launch another Qwen grounding run.
+1. Freeze an immutable random-query manifest after exact tokenization. It must
+   identify each example by `(route, frame, Fxx)` and record the tokenizer and
+   source hashes.
+2. Enforce route-disjoint train/validation/held-out assignment and class-aware
+   sampling without pair-flip or same-answer penalties.
+3. Audit the serialized pilot for exact labels, row coverage, duplicate query
+   keys, and split leakage.
+4. Only then launch one bounded Qwen grounding baseline.
 
-The recommended next action is gate 1 plus a no-training tokenization preflight
-over a small stratified set of routes. Full CARLA recapture is not justified
-until that test shows the 8-bit depth is too unstable.
+Full CARLA recapture is not justified by this result. It should be reconsidered
+only if the larger serialized pilot exposes route/scenario-specific instability
+that this calibration slice did not cover.
 
 ## Immutable audit artifact
 
