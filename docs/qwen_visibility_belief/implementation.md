@@ -1395,6 +1395,39 @@ inspectable U consumption before any closed-loop claim.
   an audit metric, not a baseline veto. All other data and optimization
   boundaries are unchanged.
 
+## V1k route-diverse random-row baseline pre-run contract
+
+- The v1.2 build completed in 260.77 s and wrote 90 token artifacts totaling
+  approximately 1.57 MB. It contains 70/10/10 train/validation/held-out
+  physical routes with one unique natural query per route and exact 35/5/5
+  ON plus 35/5/5 OFF balance. Eighty-eight selected frames have 32 valid rows;
+  the other two have 18 and seven, and every query addresses a valid masked
+  row.
+- Independent audit report
+  `/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/route_diverse_random_query_data_v1_2/audit_v1.json`
+  passes with zero failures, SHA-256
+  `7db420926ef24b35a05ff9a79c47534dff4e0b70f88c95da603a427c8e3169fa`.
+  It rehashes all 90 token files and 270 native RGB images, recomputes every
+  true/zero/shuffle route label, verifies masks and exact row addresses, and
+  checks split/schedule isolation. True U is 45/45, zero U is 0/90 ON, and
+  spatial shuffle is 9/90 ON.
+- V1k is one baseline, not another architecture sweep. It retains V1j's
+  slot-typed projector, all-eight-full-attention LoRA scope, learning rates,
+  clipping, 240 steps, seed, official Qwen image preprocessing, frozen vision
+  encoder, base weights, LM head, embeddings, and Planning Expert. The locally
+  available SFT Planning Expert is loaded by the released wrapper but is
+  frozen and absent from both the grounding loss and evaluation.
+- Only the 70 train examples enter the optimizer, with 120 steps per route
+  label. The ten validation and ten held-out routes are evaluated under true,
+  zero, and spatial-shuffle U. Primary reporting is exact true-U accuracy by
+  split and label plus its gap over the stronger control when all controls are
+  scored against the original target. Shuffle remains diagnostic and has no
+  hard pass threshold.
+- No closed-loop, planning, occlusion-safety, or deployable predicted-depth
+  claim is allowed from V1k. It tests only whether the VLM can read one
+  addressed route scalar across unseen routes under the accepted offline
+  visibility source.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

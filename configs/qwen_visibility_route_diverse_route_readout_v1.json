@@ -1,0 +1,62 @@
+{
+  "schema": "orion.qwen-visibility-route-diverse-route-readout-config/v1",
+  "stage": "V1k_route_diverse_random_row_route_readout_baseline",
+  "base_bridge_config": "configs/qwen_drive_b2d_agent_oracle_visibility_sft_v1.json",
+  "manifest": "/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/route_diverse_random_query_data_v1_2/manifest.json",
+  "curriculum": "/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/route_diverse_random_query_data_v1_2/curriculum.json",
+  "data_audit": {
+    "path": "/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/route_diverse_random_query_data_v1_2/audit_v1.json",
+    "sha256": "7db420926ef24b35a05ff9a79c47534dff4e0b70f88c95da603a427c8e3169fa"
+  },
+  "objective": {
+    "type": "random_row_route_readout",
+    "fields": ["route"]
+  },
+  "projector": {
+    "type": "slot_typed_scalar_basis",
+    "feature_dim": 23,
+    "scalar_basis_dim": 4,
+    "maximum_token_slots": 48,
+    "hidden_dim": 512,
+    "vlm_hidden_dim": 2560
+  },
+  "lora": {
+    "layer_indices": [3, 7, 11, 15, 19, 23, 27, 31],
+    "module_names": ["q_proj", "k_proj", "v_proj", "o_proj"],
+    "rank": 8,
+    "alpha": 16.0,
+    "dropout": 0.0
+  },
+  "training": {
+    "optimizer_steps": 240,
+    "projector_learning_rate": 0.0001,
+    "lora_learning_rate": 0.0002,
+    "weight_decay": 0.0,
+    "maximum_gradient_norm": 1.0,
+    "projector_maximum_gradient_norm": 1.0,
+    "lora_maximum_gradient_norm": 1.0,
+    "separate_gradient_clipping": true,
+    "gradient_checkpointing": true,
+    "seed": 42
+  },
+  "evaluation": {
+    "max_new_tokens": 16,
+    "split": "route_disjoint_validation_and_held_out",
+    "pre_training_controls": ["true_u"],
+    "controls": ["true_u", "zero_u", "spatial_shuffle"],
+    "spatial_shuffle_role": "reported_diagnostic_not_hard_gate"
+  },
+  "interpretation": {
+    "single_baseline_no_hard_acceptance_gate": true,
+    "primary_metrics": [
+      "true_u exact accuracy overall and by validation/held_out split and label",
+      "true_u accuracy minus the stronger of zero_u and spatial_shuffle when scored against the original target"
+    ],
+    "controls_are_diagnostic": true
+  },
+  "claim_boundary": {
+    "bounded_route_disjoint_grounding_baseline_only": true,
+    "reportable_generalization": true,
+    "safety_claim_allowed": false
+  }
+}

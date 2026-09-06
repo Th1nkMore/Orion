@@ -36,6 +36,12 @@ FULL_ATTENTION_SLOT_TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
 TARGET_ROW_ROUTE_READOUT_CONFIG_SCHEMA = (
     "orion.qwen-visibility-target-row-route-readout-config/v1"
 )
+ROUTE_DIVERSE_ROUTE_READOUT_CONFIG_SCHEMA = (
+    "orion.qwen-visibility-route-diverse-route-readout-config/v1"
+)
+ROUTE_DIVERSE_CURRICULUM_SCHEMA = (
+    "orion.qwen-visibility-route-diverse-curriculum/v1"
+)
 REPORT_SCHEMA = "orion.qwen-visibility-grounding-smoke-report/v1"
 
 
@@ -111,6 +117,10 @@ def _load_protocol(path):
         (
             TARGET_ROW_ROUTE_READOUT_CONFIG_SCHEMA,
             "V1j_route151_target_row_route_readout_overfit",
+        ),
+        (
+            ROUTE_DIVERSE_ROUTE_READOUT_CONFIG_SCHEMA,
+            "V1k_route_diverse_random_row_route_readout_baseline",
         ),
     }:
         raise ValueError("unexpected grounding training config schema/stage")
@@ -241,12 +251,62 @@ def _load_protocol(path):
             != "reported_diagnostic_not_hard_gate"
         ):
             raise ValueError("V1j spatial-shuffle diagnostic role changed")
-    if protocol["claim_boundary"] != {
-        "plumbing_overfit_only": True,
-        "reportable_generalization": False,
-        "safety_claim_allowed": False,
-    }:
-        raise ValueError("V1b claim boundary changed")
+    if stage == "V1k_route_diverse_random_row_route_readout_baseline":
+        if int(training["optimizer_steps"]) != 240:
+            raise ValueError("V1k baseline must take exactly 240 optimizer steps")
+        if training.get("separate_gradient_clipping") is not True:
+            raise ValueError("V1k requires separate projector/LoRA clipping")
+        if protocol.get("objective") != {
+            "type": "random_row_route_readout",
+            "fields": ["route"],
+        }:
+            raise ValueError("V1k requires one random-row route objective")
+        if protocol.get("evaluation", {}).get("split") != (
+            "route_disjoint_validation_and_held_out"
+        ):
+            raise ValueError("V1k evaluation split changed")
+        if protocol.get("evaluation", {}).get("spatial_shuffle_role") != (
+            "reported_diagnostic_not_hard_gate"
+        ):
+            raise ValueError("V1k spatial-shuffle role changed")
+        if protocol.get("projector") != {
+            "type": "slot_typed_scalar_basis",
+            "feature_dim": 23,
+            "scalar_basis_dim": 4,
+            "maximum_token_slots": 48,
+            "hidden_dim": 512,
+            "vlm_hidden_dim": 2560,
+        }:
+            raise ValueError("V1k must retain the V1j slot-typed projector")
+        if protocol.get("lora") != {
+            "layer_indices": [3, 7, 11, 15, 19, 23, 27, 31],
+            "module_names": ["q_proj", "k_proj", "v_proj", "o_proj"],
+            "rank": 8,
+            "alpha": 16.0,
+            "dropout": 0.0,
+        }:
+            raise ValueError("V1k must retain the V1j LoRA scope")
+        audit = protocol.get("data_audit", {})
+        audit_path = Path(str(audit.get("path", "")))
+        if not audit_path.is_file() or _sha256(audit_path) != audit.get("sha256"):
+            raise ValueError("V1k data audit is absent or changed")
+        if json.loads(audit_path.read_text(encoding="utf-8")).get("passed") is not True:
+            raise ValueError("V1k data audit did not pass")
+    expected_claim_boundary = (
+        {
+            "bounded_route_disjoint_grounding_baseline_only": True,
+            "reportable_generalization": True,
+            "safety_claim_allowed": False,
+        }
+        if stage == "V1k_route_diverse_random_row_route_readout_baseline"
+        else {
+            "plumbing_overfit_only": True,
+            "reportable_generalization": False,
+            "safety_claim_allowed": False,
+        }
+    )
+    if protocol["claim_boundary"] != expected_claim_boundary:
+        raise ValueError("grounding claim boundary changed")
     if protocol["evaluation"]["controls"] != [
         "true_u",
         "zero_u",
@@ -256,13 +316,14 @@ def _load_protocol(path):
     return protocol
 
 
-def _verify_manifest(path, sample_ids):
+def _verify_manifest(path, sample_ids, expected_reportable_generalization=False):
     manifest_path = Path(path)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("schema") != _grounding.VISIBILITY_GROUNDING_MANIFEST_SCHEMA:
         raise ValueError("unexpected grounding manifest schema")
     if (
-        manifest.get("reportable_generalization") is not False
+        manifest.get("reportable_generalization")
+        is not bool(expected_reportable_generalization)
         or manifest.get("controls_used_for_optimizer") is not False
         or manifest.get("hidden_actor_labels_used") is not False
         or manifest.get("planning_expert_used_for_optimizer") is not False
@@ -283,6 +344,97 @@ def _verify_manifest(path, sample_ids):
                 raise ValueError("image hash changed for %s" % sample_id)
         selected.append(record)
     return manifest, selected
+
+
+def _verify_route_diverse_curriculum(path, manifest_path, records):
+    curriculum_path = Path(path)
+    curriculum = json.loads(curriculum_path.read_text(encoding="utf-8"))
+    if curriculum.get("schema") != ROUTE_DIVERSE_CURRICULUM_SCHEMA:
+        raise ValueError("unexpected route-diverse curriculum schema")
+    if Path(curriculum.get("base_manifest_path", "")).resolve() != Path(
+        manifest_path
+    ).resolve():
+        raise ValueError("route-diverse curriculum manifest path changed")
+    if curriculum.get("base_manifest_sha256") != _sha256(manifest_path):
+        raise ValueError("route-diverse curriculum manifest hash changed")
+    required_true = (
+        "reportable_generalization",
+        "bounded_route_disjoint_grounding_baseline_only",
+        "ordinary_per_example_supervision_only",
+        "natural_row_order_only",
+        "one_query_per_route",
+        "route_disjoint_splits",
+    )
+    required_false = (
+        "oracle_depth",
+        "same_frame_answer_equality_penalty",
+        "pair_flip_loss",
+        "controls_used_for_optimizer",
+        "spatial_shuffle_examples_used_for_optimizer",
+        "planning_expert_used_for_optimizer",
+    )
+    if any(curriculum.get(key) is not True for key in required_true):
+        raise ValueError("route-diverse true boundary flag changed")
+    if any(curriculum.get(key) is not False for key in required_false):
+        raise ValueError("route-diverse false boundary flag changed")
+    if curriculum.get("split_counts") != {
+        "train": {"routes": 70, "ON_ROUTE": 35, "OFF_ROUTE": 35},
+        "validation": {"routes": 10, "ON_ROUTE": 5, "OFF_ROUTE": 5},
+        "held_out": {"routes": 10, "ON_ROUTE": 5, "OFF_ROUTE": 5},
+    }:
+        raise ValueError("route-diverse split counts changed")
+    examples = curriculum.get("examples", [])
+    by_id = {row.get("example_id"): row for row in examples}
+    if len(examples) != 90 or len(by_id) != 90 or None in by_id:
+        raise ValueError("route-diverse examples are not exactly 90 unique rows")
+    record_by_id = {row["sample_id"]: row for row in records}
+    if {row.get("sample_id") for row in examples} != set(record_by_id):
+        raise ValueError("route-diverse example/manifest sample set changed")
+    training_ids = set(curriculum.get("training_example_ids", []))
+    validation_ids = set(curriculum.get("validation_example_ids", []))
+    held_out_ids = set(curriculum.get("held_out_example_ids", []))
+    if (
+        len(training_ids) != 70
+        or len(validation_ids) != 10
+        or len(held_out_ids) != 10
+        or training_ids & validation_ids
+        or training_ids & held_out_ids
+        or validation_ids & held_out_ids
+        or training_ids | validation_ids | held_out_ids != set(by_id)
+    ):
+        raise ValueError("route-diverse example split changed")
+    if set(curriculum.get("evaluation_example_ids", [])) != (
+        validation_ids | held_out_ids
+    ):
+        raise ValueError("route-diverse evaluation ids changed")
+    for example in examples:
+        record = record_by_id[example["sample_id"]]
+        valid_count = int(record["valid_frontier_rows"])
+        query_index = int(str(example.get("query_frontier", "F99"))[1:])
+        if example.get("split") != record.get("split"):
+            raise ValueError("route-diverse example split mismatches manifest")
+        if example.get("task_field") != "route" or not 0 <= query_index < valid_count:
+            raise ValueError("route-diverse example query is invalid")
+        if example.get("query_frontier") != record.get("query_frontier"):
+            raise ValueError("route-diverse query address changed")
+        if example.get("expected_answer") != record.get("target", {}).get("route"):
+            raise ValueError("route-diverse true target changed")
+        if example.get("control_expected_answers") != record.get(
+            "control_expected_answers"
+        ):
+            raise ValueError("route-diverse control targets changed")
+        if example.get("sequence_permutation_new_to_manifest") != list(
+            range(valid_count)
+        ):
+            raise ValueError("route-diverse data must retain natural row order")
+    schedule = curriculum.get("training_schedule", [])
+    if len(schedule) != 240 or any(value not in training_ids for value in schedule):
+        raise ValueError("route-diverse optimizer schedule scope changed")
+    if Counter(by_id[value]["expected_answer"] for value in schedule) != Counter(
+        {"ON_ROUTE": 120, "OFF_ROUTE": 120}
+    ):
+        raise ValueError("route-diverse optimizer labels changed")
+    return curriculum
 
 
 def _verify_row_curriculum(path, manifest_path, records):
@@ -823,8 +975,20 @@ def main():
     args.output_dir.mkdir(parents=True, exist_ok=False)
 
     protocol = _load_protocol(args.protocol)
+    route_diverse_stage = (
+        protocol["stage"] == "V1k_route_diverse_random_row_route_readout_baseline"
+    )
+    if route_diverse_stage:
+        manifest_preview = json.loads(
+            Path(protocol["manifest"]).read_text(encoding="utf-8")
+        )
+        sample_ids = [row["sample_id"] for row in manifest_preview["records"]]
+    else:
+        sample_ids = protocol["sample_ids"]
     manifest, records = _verify_manifest(
-        protocol["manifest"], protocol["sample_ids"]
+        protocol["manifest"],
+        sample_ids,
+        expected_reportable_generalization=route_diverse_stage,
     )
     curriculum = None
     if protocol["stage"] == "V1e_route151_row_addressed_overfit":
@@ -842,6 +1006,10 @@ def main():
         )
     if protocol["stage"] == "V1j_route151_target_row_route_readout_overfit":
         curriculum = _verify_target_row_route_readout_curriculum(
+            protocol["curriculum"], protocol["manifest"], records
+        )
+    if route_diverse_stage:
+        curriculum = _verify_route_diverse_curriculum(
             protocol["curriculum"], protocol["manifest"], records
         )
     seed = int(protocol["training"]["seed"])
@@ -885,7 +1053,11 @@ def main():
         task_fields = list(objective["fields"])
     elif objective.get("type") == "composite_json":
         task_fields = [None]
-    elif objective.get("type") in {"row_addressed_fields", "route_readout_pairs"}:
+    elif objective.get("type") in {
+        "row_addressed_fields",
+        "route_readout_pairs",
+        "random_row_route_readout",
+    }:
         task_fields = []
     else:
         raise ValueError("unsupported grounding objective")
@@ -1190,7 +1362,7 @@ def main():
         "protocol_sha256": _sha256(args.protocol),
         "manifest_path": str(Path(protocol["manifest"]).resolve()),
         "manifest_sha256": _sha256(protocol["manifest"]),
-        "sample_ids": protocol["sample_ids"],
+        "sample_ids": sample_ids,
         "optimizer_controls": [],
         "hidden_actor_labels_used": False,
         "planning_expert_in_optimizer": False,
