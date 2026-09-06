@@ -24,6 +24,9 @@ OVERFIT_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-overfit-config/v1"
 FACTORIZED_CONFIG_SCHEMA = "orion.qwen-visibility-grounding-factorized-config/v1"
 ROW_CONFIG_SCHEMA = "orion.qwen-visibility-row-grounding-config/v1"
 ROUTE_READOUT_CONFIG_SCHEMA = "orion.qwen-visibility-route-readout-config/v1"
+TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
+    "orion.qwen-visibility-typed-route-readout-config/v1"
+)
 REPORT_SCHEMA = "orion.qwen-visibility-grounding-smoke-report/v1"
 
 
@@ -84,6 +87,10 @@ def _load_protocol(path):
         (FACTORIZED_CONFIG_SCHEMA, "V1d_route151_factorized_overfit"),
         (ROW_CONFIG_SCHEMA, "V1e_route151_row_addressed_overfit"),
         (ROUTE_READOUT_CONFIG_SCHEMA, "V1f_route151_route_readout_overfit"),
+        (
+            TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
+            "V1g_route151_typed_route_readout_overfit",
+        ),
     }:
         raise ValueError("unexpected grounding training config schema/stage")
     training = protocol["training"]
@@ -141,7 +148,10 @@ def _load_protocol(path):
             raise ValueError("V1e requires the balanced row-addressed objective")
         if not protocol.get("curriculum"):
             raise ValueError("V1e requires an immutable curriculum manifest")
-    if stage == "V1f_route151_route_readout_overfit":
+    if stage in {
+        "V1f_route151_route_readout_overfit",
+        "V1g_route151_typed_route_readout_overfit",
+    }:
         if int(training["optimizer_steps"]) != 240:
             raise ValueError("V1f route readout must take exactly 240 steps")
         if training.get("separate_gradient_clipping") is not True:
@@ -162,7 +172,15 @@ def _load_protocol(path):
         if protocol.get("evaluation", {}).get("split") != "held_out_order":
             raise ValueError("V1f must evaluate unseen decoy-row orders")
         if not protocol.get("curriculum"):
-            raise ValueError("V1f requires an immutable curriculum manifest")
+            raise ValueError("route-readout stage requires an immutable curriculum")
+        projector_type = protocol.get("projector", {}).get("type", "generic_mlp")
+        if stage == "V1f_route151_route_readout_overfit" and projector_type != "generic_mlp":
+            raise ValueError("V1f requires the generic MLP projector")
+        if (
+            stage == "V1g_route151_typed_route_readout_overfit"
+            and projector_type != "typed_scalar_basis"
+        ):
+            raise ValueError("V1g requires the typed scalar-basis projector")
     if protocol["claim_boundary"] != {
         "plumbing_overfit_only": True,
         "reportable_generalization": False,
@@ -453,6 +471,16 @@ def _load_control_tokens(record, control, sequence_permutation=None):
     )
 
 
+def _build_projector(config):
+    values = dict(config)
+    projector_type = values.pop("type", "generic_mlp")
+    if projector_type == "generic_mlp":
+        return _vlm.VisibilityTokenProjector(**values)
+    if projector_type == "typed_scalar_basis":
+        return _vlm.TypedScalarVisibilityTokenProjector(**values)
+    raise ValueError("unsupported visibility projector type: %s" % projector_type)
+
+
 def _gradient_report(named_parameters):
     rows = []
     for name, parameter in named_parameters:
@@ -570,7 +598,10 @@ def main():
         curriculum = _verify_row_curriculum(
             protocol["curriculum"], protocol["manifest"], records
         )
-    if protocol["stage"] == "V1f_route151_route_readout_overfit":
+    if protocol["stage"] in {
+        "V1f_route151_route_readout_overfit",
+        "V1g_route151_typed_route_readout_overfit",
+    }:
         curriculum = _verify_route_readout_curriculum(
             protocol["curriculum"], protocol["manifest"], records
         )
@@ -599,7 +630,7 @@ def main():
     lora_config = _training.VisibilityLoRAConfig(**protocol["lora"])
     installed = _training.install_upper_full_attention_lora(model, lora_config)
     projector_config = protocol["projector"]
-    projector = _vlm.VisibilityTokenProjector(**projector_config).to(model.device)
+    projector = _build_projector(projector_config).to(model.device)
     scope = _training.visibility_grounding_trainable_scope(model, projector)
     if protocol["training"]["gradient_checkpointing"]:
         model.vlm.gradient_checkpointing_enable(

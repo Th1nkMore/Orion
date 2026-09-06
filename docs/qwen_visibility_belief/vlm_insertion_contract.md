@@ -92,6 +92,22 @@ uses the augmented prompt before reasoning generation, retains the same turn
 closure semantics as upstream, and passes its own identity/position/cache
 tests. No V0 smoke is a grounding, trajectory-quality, or safety result.
 
+## V1 projector variants
+
+V0 and V1b-V1f used a generic behavior-neutral projector: row-wise LayerNorm
+over all 23 fields, a 23-to-512 MLP, and a zero-initialized 512-to-2,560 output
+projection. V1f showed that this adapter did not learn a stable local route
+scalar under unseen non-query row orders.
+
+V1g retains the same one-output-token-per-row and boundary-vector interface but
+uses a typed scalar basis before learned mixing. For each physical field `x`,
+the fixed basis is `[x, x^2, sin(pi*x), cos(pi*x)]`, stored in a disjoint block
+for that field. No row-wise cross-field normalization is applied. A learned
+92-to-512 projection, hidden LayerNorm/GELU, and zero-initialized 512-to-2,560
+projection complete the adapter. This changes the adapter representation only;
+the insertion index, mRoPE construction, cache extraction, masks, and disabled
+official path are unchanged.
+
 V0a passed the direct-prefill contract on the provisioned full model in Slurm
 job `1166148`. V0b passed the reasoning-generation and final Planning Expert
 cache contract in job `1166382`, including exact upstream reproduction by the

@@ -49,6 +49,75 @@ class VisibilityTokenProjector(nn.Module):
         return self.output_projection(self.activation(hidden))
 
 
+class TypedScalarVisibilityTokenProjector(nn.Module):
+    """Encode each physical field in a distinct scalar-basis channel block.
+
+    Unlike the generic V0 projector, this adapter does not normalize the 23
+    fields against one another inside each row. Absolute physical thresholds
+    therefore remain available, and field identity is deterministic before
+    any learned mixing. The adapter still emits one token per physical row and
+    does not predict semantic relevance or a driving action.
+    """
+
+    def __init__(
+        self,
+        feature_dim: int,
+        hidden_dim: int,
+        vlm_hidden_dim: int,
+        scalar_basis_dim: int = 4,
+    ) -> None:
+        super().__init__()
+        dimensions = (
+            int(feature_dim),
+            int(hidden_dim),
+            int(vlm_hidden_dim),
+            int(scalar_basis_dim),
+        )
+        if min(dimensions) <= 0:
+            raise ValueError("typed projector dimensions must be positive")
+        if int(scalar_basis_dim) != 4:
+            raise ValueError("typed projector v1 requires a four-term scalar basis")
+        self.feature_dim = int(feature_dim)
+        self.hidden_dim = int(hidden_dim)
+        self.vlm_hidden_dim = int(vlm_hidden_dim)
+        self.scalar_basis_dim = int(scalar_basis_dim)
+        expanded_dim = self.feature_dim * self.scalar_basis_dim
+        self.field_basis_projection = nn.Linear(expanded_dim, self.hidden_dim)
+        self.hidden_norm = nn.LayerNorm(self.hidden_dim)
+        self.activation = nn.GELU()
+        self.output_projection = nn.Linear(self.hidden_dim, self.vlm_hidden_dim)
+        self.boundary_embeddings = nn.Parameter(torch.zeros(2, self.vlm_hidden_dim))
+        nn.init.zeros_(self.output_projection.weight)
+        nn.init.zeros_(self.output_projection.bias)
+
+    def scalar_basis(self, features: torch.Tensor) -> torch.Tensor:
+        """Return `[N, feature, basis]` without cross-field normalization."""
+
+        if features.ndim != 2 or features.shape[1] != self.feature_dim:
+            raise ValueError(
+                "visibility features must have shape [N,%d]" % self.feature_dim
+            )
+        if not torch.isfinite(features).all():
+            raise ValueError("visibility features must be finite")
+        values = features.float()
+        return torch.stack(
+            (
+                values,
+                values.square(),
+                torch.sin(torch.pi * values),
+                torch.cos(torch.pi * values),
+            ),
+            dim=-1,
+        )
+
+    def forward(self, features: torch.Tensor) -> torch.Tensor:
+        basis = self.scalar_basis(features)
+        expanded = basis.reshape(basis.shape[0], -1)
+        hidden = self.field_basis_projection(expanded)
+        hidden = self.activation(self.hidden_norm(hidden))
+        return self.output_projection(hidden)
+
+
 @dataclass
 class VisibilityPrefillResult:
     """Auditable output of one official or visibility-augmented VLM prefill."""

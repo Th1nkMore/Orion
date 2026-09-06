@@ -24,6 +24,9 @@ ROUTE_READOUT_OVERFIT_AUDIT_SCHEMA = (
     "orion.qwen-visibility-route-readout-overfit-audit/v1"
 )
 ROUTE_READOUT_CONFIG_SCHEMA = "orion.qwen-visibility-route-readout-config/v1"
+TYPED_ROUTE_READOUT_CONFIG_SCHEMA = (
+    "orion.qwen-visibility-typed-route-readout-config/v1"
+)
 ROUTE_READOUT_CURRICULUM_SCHEMA = (
     "orion.qwen-visibility-route-readout-curriculum/v1"
 )
@@ -992,6 +995,27 @@ def audit_route_readout_overfit_report(
         )
     report = json.loads(report_path.read_text(encoding="utf-8"))
     failures = []
+    stage = report.get("stage")
+    stage_specs = {
+        "V1f_route151_route_readout_overfit": {
+            "config_schema": ROUTE_READOUT_CONFIG_SCHEMA,
+            "projector_parameter_count": 1_330_734,
+            "projector_type": "generic_mlp",
+            "pass_status": "causal_route_readout_plumbing_pass",
+            "negative_status": "valid_run_without_causal_route_readout",
+        },
+        "V1g_route151_typed_route_readout_overfit": {
+            "config_schema": TYPED_ROUTE_READOUT_CONFIG_SCHEMA,
+            "projector_parameter_count": 1_367_040,
+            "projector_type": "typed_scalar_basis",
+            "pass_status": "causal_typed_route_readout_plumbing_pass",
+            "negative_status": "valid_run_without_causal_typed_route_readout",
+        },
+    }
+    stage_spec = stage_specs.get(stage)
+    if stage_spec is None:
+        failures.append("report_stage")
+        stage_spec = stage_specs["V1f_route151_route_readout_overfit"]
     claim_boundary = {
         "plumbing_overfit_only": True,
         "reportable_generalization": False,
@@ -1002,8 +1026,6 @@ def audit_route_readout_overfit_report(
         failures.append("report_schema")
     if report.get("status") != "complete":
         failures.append("report_status")
-    if report.get("stage") != "V1f_route151_route_readout_overfit":
-        failures.append("report_stage")
     if report.get("claim_boundary") != claim_boundary:
         failures.append("claim_boundary")
     if report.get("objective") != objective:
@@ -1026,10 +1048,14 @@ def audit_route_readout_overfit_report(
         except (OSError, json.JSONDecodeError):
             failures.append("protocol_json")
         else:
-            if protocol.get("schema") != ROUTE_READOUT_CONFIG_SCHEMA:
+            if protocol.get("schema") != stage_spec["config_schema"]:
                 failures.append("protocol_schema")
-            if protocol.get("stage") != "V1f_route151_route_readout_overfit":
+            if protocol.get("stage") != stage:
                 failures.append("protocol_stage")
+            if protocol.get("projector", {}).get(
+                "type", "generic_mlp"
+            ) != stage_spec["projector_type"]:
+                failures.append("protocol_projector_type")
             if protocol.get("objective") != objective:
                 failures.append("protocol_objective")
             if protocol.get("training", {}).get("optimizer_steps") != 240:
@@ -1206,7 +1232,9 @@ def audit_route_readout_overfit_report(
 
     scope = report.get("scope", {})
     expected_scope = {
-        "projector_trainable_parameter_count": 1_330_734,
+        "projector_trainable_parameter_count": stage_spec[
+            "projector_parameter_count"
+        ],
         "model_trainable_parameter_count": 393_216,
         "vision_trainable_parameter_count": 0,
         "planning_expert_trainable_parameter_count": 0,
@@ -1368,10 +1396,10 @@ def audit_route_readout_overfit_report(
     protocol_valid = not failures
     causal_capacity_passed = protocol_valid and all(causal_capacity_checks.values())
     status = (
-        "causal_route_readout_plumbing_pass"
+        stage_spec["pass_status"]
         if causal_capacity_passed
         else (
-            "valid_run_without_causal_route_readout"
+            stage_spec["negative_status"]
             if protocol_valid
             else "invalid_run"
         )
@@ -1384,6 +1412,7 @@ def audit_route_readout_overfit_report(
         "protocol_valid": protocol_valid,
         "protocol_failures": failures,
         "causal_capacity_passed": causal_capacity_passed,
+        "projector_type": stage_spec["projector_type"],
         "causal_capacity_checks": causal_capacity_checks,
         "pre_training_held_out_metrics": pre_metrics,
         "post_training_held_out_metrics": post_metrics,
@@ -1405,7 +1434,10 @@ def audit_visibility_grounding_report(report_path: Path, output_path: Path) -> d
     """Dispatch to the stage-specific fail-closed grounding audit."""
 
     report = json.loads(Path(report_path).read_text(encoding="utf-8"))
-    if report.get("stage") == "V1f_route151_route_readout_overfit":
+    if report.get("stage") in {
+        "V1f_route151_route_readout_overfit",
+        "V1g_route151_typed_route_readout_overfit",
+    }:
         return audit_route_readout_overfit_report(report_path, output_path)
     if report.get("stage") == "V1e_route151_row_addressed_overfit":
         return audit_row_addressed_grounding_overfit_report(

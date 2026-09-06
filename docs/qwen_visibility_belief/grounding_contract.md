@@ -209,3 +209,19 @@ formal data generation. A replacement must make physical feature identity and
 continuous value structure explicit without predicting semantic relevance or
 driving action in the adapter. It must first rerun the held-out-order route
 gate above; only after passing may the other grounding fields be restored.
+
+### V1g typed-scalar adapter gate
+
+V1g reuses the V1f matched pairs, unseen row-order split, optimizer schedule,
+controls, and numerical gates without modification. Its sole experimental
+change is the U projector. The 23 physical fields are not normalized against
+one another. Each scalar occupies a deterministic field-specific block with
+the fixed basis `[x, x^2, sin(pi*x), cos(pi*x)]` before learned mixing and Qwen
+projection. This preserves absolute physical thresholds and exposes field
+identity without assigning semantic relevance or an action inside the adapter.
+
+The typed projector has exactly 1,367,040 trainable parameters and seven saved
+tensors; Qwen upper-layer LoRA remains 393,216 parameters. All frozen-scope,
+checkpoint, split-leakage, matched-pair, zero-U, spatial-shuffle, and claim
+boundaries from V1f remain mandatory. A different dataset, extra epoch, changed
+LoRA scope, or relaxed gate would invalidate the intended paired comparison.

@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1f matched-pair route readout is a valid negative)
+Status: in progress (V1f valid negative; V1g typed-adapter protocol pre-run)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -902,6 +902,35 @@ inspectable U consumption before any closed-loop claim.
   the modality adapter so physical field identity and scalar value structure
   are explicit while Qwen remains the semantic consumer. More V1e/V1f epochs
   are not the next step, and the Planning Expert fallback remains inactive.
+
+## V1g typed-scalar route-readout pre-run contract
+
+- V1g changes one component relative to V1f: the physical-token projector.
+  It reuses the exact immutable curriculum, training/held-out split, 240-step
+  schedule, questions, controls, LoRA scope, native camera inputs, optimizer,
+  seed, and predeclared capacity gates.
+- The rejected generic projector first applied row-wise LayerNorm across all
+  23 heterogeneous physical fields, then mixed them with one linear layer.
+  V1g applies no cross-field input normalization. Each field is deterministically
+  expanded in its own disjoint four-channel scalar block as
+  `[x, x^2, sin(pi*x), cos(pi*x)]`; only then are the typed blocks learnedly
+  mixed, hidden-normalized, and projected to Qwen's 2,560-wide space. It still
+  emits one token per physical row and uses the unchanged V0 insertion path.
+- The typed projector has 1,367,040 trainable parameters, 36,306 more than the
+  generic projector. The difference is entirely inside the modality adapter;
+  it does not add actor, route-decision, risk, or action prediction to the small
+  module. The vision encoder, base VLM, embeddings, LM head, and Planning
+  Expert remain frozen; the same 393,216 upper-layer LoRA parameters train.
+- The V1f held-out-order gate is reused verbatim: overall and per-label true-U
+  accuracy at least 90%, matched-pair correctness at least 80%, changed
+  spatial-shuffle target accuracy at least 80%, and a true-U causal gap of at
+  least 30 points. The auditor additionally verifies the typed-projector config
+  and exact trainable parameter count.
+- Passing would accept only typed route-scalar readout as a plumbing lower
+  bound and justify restoring margin/frontier/action tasks around the typed
+  adapter. Failure would leave structured VLM consumption open and motivate a
+  stronger semantically anchored or query-based adapter review; it would not
+  by itself satisfy the ADR's Planning Expert fallback condition.
 
 ## Integrity constraints
 

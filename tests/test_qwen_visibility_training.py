@@ -137,6 +137,28 @@ def test_scope_and_checkpoint_exclude_every_base_parameter():
     assert not any("base" in name for name in state["lora"])
 
 
+def test_typed_scalar_projector_preserves_field_identity_and_absolute_value():
+    vlm_module = sys.modules[package.__name__ + ".qwen_visibility_vlm"]
+    projector = vlm_module.TypedScalarVisibilityTokenProjector(23, 8, 4)
+    features = torch.zeros((2, 23), dtype=torch.float32)
+    features[0, 16] = 0.2
+    features[1, 17] = 0.2
+    basis = projector.scalar_basis(features)
+    assert basis.shape == (2, 23, 4)
+    torch.testing.assert_close(
+        basis[0, 16],
+        torch.tensor([0.2, 0.04, torch.sin(torch.tensor(torch.pi * 0.2)), torch.cos(torch.tensor(torch.pi * 0.2))]),
+    )
+    assert basis[0, 17, 0] == 0.0
+    assert basis[1, 16, 0] == 0.0
+    assert basis[1, 17, 0] == pytest.approx(0.2)
+    output = projector(features)
+    torch.testing.assert_close(output, torch.zeros_like(output))
+    full = vlm_module.TypedScalarVisibilityTokenProjector(23, 512, 2560)
+    assert sum(parameter.numel() for parameter in full.parameters()) == 1_367_040
+    assert len(full.state_dict()) == 7
+
+
 def test_non_full_attention_target_fails_closed():
     model = _Model()
     training.freeze_qwen_for_visibility_grounding(model)
