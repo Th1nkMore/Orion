@@ -6,7 +6,7 @@ Last updated: 2026-09-06 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1g valid negative; V1h explicit-slot protocol pre-run)
+Status: in progress (V1h valid negative; attention-scope probe next)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -28,7 +28,7 @@ inspectable U consumption before any closed-loop claim.
 | O2 | Observation-age memory and deterministic urgency/stopping-margin map | Complete (`c4f62543`; accepted by run `1165345`) |
 | O3 | Global/frontier tokenizer with serialization and causal zero/shuffle controls | Complete (`2d86b809`; accepted on 54-frame derived run) |
 | V0 | Insert U tokens into the 4B VLM with verified positions and disabled-path identity | Complete (`4e4672ba`; direct job `1166148`, reasoning job `1166382`) |
-| V1 | Structured U-grounding warm-up with staged LoRA | In progress (V1a/V1b accepted; V1c-V1e valid negatives) |
+| V1 | Structured U-grounding warm-up with staged LoRA | In progress (V1a/V1b accepted; V1c-V1h valid negatives) |
 | P0 | Longitudinal trajectory retiming teacher and flow-matching training path | Not started |
 | C0 | Fixed-baseline versus oracle-U Route 151 closed-loop comparison | Not started |
 | E0 | Independent predicted-depth/visibility estimator | Blocked on interpretable oracle-U consumer evidence |
@@ -992,6 +992,50 @@ inspectable U consumption before any closed-loop claim.
   LoRA while keeping this slot-typed adapter fixed. Neither outcome establishes
   full grounding, planning, or safety, and neither activates the direct
   Planning Expert fallback.
+
+## V1h remote negative result
+
+- Commit under test: `4a1f1156`; Slurm job: `1168609`; run id:
+  `qwen_visibility_grounding_v1h_route151_slot_typed_route_readout_v1`.
+- Terminal state: `COMPLETED`, exit `0:0`, elapsed `00:10:12`, peak host RSS
+  `2,513,340 KiB`. Model load took 163.14 s, preparation 32.73 s,
+  pre-training held-out generation 24.92 s, 240 optimizer steps 177.55 s, and
+  post-training evaluation 29.78 s. Peak allocated/reserved GPU memory was
+  15,638/15,976 MB; native image processing was unchanged.
+- The V1f curriculum was reused byte-for-byte at SHA-256
+  `63bb8fbe6fc929591b5e97bbd55e30a1437c309a58b507765085f00b4566d592`.
+  The fail-closed audit is protocol-valid with no integrity failures and
+  verifies the slot-typed projector's exact 1,391,616 parameters, frozen model
+  boundary, held-out split, pair structure, schedule, controls, updates, and
+  checkpoint scope.
+- Pre-training true-U accuracy was `0/20`. Post-training true-U accuracy is
+  `19/20`: `OFF_ROUTE 10/10` and `ON_ROUTE 9/10`. Nine of ten held-out matched
+  pairs are jointly correct, and the true-U gap over the stronger control is
+  40 percentage points. These four gates pass.
+- The remaining predeclared gate fails: spatial-shuffle changed-target
+  accuracy is `9/20` (45%). The shuffled arm emits `OFF_ROUTE` on 19/20
+  examples, even though its targets are balanced 10/10, and changes its answer
+  relative to true U on only 8/20 examples. Status is therefore
+  `valid_run_without_causal_slot_typed_route_readout`; high true-U accuracy may
+  not be promoted to causal readout acceptance.
+- The optimization path is active. First/last-step loss is 6.56275 to 0.000152;
+  first/last 30-step mean loss is 0.82809 to 0.04764. Projector and LoRA
+  gradient and update norms are finite and nonzero on all 240 steps.
+- The adaptation checkpoint is 7,150,389 bytes with SHA-256
+  `1f99aa21fdd715b1215d3401c8fa81eed4eba1539b7367a4a37681f2673c24f8`.
+  Independent `weights_only` readback verifies seven slot-typed-projector
+  tensors (1,391,616 values), sixteen LoRA tensors (393,216 values), no
+  optimizer state, and no base-model tensors. Report and audit SHA-256 are
+  respectively
+  `30c337055aea39e54582bb101270481d4e287755fa2c90f35c86d6933061c654`
+  and `58232a5ad69a814bb8c05f8891f41a639cfe331c85f3e89e225a7651f80ce5ea`.
+- Relative to the otherwise identical V1g run, explicit slot identity is a
+  material interface improvement but not sufficient for the complete causal
+  gate. The next controlled diagnostic may change only attention scope: keep
+  the slot-typed adapter, data, split, schedule, optimizer, seed, questions,
+  and gates fixed while expanding LoRA from `[27, 31]` to all eight released
+  full-attention layers `[3, 7, 11, 15, 19, 23, 27, 31]`. The Planning Expert
+  remains frozen and its fallback remains inactive.
 
 ## Integrity constraints
 

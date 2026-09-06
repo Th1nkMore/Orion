@@ -152,6 +152,14 @@ that replacing the backbone alone solves uncertainty-aware planning:
   alone. The unresolved interface gaps are explicit G/F slot identity and
   whether adapting only two of Qwen's eight full-attention layers provides
   enough reachability; those are hypotheses, not established causes.
+- V1h then changed only slot identity by appending a fixed 48-way `Gxx/Fxx`
+  code. Held-out true-U accuracy rose to 95%, both route labels passed 90%,
+  9/10 matched pairs were jointly correct, and the true-versus-control gap was
+  40 points. However, spatial-shuffle changed-target accuracy remained 45% and
+  19/20 shuffled predictions were `OFF_ROUTE`. The run is therefore a valid
+  negative rather than causal-readout acceptance. It supports explicit slot
+  identity as useful but not sufficient; attention reachability remains the
+  next isolated interface hypothesis.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
@@ -292,7 +300,7 @@ The next work is intentionally oracle-first:
 1. Generate oracle 3D visibility from CARLA depth and calibration.
 2. Collapse it to the accepted 2.5D BEV schema and render it for inspection.
 3. Produce global and frontier tokens and inject them into the 4B VLM.
-4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1g
+4. Verify structured U grounding with the Planning Expert frozen. The V1c-V1h
    bounded probes are valid negatives, so this step remains open.
 5. Train a longitudinal-only trajectory response using paired robust targets.
 6. Run one fixed baseline and one otherwise identical oracle-U Route 151 arm.

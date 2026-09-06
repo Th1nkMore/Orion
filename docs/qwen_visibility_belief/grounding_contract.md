@@ -251,3 +251,13 @@ The immutable V1f curriculum and all held-out-order gates are reused without
 change. A passing result isolates slot addressing as necessary in this bounded
 probe. A valid failure permits a later attention-scope experiment only if the
 slot-typed adapter, data, seed, optimizer, and gates stay fixed.
+
+V1h is a protocol-valid negative result. True-U held-out accuracy is 95%
+(`OFF_ROUTE` 100%, `ON_ROUTE` 90%), matched-pair correctness is 90%, and the
+true-versus-control gap is 40 points. Those gates pass, but the spatial-shuffle
+arm reaches only 45% on its changed target and emits `OFF_ROUTE` for 19/20
+examples. Slot identity is therefore accepted as a useful interface feature,
+not as proof of causal readout. A V1i attention-scope probe must keep every
+other V1h contract item fixed and adapt all eight released full-attention
+layers. Until that gate passes, restoring the full frontier/margin/action
+curriculum or activating Planning Expert injection is premature.

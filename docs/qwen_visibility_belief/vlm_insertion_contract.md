@@ -126,6 +126,15 @@ semantic prediction and does not change sequence length, masks, mRoPE, cache,
 or Planning Expert input. LoRA remains restricted to layers 27 and 31 so the
 attention-reachability hypothesis is not changed in the same experiment.
 
+V1h materially improves unseen-order true-U readout to 95% and matched-pair
+correctness to 90%, but it fails the unchanged spatial-shuffle gate at 45%.
+The shuffled output collapses to `OFF_ROUTE` on 19/20 examples. This accepts
+the explicit slot code as a useful part of the interface but not the current
+consumer as causally grounded. The next isolated probe retains this exact
+adapter and expands LoRA from layers `[27, 31]` to all full-attention layers
+`[3, 7, 11, 15, 19, 23, 27, 31]`; insertion position, token count, mRoPE,
+controls, data, and Planning Expert scope remain unchanged.
+
 V0a passed the direct-prefill contract on the provisioned full model in Slurm
 job `1166148`. V0b passed the reasoning-generation and final Planning Expert
 cache contract in job `1166382`, including exact upstream reproduction by the

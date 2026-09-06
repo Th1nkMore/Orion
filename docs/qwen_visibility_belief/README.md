@@ -1,6 +1,6 @@
 # Qwen visibility-belief research track
 
-> Status: implementation in progress; V1h explicit-slot protocol pre-run
+> Status: implementation in progress; V1h valid negative, attention-scope probe next
 > Decision date: 2026-09-06 (Asia/Shanghai)
 > Branch: `codex/qwen-drive-transition`
 

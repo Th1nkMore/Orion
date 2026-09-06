@@ -204,6 +204,18 @@ answer. Slot addressing and attention reachability must be changed or tested
 separately; their current status is an open implementation frontier, not a
 reason to move semantic interpretation into the small adapter.
 
+V1h post-decision evidence changed only the first of those two factors by
+adding a fixed `Gxx/Fxx` slot code. It reached 95% held-out true-U accuracy,
+90% matched-pair correctness, and a 40-point true-versus-control gap, but only
+45% accuracy on the spatial-shuffle arm's changed target. Explicit slot
+identity is therefore a materially useful interface feature, but the
+predeclared causal-readout gate remains failed: the model mostly emitted
+`OFF_ROUTE` for shuffled U instead of following the value moved into `F00`.
+The next permitted diagnostic isolates attention reachability by retaining the
+slot-typed adapter and immutable V1f data while expanding LoRA from the last
+two to all eight released full-attention layers. This remains a VLM-consumer
+test; the Planning Expert fallback is not activated.
+
 ### 9. Train a longitudinal response first
 
 The first safety teacher preserves a valid base trajectory's lateral path and
