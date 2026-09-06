@@ -179,6 +179,11 @@ that replacing the backbone alone solves uncertainty-aware planning:
   80% changed-target threshold is no longer a hard veto; true-U/per-label,
   matched-pair, target-row leakage, and 30-point stronger-control-gap checks
   are the V1j gates.
+- V1j completed as a protocol-valid negative: true-U target-row accuracy is
+  50% (`ON_ROUTE` 4/10, `OFF_ROUTE` 6/10), no held-out matched pair is jointly
+  correct, and the control gap is zero. The prediction is constant within each
+  frame across its ON/OFF target rows, exposing a sample/global-context
+  shortcut. V1i's 100% result does not generalize to unseen queried rows.
 
 ## 4. Current Qwen-to-Bench2Drive system
 

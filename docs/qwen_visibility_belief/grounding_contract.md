@@ -315,3 +315,12 @@ original target. Curriculum hashes, exact target-row allocation, the held-out
 frame, complete permutations, schedule balance, train/evaluation leakage,
 trainable scope, gradients, and adaptation-only checkpoint contents remain
 fail-closed protocol checks.
+
+V1j is a protocol-valid negative result. True-U accuracy is 10/20, with
+`ON_ROUTE` at 4/10 and `OFF_ROUTE` at 6/10; matched-pair correctness is 0/10
+and the true-versus-stronger-control gap is zero. The answer stays constant
+within each frame when the queried F00 row swaps between ON and OFF. This
+rejects the current route-readout recipe as local target-row grounding even
+under oracle U. It does not establish that the 4B VLM can never consume U, but
+the current structured-grounding prerequisite for trajectory training and the
+Planning Expert fallback has not been met.

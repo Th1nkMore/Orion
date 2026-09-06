@@ -1163,6 +1163,50 @@ inspectable U consumption before any closed-loop claim.
   paper <https://arxiv.org/abs/2606.20980>, and official dataset/code card
   <https://huggingface.co/datasets/Artificio/robusto-2>.
 
+## V1j remote negative result
+
+- Commit under test: `fbe0c72f`; Slurm job: `1168982`; run id:
+  `qwen_visibility_grounding_v1j_route151_target_row_route_readout_v1`.
+- Terminal state: `COMPLETED`, exit `0:0`, elapsed `00:10:22`, peak host RSS
+  `2,692,276 KiB`. Model load took 166.22 s, preparation 46.00 s,
+  pre-training evaluation 24.50 s, 240 optimizer steps 183.40 s, and
+  post-training evaluation 29.13 s. Peak allocated/reserved GPU memory was
+  19,269/19,786 MB; native input processing was unchanged.
+- The immutable V1j curriculum contains 13 training target pairs under three
+  orders and five evaluation target pairs under two orders, for 78/20
+  examples. `route151-step-000200` is evaluation-only. Its SHA-256 is
+  `0171a247b4c390ff9ba389a9815961c13c5937774770a1a1e02f2324414bf30e`.
+  The independent audit is protocol-valid with no failures and verifies the
+  exact split, no queried-row leakage, balanced 240-step schedule, controls,
+  frozen boundary, trainable scope, updates, and checkpoint.
+- Pre-training true-U accuracy is 0/20. Post-training true-U accuracy is 10/20:
+  `ON_ROUTE` 4/10 and `OFF_ROUTE` 6/10. No one of the ten matched pairs has
+  both answers correct, and the true-U gap over the stronger control is zero.
+  All four V1j hard gates fail. Spatial-shuffle target accuracy is reported at
+  10/20 but is not a hard gate. Status is
+  `valid_run_without_target_row_disjoint_route_readout`.
+- The failure is structured rather than random. For true U the model emits
+  `OFF_ROUTE` for all four evaluation examples in each of steps 0, 260, and
+  280, and `ON_ROUTE` for all four examples in steps 200 and 300. It therefore
+  ignores the ON/OFF F00 swap within a frame and follows sample/global context.
+- First/last-step loss is 6.56275 to 0.18998; first/last 30-step mean loss is
+  0.92821 to 0.17751. Projector and LoRA updates are finite and nonzero on all
+  240 steps, excluding a disconnected optimizer as the explanation.
+- The adaptation checkpoint is 11,886,709 bytes with SHA-256
+  `74ae028c2f2911ed2b56e178ab3f29f7390e5ee0fd95cd3bbd7a7cba4125bd56`.
+  Independent `weights_only` readback verifies seven projector tensors
+  (1,391,616 values), 64 LoRA tensors (1,572,864 values) at layers
+  `[3, 7, 11, 15, 19, 23, 27, 31]`, no optimizer state, and no base weights.
+  Report and audit SHA-256 are respectively
+  `87ae2091b1119197c9de1c8e884c5e69721a0517aca71a4878a5f1dd9f5a20be`
+  and `4f8f363588d9e181ab3554a9924d4182370ab2483df840109c9f5db4718c1bd6`.
+- V1j invalidates V1i's apparent target-row generality. The immediate open
+  question is whether to redesign the supervision/interface so the answer is
+  extracted from one addressed token (for example an explicit query-token
+  interaction), or to stop spending on the minimal route QA probe. Moving to
+  trajectory training or direct Planning Expert injection now would bypass the
+  accepted structured-grounding prerequisite and requires a new decision.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

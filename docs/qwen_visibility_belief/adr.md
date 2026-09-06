@@ -254,6 +254,16 @@ scored against the original target. Passing establishes only bounded
 route-scalar plumbing across unseen queried rows, including one unseen frame;
 it does not establish full grounding, planning, or safety.
 
+V1j post-decision evidence is a protocol-valid negative. Held-out true-U
+accuracy is 50% (`ON_ROUTE` 4/10, `OFF_ROUTE` 6/10), matched-pair correctness
+is 0%, and the true-versus-stronger-control gap is zero. Within each frame the
+model emits the same answer for both queried rows: OFF for steps 0/260/280 and
+ON for steps 200/300. This demonstrates sample/global-context classification,
+not F00 route-scalar readout. The prior V1i result is therefore not accepted as
+target-row generalization. This failure does not by itself activate direct
+Planning Expert injection because the agreed VLM structured-grounding
+prerequisite remains unmet.
+
 ### 9. Train a longitudinal response first
 
 The first safety teacher preserves a valid base trajectory's lateral path and
