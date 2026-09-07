@@ -139,6 +139,14 @@ confirms its Qwen-facing projection and boundary embeddings remain zero. This
 passes the record-retention prerequisite only; A1 remains open until frozen
 Qwen can consume the bridge under explicit field-language supervision.
 
+A1b uses one multi-field baseline rather than an architecture sweep. It trains
+the A1a-initialized bridge and rank-32 LoRA over all eight Qwen full-attention
+layers on 560 balanced field-threshold questions. All base, vision, LM-head,
+embedding, and Planning Expert weights remain frozen. Its prompt states the
+physical meaning of every queried field; the numeric answer is not leaked in
+text. True-U accuracy must pass overall, split, and per-field gates and exceed
+a type-preserving value-zero control by at least 15 percentage points.
+
 ## Evidence ladder
 
 The allowed progression is:

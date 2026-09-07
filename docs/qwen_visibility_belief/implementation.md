@@ -1582,6 +1582,35 @@ inspectable U consumption before any closed-loop claim.
   must now train that projection against a frozen Qwen with explicit schema
   text and field-level answer supervision.
 
+## A1b field-language alignment pre-run contract
+
+- One baseline is authorized. It initializes the field-query bridge from the
+  audited A1a checkpoint, inserts its continuous record tokens after the final
+  native camera token, and trains the bridge plus rank-32 LoRA on all eight
+  released full-attention layers (`q/k/v/o`). Qwen base weights, vision,
+  embeddings, LM head, and Planning Expert remain frozen.
+- The system prompt explicitly defines G/F records and eight queried fields:
+  normalized forward/lateral center, occluded-unknown ratio, observation age,
+  route overlap, stopping-envelope overlap, maximum urgency, and normalized
+  stopping margin. No exact numeric value is written into the prompt.
+- The immutable curriculum contains one addressed threshold question per
+  route and field: 720 examples over 90 routes. The 560-step optimizer schedule
+  uses only the 70 training routes and is exactly balanced across eight fields
+  and the answers `AT_OR_ABOVE`/`BELOW`. The 10 validation and 10 held-out
+  routes contribute 160 untouched evaluation questions.
+- Native 1600 x 900 three-camera input is retained. Evaluation reports exact
+  answer accuracy for true U, type-preserving value-zero U, and spatially
+  shuffled U. Zero U preserves G/F type and slots while zeroing physical
+  values; otherwise the typed bridge would reject a structurally invalid
+  control. Shuffle remains diagnostic and is not an optimization target or
+  veto, consistent with the accepted decision.
+- Predeclared A1b evidence gate: true-U exact accuracy at least 80% overall,
+  at least 75% on each route-disjoint split, at least 60% for every queried
+  field across both evaluation splits, and at least a 15 percentage-point
+  improvement over value-zero U against the original targets. This is a
+  field-language gate only; no visual-region, planning, or safety claim is
+  permitted.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

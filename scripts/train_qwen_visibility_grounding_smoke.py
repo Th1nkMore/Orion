@@ -42,6 +42,10 @@ ROUTE_DIVERSE_ROUTE_READOUT_CONFIG_SCHEMA = (
 ROUTE_DIVERSE_CURRICULUM_SCHEMA = (
     "orion.qwen-visibility-route-diverse-curriculum/v1"
 )
+FIELD_LANGUAGE_CONFIG_SCHEMA = "orion.qwen-visibility-field-language-config/v1"
+FIELD_LANGUAGE_CURRICULUM_SCHEMA = (
+    "orion.qwen-visibility-field-language-curriculum/v1"
+)
 REPORT_SCHEMA = "orion.qwen-visibility-grounding-smoke-report/v1"
 
 
@@ -122,6 +126,7 @@ def _load_protocol(path):
             ROUTE_DIVERSE_ROUTE_READOUT_CONFIG_SCHEMA,
             "V1k_route_diverse_random_row_route_readout_baseline",
         ),
+        (FIELD_LANGUAGE_CONFIG_SCHEMA, "A1b_field_language_alignment"),
     }:
         raise ValueError("unexpected grounding training config schema/stage")
     training = protocol["training"]
@@ -292,6 +297,48 @@ def _load_protocol(path):
             raise ValueError("V1k data audit is absent or changed")
         if json.loads(audit_path.read_text(encoding="utf-8")).get("passed") is not True:
             raise ValueError("V1k data audit did not pass")
+    if stage == "A1b_field_language_alignment":
+        if int(training["optimizer_steps"]) != 560:
+            raise ValueError("A1b requires exactly 560 balanced optimizer steps")
+        if protocol.get("objective") != {
+            "type": "field_threshold_readout",
+            "fields": [
+                "center_x_normalized",
+                "center_y_normalized",
+                "occluded_unknown_height_ratio",
+                "observation_age_normalized",
+                "route_weight_mean",
+                "stopping_weight_mean",
+                "urgency_max",
+                "frontier_stopping_margin_normalized",
+            ],
+        }:
+            raise ValueError("A1b field objective changed")
+        if protocol.get("projector") != {
+            "type": "field_query",
+            "feature_dim": 23,
+            "hidden_dim": 256,
+            "vlm_hidden_dim": 2560,
+            "attention_heads": 8,
+            "query_layers": 2,
+            "maximum_token_slots": 48,
+            "scalar_basis_dim": 4,
+        }:
+            raise ValueError("A1b field-query bridge changed")
+        if protocol.get("lora") != {
+            "layer_indices": [3, 7, 11, 15, 19, 23, 27, 31],
+            "module_names": ["q_proj", "k_proj", "v_proj", "o_proj"],
+            "rank": 32,
+            "alpha": 64.0,
+            "dropout": 0.0,
+        }:
+            raise ValueError("A1b rank-32 LoRA scope changed")
+        initialization = protocol.get("projector_initialization", {})
+        init_path = Path(str(initialization.get("path", "")))
+        if not init_path.is_file() or _sha256(init_path) != initialization.get("sha256"):
+            raise ValueError("A1b A1a checkpoint is missing or changed")
+        if protocol.get("evaluation", {}).get("split") != "route_disjoint_validation_and_held_out":
+            raise ValueError("A1b evaluation split changed")
     expected_claim_boundary = (
         {
             "bounded_route_disjoint_grounding_baseline_only": True,
@@ -299,6 +346,13 @@ def _load_protocol(path):
             "safety_claim_allowed": False,
         }
         if stage == "V1k_route_diverse_random_row_route_readout_baseline"
+        else {
+            "field_language_alignment_only": True,
+            "reportable_generalization": True,
+            "visual_alignment_claim_allowed": False,
+            "planning_or_safety_claim_allowed": False,
+        }
+        if stage == "A1b_field_language_alignment"
         else {
             "plumbing_overfit_only": True,
             "reportable_generalization": False,
@@ -434,6 +488,51 @@ def _verify_route_diverse_curriculum(path, manifest_path, records):
         {"ON_ROUTE": 120, "OFF_ROUTE": 120}
     ):
         raise ValueError("route-diverse optimizer labels changed")
+    return curriculum
+
+
+def _verify_field_language_curriculum(path, manifest_path, records):
+    curriculum = json.loads(Path(path).read_text(encoding="utf-8"))
+    if curriculum.get("schema") != FIELD_LANGUAGE_CURRICULUM_SCHEMA:
+        raise ValueError("unexpected A1b curriculum schema")
+    if Path(curriculum.get("base_manifest_path", "")).resolve() != Path(manifest_path).resolve():
+        raise ValueError("A1b curriculum manifest path changed")
+    if curriculum.get("base_manifest_sha256") != _sha256(manifest_path):
+        raise ValueError("A1b curriculum manifest hash changed")
+    examples = curriculum.get("examples", [])
+    by_id = {row.get("example_id"): row for row in examples}
+    if len(examples) != 720 or len(by_id) != 720 or None in by_id:
+        raise ValueError("A1b requires 90 routes x 8 unique field examples")
+    record_by_id = {row["sample_id"]: row for row in records}
+    if {row.get("sample_id") for row in examples} != set(record_by_id):
+        raise ValueError("A1b curriculum/manifest sample set changed")
+    fields = set(curriculum.get("fields", {}))
+    if len(fields) != 8:
+        raise ValueError("A1b requires eight field definitions")
+    for row in examples:
+        record = record_by_id[row["sample_id"]]
+        if row.get("split") != record.get("split") or row.get("task_field") not in fields:
+            raise ValueError("A1b example lineage or field changed")
+        if row.get("expected_answer") not in {"AT_OR_ABOVE", "BELOW"}:
+            raise ValueError("A1b answer vocabulary changed")
+        if row.get("control_expected_answers", {}).get("true_u") != row["expected_answer"]:
+            raise ValueError("A1b true-U target mismatch")
+        valid = int(record["valid_frontier_rows"])
+        if row.get("sequence_permutation_new_to_manifest") != list(range(valid)):
+            raise ValueError("A1b must retain the natural manifest order")
+    training_ids = set(curriculum.get("training_example_ids", []))
+    evaluation_ids = set(curriculum.get("evaluation_example_ids", []))
+    if len(training_ids) != 560 or len(evaluation_ids) != 160 or training_ids & evaluation_ids:
+        raise ValueError("A1b train/evaluation scope changed")
+    schedule = curriculum.get("training_schedule", [])
+    if len(schedule) != 560 or any(value not in training_ids for value in schedule):
+        raise ValueError("A1b optimizer schedule changed")
+    if Counter(by_id[value]["expected_answer"] for value in schedule) != Counter({"AT_OR_ABOVE": 280, "BELOW": 280}):
+        raise ValueError("A1b optimizer labels are not balanced")
+    if any(count != 70 for count in Counter(by_id[value]["task_field"] for value in schedule).values()):
+        raise ValueError("A1b optimizer fields are not balanced")
+    if not isinstance(curriculum.get("system_prompt"), str) or len(curriculum["system_prompt"]) < 500:
+        raise ValueError("A1b explicit field schema prompt is absent")
     return curriculum
 
 
@@ -821,7 +920,9 @@ def _verify_target_row_route_readout_curriculum(path, manifest_path, records):
     return curriculum
 
 
-def _load_control_tokens(record, control, sequence_permutation=None):
+def _load_control_tokens(
+    record, control, sequence_permutation=None, preserve_type_flags=False
+):
     prefixes = {
         "true_u": "visibility_tokens",
         "zero_u": "visibility_tokens_zero_u",
@@ -841,6 +942,9 @@ def _load_control_tokens(record, control, sequence_permutation=None):
     if names != tuple(_belief.VISIBILITY_TOKEN_FEATURE_NAMES):
         raise ValueError("control feature order changed")
     permutation = record["frontier_permutation_new_to_old"]
+    if control == "zero_u" and preserve_type_flags:
+        global_tokens[:, :2] = np.asarray([1.0, 0.0], dtype=np.float32)
+        frontier_tokens[:, :2] = np.asarray([0.0, 1.0], dtype=np.float32)
     frontier_tokens, frontier_mask = _grounding.permute_frontier_rows(
         frontier_tokens, frontier_mask, permutation
     )
@@ -863,6 +967,8 @@ def _build_projector(config):
         return _vlm.TypedScalarVisibilityTokenProjector(**values)
     if projector_type == "slot_typed_scalar_basis":
         return _vlm.SlotTypedScalarVisibilityTokenProjector(**values)
+    if projector_type == "field_query":
+        return _vlm.FieldQueryVisibilityTokenProjector(**values)
     raise ValueError("unsupported visibility projector type: %s" % projector_type)
 
 
@@ -911,6 +1017,9 @@ def _run_evaluations(model, projector, prepared, controls, max_new_tokens):
                 example["record"],
                 control,
                 example.get("sequence_permutation"),
+                preserve_type_flags=isinstance(
+                    projector, _vlm.FieldQueryVisibilityTokenProjector
+                ),
             )
             answer = _training.generate_visibility_grounding_answer(
                 model,
@@ -975,9 +1084,10 @@ def main():
     args.output_dir.mkdir(parents=True, exist_ok=False)
 
     protocol = _load_protocol(args.protocol)
-    route_diverse_stage = (
-        protocol["stage"] == "V1k_route_diverse_random_row_route_readout_baseline"
-    )
+    route_diverse_stage = protocol["stage"] in {
+        "V1k_route_diverse_random_row_route_readout_baseline",
+        "A1b_field_language_alignment",
+    }
     if route_diverse_stage:
         manifest_preview = json.loads(
             Path(protocol["manifest"]).read_text(encoding="utf-8")
@@ -1009,9 +1119,14 @@ def main():
             protocol["curriculum"], protocol["manifest"], records
         )
     if route_diverse_stage:
-        curriculum = _verify_route_diverse_curriculum(
-            protocol["curriculum"], protocol["manifest"], records
-        )
+        if protocol["stage"] == "A1b_field_language_alignment":
+            curriculum = _verify_field_language_curriculum(
+                protocol["curriculum"], protocol["manifest"], records
+            )
+        else:
+            curriculum = _verify_route_diverse_curriculum(
+                protocol["curriculum"], protocol["manifest"], records
+            )
     seed = int(protocol["training"]["seed"])
     random.seed(seed)
     np.random.seed(seed)
@@ -1038,6 +1153,17 @@ def main():
     installed = _training.install_upper_full_attention_lora(model, lora_config)
     projector_config = protocol["projector"]
     projector = _build_projector(projector_config).to(model.device)
+    if protocol["stage"] == "A1b_field_language_alignment":
+        initialization = torch.load(
+            protocol["projector_initialization"]["path"],
+            map_location=model.device,
+            weights_only=False,
+        )
+        if initialization.get("config") != {
+            key: value for key, value in projector_config.items() if key != "type"
+        }:
+            raise ValueError("A1a/A1b field-query config mismatch")
+        projector.load_state_dict(initialization["state_dict"], strict=True)
     scope = _training.visibility_grounding_trainable_scope(model, projector)
     if protocol["training"]["gradient_checkpointing"]:
         model.vlm.gradient_checkpointing_enable(
@@ -1057,6 +1183,7 @@ def main():
         "row_addressed_fields",
         "route_readout_pairs",
         "random_row_route_readout",
+        "field_threshold_readout",
     }:
         task_fields = []
     else:
@@ -1109,10 +1236,15 @@ def main():
         true_tokens, true_mask = _load_control_tokens(
             record, "true_u", spec["sequence_permutation"]
         )
+        system_prompt = (
+            curriculum.get("system_prompt", manifest["system_prompt"])
+            if curriculum is not None
+            else manifest["system_prompt"]
+        )
         inputs = model.processor.encode_vqa(
             record["camera_images"],
             spec["question"],
-            system=manifest["system_prompt"],
+            system=system_prompt,
             device="cpu",
         )
         inputs = {
