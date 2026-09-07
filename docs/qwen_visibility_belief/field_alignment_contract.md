@@ -132,6 +132,13 @@ all four training quantile edges are distinct; constant and zero-heavy fields
 use their literal type, exact-value, or zero/nonzero targets instead. Continuous
 regression and explicit extrapolation slices remain mandatory.
 
+A1a physical reconstruction is complete. The field-query bridge passes both
+route-disjoint evaluation splits with macro MAE below `0.016`, worst-field MAE
+below `0.039`, and exact type/slot accuracy. Independent reload audit also
+confirms its Qwen-facing projection and boundary embeddings remain zero. This
+passes the record-retention prerequisite only; A1 remains open until frozen
+Qwen can consume the bridge under explicit field-language supervision.
+
 ## Evidence ladder
 
 The allowed progression is:

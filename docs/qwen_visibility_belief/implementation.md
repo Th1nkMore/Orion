@@ -1553,6 +1553,35 @@ inspectable U consumption before any closed-loop claim.
   final visual-alignment training population. Failure may diagnose the typed
   interface; passing is required before scaling A2 projection supervision.
 
+## A1a physical field-query bridge result
+
+- Commit `83d8952c` adds the constrained field-query bridge. Each scalar is
+  represented with its field, G/F family, Gxx/Fxx slot, and four-term
+  continuous basis. One query per record cross-attends only that record's 23
+  fields. Auxiliary heads reconstruct fields and identify type/slot; there is
+  no risk, action, trajectory, or cross-scene head.
+- Slurm job `1179263`, launched from training commit `12dfe1d1`, completed with
+  exit `0:0` in `00:02:01`. It used 30 fixed epochs, 2,100 optimizer steps,
+  seed `20260907`, and 1,620,041 trainable bridge/auxiliary parameters. It did
+  not load Qwen, images, LoRA, or the Planning Expert. The Qwen output
+  projection and boundary embeddings were excluded from optimization.
+- Preregistered validation gates all passed. Validation macro MAE is
+  `0.014685`, worst-field MAE is `0.035258`, type accuracy is `100%`, and slot
+  accuracy is `100%`. Held-out macro MAE is `0.015792`, worst-field MAE is
+  `0.038952`, type accuracy is `100%`, and slot accuracy is `100%`.
+- Report SHA-256:
+  `5cfff20f0bb25215fce9376ce3c7dd0e2b73e7db8309d0362118e5021b55c4e8`.
+  Checkpoint SHA-256:
+  `d07292e1fc95414a0b6017e75eef0dc19f4a35e64dd0186eb0acaa5d05687126`.
+  Independent checkpoint reload and full 90-frame recomputation found zero
+  failures; audit SHA-256 is
+  `384834e9ab319d534604ce94e257b91b8f71932a6b8c45cb5bf2270e6b4c7831`.
+- A1a establishes only that the bounded bridge can retain and reconstruct the
+  physical record across routes. Because its Qwen-facing projection remains
+  exactly zero, it makes no language, visual, planning, or safety claim. A1b
+  must now train that projection against a frozen Qwen with explicit schema
+  text and field-level answer supervision.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

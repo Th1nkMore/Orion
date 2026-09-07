@@ -246,6 +246,12 @@ that replacing the backbone alone solves uncertainty-aware planning:
   a blanket five-quantile target because constant and zero-heavy fields would
   create artificial classes. The bounded A1 pilot will keep those fields
   explicit while choosing supervision appropriate to their actual support.
+- A1a then trained only the constrained physical bridge and its reconstruction,
+  type, and slot heads. On route-disjoint heldout records it reached macro MAE
+  `0.0158`, worst-field MAE `0.0390`, and 100% type/slot accuracy; independent
+  reload audit passed. The Qwen-facing projection remains exactly zero, so
+  this is evidence that the bridge retains fields, not that Qwen understands
+  them. A1b frozen-Qwen language alignment is the active next gate.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
