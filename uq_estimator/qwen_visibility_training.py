@@ -145,7 +145,9 @@ def install_upper_full_attention_lora(
     return tuple(installed)
 
 
-def visibility_grounding_trainable_scope(model, projector: nn.Module) -> dict:
+def visibility_grounding_trainable_scope(
+    model, projector: nn.Module, require_complete_projector: bool = True
+) -> dict:
     """Audit that no released base or Planning Expert weight can be optimized."""
 
     model_trainable = [
@@ -169,7 +171,9 @@ def visibility_grounding_trainable_scope(model, projector: nn.Module) -> dict:
         raise RuntimeError("Planning Expert must remain frozen in V1")
     if not model_trainable or not projector_trainable:
         raise RuntimeError("V1 requires both LoRA and projector trainable parameters")
-    if any(not parameter.requires_grad for parameter in projector.parameters()):
+    if require_complete_projector and any(
+        not parameter.requires_grad for parameter in projector.parameters()
+    ):
         raise RuntimeError("the complete visibility projector must be trainable")
     return {
         "schema": VISIBILITY_GROUNDING_TRAINING_SCHEMA,
@@ -180,6 +184,18 @@ def visibility_grounding_trainable_scope(model, projector: nn.Module) -> dict:
         "projector_trainable_names": [name for name, _ in projector_trainable],
         "projector_trainable_parameter_count": int(
             sum(parameter.numel() for _, parameter in projector_trainable)
+        ),
+        "projector_frozen_names": [
+            name
+            for name, parameter in projector.named_parameters()
+            if not parameter.requires_grad
+        ],
+        "projector_frozen_parameter_count": int(
+            sum(
+                parameter.numel()
+                for parameter in projector.parameters()
+                if not parameter.requires_grad
+            )
         ),
         "planning_expert_trainable_parameter_count": int(
             sum(
@@ -407,4 +423,3 @@ def adaptation_state_dict(model, projector: nn.Module) -> dict:
     if any(".base." in name or name.endswith(".weight") for name in lora_state):
         raise RuntimeError("base model tensor leaked into adaptation checkpoint")
     return {"projector": projector_state, "lora": lora_state}
-

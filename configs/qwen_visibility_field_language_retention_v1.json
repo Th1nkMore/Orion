@@ -1,0 +1,75 @@
+{
+  "schema": "orion.qwen-visibility-field-language-retention-config/v1",
+  "stage": "A1b_field_language_alignment_retention_fix",
+  "base_bridge_config": "configs/qwen_drive_b2d_agent_oracle_visibility_sft_v1.json",
+  "manifest": "/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/route_diverse_random_query_data_v1_2/manifest.json",
+  "curriculum": "/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/field_language_data_v1/curriculum.json",
+  "projector_initialization": {
+    "path": "/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/qwen_visibility_field_query_auxiliary_v1/field_query_auxiliary.pt",
+    "sha256": "d07292e1fc95414a0b6017e75eef0dc19f4a35e64dd0186eb0acaa5d05687126"
+  },
+  "projector_training_scope": "qwen_projection_and_boundaries_only",
+  "objective": {
+    "type": "field_threshold_readout",
+    "fields": [
+      "center_x_normalized",
+      "center_y_normalized",
+      "occluded_unknown_height_ratio",
+      "observation_age_normalized",
+      "route_weight_mean",
+      "stopping_weight_mean",
+      "urgency_max",
+      "frontier_stopping_margin_normalized"
+    ]
+  },
+  "projector": {
+    "type": "field_query",
+    "feature_dim": 23,
+    "hidden_dim": 256,
+    "vlm_hidden_dim": 2560,
+    "attention_heads": 8,
+    "query_layers": 2,
+    "maximum_token_slots": 48,
+    "scalar_basis_dim": 4
+  },
+  "lora": {
+    "layer_indices": [3, 7, 11, 15, 19, 23, 27, 31],
+    "module_names": ["q_proj", "k_proj", "v_proj", "o_proj"],
+    "rank": 32,
+    "alpha": 64.0,
+    "dropout": 0.0
+  },
+  "training": {
+    "optimizer_steps": 560,
+    "projector_learning_rate": 0.0001,
+    "lora_learning_rate": 0.0002,
+    "weight_decay": 0.0,
+    "maximum_gradient_norm": 1.0,
+    "projector_maximum_gradient_norm": 1.0,
+    "lora_maximum_gradient_norm": 1.0,
+    "separate_gradient_clipping": true,
+    "gradient_checkpointing": true,
+    "seed": 202609071
+  },
+  "evaluation": {
+    "max_new_tokens": 8,
+    "split": "route_disjoint_validation_and_held_out",
+    "pre_training_controls": [],
+    "controls": ["true_u", "zero_u", "spatial_shuffle"],
+    "spatial_shuffle_role": "reported_diagnostic_not_hard_gate"
+  },
+  "interpretation": {
+    "single_supervision_retention_correction": true,
+    "primary_metrics": [
+      "true-U exact accuracy by split, field, and label",
+      "true-U accuracy minus zero-U accuracy against original targets",
+      "post-language physical reconstruction retention"
+    ]
+  },
+  "claim_boundary": {
+    "field_language_alignment_only": true,
+    "reportable_generalization": true,
+    "visual_alignment_claim_allowed": false,
+    "planning_or_safety_claim_allowed": false
+  }
+}

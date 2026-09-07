@@ -43,6 +43,9 @@ ROUTE_DIVERSE_CURRICULUM_SCHEMA = (
     "orion.qwen-visibility-route-diverse-curriculum/v1"
 )
 FIELD_LANGUAGE_CONFIG_SCHEMA = "orion.qwen-visibility-field-language-config/v1"
+FIELD_LANGUAGE_RETENTION_CONFIG_SCHEMA = (
+    "orion.qwen-visibility-field-language-retention-config/v1"
+)
 FIELD_LANGUAGE_CURRICULUM_SCHEMA = (
     "orion.qwen-visibility-field-language-curriculum/v1"
 )
@@ -127,6 +130,10 @@ def _load_protocol(path):
             "V1k_route_diverse_random_row_route_readout_baseline",
         ),
         (FIELD_LANGUAGE_CONFIG_SCHEMA, "A1b_field_language_alignment"),
+        (
+            FIELD_LANGUAGE_RETENTION_CONFIG_SCHEMA,
+            "A1b_field_language_alignment_retention_fix",
+        ),
     }:
         raise ValueError("unexpected grounding training config schema/stage")
     training = protocol["training"]
@@ -297,7 +304,10 @@ def _load_protocol(path):
             raise ValueError("V1k data audit is absent or changed")
         if json.loads(audit_path.read_text(encoding="utf-8")).get("passed") is not True:
             raise ValueError("V1k data audit did not pass")
-    if stage == "A1b_field_language_alignment":
+    if stage in {
+        "A1b_field_language_alignment",
+        "A1b_field_language_alignment_retention_fix",
+    }:
         if int(training["optimizer_steps"]) != 560:
             raise ValueError("A1b requires exactly 560 balanced optimizer steps")
         if protocol.get("objective") != {
@@ -339,6 +349,15 @@ def _load_protocol(path):
             raise ValueError("A1b A1a checkpoint is missing or changed")
         if protocol.get("evaluation", {}).get("split") != "route_disjoint_validation_and_held_out":
             raise ValueError("A1b evaluation split changed")
+        expected_scope = (
+            "all_field_query_parameters"
+            if stage == "A1b_field_language_alignment"
+            else "qwen_projection_and_boundaries_only"
+        )
+        if protocol.get(
+            "projector_training_scope", "all_field_query_parameters"
+        ) != expected_scope:
+            raise ValueError("A1b projector training scope changed")
     expected_claim_boundary = (
         {
             "bounded_route_disjoint_grounding_baseline_only": True,
@@ -352,7 +371,10 @@ def _load_protocol(path):
             "visual_alignment_claim_allowed": False,
             "planning_or_safety_claim_allowed": False,
         }
-        if stage == "A1b_field_language_alignment"
+        if stage in {
+            "A1b_field_language_alignment",
+            "A1b_field_language_alignment_retention_fix",
+        }
         else {
             "plumbing_overfit_only": True,
             "reportable_generalization": False,
@@ -1087,6 +1109,7 @@ def main():
     route_diverse_stage = protocol["stage"] in {
         "V1k_route_diverse_random_row_route_readout_baseline",
         "A1b_field_language_alignment",
+        "A1b_field_language_alignment_retention_fix",
     }
     if route_diverse_stage:
         manifest_preview = json.loads(
@@ -1119,7 +1142,10 @@ def main():
             protocol["curriculum"], protocol["manifest"], records
         )
     if route_diverse_stage:
-        if protocol["stage"] == "A1b_field_language_alignment":
+        if protocol["stage"] in {
+            "A1b_field_language_alignment",
+            "A1b_field_language_alignment_retention_fix",
+        }:
             curriculum = _verify_field_language_curriculum(
                 protocol["curriculum"], protocol["manifest"], records
             )
@@ -1153,7 +1179,11 @@ def main():
     installed = _training.install_upper_full_attention_lora(model, lora_config)
     projector_config = protocol["projector"]
     projector = _build_projector(projector_config).to(model.device)
-    if protocol["stage"] == "A1b_field_language_alignment":
+    field_language_stage = protocol["stage"] in {
+        "A1b_field_language_alignment",
+        "A1b_field_language_alignment_retention_fix",
+    }
+    if field_language_stage:
         initialization = torch.load(
             protocol["projector_initialization"]["path"],
             map_location=model.device,
@@ -1164,7 +1194,19 @@ def main():
         }:
             raise ValueError("A1a/A1b field-query config mismatch")
         projector.load_state_dict(initialization["state_dict"], strict=True)
-    scope = _training.visibility_grounding_trainable_scope(model, projector)
+    if protocol["stage"] == "A1b_field_language_alignment_retention_fix":
+        for name, parameter in projector.named_parameters():
+            parameter.requires_grad_(
+                name == "boundary_embeddings"
+                or name.startswith("output_projection.")
+            )
+    scope = _training.visibility_grounding_trainable_scope(
+        model,
+        projector,
+        require_complete_projector=(
+            protocol["stage"] != "A1b_field_language_alignment_retention_fix"
+        ),
+    )
     if protocol["training"]["gradient_checkpointing"]:
         model.vlm.gradient_checkpointing_enable(
             gradient_checkpointing_kwargs={"use_reentrant": False}
@@ -1306,7 +1348,9 @@ def main():
     model.vlm.model.language_model.train()
     projector.train()
 
-    projector_parameters = list(projector.parameters())
+    projector_parameters = [
+        parameter for parameter in projector.parameters() if parameter.requires_grad
+    ]
     lora_named_parameters = [
         (name, parameter)
         for name, parameter in model.named_parameters()

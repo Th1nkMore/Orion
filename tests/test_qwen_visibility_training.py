@@ -137,6 +137,31 @@ def test_scope_and_checkpoint_exclude_every_base_parameter():
     assert not any("base" in name for name in state["lora"])
 
 
+def test_scope_can_report_a_preregistered_partially_frozen_projector():
+    model = _Model()
+    training.freeze_qwen_for_visibility_grounding(model)
+    training.install_upper_full_attention_lora(
+        model, training.VisibilityLoRAConfig()
+    )
+    vlm_module = sys.modules[package.__name__ + ".qwen_visibility_vlm"]
+    projector = vlm_module.FieldQueryVisibilityTokenProjector(4, 8, 4, 2, 1)
+    for name, parameter in projector.named_parameters():
+        parameter.requires_grad_(
+            name == "boundary_embeddings"
+            or name.startswith("output_projection.")
+        )
+    scope = training.visibility_grounding_trainable_scope(
+        model, projector, require_complete_projector=False
+    )
+    assert scope["projector_trainable_parameter_count"] > 0
+    assert scope["projector_frozen_parameter_count"] > 0
+    assert set(scope["projector_trainable_names"]) == {
+        "boundary_embeddings",
+        "output_projection.weight",
+        "output_projection.bias",
+    }
+
+
 def test_typed_scalar_projector_preserves_field_identity_and_absolute_value():
     vlm_module = sys.modules[package.__name__ + ".qwen_visibility_vlm"]
     projector = vlm_module.TypedScalarVisibilityTokenProjector(23, 8, 4)
