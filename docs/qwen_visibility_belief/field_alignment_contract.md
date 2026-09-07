@@ -147,6 +147,17 @@ physical meaning of every queried field; the numeric answer is not leaked in
 text. True-U accuracy must pass overall, split, and per-field gates and exceed
 a type-preserving value-zero control by at least 15 percentage points.
 
+A1b did not pass. The complete-projector run collapsed all evaluation controls
+to `BELOW` and also lost A1a reconstruction. A bounded retention correction
+then froze the A1a field encoder and changed only the Qwen-facing projection,
+boundary tokens, and the same rank-32 LoRA. It retained A1a essentially
+bit-for-bit but again generated `BELOW` for every true, zero, and shuffled
+example. Its true-U result is `94/160 = 58.75%`, split results are `50/80` and
+`44/80`, and the true-minus-zero gap is `0` points. This separates
+physical-record retention from language consumption: the current consumer
+path fails even when the physical representation is preserved. No A2,
+driving-task tuning, or repeat sweep is unlocked by this result.
+
 ## Evidence ladder
 
 The allowed progression is:

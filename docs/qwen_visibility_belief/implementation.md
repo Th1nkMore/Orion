@@ -1611,6 +1611,54 @@ inspectable U consumption before any closed-loop claim.
   field-language gate only; no visual-region, planning, or safety claim is
   permitted.
 
+## A1b field-language alignment result
+
+- The first A1b run (Slurm `1180205`) trained the complete A1a projector plus
+  rank-32 Qwen LoRA. Although teacher-forced training loss fell from `7.7891`
+  to `0.0411`, all 160 true-U, 160 value-zero, and 160 shuffled-U evaluation
+  generations were `BELOW`. True-U accuracy was therefore `94/160 = 58.75%`
+  and its advantage over both controls was `0` percentage points.
+- A post-run reconstruction diagnostic found that this first run had also
+  destroyed the A1a physical representation: held-out macro MAE rose from
+  `0.015792` to `0.23388` and worst-field MAE from `0.038952` to `0.75178`.
+  That run alone could not distinguish a consumer failure from upstream
+  forgetting.
+- The single supervision-retention correction froze every learned A1a
+  physical/query parameter and trained only the Qwen-facing output projection,
+  two boundary embeddings, and the identical rank-32 LoRA. It reused the
+  byte-identical 720-example curriculum and made no data, prompt, seed, step,
+  control, or acceptance-gate change. Slurm `1180222` completed `0:0` in
+  `00:19:53`; trainable counts were 663,040 projector parameters and 6,291,456
+  LoRA parameters, with vision, embeddings, LM head, base Qwen, and Planning
+  Expert frozen.
+- The correction conclusively retained A1a: validation macro/worst-field MAE
+  remained `0.014685/0.035258`, held-out remained `0.015792/0.038952`, and
+  type/slot accuracy remained `100%`. Nevertheless its language result was
+  exactly the same collapsed output: all three controls emitted `BELOW`, true-U
+  accuracy was `58.75%`, validation/held-out were `62.5%/55%`, and true minus
+  zero was `0` points. True-U accuracy for `AT_OR_ABOVE` was `0%` and for
+  `BELOW` was `100%`.
+- Per-field true-U exact counts were: center-x `9/20`, center-y `11/20`,
+  occluded-unknown ratio `10/20`, observation age `12/20`, route weight
+  `18/20`, stopping weight `11/20`, urgency `18/20`, and stopping margin
+  `5/20`. The apparent high values on route weight and urgency are label
+  prevalence under the all-`BELOW` collapse, not grounded readout.
+- The independent audit found zero integrity errors and all four preregistered
+  gates failed. Report SHA-256 is
+  `ceeab8cc16427d6c14558d4932c51964f098ef8f9f8dd5a16c0f8b99591d3c01`;
+  adaptation SHA-256 is
+  `8b80f80ba4abb5bc1bc107afc3d50bc54967a7935eff23161f24c49368d23acb`;
+  retention diagnostic SHA-256 is
+  `dde8a770748a5658e5c20241daa1f2ff041a9a24b018aeac58754900ccc5d168`;
+  independent language audit SHA-256 is
+  `77b425bd86dc3b981ecaaf5b911e2538280c330277b13725cd5db9c73e74e4cf`.
+- A1b is therefore a valid negative for the present prefix-token/LoRA
+  consumer path on route-disjoint fields. It does not show that the physical U
+  representation is absent, that Qwen cannot consume any aligned U interface,
+  or that the final occlusion-safety hypothesis is false. A2 and driving-task
+  tuning remain blocked until the next interface decision is explicit; there
+  is no automatic seed or architecture sweep.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

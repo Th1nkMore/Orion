@@ -542,6 +542,18 @@ cannot repair the missing U-identifiability failure.
 
 ## 7. Next executable vertical slice
 
+### Qwen visibility field-alignment update (2026-09-07)
+
+The A1a typed physical bridge passes route-disjoint reconstruction, but A1b
+does not establish that Qwen consumes it. The initial language run forgot the
+physical representation; a controlled correction froze that representation
+and retained its validation/held-out macro MAE at `0.014685/0.015792` with
+`100%` type/slot accuracy. Even then, true, zero, and shuffled controls all
+generated `BELOW` on every question. True-U exact accuracy was `94/160`, both
+causal gaps were zero, and all preregistered language gates failed. This is a
+valid interface-level negative, not a planning or safety result. A2 and driving
+tuning remain paused pending an explicit consumer-interface decision.
+
 **Current decision (2026-09-02):** the v15 U-to-language alignment pilot in
 Section 3.6 is the only active GPU experiment. Do not submit another training
 job while Job `1131873` is pending or running. Its all-candidate field metrics,

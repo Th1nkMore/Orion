@@ -412,6 +412,14 @@ The first experiment may be informative without completing the full research
 claim. No document may promote an oracle result, a disposable Route 151 overfit,
 or an isolated collision avoidance to a learned-U generalization result.
 
+The A1b baseline and its one retention correction are now complete. The first
+run both collapsed language output and forgot A1a. The correction preserved
+the A1a physical fields within measurement precision, but true, value-zero,
+and shuffled U still all produced `BELOW` on all 160 route-disjoint questions.
+Consequently step 4 remains open for a stronger interface decision; the
+existing prefix-token plus rank-32 LoRA path is not authorized to advance to
+A2, longitudinal tuning, Planning Expert, or closed loop.
+
 ## 10. Source documents
 
 - `docs/qwen_drive_b2d_integration_v1.md`
