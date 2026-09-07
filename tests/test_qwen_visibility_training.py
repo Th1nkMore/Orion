@@ -184,6 +184,48 @@ def test_slot_typed_projector_adds_deterministic_sequence_identity():
     assert len(full.state_dict()) == 7
 
 
+def test_field_query_projector_preserves_typed_fields_slots_and_auxiliary_heads():
+    vlm_module = sys.modules[package.__name__ + ".qwen_visibility_vlm"]
+    projector = vlm_module.FieldQueryVisibilityTokenProjector(
+        feature_dim=4,
+        hidden_dim=8,
+        vlm_hidden_dim=6,
+        attention_heads=2,
+        query_layers=2,
+    )
+    features = torch.tensor(
+        [
+            [1.0, 0.0, 0.1, 0.2],
+            [1.0, 0.0, 0.3, 0.4],
+            [0.0, 1.0, 0.5, 0.6],
+            [0.0, 1.0, 0.7, 0.8],
+        ]
+    )
+    record_types, slots = projector.identities(features)
+    assert record_types.tolist() == [0, 0, 1, 1]
+    assert slots.tolist() == [0, 1, 16, 17]
+    hidden, auxiliary = projector.encode_records(features)
+    assert hidden.shape == (4, 8)
+    assert auxiliary["field_values"].shape == (4, 4)
+    assert auxiliary["record_type_logits"].shape == (4, 2)
+    assert auxiliary["slot_logits"].shape == (4, 48)
+    output = projector(features)
+    torch.testing.assert_close(output, torch.zeros_like(output))
+    loss = (
+        auxiliary["field_values"].square().mean()
+        + auxiliary["record_type_logits"].square().mean()
+        + auxiliary["slot_logits"].square().mean()
+    )
+    loss.backward()
+    assert projector.field_embeddings.weight.grad is not None
+    assert projector.output_projection.weight.grad is None
+
+    invalid = features.clone()
+    invalid[0, :2] = 0.0
+    with pytest.raises(ValueError, match="exactly one"):
+        projector(invalid)
+
+
 def test_non_full_attention_target_fails_closed():
     model = _Model()
     training.freeze_qwen_for_visibility_grounding(model)

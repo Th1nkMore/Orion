@@ -165,6 +165,167 @@ class SlotTypedScalarVisibilityTokenProjector(
         return self.output_projection(hidden)
 
 
+class VisibilityFieldQueryBlock(nn.Module):
+    """One pre-norm cross-attention/MLP block for a physical record query."""
+
+    def __init__(self, hidden_dim: int, attention_heads: int) -> None:
+        super().__init__()
+        self.query_norm = nn.LayerNorm(hidden_dim)
+        self.field_norm = nn.LayerNorm(hidden_dim)
+        self.cross_attention = nn.MultiheadAttention(
+            hidden_dim, attention_heads, batch_first=True
+        )
+        self.mlp_norm = nn.LayerNorm(hidden_dim)
+        self.mlp = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim * 4),
+            nn.GELU(),
+            nn.Linear(hidden_dim * 4, hidden_dim),
+        )
+
+    def forward(self, query: torch.Tensor, fields: torch.Tensor) -> torch.Tensor:
+        normalized_query = self.query_norm(query)
+        attended, _ = self.cross_attention(
+            normalized_query,
+            self.field_norm(fields),
+            self.field_norm(fields),
+            need_weights=False,
+        )
+        query = query + attended
+        return query + self.mlp(self.mlp_norm(query))
+
+
+class FieldQueryVisibilityTokenProjector(nn.Module):
+    """Translate typed scalar records into Qwen tokens with inspectable heads.
+
+    Every scalar is encoded separately with field, record-family, slot, and
+    continuous-value identity. One query per valid physical record attends only
+    to that record's fields. It cannot mix scenes or directly emit risk/action.
+    """
+
+    def __init__(
+        self,
+        feature_dim: int,
+        hidden_dim: int,
+        vlm_hidden_dim: int,
+        attention_heads: int = 8,
+        query_layers: int = 2,
+        maximum_token_slots: int = 48,
+        scalar_basis_dim: int = 4,
+    ) -> None:
+        super().__init__()
+        dimensions = (
+            int(feature_dim),
+            int(hidden_dim),
+            int(vlm_hidden_dim),
+            int(attention_heads),
+            int(query_layers),
+            int(maximum_token_slots),
+        )
+        if min(dimensions) <= 0:
+            raise ValueError("field-query projector dimensions must be positive")
+        if int(scalar_basis_dim) != 4:
+            raise ValueError("field-query projector v1 requires four scalar bases")
+        if hidden_dim % attention_heads:
+            raise ValueError("hidden_dim must be divisible by attention_heads")
+        if feature_dim < 2:
+            raise ValueError("record type flags require at least two fields")
+        self.feature_dim = int(feature_dim)
+        self.hidden_dim = int(hidden_dim)
+        self.vlm_hidden_dim = int(vlm_hidden_dim)
+        self.maximum_token_slots = int(maximum_token_slots)
+        self.scalar_basis_dim = int(scalar_basis_dim)
+        self.field_embeddings = nn.Embedding(self.feature_dim, self.hidden_dim)
+        self.record_type_embeddings = nn.Embedding(2, self.hidden_dim)
+        self.slot_embeddings = nn.Embedding(self.maximum_token_slots, self.hidden_dim)
+        self.scalar_projection = nn.Linear(self.scalar_basis_dim, self.hidden_dim)
+        self.query_seed = nn.Parameter(torch.zeros(1, 1, self.hidden_dim))
+        self.blocks = nn.ModuleList(
+            VisibilityFieldQueryBlock(self.hidden_dim, int(attention_heads))
+            for _ in range(int(query_layers))
+        )
+        self.output_norm = nn.LayerNorm(self.hidden_dim)
+        self.output_projection = nn.Linear(self.hidden_dim, self.vlm_hidden_dim)
+        self.boundary_embeddings = nn.Parameter(torch.zeros(2, self.vlm_hidden_dim))
+        self.field_reconstruction_head = nn.Linear(self.hidden_dim, self.feature_dim)
+        self.record_type_head = nn.Linear(self.hidden_dim, 2)
+        self.slot_head = nn.Linear(self.hidden_dim, self.maximum_token_slots)
+        nn.init.zeros_(self.output_projection.weight)
+        nn.init.zeros_(self.output_projection.bias)
+
+    def scalar_basis(self, features: torch.Tensor) -> torch.Tensor:
+        if features.ndim != 2 or features.shape[1] != self.feature_dim:
+            raise ValueError(
+                "visibility features must have shape [N,%d]" % self.feature_dim
+            )
+        if not torch.isfinite(features).all():
+            raise ValueError("visibility features must be finite")
+        values = features.float()
+        return torch.stack(
+            (
+                values,
+                values.square(),
+                torch.sin(torch.pi * values),
+                torch.cos(torch.pi * values),
+            ),
+            dim=-1,
+        )
+
+    def identities(self, features: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """Recover explicit family and G/F-local slot ids from canonical rows."""
+
+        if features.shape[0] > self.maximum_token_slots:
+            raise ValueError("visibility token count exceeds the configured slot budget")
+        flags = features[:, :2].float()
+        valid_flags = torch.logical_and(
+            torch.isclose(flags.sum(dim=1), torch.ones_like(flags[:, 0])),
+            torch.logical_or(flags[:, 0] > 0.5, flags[:, 1] > 0.5),
+        )
+        if not bool(valid_flags.all()):
+            raise ValueError("each record requires exactly one global/frontier type flag")
+        record_types = torch.argmax(flags, dim=1)
+        global_local = torch.cumsum((record_types == 0).long(), dim=0) - 1
+        frontier_local = torch.cumsum((record_types == 1).long(), dim=0) - 1
+        if int((record_types == 0).sum().item()) > 16:
+            raise ValueError("field-query projector supports at most 16 global records")
+        if int((record_types == 1).sum().item()) > self.maximum_token_slots - 16:
+            raise ValueError("frontier records exceed the configured slot budget")
+        slots = torch.where(record_types == 0, global_local, 16 + frontier_local)
+        if bool((slots < 0).any()) or bool((slots >= self.maximum_token_slots).any()):
+            raise ValueError("derived G/F slot lies outside the configured slot budget")
+        return record_types, slots
+
+    def encode_records(self, features: torch.Tensor) -> tuple[torch.Tensor, dict]:
+        basis = self.scalar_basis(features)
+        record_types, slots = self.identities(features)
+        count = int(features.shape[0])
+        field_ids = torch.arange(self.feature_dim, device=features.device)
+        shared = (
+            self.record_type_embeddings(record_types)
+            + self.slot_embeddings(slots)
+        )
+        field_tokens = (
+            self.scalar_projection(basis)
+            + self.field_embeddings(field_ids).unsqueeze(0)
+            + shared.unsqueeze(1)
+        )
+        query = self.query_seed.expand(count, -1, -1) + shared.unsqueeze(1)
+        for block in self.blocks:
+            query = block(query, field_tokens)
+        hidden = self.output_norm(query[:, 0])
+        auxiliary = {
+            "field_values": self.field_reconstruction_head(hidden),
+            "record_type_logits": self.record_type_head(hidden),
+            "slot_logits": self.slot_head(hidden),
+            "record_type_targets": record_types,
+            "slot_targets": slots,
+        }
+        return hidden, auxiliary
+
+    def forward(self, features: torch.Tensor) -> torch.Tensor:
+        hidden, _ = self.encode_records(features)
+        return self.output_projection(hidden)
+
+
 @dataclass
 class VisibilityPrefillResult:
     """Auditable output of one official or visibility-augmented VLM prefill."""
