@@ -123,6 +123,15 @@ The exact frame count, field/bucket balance, query-transformer width/depth,
 and acceptance thresholds for A1/A2 require a no-training corpus audit before
 optimization. They must not be chosen after inspecting held-out outcomes.
 
+The first no-training audit is complete on the route-disjoint 90-frame pilot:
+70/10/10 unique train/validation/held-out routes yield 3,360/480/441 valid
+records, and all 90 frames contain usable calibration for the three native
+Qwen cameras. Training-only field distributions show that one uniform bucket
+scheme would be artificial. Five-quantile classification is used only when
+all four training quantile edges are distinct; constant and zero-heavy fields
+use their literal type, exact-value, or zero/nonzero targets instead. Continuous
+regression and explicit extrapolation slices remain mandatory.
+
 ## Evidence ladder
 
 The allowed progression is:

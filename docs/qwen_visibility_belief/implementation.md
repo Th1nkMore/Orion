@@ -1522,6 +1522,37 @@ inspectable U consumption before any closed-loop claim.
 - The next permitted step is the no-training A1 corpus audit, followed by
   dense slot/field/value alignment. Driving-task tuning remains paused.
 
+## A1 field-alignment corpus audit result
+
+- No-training audit commit `147d20b5` ran over the immutable 90-route V1k
+  corpus and passed with zero failures. Report:
+  `/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/field_alignment_corpus_audit_v1/report.json`;
+  SHA-256
+  `b0efa53b43c53c75689e76930805ae27ec10c615c4d9326cd805cf1b75de5d0b`.
+- Route separation remains exact: `70/10/10` records and unique routes for
+  train/validation/held-out, with no cross-split route overlap. Valid typed
+  record counts are `3360/480/441`; the training side contains 1,120 global
+  and 2,240 frontier records, hence 77,280 scalar field observations before
+  randomized question generation.
+- All 90 frames have finite 1600 x 900 intrinsics and `cam2ego` transforms for
+  `CAM_FRONT`, `CAM_FRONT_LEFT`, and `CAM_FRONT_RIGHT`. Therefore A2 projection
+  targets are constructible from source annotations; this audit did not yet
+  generate or validate those projections.
+- The audit records training-only quantiles for all 23 fields. A uniform
+  five-quantile loss is invalid: `depth_confidence` is constant at 1.0 in this
+  corpus, type flags are constant within their own record family, and several
+  sparse fields have repeated zero quantiles. These fields remain explicit
+  inputs and may receive type, exact-regression, or zero/nonzero supervision,
+  but they must not be forced into nonexistent balanced buckets.
+- Validation/held-out values are almost entirely inside the training range.
+  The small exceptions are explicitly recorded (one pooled
+  `route_weight_mean`; frontier: 24 lower `frontier_selection_score`, two upper
+  stopping margins, one upper route weight). Metrics must therefore include
+  continuous error and extrapolation slices rather than only bucket accuracy.
+- This 90-route set is approved as the bounded A1 interface pilot, not as the
+  final visual-alignment training population. Failure may diagnose the typed
+  interface; passing is required before scaling A2 projection supervision.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

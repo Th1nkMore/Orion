@@ -240,6 +240,12 @@ that replacing the backbone alone solves uncertainty-aware planning:
   calibrated camera region. A bounded query-based bridge may organize fields,
   but may not infer risk or action. Planning and closed-loop work remain paused
   until these route-disjoint alignment stages pass.
+- The A1 no-training corpus audit passed on 90 unique routes. It exposes 3,360
+  train, 480 validation, and 441 held-out valid U records; all 90 frames carry
+  valid calibration for the three native Qwen cameras. The audit also rejects
+  a blanket five-quantile target because constant and zero-heavy fields would
+  create artificial classes. The bounded A1 pilot will keep those fields
+  explicit while choosing supervision appropriate to their actual support.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
