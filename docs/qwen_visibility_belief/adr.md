@@ -25,6 +25,7 @@ that later experiments had already succeeded when the decision was made.
 | D7 | V1i can memorize repeated target rows, while spatial shuffle is physically inconsistent | Run V1j with disjoint queried target rows and one held-out frame; keep shuffle out of optimization and report it as a non-veto diagnostic | 8, V1j target-row gate |
 | D8 | A same-frame opposite-label penalty would force answers to differ even when the physical answer should agree | Reject pair-flip/equality penalties; move to route-diverse natural rows, random addressed queries, ordinary per-example supervision, and diagnostic-only controls | 8, Post-V1j supervision amendment |
 | D9 | The route-diverse V1k baseline may fail without proving whether another VLM interface or direct planner conditioning is preferable | Record the valid negative, stop automatic sweeps, and require an explicit follow-on decision | 8, Post-V1k evidence |
+| D10 | Final-answer supervision does not reveal whether the model found the row, field, value, or image region | Pause driving tuning; run a textual upper bound, then field-level U-language and U-visual alignment with a bounded query-based bridge | 8, Post-V1k alignment amendment |
 
 User acceptance closed these architectural branches. Numerical implementation
 parameters listed at the end remain open and do not have decision status. A
@@ -332,6 +333,22 @@ this consumer path. The existing Fallback section requires successful
 structured grounding followed by failed trajectory conditioning; V1k instead
 fails at structured grounding. Therefore direct Planning Expert injection is
 not silently activated and requires an explicit ADR amendment if selected.
+
+#### Post-V1k alignment amendment
+
+The accepted next path does not enlarge the final driving objective or move U
+directly into the Planning Expert. Driving-task tuning is paused. The next
+evidence ladder is a no-training textual/numeric upper bound followed by dense
+field-level U-language alignment and U-to-camera spatial alignment. The full
+input, supervision, claim boundary, and progression rules are normative in
+`field_alignment_contract.md`.
+
+The bridge may use a small Q-Former-like field-query transformer because
+cross-attention can preserve slot and field identity before producing Qwen
+tokens. It remains a physical translator, not a semantic risk or action model.
+The first post-alignment Qwen adapter candidate may increase from rank 8 to
+rank 32, but capacity expansion alone is not an admissible replacement for
+field/address/numeric/visual supervision.
 
 ### 9. Train a longitudinal response first
 

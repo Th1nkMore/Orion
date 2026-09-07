@@ -1475,6 +1475,26 @@ inspectable U consumption before any closed-loop claim.
   the one-baseline agreement, no automatic seed, epoch, or architecture sweep
   follows this result.
 
+## A0 numeric text upper-bound pre-run contract
+
+- User decision: pause driving-task tuning and first establish the textual
+  upper bound plus field-level U-language and U-visual alignment. The staged
+  contract is recorded in `field_alignment_contract.md`.
+- A0 uses the same frozen 20 V1k validation/held-out route queries. It writes
+  the exact `Fxx.route_weight_mean` value as text and compares the normalized
+  answer-token likelihood of `ON_ROUTE` and `OFF_ROUTE`; no training,
+  continuous U token, or Planning Expert is present.
+- Every query runs in two modes: text only, and the three native 1600 x 900 RGB
+  views plus identical text. This isolates Qwen's literal numeric competence
+  from distraction by its native visual context. It does not test continuous-U
+  or spatial alignment.
+- The predeclared expectation is at least 90% overall and 80% in every
+  split/label slice for both modes. Passing is an upper bound only; failure
+  blocks interpretation of another continuous-token run until the basic
+  prompt/runtime issue is understood.
+- Slurm job `1178982` was submitted from commit `0bcab7d0`; result evidence is
+  appended only after immutable output exists.
+
 ## Integrity constraints
 
 - No Torch, Qwen, Orion, or CARLA import in the geometry module.

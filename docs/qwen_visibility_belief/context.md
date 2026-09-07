@@ -228,6 +228,13 @@ that replacing the backbone alone solves uncertainty-aware planning:
   outputs remained class-balanced. The evidence therefore points to train-set
   memorization and failure of the present VLM prefix/readout interface to
   generalize across routes, not a broken optimizer or one-label collapse.
+- The accepted response is to pause driving-task tuning and isolate alignment.
+  A0 tests the literal text/numeric upper bound with and without native RGB.
+  A1 adds dense slot, field, value, threshold, comparison, reconstruction, and
+  literal-description supervision. A2 aligns each physical frontier with its
+  calibrated camera region. A bounded query-based bridge may organize fields,
+  but may not infer risk or action. Planning and closed-loop work remain paused
+  until these route-disjoint alignment stages pass.
 
 ## 4. Current Qwen-to-Bench2Drive system
 
