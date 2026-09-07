@@ -77,7 +77,11 @@ def main():
     a1b = json.loads(args.a1b_report.read_text(encoding="utf-8"))
     a1a = json.loads(args.a1a_report.read_text(encoding="utf-8"))
     checkpoint = torch.load(args.a1b_checkpoint, map_location=args.device, weights_only=False)
-    config = dict(a1b["protocol"]["projector"])
+    protocol_path = Path(a1b["protocol_path"])
+    if sha256(protocol_path) != a1b["protocol_sha256"]:
+        raise ValueError("A1b protocol changed")
+    protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
+    config = dict(protocol["projector"])
     if config.pop("type") != "field_query":
         raise ValueError("A1b did not use the field-query bridge")
     model = FieldQueryVisibilityTokenProjector(**config).to(args.device)
