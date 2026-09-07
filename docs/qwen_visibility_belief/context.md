@@ -229,7 +229,12 @@ that replacing the backbone alone solves uncertainty-aware planning:
   memorization and failure of the present VLM prefix/readout interface to
   generalize across routes, not a broken optimizer or one-label collapse.
 - The accepted response is to pause driving-task tuning and isolate alignment.
-  A0 tests the literal text/numeric upper bound with and without native RGB.
+  A0 passed: both literal text-only and native-three-camera RGB plus identical
+  text reached 20/20 on the frozen, balanced validation/held-out queries, with
+  100% agreement between modes. An independent audit rehashed all inputs and
+  recomputed all 40 rows with zero failures. This rules out a basic
+  language/numeric-threshold deficit, but is not continuous-U or visual
+  grounding evidence.
   A1 adds dense slot, field, value, threshold, comparison, reconstruction, and
   literal-description supervision. A2 aligns each physical frontier with its
   calibrated camera region. A bounded query-based bridge may organize fields,

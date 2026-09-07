@@ -35,6 +35,11 @@ at least 80% within each split/label slice for both modes. Failure blocks
 interpretation of a later soft-token result until the prompt/runtime issue is
 understood. Passing only establishes an upper bound.
 
+A0 is complete. On the frozen 20 examples, text-only and RGB-plus-text each
+scored `20/20`, with every validation/held-out and ON/OFF slice at `5/5`.
+Independent audit passed with zero failures. This activates the A1 corpus
+audit; it does not relax any later alignment or safety gate.
+
 ## A1: field-level U-language alignment
 
 The prior one-row projector mixed all 23 physical scalars into one anonymous

@@ -350,6 +350,14 @@ The first post-alignment Qwen adapter candidate may increase from rank 8 to
 rank 32, but capacity expansion alone is not an admissible replacement for
 field/address/numeric/visual supervision.
 
+A0 subsequently passed its preregistered gate on Slurm job `1178982`:
+text-only and native-three-camera RGB plus identical text each scored `20/20`,
+including `5/5` in every split/label slice, and their predictions agreed on all
+20 examples. Independent audit found zero failures. The decision implication
+is narrow: basic language/numeric competence is not the present bottleneck, so
+the project advances to A1 field alignment without reopening driving tuning.
+Continuous-U decoding, image-region grounding, and safety remain unproven.
+
 ### 9. Train a longitudinal response first
 
 The first safety teacher preserves a valid base trajectory's lateral path and

@@ -6,8 +6,8 @@ Last updated: 2026-09-07 (Asia/Shanghai)
 
 `V1: structured U-grounding warm-up with staged LoRA`
 
-Status: in progress (V1k route-diverse baseline completed as a valid negative;
-next consumer-interface choice requires a decision)
+Status: in progress (A0 numeric/language upper bound passed; A1 field-level
+alignment corpus audit is next)
 
 O2 is accepted as an interpretable representation milestone. It establishes
 ego-motion-compensated observation age and a separate route/stopping exposure
@@ -1494,6 +1494,33 @@ inspectable U consumption before any closed-loop claim.
   prompt/runtime issue is understood.
 - Slurm job `1178982` was submitted from commit `0bcab7d0`; result evidence is
   appended only after immutable output exists.
+
+## A0 numeric text upper-bound result
+
+- Slurm job `1178982` completed on `gpu6` with exit `0:0` in `00:07:55`.
+  The immutable report is
+  `/public/share/lidachuan/orion_assets/qwen_visibility_grounding_runs/qwen_visibility_numeric_text_upper_bound_v1/report.json`
+  with SHA-256
+  `b2c14bed46fc3286a0f9afc3efe1de663b27d365f986b42d06b9f1d20e15e4d8`.
+- Text-only accuracy is `20/20 = 100%`; native-three-camera RGB plus the same
+  text is also `20/20 = 100%`. Validation and held-out splits each contain five
+  `ON_ROUTE` and five `OFF_ROUTE` examples, and all four mode/split/label
+  slices are `5/5`. Prediction agreement between the two modes is `100%`.
+- Every correct target has positive answer-NLL margin; the minimum is
+  `1.26625` and the maximum is `3.19910`. Thus the result is not caused by
+  argmin ties. Evaluation took `38.67 s` after a `399.86 s` checkpoint load.
+- Independent audit commit `2a966bd4` rehashed the checkpoint, manifest,
+  curriculum, and all referenced token artifacts; recomputed every scalar,
+  threshold target, NLL argmin, margin, metric, and pass decision; and found
+  zero failures across 40 mode/example rows. Audit SHA-256 is
+  `d8199f91bf3dbf01fdc394f6e77b0e2366c91d1791347fc6fe5f84b7d421ddcc`.
+- A0 therefore passes its preregistered gate. It rules out basic inability to
+  follow the stated field semantics and numeric threshold as the explanation
+  for V1k, and shows that native RGB context does not disrupt this literal
+  task. It does **not** show that Qwen can decode continuous U tokens, locate a
+  frontier in an image, plan more safely, or improve closed-loop metrics.
+- The next permitted step is the no-training A1 corpus audit, followed by
+  dense slot/field/value alignment. Driving-task tuning remains paused.
 
 ## Integrity constraints
 
